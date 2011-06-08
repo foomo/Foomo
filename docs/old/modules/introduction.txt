@@ -1,0 +1,9 @@
+Modules contain all resources, that are necessary for a PHP application. The \
+idea is, that you have one place, that not only holds class files but \
+everything from class to image.
+
+To create a module use the web front end or the command line:
+
+<geshi type="bash">
+php r/cli/foomo.php createModule moduleName "['moduleFoo', 'moduleBar']" "an awesome module doing really great stuff"
+</geshi>

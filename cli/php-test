@@ -1,0 +1,8 @@
+#!/bin/bash
+# auto generated file from test.jan at 2011-06-06 18:51:51
+
+export FOOMO_RUN_MODE=test
+export FOOMO_CACHE_QUERYABLE='mongo::host=127.0.0.1, database=janFoomoCacheTest'
+export FOOMO_CACHE_FAST='memcache::host=127.0.0.1,port=11211,persistent=true,weight=1,timeout=1,retry_interval=15,status=true'
+
+php -d auto_prepend_file='/private/var/www/jan/modules/Foomo/bootstrap/foomo.inc.php' $*

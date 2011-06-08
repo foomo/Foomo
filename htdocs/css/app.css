@@ -1,0 +1,51 @@
+
+header {
+	
+}
+
+#menuMain ul {
+	padding:0;
+}
+#menuMain li {
+	font-size: 125%;
+	display: inline;
+	padding-right: 8px;
+}
+
+#main {
+	
+}
+
+
+
+#fullContent {
+	
+}
+
+#appContent {
+	float:left;
+	padding-left: 20px;
+}
+
+#menuSub {
+	min-width: 300px;
+	float:left;
+}
+#menuSub li {
+	list-style-type: none;
+}
+#menuSub ul {
+	padding: 0;
+}
+footer {
+	position:fixed;
+	right:0;
+	bottom:0;
+}
+
+.valid {
+	color: green;
+}
+.invalid {
+	color:red;
+}

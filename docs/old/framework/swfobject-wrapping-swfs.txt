@@ -1,0 +1,3 @@
+This is a [http://code.google.com/p/swfobject/ SWFObject] wrapper.
+<geshi type="php" file="<?= $model->getRelativeFile('samples' . DIRECTORY_SEPARATOR . 'swfObject.php') ?>">
+</geshi>

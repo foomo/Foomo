@@ -1,0 +1,52 @@
+++ General
+
+All foomo configuration is done in the config directory. All configuration files are yaml files and there is a frontend to edit them.
+
++++ An example
+
+This call:
+
+<geshi type="php">$soapClientConf = Foomo\Config::getConf('creationCore', 'soapClient', 'serviceA');
+</geshi>
+
+will result in this yaml (/path/to/config/config/currentRunMode/modules/creationCore/serviceA/soapClient.yml):
+
+<geshi type="rails">soapVersion: null
+wsdlUrl: null
+endPointUrl: null
+proxyUrl: null
+classMap:
+  SomeRemoteType: SomeLocalType
+  SomeOtherRemoteType: SomeOtherLocalType
+userAgent: null
+trace: true
+throwsSoapFault: true
+</geshi>
+
+++ Breaking configurations / Hiccups
+
+You may break configurations. That is not a bad thing, except in situations, when you broke them so much, that your system will not come up any more. There is a hiccup tool in the toolbox. Which will help you in such situations.
+
+# You broke a config - the system does not respond anymore
+# fix your config yaml manually
+# use the hiccup page in the toolbox to delete the cache of your broken config
+
+**Bookmark hiccup.php !!**
+
+++ Creating your own configurations
+
+If you want to create a configuration for a particular domain take a look at this example - a SOAP client configuration:
+
+Here are the rules / conventions:
+
+* extend RadDomainConfigBase
+* name it RadDomainConfig**Name**
+* all public properties of your configuration class will be in the corresponding yaml
+* all public properties must be convertable to yaml i.e. no resources, and use arrays instead of Objects, so that the yaml remains well editable
+ * if you need objects implement the getValue(), setValue() methods to translate from yaml arrays to your domain config
+* implement a good default
+* add functionality to your config class, which will create the objects it is supposed to configure - in this example a SOAP client
+
+
+<geshi type="php" file="<?= \Foomo\ROOT . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'RadDomainConfigSoapClient.class.php' ?>">
+</geshi>

@@ -1,0 +1,25 @@
+RadTimer is a helper class to keep an eye on performance.
+
+<geshi type="php" file="<?= $model->getRelativeFile('samples' . DIRECTORY_SEPARATOR . 'timer.php') ?>">
+</geshi>
+
+RadTimer stats example:
+
+<geshi type="text">
+RadPhpTimer 2008-01-25 15:22:01 total time 0.024000
+starting after env setup in 0.00056600570678711 ms|...0.000000
+autoloader loaded.................................|...0.002200
+settings are done.................................|...0.002500
+doctrine connection is set........................|...0.003600
+site user impl is set.............................|...0.000000
+registered session................................|...0.005900
+checked site lock.................................|...0.000100
+content object instantiaded.......................|...0.000500
+tried browser cache...............................|...0.000100
+instantiated template.............................|...0.000400
+radDoc instantiated...............................|...0.001800
+ready to render...................................|...0.001200
+radDoc rendered...................................|...0.002600
+getting info......................................|...0.002700
+session closed and written........................|...0.000400
+</geshi>

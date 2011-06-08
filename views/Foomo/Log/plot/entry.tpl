@@ -1,0 +1,1 @@
+<?php /* @var $model Foomo\Log\Plot\EntryPlotter */ $entry = $model->entry;?><?= (int) $entry->logTime ?> <?= $entry->runTime ?> <?= $entry->processingTime ?> <?= $model->color ?> <?= $model->getErrorColor() ?> "<?= addslashes($model->label) ?>" "<?= addslashes($model->entry->id) ?>" "<?= addslashes($model->entry->scriptFilename) ?>"

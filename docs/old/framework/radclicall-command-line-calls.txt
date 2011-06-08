@@ -1,0 +1,5 @@
+Usage example:
+
+<geshi type="php" file="<?= $model->getRelativeFile('samples' . DIRECTORY_SEPARATOR . 'cli.php') ?>">
+</geshi>
+

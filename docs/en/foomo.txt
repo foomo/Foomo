@@ -1,0 +1,1 @@
+Foomo is a light weight web framework. It is being developed at bestbytes and has been used in hundreds of projects starting from the year 2000.

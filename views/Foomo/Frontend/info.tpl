@@ -1,0 +1,45 @@
+<?= $view->partial('header') ?>
+<?= $view->partial('menu') ?>
+<div id="main">
+	<div id="fullContent">
+		<ul>
+			<li>
+				Enviroment
+				<?= $view->partial('foomoInfo') ?>
+			</li>
+			<li>
+				foomo constants
+				<ul>
+				<? foreach(get_defined_constants() as $k => $v):
+					if(substr($k, 0, 6) != 'Foomo\\') {
+						continue;
+					}
+				?>
+					<li><?= $view->escape($k) ?> : <?= $view->escape($v) ?></li>
+				<? endforeach; ?>
+				</ul>
+			</li>
+			<li>
+				php
+				<ul>
+					<li><?= $view->link('All', 'info', array('php', '')); ?></li>
+					<li><?= $view->link('Configuration', 'info', array('php', INFO_CONFIGURATION)); ?></li>
+					<li><?= $view->link('Variables', 'info', array('php', INFO_VARIABLES)); ?></li>
+					<li><?= $view->link('Modules', 'info', array('php', INFO_MODULES)); ?></li>
+					<li><?= $view->link('Environment', 'info', array('php', INFO_ENVIRONMENT)); ?></li>
+				</ul>
+			</li>
+			<? if(function_exists('apc_fetch')): ?>
+			<li>
+				<?= $view->link('APC', 'info', array('APC', '')); ?>
+			</li>
+			<? endif; ?>
+
+			<li>
+				<?= $view->link('Memcache', 'info', array('Memcache', '')); ?>
+			</li>
+
+		</ul>
+	</div>
+</div>
+<?= $view->partial('footer') ?>

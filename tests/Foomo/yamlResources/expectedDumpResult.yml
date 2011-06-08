@@ -1,0 +1,6 @@
+db:
+  type: mysql
+  port: 80
+smtp:
+  domain: test.com
+  haa: [0, 1, 2, 3, 4]

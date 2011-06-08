@@ -1,0 +1,35 @@
+Translating text and maintaining translations.
+
+**Important note:** translations are being cached for performance resons - you can reset the cache in the toolbox.
+
+If you take a look at the module hierarchy, you will see, how translation yamls are organized.
+
++++ A Service example
+
+<geshi type="php" file="<?= $model->getRelativeFile('samples' . DIRECTORY_SEPARATOR . 'translation' . DIRECTORY_SEPARATOR . 'service.php') ?>">
+</geshi>
+
+
+The corresponding yaml file for the services example
+
+/modulesPath/myModule/locale/en/services.yml
+
+<geshi type="php" file="<?= $model->getRelativeFile('samples' . DIRECTORY_SEPARATOR . 'translation' . DIRECTORY_SEPARATOR . 'localeSample.yml') ?>">
+</geshi>
+
++++ A MVC Example
+
+A RadMVCView will automatically look for translation resources following these conventions:
+
+* the resource file name has to be like the APP_ID of the MVC app
+* the resource file has to be in the same module as the MVC app
+
+In this example APP_ID is  myApp and the app is in myModule.
+
+<geshi type="php" file="<?= $model->getRelativeFile('samples' . DIRECTORY_SEPARATOR . 'translation' . DIRECTORY_SEPARATOR . 'mvc.php') ?>">
+</geshi>
+
+The corresponding yamls will be here:
+
+/modulesPath/myModule/locale/en/myApp.yml
+/modulesPath/myModule/locale/de/myApp.yml

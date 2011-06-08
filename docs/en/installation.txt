@@ -1,0 +1,70 @@
+++ Webserver
+
++++ Default layout
+
+|| /var/www/yourSite                                          || base folder for the virtual host                     ||
+|| /var/www/yourSite/var                                      || var dir - web server needs write access              ||
+|| /var/www/yourSite/config                                   || extract foomo                                        ||
+|| /var/www/yourSite/modules                                  || foomo modules                                        ||
+|| /var/www/yourSite/modules/Foomo/bootstrap/foomoCli.inc.php || bootstrap                                            ||
+|| /var/www/yourSite/modules/*                                || add some modules                                     ||
+
+++++ Environment variables
+
+|| FOOMO_RUN_MODE        || test | development | production ||
+|| FOOMO_CACHE_FAST      || fast cache persistor ||
+|| FOOMO_CACHE_QUERYABLE || fast cache persistor ||
+
+++++ Environment variables to manipulate the default layout
+
+Environment variables to manipulate the default layout
+
+|| FOOMO_CORE_DIR_VAR    || var    ||
+|| FOOMO_CORE_DIR_CONFIG || config ||
+
++++ Set up a virtual host
+
+<geshi type="apache">
+<VirtualHost *:80>
+
+	ServerName mysite
+
+	# environment variables
+	SetEnv FOOMO_RUN_MODE "<runMode>"
+	SetEnv FOOMO_CACHE_FAST "memcache::host=127.0.0.1,port=11211,persistent=true,weight=1,timeout=1,retry_interval=15,status=true"
+	SetEnv FOOMO_CACHE_QUERYABLE "mongo::host=127.0.0.1, database=mySiteFoomoCacheTest"
+
+	# aliases
+	Alias /foomo/modules/ /var/www/mySite/var/<runMode>/htdocs/modules/
+	Alias /foomo/modulesVar/ /var/www/mySite/var/<runMode>/htdocs/modulesVar/
+	Alias /foomo/ /var/www/mySite/modules/Foomo/htdocs/
+
+	php_admin_value "auto_prepend_file" "/var/www/mySite/modules/Foomo/bootstrap/foomo.inc.php"
+
+</VirtualHost>
+</geshi>
+
+* Reload your webserver configuration
+* use the hiccup http://mysite/foomo/hiccup.php if the system has a hiccup
+* go the toolbox http://mysity/foomo/
+* have fun
+
+++ Command line
+
+
+
+<geshi type="bash">
+modules/Foomo/cli/php-development modules/MyModule/cli/awesome.php
+</geshi>
+
+++ Required Modules
+
+* services
+
+++ Recommended Modules
+
+These modules are recommended to run the system:
+
+* testRunner
+* zugspitze
+

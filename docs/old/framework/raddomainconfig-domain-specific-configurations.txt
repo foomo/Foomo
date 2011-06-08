@@ -1,0 +1,98 @@
+All foomo configuration is done with yaml files in the config directory.
+
+* every configuration is domain specific and thus typed by its RadDomainConfig<domain> class
+* the configurations are organzied in modules, domains / types and subdomains
+
++++ Hierarchy
+
+|| config/<runMode>                                                             || run mode specific configuration directory           || @internal RadConfig::getConfigDir();                                    ||
+|| config/<runMode>/modules/<moduleName>                                        || configuration directory for module <moduleName>     ||                                                               ||
+|| config/<runMode>/modules/<moduleName>/<domain>.yml                           || a domain specific configuration for a module        || RadConfig::getConf('<moduleName>', '<domain>')                ||
+|| config/<runMode>/modules/<moduleName>/<subDomain>/<domain>.yml               || a sub domain in a module with a domain config in it || RadConfig::getConf('<moduleName>', '<domain>', '<subDomain>') ||
+
++++ Behaviour
+
+If a not existing configuration is requested by the program, the default will \
+be created and returned.
+
++++ Editing configurations
+
+++++ Configuration tab in the toolbox
+
+There is an online editor in the toolbox and a GUI to add configurations. When \
+using the toolbox the configuration cache will be handled automatically.
+
+++++ Manual editing
+
+You can edit configuration yamls directly in the filesystem with an \
+editor of your choice. If doing so, do not forget to reset the configuration \
+cache.
+
++++ Recovering from broken configurations
+
+You may break configurations. That is not a bad thing, except in situations, \
+where you broke them so much, that your system will not come up any more. For \
+that case there is a hiccup tool in the toolbox, which will help you in such \
+situations.
+
+# You broke a config - the system does not respond anymore
+# fix your config yaml manually
+# use the hiccup page in the toolbox to delete the cache of your broken config
+
+**Bookmark [<?= Foomo\Utils::getServerUrl() . \Foomo\ROOT_HTTP ?>/hiccup.php <?= \Foomo\ROOT_HTTP ?>/hiccup.php]** on your server
+
++++ Using configurations in your program
+
+<geshi type="php">
+
+// when getting configs add some phpDoc to get code completion
+/* @var $soapClientConf RadDomainConfigSoap */
+$soapClientConf = RadConfig::getConf('creationCore', 'soapClient', 'serviceA');
+
+// use the domain specific functionality to get objects from your config in
+// this case a SoapClient
+$client = $soapClientConf->getClient();
+
+</geshi>
+
+RadConfig will look for a domain specific configuration of type soapClient for \
+module creationCore in subDomain serviceA from this file:
+
+
+config/<runMode>/modules/creationCore/serviceA/soapClient.yml
+
+
+If the configuration is not present a default will be created and written to \
+the corresponding configuration file.
+
+<geshi type="rails">
+soapVersion: null
+wsdlUrl: null
+endPointUrl: null
+proxyUrl: null
+classMap:
+  SomeRemoteType: SomeLocalType
+  SomeOtherRemoteType: SomeOtherLocalType
+userAgent: null
+trace: true
+throwsSoapFault: true
+</geshi>
+
+
++++ Writing your own domain specific configuration classes
+
+If you want to create a configuration for a particular domain take a look at \
+this example - a SOAP client configuration:
+
+Here are the rules / conventions:
+
+* extend RadDomainConfigBase
+* name it RadDomainConfig<domain>
+ * If you are using namespaces you should call your class \My\Name\Space\DomainConfig e.g. and you have to define a NAME constant on it - like const NAME = 'myConfig';
+* if necessary override RadDomainConfigBase::getValue() / RadDomainConfigBase::setValue()
+* implement a good and safe default
+* add functionality to your config class, which will create the objects it is supposed to configure - in this example a SOAP client
+
+
+<geshi type="php" file="<?= \Foomo\ROOT . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'RadDomainConfigSoapClient.class.php' ?>">
+</geshi>

@@ -1,0 +1,5 @@
+++ PHP
+
+* php > 5.3.0
+
+Modules may recommend or require PEAR packages and php extensions.

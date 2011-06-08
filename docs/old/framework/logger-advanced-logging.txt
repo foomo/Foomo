@@ -1,0 +1,20 @@
+Foomo\Log\Logger gives you the tools to do simple yet powerful combined logging\
+for apache and php.
+
+
++++ Configuration
+
+you need to add this to your vhost configuration:
+
+<geshi lang="xml">
+<?= Foomo\Log\Logger::getLogFormatString() ?>
+
+CustomLog /path/to/your/root/var/<runmode>/logs/radLoggerLog.log radLoggerLog
+</geshi>
+
+A little explanation -  see also [http://httpd.apache.org/docs/2.0/mod/mod_log_config.html apache mod log config] :
+
+|| LogFormat string || log property || comment || Entry property ||
+<? foreach(Foomo\Log\Logger::getLoggingRules() as $loggingRule): ?>
+||<?= $loggingRule['conf'] ?>|| <?= isset($loggingRule['logPropName'])?$loggingRule['logPropName']:$loggingRule['entryProp'] ?> || <?= $loggingRule['comment'] ?> || <?= (!empty($loggingRule['entryProp']))?'Entry->' . $loggingRule['entryProp']:'' ?> ||
+<? endforeach; ?>
