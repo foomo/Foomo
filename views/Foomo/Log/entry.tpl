@@ -60,7 +60,7 @@ Recorded Environment:
 Errors:
 
 <? foreach($entry->phpErrors as $phpError): ?>
-<?= \Foomo\Module::getView('Foomo\\Log', 'error', $phpError)->render() ?>
+<?= \Foomo\Module::getView('Foomo\\Log\\Logger', 'error', $phpError)->render() ?>
 <? endforeach; ?>
 <? endif; ?>
 <? if(count($entry->stopwatchEntries) > 0): ?>

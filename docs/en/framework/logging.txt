@@ -1,4 +1,4 @@
-Foomo\Log\Logger gives you the tools to do simple yet powerful combined logging\
+Foomo\Log\Logger gives you the tools to do simple yet powerful combined logging \
 for apache and php.
 
 
@@ -6,10 +6,10 @@ for apache and php.
 
 you need to add this to your vhost configuration:
 
-<geshi lang="xml">
+<geshi type="apache">
 <?= Foomo\Log\Logger::getLogFormatString() ?>
 
-CustomLog /path/to/your/root/var/<runmode>/logs/radLoggerLog.log radLoggerLog
+CustomLog /path/to/your/root/var/<runmode>/logs/foomoLogger foomoLogger
 </geshi>
 
 A little explanation -  see also [http://httpd.apache.org/docs/2.0/mod/mod_log_config.html apache mod log config] :

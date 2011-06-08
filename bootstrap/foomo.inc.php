@@ -106,6 +106,7 @@ try {
 	} else {
 		Timer::addMarker('config init is done');
 		AutoLoader::getClassMap();
+		class_exists('Foomo\Log\Printer');
 		Cache\DependencyModel::getInstance()->getDirectory();
 		Timer::addMarker('class map is initialized');
 		define('Foomo\\ROOT_HTTP', Config::getConf(Module::NAME, Core\DomainConfig::NAME)->rootHttp);

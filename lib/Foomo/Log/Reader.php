@@ -170,7 +170,6 @@ class Reader implements \Iterator {
 				return $entry;
 			} else {
 				// serialization or sth like that
-				echo $rawLine;
 				return null;
 			}
 		}

@@ -334,17 +334,17 @@ class Logger {
 			$prop = !is_null($loggingRule['entryProp']) ? $loggingRule['entryProp'] : $loggingRule['logPropName'];
 			$rules[] = $prop . ': ' . $loggingRule['conf'];
 		}
-		return 'LogFormat "' . implode(Reader::LOG_DELIMITER, $rules) . '" foomoLoggerLog';
+		return 'LogFormat "' . implode(Reader::LOG_DELIMITER, $rules) . '" foomoLogger';
 	}
 
 	/**
-	 * return the file /path/to/your/root/var/<runmode>/logs/foomoLoggerLog.log
+	 * return the file /path/to/your/root/var/<runmode>/logs/foomoLogger
 	 * 
 	 * @return string 
 	 */
 	public static function getLoggerFile()
 	{
-		return \Foomo\Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger.log';
+		return \Foomo\Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
 	}
 
 }
