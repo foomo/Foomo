@@ -7,7 +7,7 @@ $doc->addOnLoad('document.getElementById(\'filterInput\').value = \'\';');
 <div id="fullContent">
 	<p>Webtail - Compose filter functions and tail the server</p>
 	<ul>
-	<? foreach($model->getFiltersProviders() as $module => $providers): ?>
+	<? foreach(\Foomo\Log\Utils::getFilterProviders() as $module => $providers): ?>
 		<li>
 			<?= $module ?>
 			<ul>

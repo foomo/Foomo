@@ -1,0 +1,173 @@
+The standard php session trades performance for ease of use, which in general \
+is good.
+
+Foomos session trades ease of use for performance. Let me explain why and how.
+
++++ Example scenario image database
+
+The best way to explain the problem is probably by example. Imagine an image \
+database with the following features:
+
+* user authorizes to browse images
+* images have to be protected from unauthorized access
+* images have to stream as fast and that means as parallel as possible
+
++++ php session implementation
+
+<geshi type="php">
+
+namespace Foomo\Examples;
+
+/**
+ * a simple image db backend
+ */
+class ImageDB {
+	private $authorizedUser = null;
+	/**
+	 * log in
+	 *
+	 * @param string $name
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function login($name, $password)
+	{
+		return ( ($this->authorizedUser = DB::load($name, $password)) instanceof User);
+	}
+	public function logout()
+	{
+		$this->authorizedUser = null;
+	}
+	/**
+	 * stream an image
+	 *
+	 * @param string $imageId
+	 *
+	 */
+	public function stream($imageId)
+	{
+		if($this->authorizedUser && DB::userHasAccess($this->authorizedUser, $imageId)) {
+			// release the session
+			session_ write_ close();
+			DB::stream($imageId);
+		}
+	}
+	public function serve()
+	{
+		if(!empty($_GET['action'])) {
+			switch($action) {
+				case 'stream':
+					if(!empty($_GET['imageId'])) {
+						return $this->stream($_GET['imageId']);
+					}
+					break;
+				case 'login':
+					// login
+					break;
+				case 'logout':
+					// logout
+					break;
+			}
+		}
+	}
+}
+
+</geshi>
+
+So that is it, lean and mean:
+
+<geshi type="php">
+
+session_start();
+// use php session
+if(!isset($_SESSION['imageDB'])) {
+	$_SESSION['imageDB'] = new $imageDB;
+}
+
+$imageDB->serve();
+
+</geshi>
+
+It will work just fine except one thing:
+
+When you start streaming images you will see one coming after the other and \
+not multiple in parallel. **The reason is the atomic character of the standard \
+php session implementation, which will lock the session for all other calls \
+in that session**.
+
++++ foomo session
+
+So in our session we 
+
+<geshi type="php">
+namespace Foomo\Examples;
+
+class DBSession {
+	public $user;
+}
+
+/**
+ * a simple image db backend
+ */
+class ImageDB {
+	/**
+	 * log in
+	 *
+	 * @param string $name
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	private function login($name, $password)
+	{
+		Session::lockAndLoad();
+		$dbSession = $this->getSession();
+		$success = ( ($dbSession->user = DB::load($name, $password)) instanceof User);
+		Session::saveAndRelease();
+		return $success;
+	}
+	private function getSession()
+	{
+		return Session::getClassInstance(__NAMESPACE__ . '\\DBSession');
+	}
+	private function logout()
+	{
+		$this->authorizedUser = null;
+	}
+	/**
+	 * stream an image
+	 *
+	 * @param string $imageId
+	 *
+	 */
+	private static function stream($imageId)
+	{
+		$dbSession = $this->getSession();
+		if($dbSession->user && DB::userHasAccess($dbSession->user, $imageId)) {
+			DB::stream($imageId);
+		}
+	}
+	public static function serve()
+	{
+		if(!empty($_GET['action'])) {
+			switch($action) {
+				case 'stream':
+					if(!empty($_GET['imageId'])) {
+						return self::stream($_GET['imageId']);
+					}
+					break;
+				case 'login':
+					// login
+					break;
+				case 'logout':
+					// logout
+					break;
+			}
+		}
+	}
+}
+
+ImageDB::serve();
+
+</geshi>

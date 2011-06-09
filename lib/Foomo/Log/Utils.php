@@ -114,5 +114,33 @@ class Utils {
 		@ob_flush();
 		flush();
 	}
+	/**
+	 * scan for log filter providers
+	 * 
+	 * @return array array('Module.Name' => array('Filter\Class\Name' => array('methodName' => 'docComment', ...)), 'Another.Module' => array(), ...)
+	 */
+	public static function getFilterProviders()
+	{
+		$classmap = \Foomo\AutoLoader::getClassMap();
+		$classes = \array_keys($classmap);
+		$providers = array();
+		foreach ($classes as $className) {
+			if (\class_exists($className)) {
+				$refl = new \ReflectionClass($className);
+				if ($refl->isSubclassOf('Foomo\\Log\\Filters\\AbstractFilterProvider')) {
+					$module = \Foomo\Modules\Manager::getClassModule($className);
+					if (!isset($providers[$module])) {
+						$providers[$module] = array();
+					}
+					$providers[$module][$refl->getName()] = array();
+					foreach ($refl->getMethods() as $methodRefl) {
+						/* @var $methodRefl \ReflectionMethod */
+						$providers[$module][$refl->getName()][$methodRefl->getName()] = $methodRefl->getDocComment();
+					}
+				}
+			}
+		}
+		return $providers;
+	}
 
 }

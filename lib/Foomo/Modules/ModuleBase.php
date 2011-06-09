@@ -47,7 +47,7 @@ abstract class ModuleBase {
 	 */
 	public static function getDescription()
 	{
-		return get_called_class() . ' is a foomo module without a name';
+		return get_called_class() . ' is a foomo module without a description';
 	}
 
 	/*
@@ -99,7 +99,7 @@ abstract class ModuleBase {
 	 * 
 	 * @return Foomo\Translation
 	 */
-	public static function getTransation($app, $localeChain)
+	public static function getTranslation($app, $localeChain)
 	{
 		// locale/Foomo/My/App/en.yml
 	}

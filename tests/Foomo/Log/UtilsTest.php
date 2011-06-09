@@ -15,4 +15,16 @@ class UtilsTest extends TestCase {
 			$this->assertEquals($sessionId, $userSession->sessionId);
 		}
 	}
+	public function testGetFilterProviders()
+	{
+		$filterProviders = Utils::getFilterProviders();
+		$keys = array_keys($filterProviders);
+		$this->assertTrue(in_array(\Foomo\Module::NAME, $keys), 'there should be a filter provider in module ' . \Foomo\Module::NAME);
+		$this->assertTrue(
+			isset($filterProviders[\Foomo\Module::NAME]) && 
+			is_array($filterProviders[\Foomo\Module::NAME]) &&
+			$filterProviders[\Foomo\Module::NAME]['Foomo\\Log\\Filters\\CommonFilters'] &&
+			$filterProviders[\Foomo\Module::NAME]['Foomo\\Log\\Filters\\CommonFilters']['allBadThings']
+		);
+	}
 }
