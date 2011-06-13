@@ -1,7 +1,5 @@
 + Foomo
 + System requirements
-+ Installation
 + Hierarchy
-+ Modules
++ Installation
 + Framework
-+ Best Practices

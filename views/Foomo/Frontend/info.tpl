@@ -4,6 +4,17 @@
 	<div id="fullContent">
 		<ul>
 			<li>
+				Session
+				<p>
+					<? if(Foomo\Session::getEnabled()): ?>
+						id   : <?= $view->escape(Foomo\Session::getSessionId()) ?><br>
+						age  : <?= Foomo\Session::getAge() ?>
+					<? else: ?>
+						not enabled
+					<? endif; ?>
+				</p>
+			</li>
+			<li>
 				Enviroment
 				<?= $view->partial('foomoInfo') ?>
 			</li>

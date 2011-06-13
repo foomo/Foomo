@@ -6,5 +6,4 @@ Frontend::setUpToolbox();
 
 header('Content-Type: text/plain');
 
-$sessionUtils = new Session\Utils();
-$sessionUtils->collectGarbage();
+Session\GC::run();

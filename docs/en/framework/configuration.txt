@@ -1,0 +1,71 @@
+Foomo configuration is about configuration objects, that are serialized to \
+yaml files in the config directory.
+
++++ Defining configurations
+
+To define a config object, you have to
+
+* create an object called DomainConfig in yor namespace
+* extend Foomo\Config\AbstractConfig
+* give the class a NAME constant
+* make sure that all properties will serialize to and from yaml
+
+and you may want to override
+
+|| getValue()                         || if your configured object is too hard to translate to an array ||
+|| setValue($value)                   || if it is really hard to populate the object from an array      ||
+|| __construct($createDefault = false)|| to make a nice default                                         ||
+
+Foomo\Session\DomainConfig
+
+<geshi type="php" file="<?= Foomo\ROOT . DIRECTORY_SEPARATOR . 'lib'. DIRECTORY_SEPARATOR . 'Foomo' . DIRECTORY_SEPARATOR . 'Session' . DIRECTORY_SEPARATOR . 'DomainConfig.php' ?>">
+</geshi>
+
++++ Configuration API
+
+Check if a configuration exists
+
+<geshi type="php">
+$confExists = Foomo\Config::confExists(
+	Foomo\Module::NAME, 
+	Foomo\Session\DomainConfig::NAME
+);
+</geshi>
+
+Get a configuration default
+
+<geshi type="php">
+
+$defaultConfig = Foomo\Config::getDefaultConfig(Foomo\Session\DomainConfig::NAME);
+
+</geshi>
+
+Resulting yaml
+
+<geshi type="rails">
+<?= Foomo\Yaml::dump(Foomo\Config::getDefaultConfig(Foomo\Session\DomainConfig::NAME)->getValue()) ?>
+</geshi>
+
+Load a configuration
+
+<geshi type="php">
+// obtaining the session config for the core module
+
+$sessionConfig = Foomo\Config::getConf(
+	Foomo\Module::NAME,
+	Foomo\Session\DomainConfig::NAME
+);
+</geshi>
+
+
++++ Breaking configurations / Hiccups
+
+You may break configurations. That is not a bad thing, except in situations, when you broke them so much, that your system will not come up any more. There is a hiccup tool in the toolbox. Which will help you in such situations.
+
+# You broke a config - the system does not respond anymore
+# fix your config yaml manually
+# use the hiccup page in the toolbox to delete the cache of your broken config
+
+**Bookmark hiccup.php !!**
+
+[<? $hiccup = Foomo\Utils::getServerUrl() . Foomo\ROOT_HTTP . '/hiccup.php'; echo $hiccup . ' ' . $hiccup ?>]

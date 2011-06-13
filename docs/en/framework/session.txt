@@ -1,173 +1,242 @@
-The standard php session trades performance for ease of use, which in general \
-is good.
+The standard php session puts an atomic lock on any php request using the \
+session. As a result all parallel requests to the server are forced into a cue \
+. This is a bad experience for the user and can lead to basically deadlocking \
+server instances as they wait to obtain their lock on the session.
 
-Foomos session trades ease of use for performance. Let me explain why and how.
+Foomos session is the result of a real world problem. We needed session access \
+when streaming media through php and even with a very early call of \
+session_commit(); we still did not get the results we wanted, because the \
+standard php session needs to get a lock across parallel requests no matter \
+what the session save handler is, since it always has to assume **write access \
+as the default**.
 
-+++ Example scenario image database
+So we wrote our own session. We assume **read access as the default**.
 
-The best way to explain the problem is probably by example. Imagine an image \
-database with the following features:
+Let us take a look at the differences:
 
-* user authorizes to browse images
-* images have to be protected from unauthorized access
-* images have to stream as fast and that means as parallel as possible
++++ php session example
 
-+++ php session implementation
+Php´s session is incredibly easy to use:
 
 <geshi type="php">
-
-namespace Foomo\Examples;
-
 /**
- * a simple image db backend
+ * just an example app
  */
-class ImageDB {
-	private $authorizedUser = null;
+class App {
 	/**
-	 * log in
+	 * An incredibly powerful ORM, that you do not want to serialize in your 
+	 * session, since serializing / unserializing would take forever
 	 *
-	 * @param string $name
-	 * @param string $name
-	 *
-	 * @return bool
+	 * @var SuperORM
 	 */
-	public function login($name, $password)
-	{
-		return ( ($this->authorizedUser = DB::load($name, $password)) instanceof User);
-	}
-	public function logout()
-	{
-		$this->authorizedUser = null;
-	}
+	private $orm;
 	/**
-	 * stream an image
-	 *
-	 * @param string $imageId
-	 *
+	 * @var User
 	 */
-	public function stream($imageId)
+	private $user;
+	private function login()
 	{
-		if($this->authorizedUser && DB::userHasAccess($this->authorizedUser, $imageId)) {
-			// release the session
-			session_ write_ close();
-			DB::stream($imageId);
+		$this->user = $this->getOrm()->loadUser();
+	}
+	public function __sleep()
+	{
+		return array('user');
+	}
+	private function getOrm()
+	{
+		if(!isset($this->orm)) {
+			$this->orm = new SuperORM;
 		}
+		return $this->orm;
 	}
-	public function serve()
+	public function foo()
 	{
-		if(!empty($_GET['action'])) {
-			switch($action) {
-				case 'stream':
-					if(!empty($_GET['imageId'])) {
-						return $this->stream($_GET['imageId']);
-					}
-					break;
-				case 'login':
-					// login
-					break;
-				case 'logout':
-					// logout
-					break;
-			}
+		return 'foo with user :: ' . $this->user->name;
+	}
+	public function run()
+	{
+		switch($action) {
+			case 'login':
+				$this->login();
+				break;
 		}
 	}
 }
-
-</geshi>
-
-So that is it, lean and mean:
-
-<geshi type="php">
 
 session_start();
-// use php session
-if(!isset($_SESSION['imageDB'])) {
-	$_SESSION['imageDB'] = new $imageDB;
+if(!isset($_SESSION['app'])) {
+	$_SESSION['app'] = new App;
 }
-
-$imageDB->serve();
-
+$app->run();
 </geshi>
 
-It will work just fine except one thing:
+In other words you write an App, put it into the session and run it.
 
-When you start streaming images you will see one coming after the other and \
-not multiple in parallel. **The reason is the atomic character of the standard \
-php session implementation, which will lock the session for all other calls \
-in that session**.
+Pros
 
-+++ foomo session
+* very easy to use
+* keeps your application non parallel
 
-So in our session we 
+Cons
+
+* (possible) session (dead)locking
+* seduces to mix session data with app objects
+* keeps your application non parallel
+
++++ foomo session introduction
+
+Foomos session is a little harder to use - a quick overview.
+
+++++ Session data
+
+Session data are always objects and Foomo\Session gives you Singleton / \
+Multiton style access
 
 <geshi type="php">
-namespace Foomo\Examples;
-
-class DBSession {
-	public $user;
-}
-
 /**
- * a simple image db backend
+ * a session object
  */
-class ImageDB {
+class User {
 	/**
-	 * log in
+	 * note, that the constructor does have any non optional parameters
 	 *
 	 * @param string $name
-	 * @param string $name
-	 *
-	 * @return bool
 	 */
-	private function login($name, $password)
-	{
-		Session::lockAndLoad();
-		$dbSession = $this->getSession();
-		$success = ( ($dbSession->user = DB::load($name, $password)) instanceof User);
-		Session::saveAndRelease();
-		return $success;
-	}
-	private function getSession()
-	{
-		return Session::getClassInstance(__NAMESPACE__ . '\\DBSession');
-	}
-	private function logout()
-	{
-		$this->authorizedUser = null;
-	}
-	/**
-	 * stream an image
-	 *
-	 * @param string $imageId
-	 *
-	 */
-	private static function stream($imageId)
-	{
-		$dbSession = $this->getSession();
-		if($dbSession->user && DB::userHasAccess($dbSession->user, $imageId)) {
-			DB::stream($imageId);
-		}
-	}
-	public static function serve()
-	{
-		if(!empty($_GET['action'])) {
-			switch($action) {
-				case 'stream':
-					if(!empty($_GET['imageId'])) {
-						return self::stream($_GET['imageId']);
-					}
-					break;
-				case 'login':
-					// login
-					break;
-				case 'logout':
-					// logout
-					break;
-			}
-		}
-	}
+	public function __construct($name = 'Mike')
+	public $name;
 }
 
-ImageDB::serve();
+// test if a class instance isset
+if(!Foomo\Session::classInstanceIsset('User')) {
+	// if not lock and load the session
+	Foomo\Session::lockAndLoad();
+
+	// one way
+	$user = new User('Hansi');
+	Foomo\Session::setClassInstance($user);
+
+	// the other
+	Foomo\Session::getClassInstance('User')->name = 'Hansi';
+}
+
+echo 
+	'hello default session user ' . 
+	Foomo\Session::getClassInstance('User')->name
+;
+</geshi>
+
+++++ Loading session data from the right scope
+
+This one works but does not use Foomo´s Session potential, since the session \
+is permanently locked:
+
+<geshi type="php">
+
+class App {
+	private $user;
+	public function login($name, $pass)
+	{
+		if($pass == 'SuperSecret') {
+			$this->user = new User($name);
+		}
+	}
+	public function getUserName()
+	{
+		return $this->user->name;
+	}
+}
+Foomo\Session::lockAndLoad();
+$app = Foomo\Session::getClassInstance('App');
+$app->login('Hansi', 'SuperSecret');
 
 </geshi>
+
+This one separates session data from the application and locks the session \
+only when necessary:
+
+<geshi type="php">
+
+class App {
+	private $user;
+	public function login($name, $pass)
+	{
+		if($pass == 'SuperSecret') {
+			// and this is the really cool part
+			Foomo\Session::lockAndLoad();
+			Foomo\Session::setClassInstance(new User($name));
+			Foomo\Session::saveAndRelease();
+		}
+	}
+	public function getUserName()
+	{
+		if(Foomo\Session::classInstanceIsset('User')) {
+			return Foomo\Session:getClassInstance('User')->name;
+		}
+	}
+}
+$app = new App;
+$app->login('Hansi', 'SuperSecret');
+
+</geshi>
+
+
++++ foomo session example
+
+<geshi type="php">
+/**
+ * just an example app
+ */
+class App {
+	/**
+	 * An incredibly powerful ORM, that you do not want to serialize in your 
+	 * session, since serializing / unserializing would take forever
+	 *
+	 * @var SuperORM
+	 */
+	private $orm;
+	private function login()
+	{
+		// lock the session and (re)load it
+		Foomo\Session::lockAndLoad();
+		Foomo\Session::setClassInstance($this->getOrm()->loadUser());
+	}
+	private function getOrm()
+	{
+		if(!isset($this->orm)) {
+			$this->orm = new SuperORM;
+		}
+		return $this->orm;
+	}
+	public function foo()
+	{
+		return 
+			'foo with user :: ' . 
+			Foomo::Session::getClassInstance('User')
+			->name;
+	}
+	public function run()
+	{
+		switch($action) {
+			case 'login':
+				$this->login();
+				break;
+		}
+	}
+}
+
+$app = new App;
+$app->run();
+
+</geshi>
+
+Cons
+
+* more abstract concept
+* more complex API
+* makes your application possibly parallel
+
+Pros
+
+* separating session data from app objects is very natural
+* no deadlocks if used right
+* makes your application possibly parallel

@@ -10,11 +10,7 @@ namespace Foomo;
  * session that provides the ability to run a (non) blocking session
  */
 class Session {
-	/**
-	 * session prefix
-	 */
-	const PREFIX = 'foomoSession';
-	const CONTENTS_POSTFIX = 'contents';
+	const DEAULT_IDENTIFIER = 'defaultInstance';
 	/**
 	 * keeps all the class instances
 	 *
@@ -28,11 +24,22 @@ class Session {
 	 */
 	private static $instance;
 	/**
+	 * @var Session\PersistorInterface
+	 * @internal
+	 */
+	public static $persistor;
+	/**
 	 * my session id
 	 *
 	 * @var string
 	 */
 	private $sessionId;
+	/**
+	 * was the session already locked
+	 * 
+	 * @var bool
+	 */
+	private $locked = false;
 	/**
 	 * hash of client informations
 	 *
@@ -65,7 +72,6 @@ class Session {
 			$this->age = 0;
 		}
 		$this->age++;
-		//trigger_error('wake up ' . $this->sessionId . ' @ age ' . $this->age);
 	}
 
 	/**
@@ -78,19 +84,78 @@ class Session {
 	 */
 	public static function getClassInstance($className, $identifier = 'defaultInstance')
 	{
-		$lowerClassName = strtolower($className);
 		$inst = self::getInstance();
-		$key = $lowerClassName . $identifier;
-		if (!isset($inst->instances[$key])) {
-			if(class_exists($className)) {
-				$inst->instances[$key] = new $className;
-			} else {
-				trigger_error('cn not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
-			}
+		$key = $inst->getInstanceKey($className, $identifier);
+		if(!class_exists($className)) {
+			trigger_error('can not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
 		}
-		return $inst->instances[$key];
+		
+		if (!isset($inst->instances[$key])) {
+			// @todo is that a good idea
+			self::lockAndLoad();
+			self::setClassInstance(new $className, $identifier);
+		}
+		if($inst->locked) {
+			return $inst->instances[$key];
+		} else {
+			return new Session\ImmutableProxy($inst->instances[$key]);
+		}
 	}
-
+	/**
+	 * set a session class instance, session must be locked
+	 * 
+	 * @param stdClass $instance
+	 * @param string $identifier 
+	 */
+	public static function setClassInstance($instance, $identifier = 'defaultInstance')
+	{
+		$inst = self::getInstance();
+		$inst->checkIsLocked();
+		if(!is_object($instance)) {
+			throw new \InvalidArgumentException('$instance has to be an object');
+		}
+		$inst->instances[$inst->getInstanceKey(get_class($instance), $identifier)] = $instance;
+	}
+	/**
+	 * remove a class instance from the session
+	 * 
+	 * @param mixed $instOrClassName
+	 * @param string $identifier 
+	 */
+	public static function unsetClassInstance($instOrClassName, $identifier = 'defaultInstance')
+	{
+		$inst = self::getInstance();
+		$inst->checkIsLocked();
+		if(is_object($instOrClassName)) {
+			$className = get_class($instOrClassName);
+		} else {
+			$className = $instOrClassName;
+		}
+		$key = $inst->getInstanceKey($className, $identifier);
+		if(isset($inst->instances[$key])) {
+			unset($inst->instances[$key]);
+		}
+	}
+	/**
+	 * is a class instance set
+	 * 
+	 * @param string $className
+	 * @param string $identifier
+	 * 
+	 * @return boolean
+	 */
+	public static function classInstanceIsset($className, $identifier = 'defaultInstance')
+	{
+		$inst = self::getInstance();
+		return isset(
+			$inst->
+			instances[$inst->getInstanceKey($className, $identifier)]
+		);
+	}
+	private function getInstanceKey($className, $identifier)
+	{
+		return $className . $identifier;
+	}
 	private function sessionIsValid(Session\DomainConfig $config)
 	{
 		// expiry
@@ -111,14 +176,17 @@ class Session {
 			$clientValid = true;
 		}
 		return $lifeTimeValid && $clientValid;
-		;
 	}
-
+	private function checkIsLocked()
+	{
+		if(!$this->locked) {
+			throw new \Exception('write access to an unlocked session');
+		}
+	}
 	private function verifyClient()
 	{
 		return $this->clientHash == self::getClientHash();
 	}
-
 	private static function getClientHash()
 	{
 		$hash = '';
@@ -127,7 +195,6 @@ class Session {
 		}
 		return $hash;
 	}
-
 	/**
 	 * get my self
 	 *
@@ -139,19 +206,9 @@ class Session {
 		if (self::$instance) {
 			return self::$instance;
 		} else {
-			if (!isset($_SESSION[__CLASS__])) {
-				trigger_error('you must set up your session before you can use it', E_USER_ERROR);
-			}
-			return $_SESSION[__CLASS__];
+			trigger_error('can not access session - is it enabled?', E_USER_ERROR);
 		}
 	}
-
-	/**
-	 * check configuration (and set up the session)
-	 *
-	 */
-	private static $id;
-
 	/**
 	 * session config for the core
 	 * 
@@ -162,64 +219,54 @@ class Session {
 		return Config::getConf(\Foomo\Module::NAME, Session\DomainConfig::NAME);
 	}
 
-	public static function init()
+	public static function init($reStart = false)
 	{
-		self::$id = 'disabled'; // rand(0,10000000000000000);
 		if (php_sapi_name() == 'cli') {
 			self::disable();
 		}
 		/* @var $conf \Foomo\Session\DomainConfig */
 		$conf = self::getConf();
-		//var_dump($conf);
+		$persistorClass = 'Foomo\\Session\\Persistence\\' . $conf->persistor;
+		if(!class_exists($persistorClass)) {
+			trigger_error('invalid persistor', E_USER_WARNING);
+			self::$persistor = new Session\Persistence\FS();
+		} else {
+			self::$persistor = new $persistorClass;
+		}
 		if (!is_null($conf) && $conf->enabled) {
-			switch ($conf->type) {
-				case'foomo':
-					register_shutdown_function(array(__CLASS__, 'foomoSessionShutDown'));
-					if (!isset($_COOKIE[$conf->name])) {
-						self::startFoomoSession($conf);
-					} else {
-						self::$instance = self::foomoLoad($_COOKIE[$conf->name]);
-						if (!self::$instance || !self::$instance->sessionIsValid($conf)) {
-							if (!self::$instance) {
-								if (!self::$disabled) {
-									// trigger_error('no inst from >' . $_COOKIE[$conf->name] . '<');
-								}
-							}
-							if (self::$instance && !self::$instance->sessionIsValid($conf)) {
-								if (!self::$disabled) {
-									trigger_error('invalid session');
-								}
-							}
-							self::startFoomoSession($conf);
-						} else {
-							// trigger_error('     >>>>>>>>>>> session woke up with ' . self::$instance->sessionId);
-							self::$instance->dirty = false;
-
-							if (false && $conf->cookieLifetimeThreshold > 0) {
-								$lifetime = ini_get('session.cookie_lifetime');
-								$diff = (self::$instance->startTime + $lifetime) - time();
-								if ($diff <= (integer) $conf->cookieLifetimeThreshold) {
-									trigger_error('------- extending session - for ' . $_COOKIE[$conf->name]);
-									// reload first
-									self::lockAndLoad();
-									self::sendCookie($conf, $_COOKIE[$conf->name]);
-									self::$instance->startTime = time();
-								}
-							}
+			register_shutdown_function(array(__CLASS__, 'foomoSessionShutDown'));
+			if (!isset($_COOKIE[$conf->name]) || $reStart) {
+				// no cookie
+				self::start($conf, $reStart);
+			} else {
+				// got a cookie
+				self::$instance = self::$persistor->load($_COOKIE[$conf->name], true);
+				if (!self::$instance || !self::$instance->sessionIsValid($conf)) {
+					if (!self::$instance) {
+						if (!self::$disabled) {
+							// trigger_error('no inst from >' . $_COOKIE[$conf->name] . '<');
 						}
 					}
-					break;
-				default:
-					session_name($conf->name);
-					session_start();
-					if (!isset($_SESSION[__CLASS__])) {
-						self::$instance = $_SESSION[__CLASS__] = new self();
-						self::$instance->type = 'php';
-						self::$instance->dirty = true;
-						self::$instance->sessionId = session_id();
-					} else {
-						self::$instance = $_SESSION[__CLASS__];
+					if (self::$instance && !self::$instance->sessionIsValid($conf)) {
+						if (!self::$disabled) {
+							trigger_error('invalid session');
+						}
 					}
+					self::start($conf);
+				} else {
+					self::$instance->dirty = false;
+					if (false && $conf->cookieLifetimeThreshold > 0) {
+						$lifetime = ini_get('session.cookie_lifetime');
+						$diff = (self::$instance->startTime + $lifetime) - time();
+						if ($diff <= (integer) $conf->cookieLifetimeThreshold) {
+							trigger_error('------- extending session - for ' . $_COOKIE[$conf->name]);
+							// reload first
+							self::lockAndLoad();
+							self::sendCookie($conf, $_COOKIE[$conf->name]);
+							self::$instance->startTime = time();
+						}
+					}
+				}
 			}
 			if (function_exists('apache_setenv')) {
 				apache_setenv('FOOMO_SESSION_ID', self::$instance->sessionId);
@@ -229,21 +276,22 @@ class Session {
 		}
 	}
 
-	private static function startFoomoSession(Session\DomainConfig $conf)
+	private static function start(Session\DomainConfig $conf, $reStart = false)
 	{
 		self::$instance = new self;
 		self::$instance->dirty = true;
-		self::$instance->type = $conf->type;
-		self::$instance->sessionId = self::foomoMakeSessionId($conf->salt, $conf->paranoiaLevel);
-		self::$instance->foomoLock();
-		self::sendCookie($conf, self::$instance->sessionId);
+		self::$instance->sessionId = self::makeSessionId($conf->salt, $conf->paranoiaLevel);
+		self::$instance->lock();
+		if(!$reStart) {
+			self::sendCookie($conf, self::$instance->sessionId);
+		}
 	}
 
 	private static function sendCookie(Session\DomainConfig $conf, $sessionId)
 	{
 
 		if (is_null($sessionId)) {
-			$sessionId = self::foomoMakeSessionId($conf->salt, $conf->paranoiaLevel);
+			$sessionId = self::makeSessionId($conf->salt, $conf->paranoiaLevel);
 		}
 		$secure = false;
 		$sendCookie = true;
@@ -268,105 +316,35 @@ class Session {
 	 *
 	 * @return string
 	 */
-	public static function foomoMakeSessionId($salt='nosaltgiven', $paranoiaLevel = 1000)
+	public static function makeSessionId($salt='nosaltgiven', $paranoiaLevel = 1000)
 	{
-		$one = microtime(); //uniqid(null, true);
+		$one = microtime();
 		$three = '';
 		for ($i = 0; $i < rand(100, 1000); $i++) {
 			$three .= rand(0, 10);
 		}
 		$two = microtime();
 		$sessionId = sha1($salt . $one . $two . $three);
-		if (!file_exists(self::foomoGetFileName($sessionId))) {
+		if (!self::$persistor->exists($sessionId)) {
 			return $sessionId;
 		} else {
 			// will this ever be called ?! ;)
-			return self::foomoMakeSessionId($salt, $paranoiaLevel);
+			// well in theory yess
+			return self::makeSessionId($salt, $paranoiaLevel);
 		}
 	}
 
-	private static $fp;
-
-	private function foomoLock()
+	private function lock()
 	{
 		if (!self::$disabled) {
-			$lockFile = self::foomoGetFileName($this->sessionId);
-			self::$fp = fopen($lockFile, 'w');
-
-			if (!flock(self::$fp, LOCK_EX)) {
-				trigger_error('--- no write lock ---' . self::$id);
-			}
+			self::$persistor->lock($this->sessionId);
 		}
 	}
-
-	private function foomoSave()
-	{
-		if (self::$fp) {
-			file_put_contents(self::foomoGetContentsFileName($this->sessionId), serialize($this));
-		} else {
-			if (!self::$disabled) {
-				trigger_error('how to write, if the is no fp', E_USER_ERROR);
-			}
-		}
-	}
-
-	private static function foomoLoad($sessionId, $reload = false)
-	{
-		$fileName = self::foomoGetFileName($sessionId);
-		$contentFileName = self::foomoGetContentsFileName($sessionId);
-		if (file_exists($fileName)) {
-			if (!self::$fp) {
-				$fp = fopen($fileName, 'w');
-				//trigger_error('--- locking read ---' . self::$id);
-				if (!flock($fp, LOCK_EX)) {
-					//trigger_error('--- locked read ---' . self::$id);
-					trigger_error('--- lock read failed !!! ---' . self::$id, E_USER_ERROR);
-				}
-				$unserialized = self::loadSessionFromFs($contentFileName);
-				fclose($fp);
-				//trigger_error('--- released read ---' . self::$id);
-			} else {
-				$unserialized = self::loadSessionFromFs($contentFileName);
-			}
-			if (!$unserialized && !$reload) {
-				if (!self::$disabled) {
-					trigger_error('--- ' . self::$id . ' WTF session file is empty ' . strlen($fileContents), E_USER_ERROR);
-				}
-			}
-			return $unserialized;
-		} else {
-			if (!self::$disabled) {
-				// trigger_error('no session file ....' . $fileName);
-			}
-			return false;
-		}
-	}
-
-	private static function loadSessionFromFs($contentFileName)
-	{
-		if (file_exists($contentFileName)) {
-			$fileContents = file_get_contents($contentFileName);
-			if (strlen($fileContents) > 0) {
-				return unserialize($fileContents);
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	public static function foomoGetFileName($sessionId)
-	{
-		$fileName = ini_get('session.save_path') . DIRECTORY_SEPARATOR . self::PREFIX . '-' . $sessionId;
-		return $fileName;
-	}
-
-	public static function foomoGetContentsFileName($sessionId)
-	{
-		return self::foomoGetFileName($sessionId) . '-' . self::CONTENTS_POSTFIX;
-	}
-
+	/**
+	 * shortcut to check if session is enabled and in that case lockAndLoad()
+	 * 
+	 * @param string $sessionId 
+	 */
 	public static function lockAndLoadIfEnabled($sessionId = null)
 	{
 		$conf = self::getConf();
@@ -387,24 +365,16 @@ class Session {
 	public static function lockAndLoad($sessionId = null)
 	{
 		if (!self::$disabled) {
-			if (self::$instance && self::$instance->type == 'foomo') {
-				if ($sessionId && self::$fp && $sessionId != self::$instance->sessionId) {
-					self::saveAndRelease();
+			if (self::$instance && !self::$instance->locked) {
+				if(is_null($sessionId)) {
+					$sessionId = self::getSessionId();
 				}
-				if (!self::$fp) {
-					self::$instance->foomoLock();
-					if ($sessionId) {
-						// force a sessionId
-						$reloaded = self::foomoLoad($sessionId, true);
-					} else {
-						$reloaded = self::foomoLoad(self::$instance->sessionId, true);
-					}
-
-					if ($reloaded) {
-						self::$instance = $reloaded;
-					}
-					self::$instance->dirty = true;
+				self::$persistor->lock($sessionId);
+				$inst = self::$persistor->load($sessionId, true);
+				if(!is_null($inst)) {
+					self::$instance = $inst;
 				}
+				self::$instance->locked = self::$instance->dirty = true;
 			} else {
 				if (!self::$instance) {
 					trigger_error('can not lock session, that was not started', E_USER_ERROR);
@@ -412,24 +382,21 @@ class Session {
 			}
 		}
 	}
-
+	/**
+	 * destroy the current session will destroy the current session data
+	 * 
+	 * @param boolean $reinit by default will restart with the current session id
+	 */
 	public static function destroy($reinit = true)
 	{
 		$inst = self::getInstance();
-		self::release();
-
-		$files = array(
-			self::foomoGetFileName($inst->sessionId),
-			self::foomoGetContentsFileName($inst->sessionId)
-		);
-		foreach ($files as $file) {
-			if (file_exists($file)) {
-				unlink($file);
-			}
-		}
+		self::$persistor->release($inst->sessionId);
+		self::$persistor->destroy($inst->sessionId);
 		self::$instance = null;
 		if ($reinit) {
-			self::init();
+			self::init($reinit);
+		} else {
+			self::disable();
 		}
 	}
 
@@ -444,16 +411,22 @@ class Session {
 			return self::$instance->age;
 		}
 	}
-
+	/**
+	 * get the sessionId, if the session is enabled
+	 * 
+	 * @return string
+	 */
 	public static function getSessionIdIfEnabled()
 	{
 		if (self::getEnabled()) {
 			return self::getSessionId();
-		} else {
-			return 'disabled';
 		}
 	}
-
+	/**
+	 * is the session enabled
+	 * 
+	 * @return boolean
+	 */
 	public static function getEnabled()
 	{
 		$conf = self::getConf();
@@ -478,20 +451,14 @@ class Session {
 		}
 	}
 
-	private static function release()
-	{
-		if (self::$fp) {
-			fclose(self::$fp);
-			self::$fp = null;
-		}
-	}
-
 	private static $disabled = false;
-
+	/**
+	 * disable the session
+	 */
 	public static function disable()
 	{
 		self::$disabled = true;
-		self::release();
+		self::$persistor->release(self::$instance->sessionId);
 	}
 
 	/**
@@ -502,18 +469,28 @@ class Session {
 	 */
 	public static function saveAndRelease()
 	{
-		if (self::$fp) {
-			self::$instance->foomoSave();
-			self::release();
+		if (self::$instance && self::$instance->locked) {
+			self::$instance->locked = false;			
+			self::$persistor->persist(
+				self::$instance->sessionId,
+				self::$instance
+			);
+			self::$persistor->release(self::$instance->sessionId);
 		}
 	}
-
+	/**
+	 * registered as a shutdown function
+	 * 
+	 * @internal
+	 */
 	public static function foomoSessionShutDown()
 	{
 		if (!self::$disabled && self::$instance && self::$instance->dirty) {
+			if(!self::$instance->locked) {
+				self::lockAndLoad();
+			}
 			self::$instance->dirty = false;
 			self::saveAndRelease();
 		}
 	}
-
 }

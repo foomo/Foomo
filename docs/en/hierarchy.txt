@@ -1,0 +1,13 @@
+Take care to organize user rights well, so that no read / write conflicts occur between cli and web usage.
+
+
+|| Path                                   || Function / Content	                                                    ||
+|| modules                                || module root                                                            ||
+|| config/<runMode>                       || config directory for run modes test | development | production         ||
+|| config/<runMode>/modules/<Module.Name> || module configuration directory                                         ||
+|| var                                    || var root                                                               ||
+|| var/<runMode>                          || data directory for run modes test | development | production           ||
+|| var/<runMode>/basicAuth                || basic authentication files                                             ||
+|| var/<runMode>/cache                    || cached files                                                           ||
+|| var/<runMode>/logs                     || logs                                                                   ||
+|| var/<runMode>/tmp                      || temp                                                                   ||

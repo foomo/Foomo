@@ -8,4 +8,8 @@ class TestMockClass {
 	{
 		$this->instanceId = self::$instanceCounter ++;
 	}
+	public function foo($a, $b)
+	{
+		return $a . $b;
+	}
 }

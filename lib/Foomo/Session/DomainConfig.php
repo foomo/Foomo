@@ -14,11 +14,7 @@ use Foomo\Config\AbstractConfig;
  */
 class DomainConfig extends AbstractConfig {
 	const NAME = 'Foomo.session';
-
 	const DEFAULT_NAME = 'foomoSession';
-	const TYPE_FOOMO = 'foomo';
-	const TYPE_PHP = 'php';
-
 	/**
 	 * enable the session or not
 	 *
@@ -32,11 +28,11 @@ class DomainConfig extends AbstractConfig {
 	 */
 	public $name = self::DEFAULT_NAME;
 	/**
-	 * php | foomo
+	 * name of the persistor
 	 * 
 	 * @var string
 	 */
-	public $type = self::TYPE_FOOMO; // 'foomo';
+	public $persistor = 'FS';
 	/**
 	 * hoch paranoid should it be 100 - 10000
 	 * 
@@ -60,13 +56,11 @@ class DomainConfig extends AbstractConfig {
 	 * @var boolean
 	 */
 	public $cookieLifetimeThreshold = 0;
-
 	public function __construct($createDefault = false)
 	{
 		if ($createDefault) {
-			$this->salt = Session::foomoMakeSessionId(md5(serialize($_SERVER) . uniqid()), rand(10000, 30000));
+			$this->salt = 'change this salt';
 			$this->paranoiaLevel = rand(100, 1000);
 		}
 	}
-
 }

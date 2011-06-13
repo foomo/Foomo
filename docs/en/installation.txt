@@ -7,7 +7,7 @@
 || /var/www/yourSite/config                                   || extract foomo                                        ||
 || /var/www/yourSite/modules                                  || foomo modules                                        ||
 || /var/www/yourSite/modules/Foomo/bootstrap/foomoCli.inc.php || bootstrap                                            ||
-|| /var/www/yourSite/modules/*                                || add some modules                                     ||
+|| /var/www/yourSite/modules                                  || add some modules                                     ||
 
 ++++ Environment variables
 
