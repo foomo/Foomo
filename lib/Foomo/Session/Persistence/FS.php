@@ -46,7 +46,7 @@ class FS implements PersistorInterface {
 			trigger_error('--- no write lock ---' . $sessionId);
 		}
 	}
-	public function load($sessionId, $reload = false)
+	public function load($sessionId)
 	{
 		$fileName = self::getFileName($sessionId);
 		$contentFileName = self::getContentsFileName($sessionId);
@@ -68,9 +68,6 @@ class FS implements PersistorInterface {
 				$unserialized = $this->loadSessionFromFs($contentFileName, true);
 			} else {
 				$unserialized = $this->loadSessionFromFs($contentFileName);
-			}
-			if ($unserialized === false && !$reload) {
-				trigger_error('--- ' . $sessionId . ' WTF session file is empty ' . strlen($fileContents), E_USER_ERROR);
 			}
 			if($unserialized !== false) {
 				return $unserialized;
@@ -157,10 +154,10 @@ class FS implements PersistorInterface {
 	 * 
 	 * @return string
 	 */
-	public function persist($sessionId, $sessionObj)
+	public function persist($sessionId, \Foomo\Session $session)
 	{
 		if ($this->fps[$sessionId]) {
-			file_put_contents(self::getContentsFileName($sessionId), serialize($sessionObj) . self::CONTENTS_EOF);
+			file_put_contents(self::getContentsFileName($sessionId), serialize($session) . self::CONTENTS_EOF);
 		} else {
 			trigger_error('how to write, if the is no fp', E_USER_ERROR);
 		}

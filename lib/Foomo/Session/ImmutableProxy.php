@@ -6,6 +6,9 @@ class ImmutableProxy {
 	private $obj;
 	public function __construct($obj)
 	{
+		if(!is_object($obj)) {
+			throw new \InvalidArgumentException('object expected for $obj');
+		}
 		$this->obj = $obj;
 	}
 	public function __set($name, $value)
@@ -14,8 +17,10 @@ class ImmutableProxy {
 	}
 	public function __get($name)
 	{
-		if(isset($this->$obj->$name)) {
-			return $this->$obj->$name;
+		if(isset($this->obj->$name)) {
+			return $this->obj->$name;
+		} else {
+			trigger_error('property ' . $name . ' does not exist on ' . get_class($this->obj), E_USER_NOTICE);
 		}
 	}
 	public function __call($name, $args)

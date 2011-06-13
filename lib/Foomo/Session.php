@@ -240,7 +240,7 @@ class Session {
 				self::start($conf, $reStart);
 			} else {
 				// got a cookie
-				self::$instance = self::$persistor->load($_COOKIE[$conf->name], true);
+				self::$instance = self::$persistor->load($_COOKIE[$conf->name]);
 				if (!self::$instance || !self::$instance->sessionIsValid($conf)) {
 					if (!self::$instance) {
 						if (!self::$disabled) {
@@ -370,7 +370,7 @@ class Session {
 					$sessionId = self::getSessionId();
 				}
 				self::$persistor->lock($sessionId);
-				$inst = self::$persistor->load($sessionId, true);
+				$inst = self::$persistor->load($sessionId);
 				if(!is_null($inst)) {
 					self::$instance = $inst;
 				}

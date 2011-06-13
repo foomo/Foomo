@@ -3,6 +3,7 @@ namespace Foomo\Session;
 
 class TestMockClass {
 	public $instanceId;
+	public $foo = 'bar';
 	public static $instanceCounter = 0;
 	public function  __construct()
 	{

@@ -85,7 +85,7 @@ class GC implements GCPrinterInterface {
 				$this->out('  ' . ($i++) . ' ' . $sessionItem->sessionId);
 			}
 
-			$this->out('Old Sessions : ');
+			$this->out('Deleting old sessions : ');
 			$i = 1;
 			foreach ($oldSessions as $sessionItem) {
 				$this->out('  ' . ($i++) . ' ' . $sessionItem->sessionId);
