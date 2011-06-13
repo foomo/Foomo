@@ -8,10 +8,10 @@ $allValid = true;
 foreach($resources as $modResource) {
 	/* @var $modResource Foomo\Modules\Resource */
 	if($modResource->resourceValid()) {
-		$modResClass = 'modResOk';
+		$modResClass = 'valid';
 	} else {
 		$allValid = false;
-		$modResClass = 'modResNotOk';
+		$modResClass = 'invalid';
 	}
 	echo '<li><pre class="'.$modResClass.'">'.htmlspecialchars($modResource->resourceStatus()).'</pre></li>';
 }

@@ -17,20 +17,78 @@ Foomo is all about modularization:
 || /htdocs/img                                                           || images                                                                                           ||
 || /htdocs/swf                                                           || flash                                                                                            ||
 || /lib                                                                  || classes are here                                                                                 ||
-|| /lib/apps                                                             || mvc apps                                                                                         ||
-|| /lib/apps/<moduleName>                                                || module app folder - this is optional                                                             ||
-|| /lib/apps/<moduleName>/RadModuleApp<moduleName>.class.php             || module app                                                                                       ||
-|| /lib/apps/<moduleName>/RadModuleApp<moduleName>Controller.class.php   || module app controller                                                                            ||
-|| /lib/apps/<moduleName>/RadModuleApp<moduleName>Model.class.php        || module app model                                                                                 ||
-|| /lib/apps/appFoo                                                      || sample app folder                                                                                ||
-|| /lib/apps/appFoo/AppFoo.php                                           || sample app extends RadMVCAppAbsract                                                              ||
-|| /lib/apps/appFoo/AppFooModel.php                                      || sample app model                                                                                 ||
-|| /lib/apps/appFoo/AppFooController.php                                 || sample app controller                                                                            ||
 || /locale                                                               || root folder for translation resources in this module                                             ||
-|| /locale/en                                                            || english translations                                                                             ||
-|| /locale/en_US                                                         || american english                                                                                 ||
 || /locale/en_US/<resourceName>.yml                                      || a translation resource yaml                                                                      ||
 || /views                                                                || views                                                                                        ||
 || /tests                                                                || PHPUnit unit tests and suites                                                                    ||
 || /vendor                                                               || 3d party / vendor libraries used in the module                                                   ||
 
++++ Creating modules
+
+Use the toolbox
+
++++ Modules dependencies and resources
+
+Use the getResources() method on your module class to define module \
+dependencies and define the need for other resources.
+
+<geshi type="php">
+
+namespace My\Thing;
+
+use Foomo\Modules\ModuleBase;
+/**
+ * Incomplete module example
+ */
+class Module extends ModuleBase {
+	/**
+	 * basically reflects you namespace separated by dots
+	 */
+	const NAME = 'My.Thing';
+	// ...
+
+	/**
+	 * get all the module resources
+	 *
+	 * @return Foomo\Modules\Resource[]
+	 */
+	public static function getResources()
+	{
+		return array(
+			// dependencies to other modules
+			\Foomo\Modules\Resource\Module::getResource(
+				'Foomo', 
+				self::VERSION
+			),
+			\Foomo\Modules\Resource\Module::getResource(
+				'Foo.Bar', 
+				self::VERSION
+			),
+
+			// get a run mode independent folder var/<runMode>/test
+			\Foomo\Modules\Resource\Fs::getVarResource(
+				\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 
+				'test'
+			),
+
+			// and a file in it
+			\Foomo\Modules\Resource\Fs::getVarResource(
+				\Foomo\Modules\Resource\Fs::TYPE_File, 
+				'test' . DIRECTORY_SEPARATOR . 'someFile'
+			),
+
+			// request a cache resource
+			\Foomo\Modules\Resource\Fs::getCacheResource(
+				\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 
+				'someCache'
+			),
+
+			// a donfig
+			\Foomo\Modules\Resource\Config::getResource(
+				self::NAME,
+				DomainConfig::NAME
+			)
+		);
+	}
+}
+</geshi>

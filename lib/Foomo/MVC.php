@@ -88,9 +88,6 @@ class MVC {
 			trigger_error($exception->getMessage());
 			$template = self::getExceptionTemplate(get_class($app));
 		}
-		if (!$template) {
-			$template = self::getMyTemplate('templateNotFound');
-		}
 		$view = new MVCView($app, $handler, $template, $exception);
 		$app->view = $view;
 		MVCView::$viewStack[] = $view;
@@ -293,7 +290,7 @@ class MVC {
 			if ($parent && !$parent->isAbstract()) {
 				return self::getViewTemplate($parent->getName(), $actionName);
 			} else {
-				return null;
+				throw new \Exception('template not found for ' . $appClassName . '/' . $actionName . ' was expected in ' . $templateFile);
 			}
 		}
 	}

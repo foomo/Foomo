@@ -45,7 +45,7 @@ $resI = 0;
 			<td><?= $availableModule; ?></td>
 			<td><?= Manager::getModuleDescription($availableModule); ?></td>
 			<td><?= implode(', ', Manager::getRequiredModules($availableModule)); ?></td>
-			<td class="<?= $hintClass ?>Label" style="border-bottom:none;"><?= $modStat==Manager::MODULE_STATUS_OK?'ok':'check'; ?></td>
+			<td class="<?= $hintClass ?>"><?= $modStat==Manager::MODULE_STATUS_OK?'ok':'check'; ?></td>
 			<td>
 				<? if($availableModule == \Foomo\Module::NAME): ?>
 					<span title="well you do not want to fiddle around with the core ;)">none</span>

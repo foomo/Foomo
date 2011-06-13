@@ -1,8 +1,4 @@
 <?php
-$deps = array();
-foreach($model['dependencies'] as $d) {
-	$deps[] = "'$d'";
-}
 echo '<?php';
 ?>
 
@@ -37,15 +33,6 @@ class Module extends ModuleBase {
 		return '<?= addcslashes($model['description'], "'") ?>';
 	}
 	/**
-	 * get a list of modules, which are required to run this one
-	 *
-	 * @return string[]
-	 */
-	public static function getRequiredModules()
-	{
-		return array(<?= implode(', ', $deps); ?>);
-	}
-	/**
 	 * get a translation object for a resource in your module
 	 *
 	 * @param string $resourceName name of the resource will point to /path/to/moduleRoot/locale/<locale>/<resourceName>.yml
@@ -65,6 +52,9 @@ class Module extends ModuleBase {
 	public static function getResources()
 	{
 		return array(
+<? foreach($model['dependencies'] as $dep): ?>
+			\Foomo\Modules\Resource\Module::getResource('<?= $dep ?>', self::VERSION),
+<? endforeach; ?>
 			// get a run mode independent folder var/<runMode>/test
 			// \Foomo\Modules\Resource\Fs::getVarResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, 'test'),
 			// and a file in it
