@@ -33,18 +33,6 @@ class Module extends ModuleBase {
 		return '<?= addcslashes($model['description'], "'") ?>';
 	}
 	/**
-	 * get a translation object for a resource in your module
-	 *
-	 * @param string $resourceName name of the resource will point to /path/to/moduleRoot/locale/<locale>/<resourceName>.yml
-	 * @param string[] $localeChain ordered preferences for your translations like array('en_US', 'de_DE, ...) or array('en', 'de') or ...
-	 *
-	 * @return Foomo\Translation
-	 */
-	public static function getTranslation($resourceName, $localeChain = null)
-	{
-		return Foomo\Translation::getModuleTranslation(self::NAME, $resourceName, $localeChain);
-	}
-	/**
 	 * get all the module resources
 	 *
 	 * @return Foomo\Modules\Resource[]

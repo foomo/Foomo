@@ -195,11 +195,18 @@ class View extends \Foomo\View {
 	{
 		if (!$this->_translation) {
 			$appClassName = get_class($this->app);
-			$this->_translation = new \Foomo\Translation(MVC::getLocaleRoots($appClassName), MVC::getAppName($appClassName), $this->_localeChain);
+			$this->_translation = new \Foomo\Translation(MVC::getLocaleRoots($appClassName), self::getNamespace($appClassName), $this->_localeChain);
 		}
 		return $this->_translation->_($msgId, $msgPluralId, $count);
 	}
-	
+	private function getNamespace($className)
+	{
+		$parts = explode('\\', $className);
+		if($parts[count($parts)-1] != 'Frontend') {
+			array_pop($parts);
+		}
+		return implode('\\', $parts);
+	}
 	public function addResources(array $resources)
 	{
 		

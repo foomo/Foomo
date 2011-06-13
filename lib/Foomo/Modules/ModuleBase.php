@@ -6,23 +6,14 @@
 
 namespace Foomo\Modules;
 
+use Foomo\Translation;
+
 /**
  * base class if you want to build your own module
  * and by the way there is a wizard in the backend to create modules
  */
 abstract class ModuleBase {
-	
 	const VERSION = '0.1.1';
-
-	/**
-	 * get the required configuration class names
-	 *
-	 * @return array
-	 */
-	public static function getRequiredDomainConfigs()
-	{
-		return array();
-	}
 	/**
 	 * include paths - called before the module is initialized
 	 * 
@@ -49,17 +40,6 @@ abstract class ModuleBase {
 	{
 		return get_called_class() . ' is a foomo module without a description';
 	}
-
-	/*
-	 * get an array of all module names, that need to be installed and enabled to run your module
-	 *
-	 * @return string[]
-	public static function getRequiredModules()
-	{
-		return array();
-	}
-	 */
-
 	/**
 	 * get a view for an app
 	 * 
@@ -94,16 +74,26 @@ abstract class ModuleBase {
 	/**
 	 * get a module translation for an app
 	 *
-	 * @param type $app
+	 * @param mixed $app instance or class name
 	 * @param type $localeChain 
 	 * 
 	 * @return Foomo\Translation
 	 */
-	public static function getTranslation($app, $localeChain)
+	public static function getTranslation($app, $localeChain = null)
 	{
 		// locale/Foomo/My/App/en.yml
+		$calledClassName = get_called_class();
+		if(is_object($app)) {
+			$namespace = get_class($app);
+		} else {
+			$namespace = $app;
+		}
+		return Translation::getModuleTranslation(
+			constant($calledClassName . '::NAME'), 
+			$namespace,
+			$localeChain
+		);
 	}
-
 	/**
 	 * get all the module resources
 	 *

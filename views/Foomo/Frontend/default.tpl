@@ -18,20 +18,21 @@ foreach($enabledModules as $enabledModuleName) {
 		$user = $_SERVER['PHP_AUTH_USER'];
 		switch(true) {
 			case ($hour < 10 && $hour > 6):
-				echo 'Good morning ' . $user . ' !';
+				$key = 'GREET_GOOD_MORNING';
 				break;
 			case ($hour > 12 && $hour < 13):
-				echo 'You should be having lunch ' . $user . ' and I am hungry as well';
+				$key = 'GREET_LUNCH';
 				break;
 			case ($hour > 20 && $hour < 24):
-				echo 'Is it not a little late to work ' . $user  . ' ?';
+				$key = 'GREET_LATE';
 				break;
 			case ($hour > 0 && $hour < 6):
-				echo 'Somebody launching tonight ' . $user  . ' ?';
+				$key = 'GREET_LAUNCH';
 				break;
 			default:
-				echo 'Hello ' . $user . ' !';
+				$key = 'GREET_DEFAULT';
 		}
+		printf($view->_($key), $view->escape($user));
 	?>
 	</h1>
 	<h2>Shortcuts</h2>

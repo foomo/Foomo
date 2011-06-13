@@ -21,11 +21,11 @@ class Translation {
 	 *
 	 *
 	 * @param string[] $localeRoots an array of folders where to look for localization resources
-	 * @param string $resourceName name of the resource /root/de_DE/<resourceName>.yml
+	 * @param string $namespace name of the resource /root/de_DE/<resourceName>.yml
 	 * @param string[] $localeChain your language preferences
 	 *
 	 */
-	public function __construct($localeRoots, $resourceName, $localeChain = null)
+	public function __construct($localeRoots, $namespace, $localeChain = null)
 	{
 		if (is_null($localeChain)) {
 			if (!isset(self::$_DEFAULT_LOCALE_CHAIN)) {
@@ -36,7 +36,8 @@ class Translation {
 		}
 		$this->localeChain = $localeChain;
 		//$this->_table = $this->getLocaleTable($localeRoots, $localeChain, $resourceName);
-		$this->_table = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetLocaleTable', array($localeRoots, $localeChain, $resourceName));
+		//$this->_table = self::cachedGetLocaleTable($localeRoots, $localeChain, $namespace);
+		$this->_table = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetLocaleTable', array($localeRoots, $localeChain, $namespace));
 	}
 
 	public static function setDefaultLocaleChain($localeChain)
@@ -116,18 +117,18 @@ class Translation {
 	 *
 	 * @param array $localeRoots
 	 * @param array $localeChain
-	 * @param string $resourceName
+	 * @param string $namespace
 	 *
 	 * @return array
 	 */
-	public static function cachedGetLocaleTable($localeRoots, $localeChain, $resourceName)
+	public static function cachedGetLocaleTable($localeRoots, $localeChain, $namespace)
 	{
 		$ret = array();
 		$localeRoots = array_reverse($localeRoots);
 		$localeChain = array_reverse($localeChain);
 		foreach ($localeRoots as $localeRoot) {
 			foreach ($localeChain as $locale) {
-				$fileName = self::getResourceFileName($localeRoot, $locale, $resourceName);
+				$fileName = self::getResourceFileName($localeRoot, $locale, $namespace);
 				if (file_exists($fileName)) {
 					$ret = array_merge($ret, \Foomo\Yaml::parse(file_get_contents($fileName)));
 				}
@@ -135,10 +136,10 @@ class Translation {
 		}
 		return $ret;
 	}
-
-	public function setLocaleTable($localeRoot, $locale, $resourceName, $table = array())
+	/*
+	public function setLocaleTable($localeRoot, $locale, $namespace, $table = array())
 	{
-		$fileName = self::getResourceFileName($localeRoot, $locale, $resourceName);
+		$fileName = self::getResourceFileName($localeRoot, $locale, $namespace);
 		$dirName = dirname($fileName);
 		if (!file_exists($dirName)) {
 			mkdir($dirName);
@@ -146,17 +147,28 @@ class Translation {
 		$yaml = \Foomo\Yaml::dump($able);
 		file_put_contents($fileName, $yaml);
 	}
-
-	private static function getResourceFileName($localeRoot, $locale, $resourceName)
+	*/
+	private static function getResourceFileName($localeRoot, $locale, $namespace)
 	{
-		$fileName = $localeRoot . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . $resourceName . '.yml';
+		$fileName = $localeRoot . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR . $locale. '.yml';
 		return $fileName;
 	}
-
-	public static function getModuleTranslation($moduleName, $resourceName, $localeChain = null)
+	/**
+	 * get a translation for a module
+	 * 
+	 * @param string $moduleName
+	 * @param string $namespace
+	 * @param string $localeChain
+	 * 
+	 * @return Foomo\Translation
+	 */
+	public static function getModuleTranslation($moduleName, $namespace, $localeChain = null)
 	{
 		$rootBase = \Foomo\CORE_CONFIG_DIR_MODULES;
-		return new self(array($rootBase . DIRECTORY_SEPARATOR . $moduleName . DIRECTORY_SEPARATOR . 'locale'), $resourceName, $localeChain);
+		return new self(
+			array($rootBase . DIRECTORY_SEPARATOR . $moduleName . DIRECTORY_SEPARATOR . 'locale'),
+			$namespace,
+			$localeChain
+		);
 	}
-
 }

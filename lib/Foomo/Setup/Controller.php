@@ -24,16 +24,20 @@ class Controller {
 
 	public function actionSetupAdminUser($userName, $password, $passwordRepeat)
 	{
-		if (
-			!empty($password) &&
-			($password == $passwordRepeat) &&
-			!empty($userName)
-		) {
-			\Foomo\BasicAuth\Utils::updateUser(\Foomo\BasicAuth::DEFAULT_AUTH_DOMAIN, $userName, $password);
+		if(\Foomo\Setup::getDefaultAuthWasSetUp()) {
+			$this->error = 'Hohoho, there already is a basic auth';
 		} else {
-			$this->error = 'posted data are invalid';
+			if (
+				!empty($password) &&
+				($password == $passwordRepeat) &&
+				!empty($userName)
+			) {
+				\Foomo\BasicAuth\Utils::updateUser(\Foomo\BasicAuth::DEFAULT_AUTH_DOMAIN, $userName, $password);
+			} else {
+				$this->error = 'posted data are invalid';
+			}
 		}
-		return $this->render();
+		return $this->render();		
 	}
 
 	private function render()

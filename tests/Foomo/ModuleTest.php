@@ -17,7 +17,8 @@ class ModuleTest extends TestCase {
 	}
 	public function testGetTranslation()
 	{
-		$translation = Module::getTranslation(__CLASS__, array('en'));
+		$translation = Module::getTranslation('Foomo\\Frontend', array('en'));
 		$this->assertTrue($translation instanceof Translation);
+		$this->assertEquals('Hello %s !', $translation->_('GREET_DEFAULT'));
 	}
 }

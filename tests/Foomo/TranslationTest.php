@@ -2,6 +2,8 @@
 
 namespace Foomo;
 
+use Foomo\Cache\Manager;
+
 class TranslationTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * my locale
@@ -11,8 +13,16 @@ class TranslationTest extends \PHPUnit_Framework_TestCase {
 	protected $locale;
 	public function setUp()
 	{
+		//Manager::reset(Manager::getResourceName('Foomo\\Translation', 'cachedGetLocaleTable'), true);
 		$baseDir = dirname(__FILE__ ) .\DIRECTORY_SEPARATOR . 'translationResources';
-		$this->locale = new Translation(array( $baseDir . DIRECTORY_SEPARATOR . 'rootTwo', $baseDir . DIRECTORY_SEPARATOR . 'rootOne'), 'test', array('de', 'en'));
+		$this->locale = new Translation(
+			array( 
+				$baseDir . DIRECTORY_SEPARATOR . 'rootTwo', 
+				$baseDir . DIRECTORY_SEPARATOR . 'rootOne'
+			), 
+			__NAMESPACE__, 
+			array('de', 'en')
+		);
 	}
 	public function testGetDefaultChainFromEnv()
 	{
@@ -38,5 +48,14 @@ class TranslationTest extends \PHPUnit_Framework_TestCase {
 	public function testLcaleChainFallBack()
 	{
 		$this->assertEquals('fallback-rootOne-de', $this->locale->_('fallback'));
+	}
+	public function testModuleTranslation()
+	{
+		$translation = Translation::getModuleTranslation(Module::NAME, 'Foomo\\Frontend', array('en', 'de'));
+		$this->assertEquals('Hello %s !', $translation->_('GREET_DEFAULT'));
+		
+		$translation = Translation::getModuleTranslation(Module::NAME, 'Foomo\\Frontend', array('de', 'en'));
+		$this->assertEquals('Servus %s !', $translation->_('GREET_DEFAULT'));
+		
 	}
 }
