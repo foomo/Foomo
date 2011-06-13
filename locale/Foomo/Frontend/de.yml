@@ -1,0 +1,5 @@
+GREET_DEFAULT: Servus %s !
+GREET_GOOD_MORNING: Guten morgen %s !
+GREET_LUNCH: Geh doch mittag essen %s ich habe auch Hunger ...
+GREET_LATE: Ist es nicht ein bisschen spät zum Arbeiten %s ?
+GREET_LAUNCH: Launcht da jemand was %s ?
