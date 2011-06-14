@@ -342,7 +342,7 @@ class Config {
 	 */
 	public static function getCacheDir()
 	{
-		return \Foomo\CORE_CONFIG_DIR_VAR . \DIRECTORY_SEPARATOR . 'cache';
+		return \Foomo\CORE_CONFIG_DIR_VAR . DIRECTORY_SEPARATOR . self::$currentMode . \DIRECTORY_SEPARATOR . 'cache';
 	}
 
 }
