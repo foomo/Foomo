@@ -29,7 +29,7 @@ class DomainConfig extends AbstractConfig {
 	public function __construct($createDefault = false)
 	{
 		if ($createDefault) {
-			$this->enabledModules = \Foomo\Modules\Manager::getAvailableModules();
+			$this->enabledModules = array(\Foomo\Module::NAME);
 		}
 	}
 
