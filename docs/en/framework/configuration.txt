@@ -5,7 +5,7 @@ yaml files in the config directory.
 
 To define a config object, you have to
 
-* create an object called DomainConfig in yor namespace
+* create an object called DomainConfig in your namespace
 * extend Foomo\Config\AbstractConfig
 * give the class a NAME constant
 * make sure that all properties will serialize to and from yaml
@@ -16,7 +16,7 @@ and you may want to override
 || setValue($value)                   || if it is really hard to populate the object from an array      ||
 || __construct($createDefault = false)|| to make a nice default                                         ||
 
-Foomo\Session\DomainConfig
+A concrete example : Foomo\Session\DomainConfig
 
 <geshi type="php" file="<?= Foomo\ROOT . DIRECTORY_SEPARATOR . 'lib'. DIRECTORY_SEPARATOR . 'Foomo' . DIRECTORY_SEPARATOR . 'Session' . DIRECTORY_SEPARATOR . 'DomainConfig.php' ?>">
 </geshi>

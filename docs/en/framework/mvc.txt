@@ -1,0 +1,49 @@
+Well there is an MVC implementation in this framework as well, actually you \
+are looking at a foomo MVC application right now. It is a spin-off product of \
+the toolbox. It is not trying to compete with "real" server rountrip MVC \
+frameworks like symfony or zend. We think, that the future does not belong to \
+those frameworks.
+
+This is one of the reasons, why we have written foomo. The future is \
+client / server style apps with an extremely simple and crawlable fallback. \
+Foomo\MVC is designed to build exactly those extremely simple fallbacks.
+
+If what you are trying to build with it starts feeling wrong, then it is most \
+likely, because you are trying to build something too complex.
+
++++ MVC app conventions
+
+++++ Hierarchy
+
+|| My.Module/lib/My/Module/Frontend.php            || app class marked by extending Foomo\MVC\AbstractApp ||
+|| My.Module/lib/My/Module/Frontend/Model.php      || model                                               ||
+|| My.Module/lib/My/Module/Frontend/Controller.php || controller                                          ||
+|| My.Module/views/My/Module/Frontend/<name>.tpl   || view associated with calls to  My\Module\Frontend\Controller::action<name>() ||
+|| My.Module/views/My/Module/Frontend/exception/<name>.tpl   || view associated with exceptions ||
+|| My.Module/views/My/Module/Frontend/partials/<name>.tpl   || partials ||
+|| My.Module/locale/My/Module/Frontend/<lang>.yml  || translation yaml ||
+
+++++ Controller
+
+Conventions
+
+* all public methods starting with action are exposed
+* action<name> matches to the view <name>, if <name> does not exist it falls back to the default
+* exceptions are caught and mapped to an exception view named like the exception namespace separators are replaced with dots
+
+<geshi type="php" file="<?= __DIR__ . DIRECTORY_SEPARATOR . 'examples' . DIRECTORY_SEPARATOR . 'My.Module.Frontend.Controller.php' ?>">
+</geshi>
+
+++++ Views
+
+Conventions
+
+* $view and $model are mapped into views no matter, if exception, partial or regular view
+
+<geshi type="php" file="<?= __DIR__ . DIRECTORY_SEPARATOR . 'examples' . DIRECTORY_SEPARATOR . 'view.tpl' ?>">
+</geshi>
+
+++++ Partials
+
+<geshi type="php" file="<?= __DIR__ . DIRECTORY_SEPARATOR . 'examples' . DIRECTORY_SEPARATOR . 'partial.tpl' ?>">
+</geshi>
