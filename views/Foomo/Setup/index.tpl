@@ -154,5 +154,5 @@ if(file_exists($basicAuthFoldername)) {
 
 	</form>
 <? else: ?>
-	<p>Well, it looks like you are all set.</p>
+	<p>Well, it looks like you are all set. <a href="index.php">proceed to the toolbox</a></p>
 <? endif; ?>
