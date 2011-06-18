@@ -21,26 +21,32 @@ class PDOPersistorTest extends \PHPUnit_Framework_TestCase {
 	private $method;
 	private $className;
 	private $object;
-	private $config;
 
 	public function setUp() {
 		$domainConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
-		$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
-		$queryablePersistorConf = $domainConfig->queryablePersistors['pdo'];
+		if($domainConfig && !empty($domainConfig->queryablePersistors['pdo'])) {
+			$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
+			$queryablePersistorConf = $domainConfig->queryablePersistors['pdo'];
 
-		$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
-		$pdoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
-		$this->className = 'Foomo\Cache\MockObjects\SampleResources';
-		$this->object = new $this->className;
-		$this->method = 'getHoroscopeData';
-		$this->arguments = array(0, 'myLocation');
-		$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
-		$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
-		$this->pdoPersistor = $pdoPersistor;
-		
-		$fastPersistor->reset();
-		$this->pdoPersistor->reset(null, true, false);
-		\Foomo\Cache\Manager::initialize($this->pdoPersistor, $fastPersistor);
+			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
+			$pdoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
+			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
+			$this->object = new $this->className;
+			$this->method = 'getHoroscopeData';
+			$this->arguments = array(0, 'myLocation');
+			$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
+			$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
+			$this->pdoPersistor = $pdoPersistor;
+
+			$fastPersistor->reset();
+			$this->pdoPersistor->reset(null, true, false);
+			\Foomo\Cache\Manager::initialize($this->pdoPersistor, $fastPersistor);
+		} else {
+			$this->markTestSkipped(
+				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME . 
+				' for module ' . \Foomo\Module::NAME . ' respectively the pdo config on it is empty'
+			);
+		}
 	}
 
 	public function testConnect() {

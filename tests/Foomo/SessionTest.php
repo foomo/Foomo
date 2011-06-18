@@ -5,7 +5,11 @@ namespace Foomo;
 class SessionTest extends \PHPUnit_Framework_TestCase {
 	public function setUp()
 	{
-		Session::destroy();
+		if(!Session::getEnabled()) {
+			$this->markTestSkipped('session must be enabled / configured');
+		} else {
+			Session::destroy();
+		}
 	}
 	/**
 	 * @expectedException Exception
