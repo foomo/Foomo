@@ -5,11 +5,15 @@ if(count($resources) == 0) { return; }
 <ul>
 <?
 $allValid = true;
-foreach($resources as $modResource) {
+foreach($resources as $k => $modResource) {
 	/* @var $modResource Foomo\Modules\Resource */
-	if($modResource->resourceValid()) {
+	if(is_object($modResource) && $modResource->resourceValid()) {
 		$modResClass = 'valid';
 	} else {
+		if(!is_object($modResource)) {
+			var_dump($k, $modResource);
+			continue;
+		}
 		$allValid = false;
 		$modResClass = 'invalid';
 	}

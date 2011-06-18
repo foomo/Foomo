@@ -6,7 +6,7 @@
 
 namespace Foomo;
 
-use Excpetion;
+use Exception;
 
 /**
  * yet another template engine

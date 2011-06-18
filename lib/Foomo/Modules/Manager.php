@@ -93,7 +93,7 @@ class Manager {
 				}
 			}
 		}
-		AutoLoader::reset();
+		AutoLoader::resetCache();
 	}
 
 	/**
@@ -158,7 +158,7 @@ class Manager {
 		self::checkModuleConfig();
 		Config::resetCache();
 		if ($updateClassCache) {
-			AutoLoader::reset();
+			AutoLoader::resetCache();
 		}
 	}
 
@@ -533,11 +533,20 @@ class Manager {
 				}
 			}
 			 */
-			return array_merge(
+			$resources = array_merge(
 				call_user_func(array($moduleClassName, 'getResources')), array(
 					Resource\Fs::getAbsoluteResource(Resource\FS::TYPE_FOLDER, \Foomo\Config::getLogDir($module))
 				)
 			);
+			$validatedResources = array();
+			foreach($resources as $resource) {
+				if(is_object($resource) && ($resource instanceof Resource)) {
+					$validatedResources[] = $resource;
+				} else {
+					trigger_error('invalid value returned as a module resource from ' . $moduleClassName . '::getResources() all resources must be instances of Foomo\Modules\Resource', E_USER_ERROR);
+				}
+			}
+			return $validatedResources;
 		}
 	}
 

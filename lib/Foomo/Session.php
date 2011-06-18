@@ -226,14 +226,14 @@ class Session {
 		}
 		/* @var $conf \Foomo\Session\DomainConfig */
 		$conf = self::getConf();
-		$persistorClass = 'Foomo\\Session\\Persistence\\' . $conf->persistor;
-		if(!class_exists($persistorClass)) {
-			trigger_error('invalid persistor', E_USER_WARNING);
-			self::$persistor = new Session\Persistence\FS();
-		} else {
-			self::$persistor = new $persistorClass;
-		}
 		if (!is_null($conf) && $conf->enabled) {
+			$persistorClass = 'Foomo\\Session\\Persistence\\' . $conf->persistor;
+			if(!class_exists($persistorClass)) {
+				trigger_error('invalid persistor', E_USER_WARNING);
+				self::$persistor = new Session\Persistence\FS();
+			} else {
+				self::$persistor = new $persistorClass;
+			}
 			register_shutdown_function(array(__CLASS__, 'foomoSessionShutDown'));
 			if (!isset($_COOKIE[$conf->name]) || $reStart) {
 				// no cookie

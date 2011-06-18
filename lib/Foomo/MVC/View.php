@@ -9,7 +9,7 @@ namespace Foomo\MVC;
 use Foomo\Template;
 use Foomo\MVC;
 use Foomo\Timer;
-
+use Exception;
 /**
  * MVC version of Foomo\View
  */

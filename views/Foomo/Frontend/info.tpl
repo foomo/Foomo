@@ -31,6 +31,31 @@
 				</ul>
 			</li>
 			<li>
+				Classmap
+				<ul>
+				<?
+					$moduleClassMap = array();
+					foreach(\Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
+						$moduleClassMap[$enabledModuleName] = array();
+					}
+					foreach(\Foomo\AutoLoader::getClassMap() as $className => $classFilename) {
+						$moduleClassMap[\Foomo\AutoLoader::getModuleByClassname($className)][] = $className;
+					}
+					foreach($moduleClassMap as $moduleName => $moduleClasses):
+					
+				?>
+					<li>
+						<?= $moduleName ?> (<?= count($moduleClasses) ?>)
+						<ul>
+						<? foreach($moduleClasses as $moduleClass): ?>
+							<li><?= $moduleClass ?></li>
+						<? endforeach; ?>
+						</ul>
+					</li>
+					<? endforeach; ?>
+				</ul>
+			</li>
+			<li>
 				php
 				<ul>
 					<li><?= $view->link('All', 'info', array('php', '')); ?></li>

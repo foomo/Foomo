@@ -84,9 +84,6 @@ class Mailer {
 	 */
 	public function sendMail($to, $subject, $plaintext = '', $html = '', $headers = array(), $attachments = array(), $htmlImages = array())
 	{
-		if (!self::$enabled) {
-			return true;
-		}
 
 		include_once('Mail.php');
 		include_once('Mail/mime.php');
@@ -162,6 +159,7 @@ class Mailer {
 			trigger_error('disabled sendMail for ' . $to);
 			$success = true;
 		}
+
 		// catch pear errors
 		if ($success === true) {
 			$this->lastError = '';
@@ -173,6 +171,7 @@ class Mailer {
 		if (self::$logLast) {
 			self::$lastSuccess = $success;
 			self::$lastSubject = $subject;
+			
 			self::$lastHtml = $html;
 			self::$lastPlain = $plaintext;
 			self::$lastTo = $to;

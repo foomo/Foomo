@@ -98,7 +98,17 @@ class AutoLoader {
 			return $classMap[$lowerClassName];
 		}
 	}
-
+	public static function getModuleByClassname($className)
+	{
+		$classFilename = self::getClassFileName($className);
+		foreach(Manager::getEnabledModules() as $enabledModule) {
+			$moduleRoot = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $enabledModule . DIRECTORY_SEPARATOR;
+			if(strpos($classFilename, $moduleRoot) === 0) {
+				// var_dump($className . ' is in ' . $enabledModule . ' ' . $moduleRoot . ' ' . $classFilename);
+				return $enabledModule;
+			}
+		}
+	}
 	/**
 	 * get the classes defined in a file
 	 * 
