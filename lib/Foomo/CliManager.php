@@ -150,7 +150,7 @@ class CliManager {
 	 */
 	public function resetAutoLoader()
 	{
-		return AutoLoader::reset(true);
+		return AutoLoader::resetCache();
 	}
 
 }

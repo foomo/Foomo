@@ -233,7 +233,7 @@ class AutoLoader {
 		}
 	}
 
-	public static function reset($silently = false)
+	private static function reset($silently = false)
 	{
 		$tmp = new self();
 		return self::$classMap = $tmp->buildClassMap($silently);
@@ -367,6 +367,7 @@ class AutoLoader {
 	 * Place reset functions here
 	 *
 	 * @internal
+	 * 
 	 * @return string HTML
 	 */
 	public static function resetCache()
