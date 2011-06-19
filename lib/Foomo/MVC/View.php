@@ -18,7 +18,7 @@ class View extends \Foomo\View {
 	public static $trackPartials = false;
 	/**
 	 * my app
-	 * 
+	 *
 	 * @var Foomo\MVC\AbstractApp
 	 */
 	private $app;
@@ -38,13 +38,13 @@ class View extends \Foomo\View {
 	public $currentAction;
 	/**
 	 * current parameters
-	 * 
+	 *
 	 * @var array
 	 */
 	public $currentParameters;
 	public static $viewStack = array();
 
-	public function __construct(AbstractApp $app, URLHandler $handler, Template $template, Exception $exception = null)
+	public function __construct(AbstractApp $app, URLHandler $handler, Template $template, \Exception $exception = null)
 	{
 		$this->currentAction = $handler->lastAction;
 		$this->currentParameters = $handler->lastParameters;
@@ -62,9 +62,9 @@ class View extends \Foomo\View {
 
 	/**
 	 * escape from XSS
-	 * 
+	 *
 	 * @param string $string untrusted data
-	 * 
+	 *
 	 * @return string escaped / sanitized string
 	 */
 	public function escape($string)
@@ -86,15 +86,15 @@ class View extends \Foomo\View {
 	}
 
 	/**
-	 * 
+	 *
 	 * create a html link (or a text if the link is active)
-	 * 
+	 *
 	 * @param string $linkText text to display on the link
 	 * @param string $methodName method to call
 	 * @param array $parameters parameters
 	 * @param string $title title attribute in the link
 	 * @param string $target where to link to
-	 * 
+	 *
 	 * @return string <a href="/bla/blubb/parmOne/parmTwo" title="title - looks like a tooltip" target="_self">link text</a>
 	 */
 	public function link($linkText, $methodName = 'default', $parameters = array(), $title = null, $target = '_self', $name = '')
@@ -176,7 +176,7 @@ class View extends \Foomo\View {
 
 	/**
 	 * get the locale chain
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getLocaleChain()
@@ -209,12 +209,12 @@ class View extends \Foomo\View {
 	}
 	public function addResources(array $resources)
 	{
-		
+
 	}
-	
+
 	public function addResource(Resource $res)
 	{
-		
+
 	}
 
 }

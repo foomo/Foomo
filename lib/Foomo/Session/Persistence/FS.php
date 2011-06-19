@@ -51,7 +51,7 @@ class FS implements PersistorInterface {
 		$fileName = self::getFileName($sessionId);
 		$contentFileName = self::getContentsFileName($sessionId);
 		if (file_exists($fileName)) {
-			if (!$this->fps[$sessionId]) {
+			if (!isset($this->fps[$sessionId])) {
 				// which means I have not locked this one
 				/*
 				 * this is a safe, but blocking way, to do things

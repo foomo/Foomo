@@ -21,7 +21,7 @@ class View {
 	protected $exception;
 	/**
 	 * model view
-	 * 
+	 *
 	 * @var mixed
 	 */
 	protected $model;
@@ -31,7 +31,7 @@ class View {
 	 * @var Template
 	 */
 	protected $template;
-	public function __construct(Template $template, $model = null, Exception $exception = null)
+	public function __construct(Template $template, $model = null, \Exception $exception = null)
 	{
 		$this->exception = $exception;
 		$this->model = $model;
@@ -70,7 +70,7 @@ class View {
 	 *
 	 * @param string $templateFile
 	 * @param mixed $model what ever the model may be
-	 * 
+	 *
 	 * @return Foomo\View
 	 */
 	public static function fromFile($templateFile, $model = null)
