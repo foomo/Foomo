@@ -189,7 +189,7 @@ class AutoLoader {
 			// if self::$classmap is loaded, we try to use it and fall back to 
 			// conventional auto loading, if we fail there
 			if (empty($className)) {
-				throw new InvalidArgumentException('empty classNames are not valid', 1);
+				throw new \InvalidArgumentException('empty classNames are not valid', 1);
 			}
 			if (!isset(self::$classMap)) {
 				$tmp = new self();

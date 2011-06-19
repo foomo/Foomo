@@ -431,7 +431,7 @@ class Session {
 	{
 		$conf = self::getConf();
 		if ($conf) {
-			return self::getConf()->enabled;
+			return self::getConf()->enabled && !self::$disabled;
 		} else {
 			return false;
 		}
@@ -458,7 +458,9 @@ class Session {
 	public static function disable()
 	{
 		self::$disabled = true;
-		self::$persistor->release(self::$instance->sessionId);
+		if(self::$persistor) {
+			self::$persistor->release(self::$instance->sessionId);
+		}
 	}
 
 	/**

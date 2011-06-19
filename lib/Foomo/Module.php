@@ -39,6 +39,7 @@ class Module extends ModuleBase {
 		$ret = array(
 			Modules\Resource\PearPackage::getResource('Mail'),
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
+			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME)
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Core\DomainConfig::NAME);
