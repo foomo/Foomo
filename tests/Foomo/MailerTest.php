@@ -10,10 +10,14 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 	 * @var Foomo\Mailer;
 	 */
 	protected $mailer;
+	private $mailEnabled;
+	private $mailLogLast;
 	public function setUp()
 	{
 		$this->mailer = new Mailer;
-		Mailer::$enabled = true;
+		$this->mailEnabled = Mailer::$enabled;
+		$this->mailLogLast = Mailer::$logLast;
+		Mailer::$enabled = false;
 		Mailer::$logLast = true;
 	}
 	public function testSmtpConf()
@@ -41,13 +45,17 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function tearDown()
 	{
+		Mailer::$enabled = $this->mailEnabled;
+		Mailer::$logLast = $this->mailLogLast;
+		
 		Config::removeConf(\Foomo\Module::NAME, \Foomo\Config\Smtp::NAME, self::TEST_SUB_DOMAIN);
 	}
 	public function testMail()
 	{
-		$this->mailer->sendMail('dev@null', $subject = 'testSubject', $plainBody = 'plainBody');
-		$this->assertEquals($subject, Mailer::$lastSubject);
-		$this->assertEquals($plainBody, Mailer::$lastPlain);
+		$success = $this->mailer->sendMail('dev@null', $subject = 'testSubject', $plainBody = 'plainBody');
+		$this->assertTrue($success);
+		$this->assertEquals($subject, Mailer::$lastSubject, 'wrong subject');
+		$this->assertEquals($plainBody, Mailer::$lastPlain, 'plain body');
 	}
 	public function testAttachment()
 	{
@@ -57,7 +65,8 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 		$attachment->mimeType = 'text/plain';
 		$attachment->disposition = Mailer\Attachment::DISPOSITION_ATTACHMENT;
 		$doc->addBody('<p>bla</p>');
-		$this->assertTrue($this->mailer->sendMail('dev@null', 'test', 'plaintext', $doc->output(), array('From' => 'foomo@null'), array($attachment)));
+		$mailSuccess = $this->mailer->sendMail('dev@null', 'test', 'plaintext', $doc->output(), array('From' => 'foomo@null'), array($attachment));
+		$this->assertTrue($mailSuccess);
 		$this->assertEquals('', $this->mailer->getLastError());
 	}
 	public function testHTMLImage()

@@ -20,23 +20,29 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 
 	public function setUp() {
 		$domainConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
-		//$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
-		$queryablePersistorConf = $domainConfig->queryablePersistors['mongo'];
+		if($domainConfig && !empty($domainConfig->queryablePersistors['mongo'])) {
+			//$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
+			$queryablePersistorConf = $domainConfig->queryablePersistors['mongo'];
 
-		//$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
-		$mongoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
-		$this->className = 'Foomo\Cache\MockObjects\SampleResources';
-		$this->object = new $this->className;
-		$this->method = 'getHoroscopeData';
-		$this->arguments = array(0, 'myLocation');
-		$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
-		$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
-		$this->mongoPersistor = $mongoPersistor;
+			//$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
+			$mongoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
+			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
+			$this->object = new $this->className;
+			$this->method = 'getHoroscopeData';
+			$this->arguments = array(0, 'myLocation');
+			$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
+			$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
+			$this->mongoPersistor = $mongoPersistor;
 
-		//$fastPersistor->reset();
-		$this->mongoPersistor->reset(null, true);
-		\Foomo\Cache\Manager::initialize($this->mongoPersistor);
-		
+			//$fastPersistor->reset();
+			$this->mongoPersistor->reset(null, true);
+			\Foomo\Cache\Manager::initialize($this->mongoPersistor);
+		} else {
+			$this->markTestSkipped(
+				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME . 
+				' for module ' . \Foomo\Module::NAME . ' respectively the mongo config on it is empty'
+			);
+		}
 	}
 
 	public function testConnect() {

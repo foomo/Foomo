@@ -15,6 +15,9 @@ class PDOExprTest extends \PHPUnit_Framework_TestCase {
 	private $object;
 
 	public function setUp() {
+		$this->markTestSkipped('@bostjan pls refactor this this test setup ;)');
+		
+		
 		$this->className = 'Foomo\Cache\MockObjects\SampleResources';
 		$this->object = new $this->className;
 		$this->method = 'getHoroscopeData';

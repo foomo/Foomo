@@ -9,7 +9,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testViewFromFile()
 	{
-		$this->assertType('Foomo\\View', $this->getTestView());
+		$this->assertInstanceOf('Foomo\\View', $this->getTestView());
 	}
 	public function testRender()
 	{

@@ -78,7 +78,17 @@ class Config extends \Foomo\Modules\Resource {
 		if (\Foomo\Config::confExists($this->module, $this->name, $this->subDomain)) {
 			return 'config exists';
 		} else {
-			return 'created default config for ' . $this->module . ' - ' . $this->name . ' - ' . var_export(\Foomo\Config::getConf($this->module, $this->name, $this->subDomain), true);
+			return 
+				'created default config for ' . 
+				$this->module . ' - ' . $this->name . 
+				' - ' . var_export(
+					\Foomo\Config::setConf(
+						\Foomo\Config::getDefaultConfig($this->name),
+						$this->module,
+						$this->subDomain
+					),
+					true
+				);
 		}
 	}
 

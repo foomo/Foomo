@@ -69,7 +69,7 @@ class ConfigWorld {
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
 	public function givenNoOldConfigExists() {
-		echo 'story step ' . __METHOD__ . ' needs to be implemented';
+		Utils::removeOldConfigs();
 	}
 	/**
 	 * @story when config is set

@@ -11,7 +11,7 @@ class UtilsTest extends TestCase {
 		$utils->setFile(Mock::getMockLog());
 		/* @var $userSession UserSession */
 		foreach($utils->getSessions() as $sessionId => $userSession) {
-			$this->assertTrue($userSession instanceof UserSession);
+			$this->assertInstanceOf('Foomo\\Log\\UserSession', $userSession);
 			$this->assertEquals($sessionId, $userSession->sessionId);
 		}
 	}

@@ -98,7 +98,17 @@ class AutoLoader {
 			return $classMap[$lowerClassName];
 		}
 	}
-
+	public static function getModuleByClassname($className)
+	{
+		$classFilename = self::getClassFileName($className);
+		foreach(Manager::getEnabledModules() as $enabledModule) {
+			$moduleRoot = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $enabledModule . DIRECTORY_SEPARATOR;
+			if(strpos($classFilename, $moduleRoot) === 0) {
+				// var_dump($className . ' is in ' . $enabledModule . ' ' . $moduleRoot . ' ' . $classFilename);
+				return $enabledModule;
+			}
+		}
+	}
 	/**
 	 * get the classes defined in a file
 	 * 
@@ -179,7 +189,7 @@ class AutoLoader {
 			// if self::$classmap is loaded, we try to use it and fall back to 
 			// conventional auto loading, if we fail there
 			if (empty($className)) {
-				throw new InvalidArgumentException('empty classNames are not valid', 1);
+				throw new \InvalidArgumentException('empty classNames are not valid', 1);
 			}
 			if (!isset(self::$classMap)) {
 				$tmp = new self();
@@ -223,7 +233,7 @@ class AutoLoader {
 		}
 	}
 
-	public static function reset($silently = false)
+	private static function reset($silently = false)
 	{
 		$tmp = new self();
 		return self::$classMap = $tmp->buildClassMap($silently);
@@ -357,6 +367,7 @@ class AutoLoader {
 	 * Place reset functions here
 	 *
 	 * @internal
+	 * 
 	 * @return string HTML
 	 */
 	public static function resetCache()

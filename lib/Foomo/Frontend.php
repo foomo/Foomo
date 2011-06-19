@@ -16,7 +16,9 @@ class Frontend extends AbstractApp {
 	public static function setUpToolbox($title = 'foomo toolbox')
 	{
 		if(!file_exists(BasicAuth::getDefaultAuthFilename())) {
-			header('Content-Type: text/plain');
+			if(!headers_sent()) {
+				header('Content-Type: text/plain');
+			}
 			die('default auth file does not exist - you might want to run setup.php');
 		}
 

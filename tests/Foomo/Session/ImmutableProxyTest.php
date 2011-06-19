@@ -3,6 +3,12 @@
 namespace Foomo\Session;
 
 class ImmutableProxyTest extends \PHPUnit_Framework_TestCase {
+	public function setUp()
+	{
+		if(!\Foomo\Session::getEnabled()) {
+			$this->markTestSkipped('session is not enabled');
+		}
+	}
 	/**
 	 * @expectedException Exception
 	 */

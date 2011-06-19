@@ -8,7 +8,7 @@ namespace Foomo;
 
 /**
  * yet another template engine
- *
+ * 
  * @internal
  */
 class Template {
@@ -26,7 +26,7 @@ class Template {
 	 */
 	public $file;
 	/**
-	 *
+	 * 
 	 *
 	 * @var string
 	 */

@@ -7,12 +7,9 @@
 /**
  * foomo bootstrap - this is not a config file ;)
  * 
- * DO NOT EDIT IT
+ * DO NOT EDIT IT !!!
  *
  */
-
-// stuff that really needs to be configured
-// auto configuration
 
 namespace Foomo;
 
@@ -118,7 +115,6 @@ try {
 		Timer::addMarker('session init is through');
 	}
 } catch(Exception $e) {
-//	echo $e->getTraceAsString();
 	$setupScript = realpath(\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . \Module::NAME . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'setup.php');
 	if(realpath($_SERVER['SCRIPT_FILENAME']) != $setupScript) {
 		
