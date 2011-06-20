@@ -308,15 +308,18 @@ class AutoLoader {
 		}
 		$namespace = '';
 		for ($i = 0, $max = sizeof($tokens); $i < $max; $i++) {
-			if (defined('T_NAMESPACE')) {
-				// there is a namspace token in this class
-				if ($tokens[$i][0] == T_NAMESPACE) {
-					$iNamespace = $i + 2;
-					$namespace = '';
-					while (isset($tokens[$iNamespace]) && is_array($tokens[$iNamespace]) && !in_array($tokens[$iNamespace][1], array('{', ' '))) {
-						$namespace .= $tokens[$iNamespace][1];
-						$iNamespace++;
-					}
+			// there is a namspace token in this class
+			// @todo this code fails on:
+			//   namespace Foo {
+			// only works on
+			//  namespace Foo;
+			// => let fix it
+			if ($tokens[$i][0] == T_NAMESPACE) {
+				$iNamespace = $i + 2;
+				$namespace = '';
+				while (isset($tokens[$iNamespace]) && is_array($tokens[$iNamespace]) && !in_array($tokens[$iNamespace][1], array('{', ' '))) {
+					$namespace .= $tokens[$iNamespace][1];
+					$iNamespace++;
 				}
 			}
 			if ($tokens[$i][0] === T_CLASS || $tokens[$i][0] === T_INTERFACE) {
