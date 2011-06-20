@@ -8,6 +8,7 @@ namespace Foomo;
 
 use Foomo\Modules\Manager;
 use ReflectionClass;
+use Exception;
 
 /**
  * class for handling class __autoloading in arbitrary projects
