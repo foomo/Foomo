@@ -42,7 +42,7 @@ class Module extends ModuleBase {
 			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME)
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST) {
-			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Core\DomainConfig::NAME);
+			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
 		}
 		return $ret;
 	}
