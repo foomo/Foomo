@@ -66,4 +66,7 @@ class ManagerTest extends AbstractBaseTest {
 			Manager::save($this->resource);
 		}
 	}
+	
+	
+	
 }

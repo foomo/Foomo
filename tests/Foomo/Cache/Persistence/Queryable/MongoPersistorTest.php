@@ -8,7 +8,7 @@ use Foomo\Cache\Persistence\Expr;
  *
  *
  */
-class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
+class MongoPersistorTest extends AbstractTest {
 
 	private $mongoPersistor;
 	private $resource;
@@ -17,15 +17,17 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 	private $className;
 	private $object;
 	private $config;
+	
 
 	public function setUp() {
 		$domainConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
-		if($domainConfig && !empty($domainConfig->queryablePersistors['mongo'])) {
-			//$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
+		if ($domainConfig && !empty($domainConfig->queryablePersistors['mongo'])) {
+			$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
 			$queryablePersistorConf = $domainConfig->queryablePersistors['mongo'];
-
-			//$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
+			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
 			$mongoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
+		
+			
 			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
 			$this->object = new $this->className;
 			$this->method = 'getHoroscopeData';
@@ -34,15 +36,20 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 			$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
 			$this->mongoPersistor = $mongoPersistor;
 
-			//$fastPersistor->reset();
 			$this->mongoPersistor->reset(null, true);
+			$this->saveManagerSettings();
 			\Foomo\Cache\Manager::initialize($this->mongoPersistor);
 		} else {
 			$this->markTestSkipped(
-				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME . 
-				' for module ' . \Foomo\Module::NAME . ' respectively the mongo config on it is empty'
+					'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME .
+					' for module ' . \Foomo\Module::NAME . ' respectively the mongo config on it is empty'
 			);
 		}
+	}
+
+	public function tearDown() {
+		//set the mamager back
+		$this->restoreManagerSettings();
 	}
 
 	public function testConnect() {
@@ -64,15 +71,14 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 
 	public function testqueryWithExpression() {
 		$this->storeTestResources();
-		
+
 		$expr = Expr::idEq($this->resource->id);
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(1, count($iterator));
 
 
 
-		$expr = Expr::groupAnd(Expr::idEq($this->resource->id),
-						Expr::isExpired()
+		$expr = Expr::groupAnd(Expr::idEq($this->resource->id), Expr::isExpired()
 		);
 
 
@@ -80,9 +86,7 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(0, count($iterator));
 
 
-		$expr = Expr::groupAnd(Expr::idEq($this->resource->id),
-						Expr::isExpired(),
-						Expr::statusValid()
+		$expr = Expr::groupAnd(Expr::idEq($this->resource->id), Expr::isExpired(), Expr::statusValid()
 		);
 
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
@@ -90,8 +94,7 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 
 
 		$expr = Expr::groupAnd(
-						Expr::isNotExpired(),
-						Expr::statusValid()
+						Expr::isNotExpired(), Expr::statusValid()
 		);
 
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
@@ -100,11 +103,8 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 
 
 		$expr = Expr::groupOr(
-						Expr::idNe($this->resource->id),
-						Expr::groupAnd(
-								Expr::isNotExpired(),
-								Expr::isExpired(),
-								Expr::statusValid()
+						Expr::idNe($this->resource->id), Expr::groupAnd(
+								Expr::isNotExpired(), Expr::isExpired(), Expr::statusValid()
 						)
 		);
 
@@ -119,8 +119,6 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(4, count($iterator));
-
-
 	}
 
 	public function testPropertiesQueries() {
@@ -133,8 +131,7 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(3, count($iterator));
 
-		$expr = Expr::groupOr(Expr::propEq('timestamp', 0),
-						Expr::propNe('timestamp', 0)
+		$expr = Expr::groupOr(Expr::propEq('timestamp', 0), Expr::propNe('timestamp', 0)
 		);
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(4, count($iterator));
@@ -142,8 +139,6 @@ class MongoPersistorTest extends \PHPUnit_Framework_TestCase {
 		$expr = Expr::propsEq($this->resource->properties);
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(1, count($iterator));
-
-		
 	}
 
 	public function testDelete() {
