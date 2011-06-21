@@ -949,7 +949,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 * get a db connection
-	 * @throws Foomo\Doctrine\UnsupportedDatabaseTypeException
+	 * 
 	 * @return \Doctrine\DBAL\Connection
 	 */
 	private function parseConfig($configStr, &$type, &$serverName, &$port, &$dbName, &$username, &$password) {

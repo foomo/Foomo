@@ -609,7 +609,7 @@ class Manager {
 			if (!in_array($enabled, $existing)) {
 				$symlinkFilename = $symlinkBaseFolder . \DIRECTORY_SEPARATOR . $enabled;
 				$targetFilename = \Foomo\CORE_CONFIG_DIR_MODULES . \DIRECTORY_SEPARATOR . $enabled . \DIRECTORY_SEPARATOR . 'htdocs';
-				if (!\file_exists($symlinkFilename)) {
+				if (!\file_exists($symlinkFilename) && is_dir($targetFilename)) {
 					\symlink($targetFilename, $symlinkFilename);
 				}
 			}
