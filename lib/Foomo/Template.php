@@ -6,8 +6,6 @@
 
 namespace Foomo;
 
-use Exception;
-
 /**
  * yet another template engine
  * 
@@ -59,7 +57,7 @@ class Template {
 	 *
 	 * @return string
 	 */
-	public function render($model = null, View $view = null, Exception $exception = null, array $variables = array())
+	public function render($model = null, View $view = null, \Exception $exception = null, array $variables = array())
 	{
 		ob_start(array($this, 'handle'));
 		$this->run($model, $view, $exception, $variables);

@@ -33,8 +33,8 @@ class MVC {
 	private static $caughtViews = array();
 	/**
 	 * views / their path which are to be caught. if empty array, all will be
-	 * caught, if entries, the entries will be caught 
-	 * 
+	 * caught, if entries, the entries will be caught
+	 *
 	 * @var mixed
 	 */
 	private static $catchViews = false;
@@ -148,7 +148,7 @@ class MVC {
 
 	/**
 	 * tell the framework to catch views and partials
-	 * 
+	 *
 	 * @param string $viewPaths what views / partials to catch if empty, everything will be caught
 	 */
 	public static function catchViews($viewPaths= array())
@@ -158,7 +158,7 @@ class MVC {
 
 	/**
 	 * return caught views / partials as ordered with self::catchViews()
-	 * 
+	 *
 	 * @return array array('view/path' => 'view' => 'view rendering', 'partials' => array('partial-0' => 'partial rendering'), 'view/other/path' => ... )
 	 */
 	public static function getCaughtViews()
@@ -199,7 +199,7 @@ class MVC {
 
 	/**
 	 * get a partial template
-	 * 
+	 *
 	 * @internal
 	 * @return Template
 	 */
@@ -223,11 +223,11 @@ class MVC {
 	{
 		return  new Template(
 			$name,
-			\Foomo\ROOT . DIRECTORY_SEPARATOR . 
-			'views' . DIRECTORY_SEPARATOR . 
-			'Foomo' . DIRECTORY_SEPARATOR . 
+			\Foomo\ROOT . DIRECTORY_SEPARATOR .
+			'views' . DIRECTORY_SEPARATOR .
+			'Foomo' . DIRECTORY_SEPARATOR .
 			'MVC' . DIRECTORY_SEPARATOR .
-			$name . '.tpl');		
+			$name . '.tpl');
 	}
 	/**
 	 * where do the class templates come from
@@ -238,7 +238,7 @@ class MVC {
 	{
 		$appClassModule = Manager::getClassModule($appClassName);
 		//$appId = self::getAppName($appClassName);
-		
+
 		$templateFileBase =
 				\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
 				$appClassModule . DIRECTORY_SEPARATOR .
@@ -297,7 +297,7 @@ class MVC {
 
 	/**
 	 * get the current handler from the stack
-	 * 
+	 *
 	 * @return Foomo\MVC\URLHandler
 	 */
 	public static function getCurrentURLHandler()

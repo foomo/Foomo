@@ -8,15 +8,17 @@ use Foomo\Yaml;
  * - extends this to define domain specific configrations like mail, db, ...
  * - multiple inheritence is a bad idea
  * - member variables must not be objects or resources
- *
  */
-abstract class AbstractConfig {
+abstract class AbstractConfig
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * derive the name from the class
-	 * 
-	 * @internal 
-	 * 
+	 *
+	 * @internal
 	 * @return string
 	 */
 	public function getName()
@@ -37,9 +39,8 @@ abstract class AbstractConfig {
 
 	/**
 	 * get the configuration array
-	 * 
+	 *
 	 * @internal
-	 * 
 	 * @return array
 	 */
 	public function getValue()
@@ -49,6 +50,7 @@ abstract class AbstractConfig {
 
 	/**
 	 * set the configuration array
+	 *
 	 * @internal
 	 * @param array $value
 	 */
@@ -63,9 +65,8 @@ abstract class AbstractConfig {
 
 	/**
 	 * will be called to get a default if no config is present
-	 * 
-	 * @internal 
-	 * 
+	 *
+	 * @internal
 	 * @return Foomo\Config\AbstractConfig
 	 */
 	public function getDefault()
@@ -78,9 +79,16 @@ abstract class AbstractConfig {
 	 */
 	public function saved()
 	{
-		
+
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Magic methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return Yaml::dump($this->getValue());
