@@ -378,6 +378,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 				$db = $this->mongo->selectDB($this->databaseName);
 				$list = $db->listCollections();
 				foreach ($list as $collection) {
+					
 					$this->removeCollection($collection, $recreateStructures, $verbose);
 				}
 			}

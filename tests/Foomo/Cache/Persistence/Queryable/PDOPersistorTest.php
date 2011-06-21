@@ -8,7 +8,7 @@ use Foomo\Cache\Persistence\Expr;
  *
  *
  */
-class PDOPersistorTest extends \PHPUnit_Framework_TestCase {
+class PDOPersistorTest extends AbstractTest {
 
 	/**
 	 * my persistor
@@ -27,9 +27,10 @@ class PDOPersistorTest extends \PHPUnit_Framework_TestCase {
 		if($domainConfig && !empty($domainConfig->queryablePersistors['pdo'])) {
 			$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
 			$queryablePersistorConf = $domainConfig->queryablePersistors['pdo'];
-
 			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
 			$pdoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
+
+			
 			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
 			$this->object = new $this->className;
 			$this->method = 'getHoroscopeData';
@@ -37,10 +38,10 @@ class PDOPersistorTest extends \PHPUnit_Framework_TestCase {
 			$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
 			$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
 			$this->pdoPersistor = $pdoPersistor;
-
-			$fastPersistor->reset();
-			$this->pdoPersistor->reset(null, true, false);
-			\Foomo\Cache\Manager::initialize($this->pdoPersistor, $fastPersistor);
+			
+			$this->saveManagerSettings();
+			$this->clearMockCache($pdoPersistor, $fastPersistor);
+			\Foomo\Cache\Manager::initialize($pdoPersistor, $fastPersistor);
 		} else {
 			$this->markTestSkipped(
 				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME . 
@@ -48,6 +49,15 @@ class PDOPersistorTest extends \PHPUnit_Framework_TestCase {
 			);
 		}
 	}
+	
+	
+	public function tearDown() {
+		//set the mamager back
+		$this->restoreManagerSettings();
+	}
+	
+	
+	
 
 	public function testConnect() {
 		$this->assertNotNull($this->pdoPersistor->dbh);
@@ -161,4 +171,5 @@ class PDOPersistorTest extends \PHPUnit_Framework_TestCase {
 			$this->pdoPersistor->save($resource);
 		}
 	}
+		
 }

@@ -1,13 +1,13 @@
-++Caching resources using the Avalanche Cache API
+++Caching resources using the Foomo Cache API
 
 
 +++ Preface
-The Avalanche cache is a general purpose caching API implementation designed to supersede the existing Foomo framework caching API. Avalanche can be used in place of the existing API.
-Two distinct features distinguish it from the existing Foomo caching API (as well as other cache implementations):
-* The Avalanche cache API was specifically designed for caching resources that are linked by dependency relationships
-* The Avalanche API provides mechanisms to explore the cached resources and their relationships. The ability to query for cached object allows for very tight control over single resources as well as dependency trees.
+The Foomo cache is a general purpose caching API implementation of the pass-through type (if a cached value exists it returns it, if it does not exist the value is calculated, cached and returned).
+Two distinct features distinguish it from common  cache implementations:
+* The Foomo cache API was specifically designed for caching resources that are linked by dependency relationships
+* The Foomo API provides mechanisms to explore the cached resources and their relationships. The ability to query for cached object allows for very tight control over single resources as well as dependency trees.
 
-The cache implementation got its name from its inherent ability to propagate operations, such as resource re-creation, from a single object at the top of the hierarchy to all its dependent (child) objects and further down the tree, until the
+The Foomo cache has the ability to propagate operations, such as resource re-creation, from a single object at the top of the hierarchy to all its dependent (child) objects and further down the tree, until the
 operation is applied to a whole set of objects belonging to a whole dependency tree.
 
 
@@ -19,9 +19,9 @@ operation is applied to a whole set of objects belonging to a whole dependency t
 
 * Dependency tree: A set of dependent resources structured into a tree data structure, where child resources (object values) depend on their parent resource (tree node), i.e. if the parent resource changes this affects the child resource.
 
-* Proxy: The proxy class is the main entry point into the Avalanche cache. Used to seamlessly integrate caching into applications.
+* Proxy: The proxy class is the main entry point into the Foomo cache. Used to seamlessly integrate caching into applications.
 
-* Persistor: A class being delegated the actual persistence and retrieval of cached objects. Avalanche distinguished fast and quaryable persistor implementations.
+* Persistor: A class being delegated the actual persistence and retrieval of cached objects. Foomo distinguished fast and quaryable persistor implementations.
 
 * Manager: The class that implements cache resource operations including load, save, delete and query.
 
@@ -31,11 +31,11 @@ operation is applied to a whole set of objects belonging to a whole dependency t
 
 
 +++ Basic assumptions and conventions
-There three implicit assumptions one must be aware of when caching resources using the Avalanche cache:
+There three implicit assumptions one must be aware of when caching resources using the Foomo cache:
 
 # Cache resources are assumed to be PHP objects returned by method calls. This implies method calls **MUST be stateless** (restful). In other words the method return value must not change for subsequent calls with equal parameters.
-# Avalanche uses annotations to describe cache resources and their dependencies. A method call can be cached if it is annotated with the **//@Foomo\Cache\CacheResourceDescription//** annotation
-# The avalanche cache inferes method parameter types from **//PHPDoc @param//** comments. For avalanche to work, the cached method **MUST** be fully PHPDoc annotated.
+# Foomo uses annotations to describe cache resources and their dependencies. A method call can be cached if it is annotated with the **//@Foomo\Cache\CacheResourceDescription//** annotation
+# The Foomo cache inferes method parameter types from **//PHPDoc @param//** comments. For caching to work, the cached method **MUST** be fully PHPDoc annotated.
 
 +++ How to cache
 
@@ -174,9 +174,9 @@ Dependencies of cached resources in the cache are however not logical but physic
 In the above example a resource representing the return value of renderHoroscope($timestamp, $location, $template) physically depends on the return value of getHoroscopeData($timestamp, $location)
 when common parameters //$timestamp// and //$location// are equal, i.e. the return value of renderHoroscope(12345667, 'Berlin', 'some template'); depends on getHoroscopeData(12345667, 'Berlin').
 
-The Avalanche API does not use annotation to define common parameters. Instead, a convenction is used: **common parameters MUST be called with the same name**.
+The Foomo caching API does not use annotation to define common parameters. Instead, a convention is used: **common parameters MUST be called with the same name**.
 
-Note, if for example, method **//renderHoroscope()//** was defined as **//renderHoroscope($timeOfInterest, $where, $template)//**, the Avalanche would could not establish a physical dependency of **//renderHoroscope()//** to **//getHoroscopeData()//**.
+Note, if for example, method **//renderHoroscope()//** was defined as **//renderHoroscope($timeOfInterest, $where, $template)//**, the Foomo cache would not establish a physical dependency of **//renderHoroscope()//** to **//getHoroscopeData()//**.
 
 
 +++ What are cache resources
@@ -207,13 +207,13 @@ Cache resources are wrapper objects that hold the return value of the cached met
 +++ Cache invalidation
 
 Cache invalidation is a process that modifies a whole (physical) dependency tree of cached resources whenever the root resource is modified, i.e. saved (or the
-action is programmatically triggered). The process of invalidation is one of the highlights of Avalanche that also gave it the name.
+action is programmatically triggered). The process of invalidation is one of the highlights of the Foomo cache.
 
 Whenever a Proxy call identifies a cached resource with status INVALID or that has expired, it creates a new one and saves the newly created one to the cache using the **//\Foomo\Cache\Manager //** save method class. This could potentially lead to cache inconsistency if there were other cached objects that were depending on the newly created resource.
 To avoid inconsistency, the Manager class delegates the invalidation of depending objects to the \Foomo\Cache\Invalidator class.
 
 Invalidation essentially builds a dependency tree and traverses it in full depth. All depending objects (those have an an annotated dependency and have same parameter values) are then updated based on the invalidation policy used.
-Avalanche uses the following invalidation policies:
+The Foomo cache uses the following invalidation policies:
 
 * POLICY_INSTANT_REBUILD - a depending object is re-created during invalidation. This is the default invalidation behaviour. Note that in some cases this could be a lengthy process.
 
@@ -231,24 +231,24 @@ Creating caches is a very expensive task. Hence, it is too risky to use a fast r
 
 Filesystem driven caches on the other hand tend to be slow, but they are safe(r).
 
-Therefore Avalanche has a cache system, that supports two levels of cache. One of those levels is safe, the other one is fast and the system handles uploading of cached objects from the safe to the fast level automatically, \
+Therefore the Foomo cache API has a cache architecture, that supports two levels of cache. One levels is safe, the other one is fast. The caching implementation handles uploading of cached objects from the safe to the fast level automatically, \
 when information gets lost on the fast level.
 
 Furthermore, the filesystem based cache provides the ability to query cached resources, allowing for tight control over cached resources.
 
 The two levels of caching are implemented is implemented as fast (\Foomo\Cache|Persistence\FastPersistorInterface)  and queryable (\Foomo\Cache|Persistence\QueryablePersistorInterface) persistors.
 
-The default implementation of the fast persistor in Avalanche is based on APC, while the queryable persitor uses a MySQL database. By implementing the persistor interface, it is possible to use other, user provided persistence mechanisms.
+The default implementation of the fast persistor in Foomo is based on APC, while the queryable persitor uses a MySQL database. By implementing the persistor interface, it is possible to use other, user provided persistence mechanisms.
 
 
 
 +++ Cache setup
 
-The Avalanche cache is setup by adding the configuration to the apache vhost.conf file. For example, the following example shows a cache configuration that uses apc for the fast cache and PDOPersistor (cached resources are stored in mysql MYISAM tables) as queryable cache.
+The Foomo cache is setup by adding the configuration to the apache vhost.conf file. For example, the following example shows a cache configuration that uses apc for the fast cache and PDOPersistor (cached resources are stored in mysql MYISAM tables) as queryable cache.
 
 <geshi type="text">
 SetEnv "FOOMO_CACHE_FAST" "apc"
-SetEnv "FOOMO_CACHE_QUERYABLE" "pdo::mysql://root:@127.0.0.1:3306/radCacheFoomoframeworkTest"
+SetEnv "FOOMO_CACHE_QUERYABLE" "pdo::mysql://root:@127.0.0.1:3306/cacheFoomoframeworkTest"
 
 </geshi>
 
@@ -281,8 +281,8 @@ Manager::reset();
 </geshi>
 
 
-+++ The Avalanche cache API - usage examples
-This section provides examples on how to manipulate cached resources through the Avalanche cache API.
++++ The Foomo cache API - usage examples
+This section provides examples on how to manipulate cached resources through the Foomo cache API.
 
 ++++ Caching static and object method calls
 <geshi type="php">
@@ -374,11 +374,11 @@ $success = fastPersistor->delete($resource);
 
 
 
-+++ Avalanche expressions - the cache query language
++++ Foomo cache expressions - the cache query language
 
-Resources persisted using a queryable persistor can be queryed. Avalanche comprises a domain specific query language that can be used to create simple and complex queries.
+Resources persisted using a queryable persistor can be queryed. The Foomo cache comprises a domain specific query language that can be used to create simple and complex queries.
 
-A simple Avalanche expression consists of a condition such as 'resource id equals 123455667' or 'resource is valid'. An Avalanche expression is represented with the \Foomo\Cache\Persistence\Expr class.
+A simple The Foomo expression consists of a condition such as 'resource id equals 123455667' or 'resource is valid'. An The Foomo expression is represented with the \Foomo\Cache\Persistence\Expr class.
 Such simple expressions may be the aggregated using logical operators AND and OR to form complex queries.
 
 A simple expression can be constructed by calling a static method on the Expr class.
@@ -635,12 +635,12 @@ The cache frontend provides access to aspects and operations of the cache. This 
 * resource invalidation (single object and all resources with a resource name)
 * cache reset
 * population of the fast cache with resources from the queryable cache
-* search for resources using Avalanche expressions
+* search for resources using expressions
 * ...
 
 
 +++ Summary
-* Avalanche caches results of method calls
+* The Foomo cache caches results of method calls
 * Use the **//@Foomo\Cache\CacheDescription//** annotation when you want to cache method calls
 * **//PHPDoc @param//** comments MUST be present in the cached method annotation
 * In order to use caching perform method calls through the \Foomo\Cache\Proxy::call() method.

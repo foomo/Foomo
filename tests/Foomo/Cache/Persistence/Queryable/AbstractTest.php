@@ -6,53 +6,44 @@ namespace Foomo\Cache\Persistence\Queryable;
 use Foomo\Cache\Proxy;
 
 abstract class AbstractTest extends \PHPUnit_Framework_TestCase {
-	const MOCK_CLASS_NAME = 'Foomo\Cache\MockObjects\SampleResources';
-	/**
-	 *
-	 * @var \Foomo\Cache\Persistence\QueryablePersistorInterface
-	 */
-	protected $persistor;
-	// abstract public function setUp();
+	protected $fastPersistorBu;
+	protected $queryablePersistorBu;
+	
+	
+	protected function saveManagerSettings() {
+		$this->fastPersistorBu = \Foomo\Cache\Manager::getFastPersistor();
+		$this->queryablePersistorBu = \Foomo\Cache\Manager::getQueryablePersistor();
+	}
+	
+	
+	protected function restoreManagerSettings() {
+		\FooMo\Cache\Manager::initialize($this->queryablePersistorBu, $this->fastPersistorBu);
+	}
+	
+	
+	protected function clearMockCache($queryablePersistor, $fastPersistor) {
+		//store the current manager settings
+		$fastPersistorBu = \Foomo\Cache\Manager::getFastPersistor();
+		$queryablePersistorBu = \Foomo\Cache\Manager::getQueryablePersistor();
+		\Foomo\Cache\Manager::initialize($queryablePersistor, null);
+		
+		//invalidate fast cache
+		$fastPersistor->reset();
+		//invalidate queryable cache		
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->noticeMEEEEEEE', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->iamAmAmixedMethod', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources::test', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->testNonStatic', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->getHoroscopeData', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->renderHoroscope', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->renderHoroscope3D', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->sendHosroscopeRendering', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->checkHoroscopeReception', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->checkHoroscopeValid', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->getAddress', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+				
+		//set manager back to
+		\Foomo\Cache\Manager::initialize($queryablePersistorBu, $fastPersistorBu);
+	}
 
-	private function createResource($args = array('fooVal', 'barVal'))
-	{
-		return Proxy::getEmptyResource(self::MOCK_CLASS_NAME, 'test', $args);
-	}
-	function testSave()
-	{
-		$resource = $this->createResource();
-		$this->persistor->save($resource);
-		$cachedResource = $this->persistor->load($resource);
-		$this->assertEquals($resource, $cachedResource);
-	}
-	function testDelete()
-	{
-		$resource = $this->createResource();
-		$this->persistor->save($resource);
-		$cachedResource = $this->persistor->load($resource);
-		$this->assertEquals($resource, $cachedResource);
-		$this->persistor->delete($resource);
-		$cachedResource = $this->persistor->load($resource);
-		$this->assertEquals(null, $cachedResource);
-	}
-	public function testFind()
-	{
-		foreach($fooArray = array('a', 'b') as $foo) {
-			foreach($barArray = array(1,2,3,4,5) as $bar) {
-				$resource = $this->createResource(array($foo, $bar));
-				$this->persistor->save($resource);
-			}
-		}
-		$resourceIterator = $this->persistor->find(self::MOCK_CLASS_NAME . '::test');
-		$this->assertEquals(count($fooArray) * count($barArray), count($resourceIterator));
-
-		$resourceIterator = $this->persistor->find(self::MOCK_CLASS_NAME . '::test', array('foo' => 'a'));
-		$this->assertEquals(count($barArray), count($resourceIterator));
-
-		foreach($resourceIterator as $resource) {
-			$this->assertArrayHasKey('foo', $resource->properties);
-			$this->assertArrayHasKey('bar', $resource->properties);
-			$this->assertEquals('a', $resource->properties['foo']);
-		}
-	}
 }
