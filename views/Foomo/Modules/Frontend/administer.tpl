@@ -42,7 +42,7 @@ $resI = 0;
 	?>
 		<tr>
 			<td style="text-align:center;"><?php echo '<img src="' . \Foomo\ROOT_HTTP . '/img/' . $moduleEnabled . '.gif" width="12" height="12" title="'. $moduleEnabled .'" alt="'. $moduleEnabled .'">'; ?></td>
-			<td><?= $availableModule; ?></td>
+			<td><?= $availableModule; ?> / <?= constant(str_replace('.', '\\', $availableModule) . '\\Module::VERSION') ?></td>
 			<td><?= Manager::getModuleDescription($availableModule); ?></td>
 			<td><?= implode(', ', Manager::getRequiredModules($availableModule)); ?></td>
 			<td class="<?= $hintClass ?>"><?= $modStat==Manager::MODULE_STATUS_OK?'ok':'check'; ?></td>
