@@ -130,7 +130,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 					/**
 					 * if this throws an exception it will be caught at the manager level
 					 */
-					trigger_error(__METHOD__ . ' trying to create the table. table was not there!' . $resource->name . $e->getMessage(), \E_USER_WARNING);
+					//trigger_error(__METHOD__ . ' trying to create the table. table was not there!' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 					$this->createTableForResource($resource);
 					//call save again after table was created. 
 					return $this->save($resource);
