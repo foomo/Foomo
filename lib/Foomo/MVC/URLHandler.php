@@ -36,7 +36,7 @@ class URLHandler {
 	public $lastAction;
 	/**
 	 * last action was called with these parameters
-	 * 
+	 *
 	 * @var array
 	 */
 	public $lastParameters;
@@ -47,13 +47,13 @@ class URLHandler {
 	public $path;
 	/**
 	 * id of the application
-	 * 
+	 *
 	 * @var string
 	 */
 	private $appId;
 	/**
 	 * controller class name
-	 * 
+	 *
 	 * @var string
 	 */
 	private $controllerClassName;
@@ -61,7 +61,7 @@ class URLHandler {
 	private static $instanceCounter = array();
 	/**
 	 * class / controller interface information
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $classCache = array();
@@ -257,11 +257,11 @@ class URLHandler {
 
 	/**
 	 * Sanitize input
-	 * 
+	 *
 	 * @param Controller\ActionParameter $parameter
 	 * @param mixed $value
 	 * @internal
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public static function castParameterToSanitized(Controller\ActionParameter $parameter, $value)
@@ -366,5 +366,4 @@ class URLHandler {
 	{
 		return $this->renderState();
 	}
-
 }

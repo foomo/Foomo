@@ -16,7 +16,7 @@ abstract class ModuleBase {
 	const VERSION = '0.1.1';
 	/**
 	 * include paths - called before the module is initialized
-	 * 
+	 *
 	 * @return string[]
 	 */
 	public static function getIncludePaths()
@@ -28,12 +28,12 @@ abstract class ModuleBase {
 	 */
 	public static function initializeModule()
 	{
-		
+
 	}
 
 	/**
 	 * describe your module - text only
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function getDescription()
@@ -42,11 +42,11 @@ abstract class ModuleBase {
 	}
 	/**
 	 * get a view for an app
-	 * 
+	 *
 	 * @param mixed $app instance or class name
 	 * @param string $template relative path from /path/to/your/module/teplates
 	 * @param mixed $model whatever your model may be
-	 * 
+	 *
 	 * @return Foomo\View
 	 */
 	public static function getView($app, $template, $model = null)
@@ -75,8 +75,8 @@ abstract class ModuleBase {
 	 * get a module translation for an app
 	 *
 	 * @param mixed $app instance or class name
-	 * @param type $localeChain 
-	 * 
+	 * @param type $localeChain
+	 *
 	 * @return Foomo\Translation
 	 */
 	public static function getTranslation($app, $localeChain = null)
@@ -89,7 +89,7 @@ abstract class ModuleBase {
 			$namespace = $app;
 		}
 		return Translation::getModuleTranslation(
-			constant($calledClassName . '::NAME'), 
+			constant($calledClassName . '::NAME'),
 			$namespace,
 			$localeChain
 		);

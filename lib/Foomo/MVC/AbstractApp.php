@@ -9,7 +9,11 @@ namespace Foomo\MVC;
 /**
  * extend this to get MVC apps and overwrite the constructor, if you need special treatment for the model like session persistance
  */
-abstract class AbstractApp {
+abstract class AbstractApp
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * @var stdClass
@@ -21,10 +25,15 @@ abstract class AbstractApp {
 	public $controller;
 	/**
 	 * view
-	 * 
+	 *
 	 * @var Foomo\MVC\View
 	 */
 	public $view;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
 	public function __construct($appClassName = null)
 	{
 		if (!$appClassName) {
@@ -41,27 +50,31 @@ abstract class AbstractApp {
 		$this->controller->model = $this->model;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * supported layouts
-	 * 
+	 *
 	 *   very old school:
 	 *     Foo
 	 *     FooController
 	 *     FooModel
-	 * 
+	 *
 	 *   NS old school:
 	 *     Foo\App
 	 *     Foo\Model
 	 *     Foo\
-	 * 
+	 *
 	 *   NS new school:
 	 *     Foo
 	 *     Foo\Model
 	 *     Foo\Controller
-	 * 
+	 *
 	 * @param type $appClassName
 	 * @param type $type
-	 * @return type 
+	 * @return type
 	 */
 	private function getClassName($appClassName, $type)
 	{
@@ -80,7 +93,7 @@ abstract class AbstractApp {
 				if(!class_exists($candidate)) {
 					// giving up
 					trigger_error(
-						'could not determine ' . $type . 
+						'could not determine ' . $type .
 						' for ' . $appClassName .
 						' I was looking for ' . $simpleCandidate .
 						' or ' . $oldCandidate .
@@ -92,5 +105,4 @@ abstract class AbstractApp {
 		}
 		return $candidate;
 	}
-
 }
