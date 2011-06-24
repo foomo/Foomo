@@ -96,7 +96,7 @@ class Controller {
 		$conf = $this->getConfClassInst($domain);
 		$conf->setValue(Yaml::parse($yaml));
 		Config::setConf($conf, $module, $subDomain, $yaml);
-		MVC::redirect('showConf', array($module, $domain, $subDomain, 'config was updated'));
+		MVC::redirect('showConf', array($module, $domain, $subDomain));
 	}
 
 	private function getConfClassInst($domain)
@@ -111,7 +111,7 @@ class Controller {
 	public function actionDeleteConf($module, $domain, $subDomain)
 	{
 		Config::removeConf($module, $domain, $subDomain);
-		MVC::redirect('actionConfEditor');
+		MVC::redirect('default');
 	}
 
 	public function actionRestoreDefault($module, $domain, $subDomain = '')

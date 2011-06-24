@@ -52,12 +52,12 @@ class Fs extends \Foomo\Modules\Resource {
 	}
 
 	/**
-	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode 
+	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode
 	 *
-	 * @param string $type one of self::TYPE_... 
+	 * @param string $type one of self::TYPE_...
 	 * @param string $relFilename relative filename
-	 * 
-	 * @return Foomo\Modules\Resources\Fs
+	 *
+	 * @return Foomo\Modules\Resource\Fs
 	 */
 	public static function getVarResource($type, $relFilename)
 	{
@@ -66,14 +66,14 @@ class Fs extends \Foomo\Modules\Resource {
 
 	/**
 	 * self::getDynamicHtdocsResource(self::TYPE_FOLDER, 'foo', 'css') . DIRECTORY_SEPARATOR . 'bar.css' =>
-	 * 
+	 *
 	 * /r/modulesVar/foo/css/bar.css
-	 * 
-	 * @param string $type one of self::TYPE_... 
+	 *
+	 * @param string $type one of self::TYPE_...
 	 * @param string $module name of the module
-	 * @param string $relFileName 
-	 * 
-	 * @return Foomo\Modules\Resources\Fs
+	 * @param string $relFileName
+	 *
+	 * @return Foomo\Modules\Resource\Fs
 	 */
 	public static function getModuleHtdocsVarResource($type, $module, $relFileName)
 	{
@@ -82,12 +82,12 @@ class Fs extends \Foomo\Modules\Resource {
 
 	/**
 	 * get a logging resource
-	 * 
+	 *
 	 * @param string $type
 	 * @param string $relFilename relative filename
 	 * @param string $module name of the module
-	 * 
-	 * @return Foomo\Modules\Resources\Fs
+	 *
+	 * @return Foomo\Modules\Resource\Fs
 	 */
 	public static function getLogResource($type, $relFilename, $module = 'Foomo') // $module = \Foomo\Module::NAME
 	{
@@ -95,12 +95,12 @@ class Fs extends \Foomo\Modules\Resource {
 	}
 
 	/**
-	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode/currentCache 
+	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode/currentCache
 	 *
-	 * @param string $type one of self::TYPE_... 
+	 * @param string $type one of self::TYPE_...
 	 * @param string $relFilename relative filename
-	 * 
-	 * @return Foomo\Modules\Resources\Fs
+	 *
+	 * @return Foomo\Modules\Resource\Fs
 	 */
 	public static function getCacheResource($type, $relFilename)
 	{

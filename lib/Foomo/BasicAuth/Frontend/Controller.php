@@ -25,7 +25,9 @@ class Controller {
 	}
 	public function actionCreateDomain($domain)
 	{
-		Utils::createDomain($domain);
+		if(!empty($domain)) {
+			Utils::createDomain($domain);
+		}
 	}
 	public function actionDeleteUser($domain, $user)
 	{

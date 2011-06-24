@@ -1,50 +1,43 @@
 <?php
-
 /* @var $model Foomo\Config\Frontend\Model */
 
-$domainConfigClass = Foomo\Config::getDomainConfigClassName($model->currentConfigDomain);
+
+//var_dump($module, $domain, $subDomainName, $domainConfigClass);return;
 $def = new $domainConfigClass;
-$config = Foomo\Config::getCurrentConfYAML($model->currentConfigModule, $model->currentConfigDomain, $model->currentConfigSubDomain);
+$config = Foomo\Config::getCurrentConfYAML($module, $domain, $subDomain);
 $delParms = array(
-	'module' => $model->currentConfigModule,
-	'domain' => $model->currentConfigDomain,
-	'subDomain' => $model->currentConfigSubDomain
+	'module' => $module,
+	'domain' => $domain,
+	'subDomain' => $subDomain
 );
+$aDefaultName = 'default-' . $module . '-' . $domain . '-' . $subDomain;
+$aCurrentName = 'default-' . $module . '-' . $domain . '-' . $subDomain;
 ?>
-<?= $view->partial('confMenu') ?>
-<table id="yamlEditTable">
-	<tr class="yamlEdit">
-		<td>
-			<form action="<?= $view->url('actionSetConf'); ?>" method="post">
-				<input type="hidden" name="module" value="<?=  $model->currentConfigModule; ?>">
-				<input type="hidden" name="domain" value="<?=  $model->currentConfigDomain; ?>">
-				<input type="hidden" name="subDomain" value="<?=  $model->currentConfigSubDomain; ?>">
-				<p>current</p>
-				<textarea
-					rows="<?= count(explode(PHP_EOL, $config)); ?>"
-					class="yamlEdit"
-					name="yaml"
-				><?=  $config ?></textarea>
-				<p>
-					<input type="submit" value="update">
-				</p>
-			</form>
-		</td>
-		<td>
-			<form action="<?= $view->url('actionRestoreDefault'); ?>" method="post">
-				<input type="hidden" name="module" value="<?=  $model->currentConfigModule; ?>">
-				<input type="hidden" name="domain" value="<?=  $model->currentConfigDomain; ?>">
-				<input type="hidden" name="subDomain" value="<?=  $model->currentConfigSubDomain; ?>">
-				<p title="you can not change the default - this textarea is only enabled, because you can not copy text from a disabled text field in some browsers ...">default</p>
-				<textarea
-					title="you can not change the default - this textarea is only enabled, because you can not copy text from a disabled text field in some browsers ..."
-					rows="<?= count(explode(PHP_EOL, $config)); ?>"
-					class="yamlEdit"
-				><?=  \Foomo\Yaml::dump($def->getDefault()) ?></textarea>
-				<p>
-					<input type="submit" value="restore default">
-				</p>
-			</form>
-		</td>
-	</tr>
-</table>
+<ul>
+	<li><a href="#<?= $aCurrentName ?>">Current value</a></li>
+	<li><a href="#<?= $aDefaultName ?>">Default value</a></li>
+	<li><?= $view->link('restore default', 'restoreDefault', array($module, $domain, $subDomain)) ?></li>
+</ul>
+<div>
+    <form action="<?= $view->url('actionSetConf'); ?>" method="post">
+		<input type="hidden" name="module" value="<?= $module; ?>">
+		<input type="hidden" name="domain" value="<?= $domain; ?>">
+		<input type="hidden" name="subDomain" value="<?= $subDomain; ?>">
+		<p>current</p>
+		<textarea
+			rows="20"
+			class="yamlEdit"
+			name="yaml"
+			><?= $config ?></textarea>
+		<p>
+			<input type="submit" value="update">
+		</p>
+    </form>
+</div>
+
+<h3><a name="<?= $aCurrentName ?>">Current value</a></h3>
+<div><pre><?= var_dump(\Foomo\Config::getConf($module, $domain, $subDomain)) ?></pre></div>
+
+<h3><a name="<?= $aDefaultName ?>">Default value</a></h3>
+
+<div><pre><?= $view->escape(\Foomo\Config::getDefaultConfig($domain)) ?></pre></div>

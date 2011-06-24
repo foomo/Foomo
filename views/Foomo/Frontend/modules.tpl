@@ -1,4 +1,6 @@
 <?= $view->partial('header') ?>
 <?= $view->partial('menu') ?>
-<?= Foomo\MVC::run('Foomo\\Modules\\Frontend') ?>
+<div id="main">
+	<?= Foomo\MVC::run('Foomo\\Modules\\Frontend') ?>
+</div>
 <?= $view->partial('footer') ?>
