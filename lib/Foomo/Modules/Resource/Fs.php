@@ -10,11 +10,21 @@ namespace Foomo\Modules\Resource;
  * a file system resource
  *
  */
-class Fs extends \Foomo\Modules\Resource {
+class Fs extends \Foomo\Modules\Resource
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+
 	const TYPE_SOCKET = 'socket';
 	const TYPE_FIFO = 'fifo';
 	const TYPE_FOLDER = 'dir';
 	const TYPE_FILE = 'file';
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * type of fs resource - one of self::TYPE_...
 	 *
@@ -27,6 +37,11 @@ class Fs extends \Foomo\Modules\Resource {
 	 * @var string
 	 */
 	private $filename;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
 	private function __construct($type, $filename)
 	{
 		if (!in_array($type, array(self::TYPE_FILE, self::TYPE_FOLDER))) {
@@ -36,10 +51,9 @@ class Fs extends \Foomo\Modules\Resource {
 		$this->filename = $filename;
 	}
 
-	public static function getAbsoluteResource($type, $fileName)
-	{
-		return new self($type, $fileName);
-	}
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * get the file name
@@ -49,62 +63,6 @@ class Fs extends \Foomo\Modules\Resource {
 	public function getFileName()
 	{
 		return $this->filename;
-	}
-
-	/**
-	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode
-	 *
-	 * @param string $type one of self::TYPE_...
-	 * @param string $relFilename relative filename
-	 *
-	 * @return Foomo\Modules\Resource\Fs
-	 */
-	public static function getVarResource($type, $relFilename)
-	{
-		return new self($type, \Foomo\Config::getVarDir() . DIRECTORY_SEPARATOR . $relFilename);
-	}
-
-	/**
-	 * self::getDynamicHtdocsResource(self::TYPE_FOLDER, 'foo', 'css') . DIRECTORY_SEPARATOR . 'bar.css' =>
-	 *
-	 * /r/modulesVar/foo/css/bar.css
-	 *
-	 * @param string $type one of self::TYPE_...
-	 * @param string $module name of the module
-	 * @param string $relFileName
-	 *
-	 * @return Foomo\Modules\Resource\Fs
-	 */
-	public static function getModuleHtdocsVarResource($type, $module, $relFileName)
-	{
-		return new self($type, \Foomo\Config::getHtdocsVarDir($module) . DIRECTORY_SEPARATOR . $relFileName);
-	}
-
-	/**
-	 * get a logging resource
-	 *
-	 * @param string $type
-	 * @param string $relFilename relative filename
-	 * @param string $module name of the module
-	 *
-	 * @return Foomo\Modules\Resource\Fs
-	 */
-	public static function getLogResource($type, $relFilename, $module = 'Foomo') // $module = \Foomo\Module::NAME
-	{
-		return new self($type, \Foomo\Config::getLogDir($module) . DIRECTORY_SEPARATOR . $relFilename);
-	}
-
-	/**
-	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode/currentCache
-	 *
-	 * @param string $type one of self::TYPE_...
-	 * @param string $relFilename relative filename
-	 *
-	 * @return Foomo\Modules\Resource\Fs
-	 */
-	public static function getCacheResource($type, $relFilename)
-	{
-		return new self($type, \Foomo\Config::getCacheDir() . DIRECTORY_SEPARATOR . $relFilename);
 	}
 
 	public function resourceValid()
@@ -187,6 +145,10 @@ class Fs extends \Foomo\Modules\Resource {
 		return $ret;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
 	private function tryCreateFolder($dirname)
 	{
 		$i = 0;
@@ -224,4 +186,78 @@ class Fs extends \Foomo\Modules\Resource {
 		return true;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	public static function getAbsoluteResource($type, $fileName)
+	{
+		return new self($type, $fileName);
+	}
+
+	/**
+	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode
+	 *
+	 * @param string $type one of self::TYPE_...
+	 * @param string $relFilename relative filename
+	 *
+	 * @return Foomo\Modules\Resource\Fs
+	 */
+	public static function getVarResource($type, $relFilename)
+	{
+		return new self($type, \Foomo\Config::getVarDir() . DIRECTORY_SEPARATOR . $relFilename);
+	}
+
+	/**
+	 * self::getDynamicHtdocsResource(self::TYPE_FOLDER, 'foo', 'css') . DIRECTORY_SEPARATOR . 'bar.css' =>
+	 *
+	 * /r/modulesVar/foo/css/bar.css
+	 *
+	 * @param string $type one of self::TYPE_...
+	 * @param string $module name of the module
+	 * @param string $relFileName
+	 *
+	 * @return Foomo\Modules\Resource\Fs
+	 */
+	public static function getModuleHtdocsVarResource($type, $module, $relFileName)
+	{
+		return new self($type, \Foomo\Config::getHtdocsVarDir($module) . DIRECTORY_SEPARATOR . $relFileName);
+	}
+
+	/**
+	 * get a logging resource
+	 *
+	 * @param string $type
+	 * @param string $relFilename relative filename
+	 * @param string $module name of the module
+	 *
+	 * @return Foomo\Modules\Resource\Fs
+	 */
+	public static function getLogResource($type, $relFilename, $module = 'Foomo') // $module = \Foomo\Module::NAME
+	{
+		return new self($type, \Foomo\Config::getLogDir($module) . DIRECTORY_SEPARATOR . $relFilename);
+	}
+
+	/**
+	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode/currentCache
+	 *
+	 * @param string $type one of self::TYPE_...
+	 * @param string $relFilename relative filename
+	 *
+	 * @return Foomo\Modules\Resource\Fs
+	 */
+	public static function getCacheResource($type, $relFilename)
+	{
+		return new self($type, \Foomo\Config::getCacheDir() . DIRECTORY_SEPARATOR . $relFilename);
+	}
+
+	/**
+	 * @param string $type
+	 * @param string $filename
+	 * @return Foomo\Modules\Resource\Fs
+	 */
+	public static function createInstance($type, $filename)
+	{
+		return new self($type, $filename);
+	}
 }

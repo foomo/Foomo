@@ -6,12 +6,14 @@
 
 namespace Foomo;
 
-use Exception;
-
 /**
  * cli calls made less painful
  */
-class CliCall {
+class CliCall
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * catches the std output from the command
@@ -80,6 +82,10 @@ class CliCall {
 	 */
 	public $envVars = array();
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * construct your command
 	 *
@@ -87,35 +93,40 @@ class CliCall {
 	 * @param array $arguments array of arguments
 	 * @param array $envVars array('varName' => value, ...)
 	 */
-	public function __construct($cmd, $arguments = array(), $envVars=array())
+	public function __construct($cmd, $arguments=array(), $envVars=array())
 	{
 		$this->cmd = $this->resolveCommand($cmd);
 		$this->arguments = $arguments;
 		$this->envVars = $envVars;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
 	/**
-	 * try to resolve the given command
-	 *
-	 * @param string $cmd
+	 * @param array $arguments
+	 * @return Foomo\CliCall
 	 */
-	private function resolveCommand($cmd)
+	public function addEnvVars(array $envVars)
 	{
-		$ret = '';
-		if (file_exists($cmd) || strpos($cmd, '$') === 0) {
-			$ret = $cmd;
-		} else {
-			$resolveCmd = 'which ' . escapeshellarg($cmd);
-			$ret = trim(`$resolveCmd`);
-		}
-		if ($ret === '') {
-			throw new Exception('command ' . $cmd . ' is invalid', 1);
-		}
-		return $ret;
+		$this->envVars = array_merge($this->envVars, $envVars);
+		return $this;
+	}
+
+	/**
+	 * @param array $arguments
+	 * @return Foomo\CliCall
+	 */
+	public function addArguments(array $arguments)
+	{
+		$this->arguments = array_merge($this->arguments, $arguments);
+		return $this;
 	}
 
 	/**
 	 * execute the command line call
+	 * @return Foomo\CliCall
 	 */
 	public function execute()
 	{
@@ -149,17 +160,44 @@ class CliCall {
 		@unlink($outTempFileName);
 		@unlink($errorTimeTempFileName);
 		$this->updateReport();
+		return $this;
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * try to resolve the given command
+	 *
+	 * @param string $cmd
+	 */
+	private function resolveCommand($cmd)
+	{
+		$ret = '';
+		if (file_exists($cmd) || strpos($cmd, '$') === 0) {
+			$ret = $cmd;
+		} else {
+			$resolveCmd = 'which ' . escapeshellarg($cmd);
+			$ret = trim(`$resolveCmd`);
+		}
+		if ($ret === '') {
+			throw new \Exception('command ' . $cmd . ' is invalid', 1);
+		}
+		return $ret;
 	}
 
 	/**
 	 * update the report property, after a command was executed
-	 *
 	 */
 	private function updateReport()
 	{
-		$this->report = \Foomo\Module::getView($this, 'cliCallReport', $this)->render();
+		$this->report = \Foomo\Module::getView('Foomo\\CliCall', 'cliCallReport', $this)->render();
 	}
 
+	/**
+	 * @param string $report
+	 */
 	private function parseTime($report)
 	{
 		$lines = explode(PHP_EOL, $report);
@@ -171,4 +209,18 @@ class CliCall {
 		}
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $cmd name or abolute path of the command, if the program file does not exist, we will call which to find it
+	 * @param array $arguments array of arguments
+	 * @param array $envVars array('varName' => value, ...)
+	 * @return Foomo\CliCall
+	 */
+	public static function create($cmd, $arguments=array(), $envVars=array())
+	{
+		return new self($cmd, $arguments, $envVars);
+	}
 }
