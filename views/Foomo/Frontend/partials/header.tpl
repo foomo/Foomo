@@ -4,6 +4,7 @@
 		<div>Mode: <b><?= Foomo\Config::getMode() ?></b></div>
 	</div>
     <div id="menuTop">
+		
 		<div><a href="" target="_blank">Logout</a></div>
 		<div>
 			<?
@@ -30,5 +31,5 @@
 		</div>
 
 	</div>
-    <div id="logoBox"><img src="<?= \Foomo\ROOT_HTTP ?>/img/site/foomo-logo.png"><div id="version">toolbox v 1.02</div></div>
+    <div id="logoBox"><a href="<?= \htmlspecialchars($view->url('default', array())) ?>"><img src="<?= \Foomo\ROOT_HTTP ?>/img/site/foomo-logo.png"></a><div id="version">toolbox v 1.02</div></div>
 </header>

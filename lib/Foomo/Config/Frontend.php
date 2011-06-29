@@ -11,4 +11,6 @@ use Foomo\MVC\AbstractApp;
 /**
  * manage foomo configurations
  */
-class Frontend extends AbstractApp {}
+class Frontend extends AbstractApp
+{
+}

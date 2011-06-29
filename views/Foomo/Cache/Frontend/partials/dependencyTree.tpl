@@ -7,7 +7,7 @@
 <? foreach($resources as $resourceName): ?>
 	<li>
 		<? $model->addedResources[] = $resourceName; ?>
-		<?= $view->link($resourceName, 'actionShowCachedItems', array($resourceName), "Show cached resources.") ?>
+		<?= $view->link($resourceName, 'actionShowCachedItems', array($resourceName), array('title' => "Show cached resources.")) ?>
 		<?= $view->partial('dependencyTree', array('resources' => $model->getDependencies($resourceName))) ?>
 	</li>
 <? endforeach; ?>

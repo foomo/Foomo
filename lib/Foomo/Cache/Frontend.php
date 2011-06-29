@@ -5,6 +5,6 @@
 
 namespace Foomo\Cache;
 
-use Foomo\MVC\AbstractApp;
-
-class Frontend extends AbstractApp {}
+class Frontend extends \Foomo\MVC\AbstractApp
+{
+}

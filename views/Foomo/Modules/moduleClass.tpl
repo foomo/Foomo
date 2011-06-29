@@ -4,25 +4,33 @@ echo '<?php';
 
 namespace <?= $model['namespace'] ?>;
 
-use Foomo\Modules\ModuleBase;
-
 /**
  * Module <?= $model['name'] ?> for foomo
- * Created <?= date('Y-m-d H:i:s') ?>
-
+ * Created <?= date('Y-m-d H:i:s') . PHP_EOL ?>
  */
-class Module extends ModuleBase {
+class Module extends \Foomo\Modules\ModuleBase
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * the name of this module
 	 *
 	 */
 	const NAME = '<?= $model['name'] ?>';
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Overriden static methods
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * Your module needs to be set up, before being used - this is the place to do it
 	 */
 	public static function initializeModule()
 	{
 	}
+
 	/**
 	 * Get a plain text description of what this module does
 	 *
@@ -32,6 +40,7 @@ class Module extends ModuleBase {
 	{
 		return '<?= addcslashes($model['description'], "'") ?>';
 	}
+
 	/**
 	 * get all the module resources
 	 *

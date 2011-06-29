@@ -7,32 +7,41 @@ $foundOldConfigs = array();
 ?>
 <?= $view->partial('menu') ?>
 <div id="appContent">
-	<div id="configManagerList">
-		<ul>
+	
+	<div id="config">
+
 			<? foreach($configs as $module => $moduleConfigs): ?>
-				<li>
-					<?= $module ?>
-					<ul>
+				<div class="whiteBox">
+					<h2><?= $module ?></h2>
+					<br>
+					<div>
+					
 					<? foreach($moduleConfigs as $subDomainName => $subDomainConfigs): ?>
+						
 						<? if(!empty($subDomainName)): ?>
-							<li>
-								<?= $subDomainName ?>
-									<ul>
+								<h3><?= $module ?> <?= $subDomainName ?></h3>
 						<? endif; ?>
+						
 						<? foreach($subDomainConfigs as $domain => $file): 
 							$domainConfigClass = Foomo\Config::getDomainConfigClassName($domain);
 							$displayThisConfig = $model->showConfigModule == $module && $model->showConfigDomain == $domain && $model->showConfigSubDomain == $subDomainName;
-						?>
-							<li>
-								<?= $module . (!empty($subDomainName)?'/' . $subDomainName . '/':'/') . $domain ?>
-								<ul>
-									<li><a onclick="$('#<?= $editorId = str_replace('.', '-', $module . '-' . $domain . '-' . $subDomainName) ?>').toggle(300)">Edit</a></li>
-									<li><?= $view->link('delete', 'deleteConf', array($module, $domain, $subDomainName), 'delete conf') ?></li>
-								</ul>
-								<div id="<?= $editorId ?>" style="display:<?= $displayThisConfig?'block':'none' ?>">
-									<?= $view->partial('edit', array('domain' => $domain, 'module' => $module, 'subDomain' => $subDomainName, 'domainConfigClass' => $domainConfigClass)) ?>
-								</div>
-								<? 
+							$editorId = str_replace('.', '-', $module . '-' . $domain . '-' . $subDomainName)
+						?>		
+								<div id="moduleBox">
+									<div id="moduleItem">
+										<b><?= $module . (!empty($subDomainName)?'/' . $subDomainName . '/':'/') . $domain ?></b>
+
+										<ul id="ctrlButtons">
+											<li><?= $view->partial('buttonYellow', array('url' => '', 'name' => 'Edit', 'js' => 'onclick="$(\'#'. $editorId .'\').toggle(300)"'  ), 'Foomo\Frontend') ?></li>
+											<li><?= $view->partial('buttonYellow', array('url' => 'deleteConf', 'name' => 'Delete' , 'parameters' => array($module, $domain, $subDomainName)), 'Foomo\Frontend') ?></li>
+										</ul>
+									</div>
+
+								
+									<div class="detail" id="<?= $editorId ?>" style="display:<?= $displayThisConfig?'block':'none' ?>">
+										<?= $view->partial('edit', array('domain' => $domain, 'module' => $module, 'subDomain' => $subDomainName, 'domainConfigClass' => $domainConfigClass)) ?>
+									</div>
+									<? 
 									$oldOnes = array();
 									foreach($oldConfigs as $oldConfig) {
 										/* @var $oldConfig \Foomo\Config\OldConfig */
@@ -42,43 +51,62 @@ $foundOldConfigs = array();
 										}
 									}
 								?>
+								
 								<? if(count($oldOnes) > 0): ?>
-									<ul class="oldConfigs">
+									
 										<? foreach($oldOnes as $oldConfig): ?>
-											<li>
-												<?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?>
-												<?= $view->partial('old', array('oldConfig' => $oldConfig)) ?>
-											</li>
+								<div id="moduleHistoryItem">
+										<span><?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?></span>
+										
+												
+										<?= $view->partial('old', array('oldConfig' => $oldConfig)) ?>
+										</div>
 										<? endforeach; ?>
-									</ul>
+									
+										
 								<? endif; ?>
-							</li>
+								</div>
+								
+								<? if(count($moduleConfigs) > 1 ): ?>
+								<hr>
+								<? endif; ?>
+								
 						<? endforeach; ?>
-						<? if(!empty($subDomainName)): ?>
-								</ul>
-							</li>
-						<? endif; ?>
+								
+
+								
 					<? endforeach; ?>
-					</ul>
-				</li>
+					</div>
+				</div>
 			<? endforeach; ?>
-		</ul>
-		<div id="configManagerOldConfigs">
-			<? if(count($foundOldConfigs) < count($oldConfigs)): ?>
-				Old configurations
-				<ul class="oldConfigs">
-					<? foreach($oldConfigs as $oldConfig): ?>
-						<? if(!in_array($oldConfig, $foundOldConfigs)):
-							$showOldConfId = $view->escape(str_replace('.' , '-', 'oldConf-' . $oldConfig->id ));
-						?>
-							<li>
-								<?=	$oldConfig->module . '/' . (($oldConfig->domain != '')?$oldConfig->domain . '/':'') . $oldConfig->name ?> ( <?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?> )
-								<?= $view->partial('old', array('oldConfig' => $oldConfig)) ?>
-							</li>
-						<? endif; ?>
-					<? endforeach; ?>
-				</ul>
-			<? endif; ?>
-		</div>
+		
+		
+		<? if(count($foundOldConfigs) < count($oldConfigs)): ?>
+
+			<br>
+			<br>
+			<div class="whiteBox">
+				<h2>Old configurations</h2>
+				<br>
+			<? foreach($oldConfigs as $oldConfig): ?>
+				<div id="moduleBox">
+				<? if(!in_array($oldConfig, $foundOldConfigs)):
+					$showOldConfId = $view->escape(str_replace('.' , '-', 'oldConf-' . $oldConfig->id ));
+				?>
+					<div id="moduleHistoryItem">
+					<span><?=	$oldConfig->module . '/' . (($oldConfig->domain != '')?$oldConfig->domain . '/':'') . $oldConfig->name ?> ( <?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?> )</span>
+					<?= $view->partial('old', array('oldConfig' => $oldConfig)) ?>
+					</div>
+				<? endif; ?>
+				</div>
+			<? endforeach; ?>
+				<br>
+				<?= $view->link('Delete all old configurations', 'removeOldConfs'); ?>
+			</div>
+			
+			
+		
+		<? endif; ?>
+		
 	</div>
 </div>

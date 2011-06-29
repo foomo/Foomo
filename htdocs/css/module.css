@@ -1,61 +1,157 @@
 
-/*
-@font-face {
-	font-family: 'MyriadWebPro';
-	src: url(MyriadWebPro.ttf);
+
+/* --- ToggleBox -------------------------------------------------------------------------------- */
+
+.toggleBox {
+	position:relative;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 
-
-body {background-color: #fafafa; color: #002f2f;padding:10px;}
-
-body, td, th {font-family: "Lucida Grande", Verdana, sans-serif;}
-
-pre {margin: 0; font-family: monospace;}
-
-
-
-a {
-	text-decoration:none;
-	color:#1111bb;
-}
-a:hover {
-	color:red;
+.toggleBox .toogleButton {
+	height: 28px;
+	cursor: pointer;
+	font-weight: bold;
+	background: #e8e8e8;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
 }
 
-h1 {
-	font-size: 150%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
+.toggleBox .toogleButton .toggleOpenIcon {
+	float: left;
+	margin: 5px 10px;
+	width: 20px;
+	font-size: 15px;
+	text-align: center;
+	background: #ffd700;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
-h2 {
-	font-size: 125%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
+
+.toggleBox .toogleButton .toggleOpenContent {
+	float: left;
+	margin: 5px 0;
 }
-h3 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h4 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h5 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h6 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
+
+.toggleBox .toggleContent {
+	position:relative;
+	clear: both;
+	margin: 10px;
+	display: none;
 }
 
 
 
-*/
+
+
+
+/* --- TabBox -------------------------------------------------------------------------------- */
+
+.tabBox {
+	position:relative;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.tabBox .tabNavi {
+	height: 32px;
+	font-weight: bold;
+
+}
+
+.tabBox .tabNavi ul {
+	padding: 0;
+	margin: 5px 0 0 5px;
+}
+
+.tabBox .tabNavi ul li {
+	float: left;
+	margin: 5px 5px;
+	padding: 3px 10px !important;
+	cursor: pointer;
+	background: #ffd700;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.tabBox .tabNavi ul li.selected {
+	background: #e8e8e8;
+}
+
+.tabBox .tabContent{
+	display: none;
+	margin: 10px;
+}
+
+.tabBox .tabContent.selected{
+	display: block;
+}
+
+
+
+
+
+/* --- Configuration -------------------------------------------------------------------------------- */
+
+#moduleBox b {
+	float:left;
+}
+
+#moduleBox span {
+	float:left;
+}
+
+#moduleBox .detail {
+	clear: both;
+	position: relative;
+}
+
+#moduleBox .show {
+	clear: both;
+	position: relative;
+}
+
+#ctrlButtons {
+	float: left;
+	margin: 0 0 0 80px;
+}
+
+#ctrlButtons li {
+	float: left;
+	margin: 0 10px 0 0;
+	padding: 0;
+}
+
+#moduleBox #moduleHistoryItem{
+	clear: both;
+	position: relative;
+	width: 920px;
+	height: 22px;
+	margin: 2px 0;
+	padding: 7px 5px 3px;
+	background: #f6f6f6;
+}
+
+#moduleBox #moduleItem{
+	clear: both;
+	position: relative;
+	height: 22px;
+	padding: 7px 0 3px;
+}
+
 
 
 

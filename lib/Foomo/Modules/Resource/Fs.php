@@ -16,10 +16,10 @@ class Fs extends \Foomo\Modules\Resource
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
 
-	const TYPE_SOCKET = 'socket';
-	const TYPE_FIFO = 'fifo';
-	const TYPE_FOLDER = 'dir';
-	const TYPE_FILE = 'file';
+	const TYPE_SOCKET	= 'socket';
+	const TYPE_FIFO		= 'fifo';
+	const TYPE_FOLDER	= 'dir';
+	const TYPE_FILE		= 'file';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Variables
@@ -32,8 +32,6 @@ class Fs extends \Foomo\Modules\Resource
 	 */
 	private $type;
 	/**
-	 * Enter description here...
-	 *
 	 * @var string
 	 */
 	private $filename;
@@ -42,6 +40,10 @@ class Fs extends \Foomo\Modules\Resource
 	// ~ Constructor
 	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @param string $type
+	 * @param string $filename
+	 */
 	private function __construct($type, $filename)
 	{
 		if (!in_array($type, array(self::TYPE_FILE, self::TYPE_FOLDER))) {
@@ -65,6 +67,9 @@ class Fs extends \Foomo\Modules\Resource
 		return $this->filename;
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public function resourceValid()
 	{
 		if (file_exists($this->filename)) {
@@ -82,6 +87,9 @@ class Fs extends \Foomo\Modules\Resource
 		return false;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function resourceStatus()
 	{
 		$ret = 'File resource "' . $this->filename . '" of type : "' . $this->type . '"';
@@ -96,6 +104,9 @@ class Fs extends \Foomo\Modules\Resource
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function tryCreate()
 	{
 		$ret = '';
@@ -190,6 +201,11 @@ class Fs extends \Foomo\Modules\Resource
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @param string $type
+	 * @param string $fileName
+	 * @return Foomo\Modules\Resource\Fs
+	 */
 	public static function getAbsoluteResource($type, $fileName)
 	{
 		return new self($type, $fileName);
@@ -249,15 +265,5 @@ class Fs extends \Foomo\Modules\Resource
 	public static function getCacheResource($type, $relFilename)
 	{
 		return new self($type, \Foomo\Config::getCacheDir() . DIRECTORY_SEPARATOR . $relFilename);
-	}
-
-	/**
-	 * @param string $type
-	 * @param string $filename
-	 * @return Foomo\Modules\Resource\Fs
-	 */
-	public static function createInstance($type, $filename)
-	{
-		return new self($type, $filename);
 	}
 }

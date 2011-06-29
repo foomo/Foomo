@@ -128,22 +128,16 @@ class View extends \Foomo\View
 	 * @param string $linkText text to display on the link
 	 * @param string $methodName method to call
 	 * @param array $parameters parameters
-	 * @param string $title title attribute in the link
-	 * @param string $target where to link to
+	 * @param array $attributes array('name' => 'value')
 	 * @return string <a href="/bla/blubb/parmOne/parmTwo" title="title - looks like a tooltip" target="_self">link text</a>
 	 */
-	public function link($linkText, $methodName='default', $parameters=array(), $title=null, $target='_self', $name='')
+	public function link($linkText, $methodName='default', array $parameters=array(), array $attributes=array())
 	{
-		$methodMatch = $this->currentAction == $methodName || $this->currentAction == 'action' . ucfirst($methodName);
+		$attributes = array_merge(array('target' => '_self'), $attributes);
+		$methodMatch = ($this->currentAction == $methodName || $this->currentAction == 'action' . ucfirst($methodName));
 		if (!$methodMatch || !$this->parameterMatch($parameters, $this->currentParameters)) {
-			$ret =
-					'<a href="' . \htmlspecialchars($this->url($methodName, $parameters)) . '"' .
-					( ($target = !'_self') ? ' target="' . $target . '"' : '' ) .
-					( $name ? ' name="' . \htmlspecialchars($name) . '"' : '')
-			;
-			if ($title) {
-				$ret .= ' title="' . $this->escape($title) . '"';
-			}
+			$ret = '<a href="' . \htmlspecialchars($this->url($methodName, $parameters)) . '"';
+			foreach ($attributes as $name => $value) $ret .= ' ' . $name . '="' . \htmlspecialchars($value) . '"';
 			$ret .= '>' . $this->escape($linkText) . '</a>';
 		} else {
 			$ret = $this->escape($linkText);

@@ -13,23 +13,45 @@ use Exception;
 /**
  * class for handling class __autoloading in arbitrary projects
  */
-class AutoLoader {
+class AutoLoader
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+
 	const CACHE_PATH = 'core';
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Static variables
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @var array
+	 */
 	private static $classMap;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @var array
+	 */
 	private $alreadyScanned = array();
+	/**
+	 * @var string
+	 */
 	private $cacheId;
-
-	public static function getClassMapAvailable()
-	{
-		return isset(self::$classMap);
-	}
-
 	/**
 	 * array of valid file endings for files that could contain classes
 	 *
 	 * @var array
 	 */
 	private $validFileEndings = array('.php');
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * the constructor initializes cachePath and cacheId
@@ -40,11 +62,31 @@ class AutoLoader {
 		$this->cacheId = 'Foomo_AutoLoader' . md5(implode(',', Manager::getLibFolders()));
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @return boolean
+	 */
+	public static function getClassMapAvailable()
+	{
+		return isset(self::$classMap);
+	}
+
+	/**
+	 * @param string $interface
+	 * @return string[]
+	 */
+	public static function getClassesByInterface($interface)
+	{
+		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassesByInterface', array((string) $interface));
+	}
+
 	/**
 	 * singleton
-	 * 
+	 *
 	 * @internal
-	 * 
 	 * @return Foomo\AutoLoader
 	 */
 	public static function getInstance()
@@ -78,17 +120,9 @@ class AutoLoader {
 	}
 
 	/**
-	 * @Foomo\Cache\CacheResourceDescription()
-	 */
-	public static function cachedGetClassMap()
-	{//do nothing. not using proxy inhere
-	}
-
-	/**
 	 * get the file name for a class
-	 * 
+	 *
 	 * @param string $className name of the class
-	 * 
 	 * @return string file name
 	 */
 	public static function getClassFileName($className)
@@ -99,22 +133,11 @@ class AutoLoader {
 			return $classMap[$lowerClassName];
 		}
 	}
-	public static function getModuleByClassname($className)
-	{
-		$classFilename = self::getClassFileName($className);
-		foreach(Manager::getEnabledModules() as $enabledModule) {
-			$moduleRoot = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $enabledModule . DIRECTORY_SEPARATOR;
-			if(strpos($classFilename, $moduleRoot) === 0) {
-				// var_dump($className . ' is in ' . $enabledModule . ' ' . $moduleRoot . ' ' . $classFilename);
-				return $enabledModule;
-			}
-		}
-	}
+
 	/**
 	 * get the classes defined in a file
-	 * 
+	 *
 	 * @param string $fileName name of the file
-	 * 
 	 * @return string[]
 	 */
 	public static function getClassesByFileName($fileName)
@@ -129,6 +152,10 @@ class AutoLoader {
 		return $ret;
 	}
 
+	/**
+	 * @param string $className
+	 * @return boolean
+	 */
 	public static function pathAutoload($className)
 	{
 		//var_dump(__METHOD__ . ' ' . $className);
@@ -146,35 +173,6 @@ class AutoLoader {
 		return self::tryInclude($classFile, $className);
 	}
 
-	private static function tryInclude($classFile, $className)
-	{
-		if(self::includeExists($classFile)) {
-			try {
-				include_once($classFile);
-				if (class_exists($className, false) || interface_exists($className, false)) {
-					return true;
-				} else {
-					return false;
-				}
-			} catch (Execption $e) {
-				trigger_error('autoloading ' . $className . ' from ' . $classFile . ' caused a problem ' . $e->getMessage(), E_USER_WARNING);
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-	private static function includeExists($includeFile)
-	{
-
-		$fp = @fopen($includeFile, 'r', true);
-		$ret = is_resource($fp);
-		if($ret) {
-			fclose($fp);
-		}
-		return $ret;
-	}
-
 	/**
 	 * this is where __autoload lands
 	 * but you can call it yourself too for example from your __autoload
@@ -187,7 +185,7 @@ class AutoLoader {
 		// let us begin
 		// the classmap is being loaded externally from foomo.inc.php
 		if(isset(self::$classMap)) {
-			// if self::$classmap is loaded, we try to use it and fall back to 
+			// if self::$classmap is loaded, we try to use it and fall back to
 			// conventional auto loading, if we fail there
 			if (empty($className)) {
 				throw new \InvalidArgumentException('empty classNames are not valid', 1);
@@ -213,7 +211,7 @@ class AutoLoader {
 				return self::pathAutoload($className);
 			}
 		} else {
-			// if self::$classMap is not loaded, we will try class loading by 
+			// if self::$classMap is not loaded, we will try class loading by
 			// convention from the include_path
 			return self::pathAutoload($className);
 		}
@@ -234,18 +232,12 @@ class AutoLoader {
 		}
 	}
 
-	private static function reset($silently = false)
-	{
-		$tmp = new self();
-		return self::$classMap = $tmp->buildClassMap($silently);
-	}
-
 	/**
 	 * create the class map a hash of 'classname' => '/path/to/class/file.class.php'
 	 *
 	 * @return array
 	 */
-	public function buildClassMap($silently = false)
+	public function buildClassMap($silently=false)
 	{
 		if (!$silently) {
 			trigger_error(PHP_EOL . __METHOD__ . 'building a new classmap from :' . PHP_EOL . '  ' . implode(PHP_EOL . '  ', Manager::getLibFolders()) . PHP_EOL, E_USER_NOTICE);
@@ -284,6 +276,109 @@ class AutoLoader {
 
 		return $classMap;
 	}
+
+	/**
+	 * Place reset functions here
+	 *
+	 * @internal
+	 *
+	 * @return string HTML
+	 */
+	public static function resetCache()
+	{
+		\Foomo\Hiccup::removeAutoloaderCache();
+		self::reset(true);
+		$ret = '<b>loaded classes from ' . implode(', ', Manager::getLibFolders()) . '</b><pre>';
+		$map = self::getClassMap();
+		$keys = array_keys($map);
+		sort($keys, SORT_STRING);
+		foreach ($keys as $key) {
+			try {
+				$ref = new ReflectionClass($key);
+				$ret .= $ref->name . ' in ' . $map[$key] . PHP_EOL;
+			} catch (Exception $e) {
+				$ret .= '<span style="color:#ff0000">broken reference : ' . $key . ' can not be loaded from ' . $map[$key] . '</span>' . PHP_EOL;
+			}
+		}
+		return $ret . '</pre>';
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Cached methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @Foomo\Cache\CacheResourceDescription()
+	 */
+	public static function cachedGetClassMap()
+	{//do nothing. not using proxy inhere
+	}
+
+	/**
+	 * @Foomo\Cache\CacheResourceDescription()
+	 * @param string $interface
+	 * @return string[]
+	 */
+	public static function cachedGetClassesByInterface($interface)
+	{
+		$ret = array();
+		foreach (self::getClassMap() as $className => $classFileName) {
+			$refl = new ReflectionClass($className);
+			if ($refl->implementsInterface($interface) && !$refl->isAbstract()) $ret[] = $refl->getName();
+		}
+		return $ret;
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $classFile
+	 * @param string $className
+	 * @return boolean
+	 */
+	private static function tryInclude($classFile, $className)
+	{
+		if(self::includeExists($classFile)) {
+			try {
+				include_once($classFile);
+				if (class_exists($className, false) || interface_exists($className, false)) {
+					return true;
+				} else {
+					return false;
+				}
+			} catch (Execption $e) {
+				trigger_error('autoloading ' . $className . ' from ' . $classFile . ' caused a problem ' . $e->getMessage(), E_USER_WARNING);
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	private static function includeExists($includeFile)
+	{
+		$fp = @fopen($includeFile, 'r', true);
+		$ret = is_resource($fp);
+		if ($ret) fclose($fp);
+		return $ret;
+	}
+
+	/**
+	 * @param boolean $silently
+	 * @return string[]
+	 */
+	private static function reset($silently=false)
+	{
+		$tmp = new self();
+		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetClassesByInterface', false);
+		return self::$classMap = $tmp->buildClassMap($silently);
+	}
+
 	/**
 	 * scan for classes in a file with a given filename
 	 * It is simple parser, that is designed to be transparent and relies on code which is NOT encoded, but well coded
@@ -365,31 +460,5 @@ class AutoLoader {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Place reset functions here
-	 *
-	 * @internal
-	 * 
-	 * @return string HTML
-	 */
-	public static function resetCache()
-	{
-		\Foomo\Hiccup::removeAutoloaderCache();
-		self::reset(true);
-		$ret = '<b>loaded classes from ' . implode(', ', Manager::getLibFolders()) . '</b><pre>';
-		$map = self::getClassMap();
-		$keys = array_keys($map);
-		sort($keys, SORT_STRING);
-		foreach ($keys as $key) {
-			try {
-				$ref = new ReflectionClass($key);
-				$ret .= $ref->name . ' in ' . $map[$key] . PHP_EOL;
-			} catch (Exception $e) {
-				$ret .= '<span style="color:#ff0000">broken reference : ' . $key . ' can not be loaded from ' . $map[$key] . '</span>' . PHP_EOL;
-			}
-		}
-		return $ret . '</pre>';
 	}
 }

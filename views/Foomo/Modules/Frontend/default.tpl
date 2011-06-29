@@ -10,6 +10,8 @@ $enabledModules = Manager::getEnabledModules();
 $resI = 0;
 ?>
 <div id="appContent">
+	<li><a id="showModulesButton" href="#" onclick="showAllResources();">show module resources</a></li>
+	<li><a id="hideModulesButton" style="display:none" href="#" onclick="hideAllResources();">hide module resources</a></li>
 	<form action="<?= $view->url('actionUpdateModules'); ?>" method="POST" id="moduleForm">
 	<table title="foomo modules" id="moduleTable">
 		<tr>

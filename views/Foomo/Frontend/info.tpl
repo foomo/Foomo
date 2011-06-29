@@ -39,10 +39,10 @@
 						$moduleClassMap[$enabledModuleName] = array();
 					}
 					foreach(\Foomo\AutoLoader::getClassMap() as $className => $classFilename) {
-						$moduleClassMap[\Foomo\AutoLoader::getModuleByClassname($className)][] = $className;
+						$moduleClassMap[\Foomo\Modules\Manager::getModuleByClassName($className)][] = $className;
 					}
 					foreach($moduleClassMap as $moduleName => $moduleClasses):
-					
+
 				?>
 					<li>
 						<?= $moduleName ?> (<?= count($moduleClasses) ?>)

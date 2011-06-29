@@ -23,18 +23,10 @@ abstract class AbstractConfig
 	 */
 	public function getName()
 	{
-		if (function_exists('get_called_class')) {
-			$calledClass = get_called_class();
-			$classConstantName = $calledClass . '::NAME';
-			if (defined($classConstantName)) {
-				return constant($classConstantName);
-			}
-		}
-		// backwards compatibility
-		$className = get_class($this);
-		$name = substr($className, 15);
-		$name = strtolower(substr($name, 0, 1)) . substr($name, 1);
-		return $name;
+		$calledClass = get_called_class();
+		$classConstantName = $calledClass . '::NAME';
+		if (!defined($classConstantName)) throw new \Exception($calledClass . ' does not a a NAME constant defined!');
+		return constant($classConstantName);
 	}
 
 	/**
@@ -79,7 +71,6 @@ abstract class AbstractConfig
 	 */
 	public function saved()
 	{
-
 	}
 
 	//---------------------------------------------------------------------------------------------
@@ -93,5 +84,4 @@ abstract class AbstractConfig
 	{
 		return Yaml::dump($this->getValue());
 	}
-
 }

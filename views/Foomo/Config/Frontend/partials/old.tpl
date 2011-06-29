@@ -1,17 +1,12 @@
 <?
 $showOldConfId = 'old-' . $oldConfig->id;
 ?>
-<ul>
-	<li>
-		<a onclick="$('#<?= $showOldConfId ?>').toggle()">Show</a>
-	</li>
-	<li>
-		<?= $view->link('delete', 'deleteOldConf', array($oldConfig->id), 'delete') ?>
-	</li>
-	<li>
-		<?= $view->link('restore', 'restoreOldConf', array($oldConfig->id), 'restore') ?>
-	</li>
+<ul id="ctrlButtons" >
+	<li><?= $view->partial('buttonYellow', array('url' => '', 'name' => 'Show', 'js' => 'onclick="$(\'#'. $showOldConfId .'\').toggle(300)"'  ), 'Foomo\Frontend') ?></li>
+	<li><?= $view->partial('buttonYellow', array('url' => 'restoreOldConf', 'name' => 'Restore' , 'parameters' => array($oldConfig->id)), 'Foomo\Frontend') ?></li>
+	<li><?= $view->partial('buttonYellow', array('url' => 'deleteOldConf', 'name' => 'Delete' , 'parameters' => array($oldConfig->id)), 'Foomo\Frontend') ?></li>
 </ul>
-<div id="<?= $showOldConfId ?>" style="display:none">
+
+<div class="show" id="<?= $showOldConfId ?>" style="display:none">
 	<pre><?= $view->escape(file_get_contents($oldConfig->filename)) ?></pre>
 </div>

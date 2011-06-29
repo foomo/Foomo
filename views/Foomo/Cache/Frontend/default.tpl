@@ -17,7 +17,7 @@
 			<ul>
 				<? foreach($info['resources'] as $resourceName): ?>
 					<li>
-						<?= $view->link($resourceName, 'showCachedItems', array($resourceName),"Show cached resources") ?>
+						<?= $view->link($resourceName, 'showCachedItems', array($resourceName), array('title' => "Show cached resources")) ?>
 					</li>
 				<? endforeach; ?>
 			</ul>

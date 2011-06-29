@@ -13,18 +13,28 @@ use Foomo\Modules\Utils;
 /**
  * controller
  */
-class Controller {
+class Controller
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * model
-	 * 
+	 *
 	 * @var Foomo\Modules\Frontend\Model
 	 */
 	public $model;
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Action methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
 	public function actionDefault()
 	{
-		
 	}
 
 	/**
@@ -38,22 +48,36 @@ class Controller {
 		MVC::redirect('administer');
 	}
 
+	/**
+	 * @param string $moduleName
+	 */
 	public function actionShowMVCApp($moduleName)
 	{
 		$this->model->validateModule($moduleName);
 		$this->model->currentModuleApp = Manager::getModuleMVCFrontEndClassName($moduleName);
 	}
 
+	/**
+	 *
+	 */
 	public function actionCreateNew()
 	{
-		
+
 	}
 
+	/**
+	 *
+	 */
 	public function actionAdminister()
 	{
-		
+
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $description
+	 * @param string $requiredModules
+	 */
 	public function actionCreateModule($name, $description, $requiredModules)
 	{
 		try {
@@ -65,7 +89,7 @@ class Controller {
 			Utils::createModule($name, $description, $requiredModules);
 			MVC::redirect('administer');
 		} catch (Exception $e) {
-			
+			// @todo: display error
 		}
 	}
 
@@ -77,6 +101,9 @@ class Controller {
 		$this->model->resourceCreationReport = Manager::tryCreateModuleResources($moduleName);
 	}
 
+	/**
+	 *
+	 */
 	public function actionTryCreateAllModuleResources()
 	{
 		$this->model->resourceCreationReport = '';
@@ -84,5 +111,4 @@ class Controller {
 			$this->model->resourceCreationReport .= Manager::tryCreateModuleResources($enabledModuleName);
 		}
 	}
-
 }

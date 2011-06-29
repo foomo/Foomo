@@ -8,7 +8,7 @@ body {
 	text-align: left;
 	color: #0d2746;
 	background: url('/foomo/img/site/bg.gif') repeat-x top #f6f6f6;
-} 
+}
 
 a {
 	text-decoration: underline;
@@ -21,28 +21,112 @@ a:hover {
 
 h1 {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 17px;
+	font-size: 22px;
 	color: #0d2746;
+	font-weight: normal;
 }
 
 h2 {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 17px;
+	font-size: 18px;
 	color: #0d2746;
+	font-weight: normal;
 }
 
 h3 {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 17px;
+	font-size: 15px;
 	color: #0d2746;
 }
 
 hr {
+	clear: both;
 	height: 1px;
 	border:0;
 	border-bottom:1px solid #0d2746;
 }
 
+
+
+
+/* --- Components -------------------------------------------------------------------------- */
+
+.buttonYellow {
+	position: relative;
+	margin: -2px 0 0 0;
+	cursor: pointer;
+}
+.buttonYellow a {
+	font-weight: bold;
+	color: #0d2746;
+	text-decoration: none;
+}
+.buttonYellow a:hover, .buttonYellow a .selected{
+	color: #ffffff;
+}
+.buttonYellow a:hover #buttonLeft {
+	background-position: left -40px;
+}
+.buttonYellow a:hover #buttonLeft.selected, .buttonYellow #buttonLeft.selected {
+	background-position: left -80px;
+}
+
+.buttonYellow a:hover #buttonMiddle {
+	background-position: center -40px;
+}
+.buttonYellow a:hover #buttonMiddle.selected, .buttonYellow #buttonMiddle.selected {
+	background-position: center -80px;
+}
+
+.buttonYellow a:hover #buttonRight {
+	background-position: right -40px;
+}
+.buttonYellow a:hover #buttonRight.selected, .buttonYellow #buttonRight.selected {
+	background-position: right -80px;
+}
+.buttonYellow #buttonLeft {
+	position: relative;
+	float: left;
+	width: 10px;
+	height: 25px;
+	background: url('/foomo/img/site/buttons.png') no-repeat left top;
+}
+.buttonYellow #buttonMiddle {
+	position: relative;
+	float: left;
+	padding: 2px 0 0 0;
+	height: 25px;
+	background: url('/foomo/img/site/buttons.png') no-repeat center top;
+}
+.buttonYellow #buttonRight {
+	position: relative;
+	float: left;
+	width: 10px;
+	height: 25px;
+	background: url('/foomo/img/site/buttons.png') no-repeat right top;
+}
+
+
+
+.whiteBox {
+	position:relative;
+	margin: 0 0 20px 0;
+	padding: 15px;
+	width: 930px;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+}
+
+
+
+
+
+
+/* --- Components -------------------------------------------------------------------------- */
+
+textarea {
+	width: 100%;
+}
 
 
 
@@ -110,12 +194,15 @@ header #logoBox #version{
 	height: 27px;
 }
 
-#menuMain .default.selected {
+#menuMain .selected {
 	color: #ffffff;
+	border-bottom: 2px solid #ffffff;
+	/*
 	background-position: 0 -8px;
+	*/
 }
 
-#menuMain .default.selected a {
+#menuMain .selected a {
 	color: #ffffff;
 }
 
@@ -127,23 +214,77 @@ header #logoBox #version{
 	position:relative;
 	float: left;
 	font: bold 16px 'Ubuntu', Arial, Helvetica, Verdana;
-	height: 27px;
+	height: 25px;
 	margin: 0 40px 0 0;
+	/*
 	background: url('/foomo/img/site/buttons.png') no-repeat left top;
 	background-position: 0 0;
+	*/
 }
 
 #menuMain ul li a{
 	display: block;
 	color: #ffd700;
 	text-decoration: none;
-	min-height: 27px;
+	/*min-height: 27px;*/
     padding: 0 0 9px;
 }
 
+
+#menuMain .level1 {
+	position:absolute;
+	left: -999em;
+	width: 150px;
+	z-index:1500;
+	background: #ff00ff;
+}
+
+#menuMain .level1 ul {
+	position:relative;
+	
+}
+#menuMain .level1 ul li{
+	font: bold 13px Arial, Helvetica, Verdana;
+	padding: 0 10px;
+	width: 130px;
+}
+
+#menuMain .level0 li:hover .level1 {
+	left: -40px;
+}
+
+#menuMain .level2 {
+	position:absolute;
+	top: -999em;
+	left: 130px;
+	width: 180px;
+	z-index:1500;
+	background: #ffff00;
+}
+
+#menuMain .level2 ul {
+	position:relative;
+	
+	
+}
+#menuMain .level2 ul li{
+	width: 160px;
+	font: bold 13px Arial, Helvetica, Verdana;
+}
+
+
+#menuMain .level1 li:hover .level2 {
+	top: -10px;
+}
+
+/*
 #menuMain ul li a:hover{
 	color: #ffffff;
 }
+*/
+
+
+
 
 #breadcrumb {
 	position: relative;
@@ -176,7 +317,7 @@ header #logoBox #version{
     position: relative;
 	margin: 20px auto 0;
     width: 960px;
-    
+
 }
 
 #main li {
@@ -187,23 +328,25 @@ header #logoBox #version{
 
 
 #menuSub {
+	clear: left;
     position: relative;
     width: 960px;
-	background: #60F060;
+	min-height: 45px;
 }
 
 #menuSub li {
-	list-style-type: none;
+	float: left;
+	margin: 0 10px 0 0;
+	padding: 0;
+	height: 35px;
 }
 
-#menuSub ul {
-	padding: 0;
-}
+
+
 
 #appContent {
+	clear: left;
     position: relative;
-	margin: 20px 0 0 0;
-	background: #cacaca;
 }
 
 

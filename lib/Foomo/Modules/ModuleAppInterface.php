@@ -9,6 +9,6 @@ namespace Foomo\Modules;
 /**
  * marks a class as a mvc frontend to
  */
-interface ModuleAppInterface {
-	
+interface ModuleAppInterface
+{
 }
