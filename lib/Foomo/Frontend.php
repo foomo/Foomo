@@ -11,6 +11,11 @@ namespace Foomo;
  */
 class Frontend extends \Foomo\MVC\AbstractApp
 {
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+
+	const BASIC_AUTH_REALM = 'foomo-toolbox';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
@@ -26,7 +31,7 @@ class Frontend extends \Foomo\MVC\AbstractApp
 			die('default auth file does not exist - you might want to run setup.php');
 		}
 
-		BasicAuth::auth('foomo-toolbox');
+		BasicAuth::auth(self::BASIC_AUTH_REALM);
 
 		$doc = HTMLDocument::getInstance()->setTitle($title);
 

@@ -49,89 +49,9 @@ hr {
 
 
 
-/* --- Components -------------------------------------------------------------------------- */
-
-.buttonYellow {
-	position: relative;
-	margin: -2px 0 0 0;
-	cursor: pointer;
-}
-.buttonYellow a {
-	font-weight: bold;
-	color: #0d2746;
-	text-decoration: none;
-}
-.buttonYellow a:hover, .buttonYellow a .selected{
-	color: #ffffff;
-}
-.buttonYellow a:hover #buttonLeft {
-	background-position: left -40px;
-}
-.buttonYellow a:hover #buttonLeft.selected, .buttonYellow #buttonLeft.selected {
-	background-position: left -80px;
-}
-
-.buttonYellow a:hover #buttonMiddle {
-	background-position: center -40px;
-}
-.buttonYellow a:hover #buttonMiddle.selected, .buttonYellow #buttonMiddle.selected {
-	background-position: center -80px;
-}
-
-.buttonYellow a:hover #buttonRight {
-	background-position: right -40px;
-}
-.buttonYellow a:hover #buttonRight.selected, .buttonYellow #buttonRight.selected {
-	background-position: right -80px;
-}
-.buttonYellow #buttonLeft {
-	position: relative;
-	float: left;
-	width: 10px;
-	height: 25px;
-	background: url('/foomo/img/site/buttons.png') no-repeat left top;
-}
-.buttonYellow #buttonMiddle {
-	position: relative;
-	float: left;
-	padding: 2px 0 0 0;
-	height: 25px;
-	background: url('/foomo/img/site/buttons.png') no-repeat center top;
-}
-.buttonYellow #buttonRight {
-	position: relative;
-	float: left;
-	width: 10px;
-	height: 25px;
-	background: url('/foomo/img/site/buttons.png') no-repeat right top;
-}
 
 
-
-.whiteBox {
-	position:relative;
-	margin: 0 0 20px 0;
-	padding: 15px;
-	width: 930px;
-	border: 1px solid #d7d7d7;
-	background: #ffffff;
-}
-
-
-
-
-
-
-/* --- Components -------------------------------------------------------------------------- */
-
-textarea {
-	width: 100%;
-}
-
-
-
-
-/* --- Site -------------------------------------------------------------------------------- */
+/* --- Header -------------------------------------------------------------------------------- */
 
 
 header {
@@ -187,6 +107,8 @@ header #logoBox #version{
 
 
 
+/* --- Menu -------------------------------------------------------------------------------- */
+
 #menuMain {
     position: relative;
 	margin: 8px auto 0;
@@ -197,9 +119,6 @@ header #logoBox #version{
 #menuMain .selected {
 	color: #ffffff;
 	border-bottom: 2px solid #ffffff;
-	/*
-	background-position: 0 -8px;
-	*/
 }
 
 #menuMain .selected a {
@@ -207,6 +126,7 @@ header #logoBox #version{
 }
 
 #menuMain ul {
+	position:relative;
 	height: 27px;
 }
 
@@ -216,72 +136,73 @@ header #logoBox #version{
 	font: bold 16px 'Ubuntu', Arial, Helvetica, Verdana;
 	height: 25px;
 	margin: 0 40px 0 0;
-	/*
-	background: url('/foomo/img/site/buttons.png') no-repeat left top;
-	background-position: 0 0;
-	*/
 }
 
 #menuMain ul li a{
 	display: block;
 	color: #ffd700;
 	text-decoration: none;
-	/*min-height: 27px;*/
     padding: 0 0 9px;
 }
 
+#menuMain ul li a:hover{
+	color: #ffffff;
+}
 
 #menuMain .level1 {
 	position:absolute;
 	left: -999em;
-	width: 150px;
+	width: 200px;
 	z-index:1500;
-	background: #ff00ff;
+	background: #0d2746;
+	border: 1px solid #000000;
 }
 
-#menuMain .level1 ul {
-	position:relative;
-	
-}
 #menuMain .level1 ul li{
+	clear: both;
+	position:relative;
 	font: bold 13px Arial, Helvetica, Verdana;
-	padding: 0 10px;
-	width: 130px;
+	margin: 0;
+	padding: 10px 10px;
+	width: 180px;
+	height: auto;
+	cursor: pointer;
+	color: #ffd700;
+	border-bottom: 1px solid #000000;
+}
+
+#menuMain ul li.down{
+	background: url('/foomo/img/site/graphics.png') no-repeat;
+	background-position: right -80px;
+}
+
+#menuMain .level1 ul li a{
+	padding: 0;
+	color: #ffd700;
+}
+
+#menuMain .level1 ul li a:hover{
+	color: #ffffff;
 }
 
 #menuMain .level0 li:hover .level1 {
-	left: -40px;
+	left: -10px;
 }
 
-#menuMain .level2 {
+#menuMain .level1 div {
 	position:absolute;
 	top: -999em;
-	left: 130px;
-	width: 180px;
+	left: 200px;
+	width: 200px;
 	z-index:1500;
-	background: #ffff00;
+	background: #0d2746;
+	border: 1px solid #000000;
 }
 
-#menuMain .level2 ul {
-	position:relative;
-	
-	
-}
-#menuMain .level2 ul li{
-	width: 160px;
-	font: bold 13px Arial, Helvetica, Verdana;
+#menuMain .level1 li:hover div {
+	top: -1px;
 }
 
-
-#menuMain .level1 li:hover .level2 {
-	top: -10px;
-}
-
-/*
-#menuMain ul li a:hover{
-	color: #ffffff;
-}
-*/
 
 
 
@@ -297,6 +218,8 @@ header #logoBox #version{
 
 
 
+
+/* --- Content -------------------------------------------------------------------------------- */
 
 #fullContent {
     position: relative;
@@ -351,6 +274,9 @@ header #logoBox #version{
 
 
 
+
+
+/* --- Footer -------------------------------------------------------------------------------- */
 
 footer {
     clear: left;

@@ -32,6 +32,14 @@ class Controller
 	}
 
 	/**
+	 *
+	 */
+	public function actionLogout()
+	{
+		header('WWW-Authenticate: Basic realm="' . \Foomo\Frontend::BASIC_AUTH_REALM . '", true, 401');
+	}
+
+	/**
 	 * @param string $url
 	 */
 	public function actionShowFrame($url)

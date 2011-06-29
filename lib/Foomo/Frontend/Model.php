@@ -114,14 +114,18 @@ class Model
 	 */
 	private function buildNavi()
 	{
+		$checkedModuleNames = array();
+		$configuredModuleNames = array();
 		foreach (\Foomo\AutoLoader::getClassesByInterface('Foomo\\Frontend\\ToolboxInterface') as $className) {
 			$moduleName = \Foomo\Modules\Manager::getModuleByClassName($className);
-			if (null != $config = \Foomo\Config::getConf(str_replace('\\', '.', $moduleName), \Foomo\Frontend\DomainConfig::NAME)) {
-				$menu = $config->menu;
-			} else {
-				$menu = $className::getMenu();
+			if (!in_array($moduleName, $checkedModuleNames) && null != $config = \Foomo\Config::getConf(str_replace('\\', '.', $moduleName), \Foomo\Frontend\ToolboxConfig::NAME)) {
+				$menuEntries = $config->getMenuEntries();
+				$configuredModuleNames[] = $moduleName;
+			} else if (!in_array($moduleName, $configuredModuleNames)) {
+				$menuEntries = $className::getMenu();
 			}
-			foreach ($menu as $path => $link) DomainConfig::toLeaf($this->navi, explode('.', $path), $link);
+			if (!in_array($moduleName, $checkedModuleNames)) $checkedModuleNames[] = $moduleName;
+			if ($menuEntries) foreach ($menuEntries as $menuEntry) ToolboxConfig::toLeaf($this->navi, $menuEntry->path, $menuEntry);
 		}
 	}
 }

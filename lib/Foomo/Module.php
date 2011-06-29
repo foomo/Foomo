@@ -67,11 +67,11 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	public static function getMenu()
 	{
 		return array(
-			'Root.Configuration' => array('name' => 'Configuration', 'module' => self::NAME, 'app' => 'Foomo\\Config\\Frontend', 'action' => 'config', 'target' => '_self'),
-			'Root.Modules' => array('name' => 'Modules', 'module' => self::NAME, 'app' => 'Foomo\\Modules\\Frontend', 'action' => 'modules', 'target' => '_self'),
-			'Root.Log' => array('name' => 'Log', 'module' => self::NAME, 'app' => 'Foomo\\Log\\Frontend', 'action' => 'log', 'target' => '_self'),
-			'Root.Auth'	=> array('name' => 'Auth', 'module' => self::NAME, 'app' => 'Foomo\\BasicAuth\\Frontend', 'action' => 'basicAuth', 'target' => '_self'),
-			'Root.Cache' => array('name' => 'Cache', 'module' => self::NAME, 'app' => 'Foomo\\Cache\\Frontend', 'action' => 'cache', 'target' => '_self')
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Configuration', 'Configuration', 'Foomo', 'Foomo\\Config\\Frontend'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules', 'Modules', 'Foomo', 'Foomo\\Modules\\Frontend'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Log', 'Log', 'Foomo', 'Foomo\\Log\\Frontend'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Auth', 'Auth', 'Foomo', 'Foomo\\BasicAuth\\Frontend'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Auth', 'Foomo', 'Foomo\\Cache\\Frontend')
 		);
 	}
 }

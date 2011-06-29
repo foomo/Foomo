@@ -4,8 +4,8 @@
 		<div>Mode: <b><?= Foomo\Config::getMode() ?></b></div>
 	</div>
     <div id="menuTop">
-		
-		<div><a href="" target="_blank">Logout</a></div>
+
+		<div><?= $view->link('Logout', 'logout') ?></div>
 		<div>
 			<?
 			$hour = date('H');

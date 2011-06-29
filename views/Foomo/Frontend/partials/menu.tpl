@@ -14,16 +14,19 @@ function renderLeaves($view, $leaf, $level) {
 	
 	foreach ($leaf['leaves'] as $subLeaf){
 		
+		$classes = '';
+		
 		if($subLeaf['active']){
-			$output .= '<li class="selected">';
+			$classes .= 'selected';
 		} else {
-			$output .= '<li class="default">';
+			$classes .= 'default';
 		}
 	
 		if (!is_null($subLeaf['link'])) {
-			$output .= '<a href="' . $view->url('showMVCApp', array($subLeaf['link']['app'], $subLeaf['link']['action'])) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>';
+			$output .= '<li class="'.$classes.'"><a href="' . $view->url('showMVCApp', array($subLeaf['link']['app'], $subLeaf['link']['action'])) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>';
 		} else {
-			$output .= $subLeaf['name'] . PHP_EOL;
+			$classes .= ' down';
+			$output .= '<li class="'.$classes.'">'.$subLeaf['name'] . PHP_EOL;
 		}
 		
 		if (!empty ($subLeaf['leaves']) ) {

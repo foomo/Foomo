@@ -34,7 +34,10 @@ abstract class AbstractApp
 	// ~ Constructor
 	//---------------------------------------------------------------------------------------------
 
-	public function __construct($appClassName = null)
+	/**
+	 * @param string $appClassName
+	 */
+	public function __construct($appClassName=null)
 	{
 		if (!$appClassName) {
 			$appClassName = get_class($this);

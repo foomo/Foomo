@@ -136,9 +136,12 @@ abstract class ModuleBase
 	/**
 	 * @return string
 	 */
-	public static function getHtdocsVarDir()
+	public static function getHtdocsVarDir($pathname='')
 	{
-		return \Foomo\Config::getHtdocsVarDir(self::getModuleName());
+		$ret = \Foomo\Config::getHtdocsVarDir(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if (!file_exists($pathname)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $pathname)->tryCreate();
+		return $ret;
 	}
 
 	/**
@@ -164,7 +167,7 @@ abstract class ModuleBase
 	/**
 	 * @return string
 	 */
-	public static function getHtdocsUrl()
+	public static function getHtdocsUrl($pathname)
 	{
 		return \Foomo\Config::getHtdocsUrl(self::getModuleName());
 	}

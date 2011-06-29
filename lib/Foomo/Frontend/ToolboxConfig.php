@@ -2,13 +2,13 @@
 
 namespace Foomo\Frontend;
 
-class DomainConfig extends \Foomo\Config\AbstractConfig
+class ToolboxConfig extends \Foomo\Config\AbstractConfig
 {
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
 
-	const NAME = 'Foomo.Frontend.navigation';
+	const NAME = 'Foomo.Frontend.toolboxConfig';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Variables
@@ -18,11 +18,7 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	 * @var array
 	 */
 	public $menu = array(
-		'Root.Configuration' => array('name' => 'Configuration', 'module' => 'Foomo', 'app' => 'Foomo\\Config\\Frontend', 'action' => 'config', 'target' => '_self'),
-		'Root.Modules' => array('name' => 'Modules', 'module' => 'Foomo', 'app' => 'Foomo\\Modules\\Frontend', 'action' => 'modules', 'target' => '_self'),
-		'Root.Log' => array('name' => 'Log', 'module' => 'Foomo', 'app' => 'Foomo\\Log\\Frontend', 'action' => 'log', 'target' => '_self'),
-		'Root.Auth'	=> array('name' => 'Auth', 'module' => 'Foomo', 'app' => 'Foomo\\BasicAuth\\Frontend', 'action' => 'basicAuth', 'target' => '_self'),
-		'Root.Cache' => array('name' => 'Cache', 'module' => 'Foomo', 'app' => 'Foomo\\Cache\\Frontend', 'action' => 'cache', 'target' => '_self')
+		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My\\Module\\Frontend', 'action' => 'default', 'target' => '_self')
 	);
 
 	//---------------------------------------------------------------------------------------------
@@ -30,11 +26,30 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	//---------------------------------------------------------------------------------------------
 
 	/**
+	 * @return Foomo\Frontend\ToolboxConfig\MenuEntry[]
+	 */
+	public function getMenuEntries()
+	{
+		$entries = array();
+		foreach ($this->menu as $path => $entry) $entries[] = $this->getMenuEntry($path);
+		return $entries;
+	}
+
+	/**
+	 * @return Foomo\Frontend\ToolboxConfig\MenuEntry
+	 */
+	public function getMenuEntry($path)
+	{
+		$entry = $this->menu['path'];
+		return ToolboxConfig\MenuEntry::create($path, $entry['name'], $entry['module'], $entry['app'], $entry['action'], $entry['target']);
+	}
+
+	/**
 	 * @param array $leaf
 	 * @param array $paths
 	 * @param array $link
 	 */
-	public static function toLeaf(array &$leaf, array $paths, array $link)
+	public static function toLeaf(array &$leaf, array $paths, $menuEntry)
 	{
 		$pathName = array_shift($paths);
 
@@ -43,9 +58,9 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 		}
 
 		if (count($paths) > 0) {
-			self::toLeaf($leaf[$pathName]['leaves'], $paths, $link);
+			self::toLeaf($leaf[$pathName]['leaves'], $paths, $menuEntry);
 		} else {
-			$leaf[$pathName]['link'] = $link;
+			$leaf[$pathName]['link'] = $menuEntry->toArray();
 			$leaf[$pathName]['link']['app'] = str_replace('\\', '.', $leaf[$pathName]['link']['app']);
 		}
 	}
