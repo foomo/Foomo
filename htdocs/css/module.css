@@ -1,5 +1,168 @@
 
 
+/* --- Global -------------------------------------------------------------------------------- */
+
+pre {
+	margin: 5px;
+	
+}
+
+hr {
+	clear: both;
+	height: 1px;
+	border:0;
+	border-bottom:1px solid #0d2746;
+}
+
+h1 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 22px;
+	line-height: 26px;
+	color: #0d2746;
+	font-weight: normal;
+}
+
+h2 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 18px;
+	line-height: 22px;
+	color: #0d2746;
+	font-weight: normal;
+}
+
+h3 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 15px;
+	line-height: 19px;
+	color: #0d2746;
+	font-weight: normal;
+}
+
+
+
+
+
+/* --- Forms -------------------------------------------------------------------------------- */
+
+textarea {
+	font: normal 13px Arial, Helvetica, Verdana;
+	padding: 5px;
+	width: 100%;
+	border: 1px dotted #0d2746;
+}
+
+input {
+	font: normal 13px Arial, Helvetica, Verdana;
+	padding: 5px;
+	width: 50%;
+	border: 1px dotted #0d2746;
+}
+
+select {
+	font: normal 13px Arial, Helvetica, Verdana;
+	padding: 5px;
+	height: 28px;
+	width: 50%;
+	border: 1px dotted #0d2746;
+	background: #ffffff;
+}
+
+option {
+	margin: 1px 0;
+	padding: 4px 0;
+	background: #e8e8e8;
+}
+
+.submitButton {
+	font: bold 13px Arial, Helvetica, Verdana;
+	margin: 5px 10px 10px 0;
+	width: auto;
+	color: #0d2746;
+	border: none;
+	cursor: pointer;
+	background: #bebebe;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.formBox {
+	margin: 10px 20px 10px 10px;
+}
+
+.formTitle {
+	font-weight: bold;
+	margin: 15px 5px 5px 5px;
+}
+
+
+
+
+/* --- Boxes / Lines -------------------------------------------------------------------------------- */
+
+.greyBox {
+	position:relative;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #e8e8e8;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.whiteBox {
+	position:relative;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.greyLine {
+	margin: 10px;
+	border-bottom:1px solid #e8e8e8;
+	
+}
+
+
+
+
+
+/* --- Boxes / Lines -------------------------------------------------------------------------------- */
+
+.linkButtonYellow {
+	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.linkButtonRed {
+	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	color:#ffffff;
+	background: #c50707;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+
+
+
+
+
+
 /* --- ToggleBox -------------------------------------------------------------------------------- */
 
 .toggleBox {
@@ -52,7 +215,6 @@
 
 
 
-
 /* --- TabBox -------------------------------------------------------------------------------- */
 
 .tabBox {
@@ -67,9 +229,8 @@
 }
 
 .tabBox .tabNavi {
-	height: 32px;
+	height: 35px;
 	font-weight: bold;
-
 }
 
 .tabBox .tabNavi ul {
@@ -109,6 +270,8 @@
 
 /* --- Configuration -------------------------------------------------------------------------------- */
 
+
+/*
 #moduleBox b {
 	float:left;
 }
@@ -155,7 +318,7 @@
 	padding: 7px 0 3px;
 }
 
-
+*/
 
 
 table {border-collapse: collapse;margin: 10px;width:100%}

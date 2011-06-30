@@ -4,6 +4,7 @@
 $configs = Foomo\Config\Utils::getConfigs();
 $oldConfigs = Foomo\Config\Utils::getOldConfigs();
 $foundOldConfigs = array();
+
 ?>
 <?= $view->partial('menu') ?>
 <div id="appContent">
@@ -15,6 +16,10 @@ $foundOldConfigs = array();
 	
 		<? foreach($moduleConfigs as $subDomainName => $subDomainConfigs): ?>
 	
+		<? if(!empty($subDomainName)): ?>
+				<h3><?= $subDomainName ?></h3>
+		<? endif; ?>
+	
 		<? foreach($subDomainConfigs as $domain => $file): 
 			$domainConfigClass = Foomo\Config::getDomainConfigClassName($domain);
 			$displayThisConfig = $model->showConfigModule == $module && $model->showConfigDomain == $domain && $model->showConfigSubDomain == $subDomainName;
@@ -24,18 +29,9 @@ $foundOldConfigs = array();
 		<div class="toggleBox">
 			<div class="toogleButton">
 				<div class="toggleOpenIcon">+</div>
-				<div class="toggleOpenContent">
-					<?= $module . (!empty($subDomainName)?'/' . $subDomainName . '/':'/') . $domain ?>
-				</div>
+				<div class="toggleOpenContent"><?= (!empty($subDomainName)? $subDomainName . '/': '') . $domain ?></div>
 			</div>
 			<div class="toggleContent">
-				<ul id="ctrlButtons">
-					<li><?= $view->partial('buttonYellow', array('url' => '', 'name' => 'Edit', 'js' => 'onclick="$(\'#'. $editorId .'\').toggle(300)"'  ), 'Foomo\Frontend') ?></li>
-					<li><?= $view->partial('buttonYellow', array('url' => 'deleteConf', 'name' => 'Delete' , 'parameters' => array($module, $domain, $subDomainName)), 'Foomo\Frontend') ?></li>
-				</ul>
-				<div class="detail" id="<?= $editorId ?>" style="display:<?= $displayThisConfig?'block':'none' ?>">
-					<?= $view->partial('edit', array('domain' => $domain, 'module' => $module, 'subDomain' => $subDomainName, 'domainConfigClass' => $domainConfigClass)) ?>
-				</div>
 				
 				<? 
 				$oldOnes = array();
@@ -47,32 +43,55 @@ $foundOldConfigs = array();
 					}
 				}
 				?>
-
-				<? if(count($oldOnes) > 0): ?>
-
-					<? foreach($oldOnes as $oldConfig): ?>
-					<div id="moduleHistoryItem">
-					<span><?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?></span>
-
-					<?= $view->partial('old', array('oldConfig' => $oldConfig)) ?>
-					</div>
-					<? endforeach; ?>
-
-
-				<? endif; ?>
 				
-				<hr>
-
+				<?= $view->partial('edit', array('domain' => $domain, 'module' => $module, 'subDomain' => $subDomainName, 'domainConfigClass' => $domainConfigClass)) ?>
 				
-				Ut enim ad minim veniam, quis nostrud exerc. Irure dolor in reprehend incididunt ut labore et dolore magna aliqua.<br>
-				Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse molestaie cillum.
+				<?= $view->link('Delete current', 'deleteConf', array($module, $domain, $subDomainName), array('class' => 'linkButtonRed')); ?>
+
 			</div>
 		</div>
+		
 		<? endforeach; ?>
+		
 		<? endforeach; ?>
-	
+		<br>
 	<? endforeach; ?>
 	
+	<? if(count($foundOldConfigs) < count($oldConfigs)): ?>
+		
+		<br>
+		<hr>
+		<br>
+		<h2>Trash</h2>
+		
+		<? foreach($oldConfigs as $oldConfig): ?>
+
+			<? if(!in_array($oldConfig, $foundOldConfigs)):
+				//$showOldConfId = $view->escape(str_replace('.' , '-', 'oldConf-' . $oldConfig->id ));
+			?>
+			<div class="toggleBox">
+				<div class="toogleButton">
+					<div class="toggleOpenIcon">+</div>
+					<div class="toggleOpenContent"><?=	$oldConfig->module . '/' . (($oldConfig->domain != '')?$oldConfig->domain . '/':'') . $oldConfig->name ?> (<?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?>)</div>
+				</div>
+				<div class="toggleContent">
+
+					<div class="greyBox"><pre><?= $view->escape(file_get_contents($oldConfig->filename)) ?></pre></div>
+
+					<? $showOldConfId = 'old-' . $oldConfig->id; ?>
+					
+					<?= $view->link('Restore', 'restoreOldConf', array($oldConfig->id), array('class' => 'linkButtonYellow')); ?>
+					<?= $view->link('Delete', 'deleteOldConf', array($oldConfig->id), array('class' => 'linkButtonRed')); ?>
+					
+				</div>
+			</div>
+			<? endif; ?>
+
+		<? endforeach; ?>
+		
+		<?= $view->link('Delete all old configurations', 'removeOldConfs', array(), array('class' => 'linkButtonRed')); ?>
+
+	<? endif; ?>
 
 
 </div>

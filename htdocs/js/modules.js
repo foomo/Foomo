@@ -75,8 +75,9 @@ Foomo.TabBox.prototype = {
 		$(event.currentTarget).parents('.tabNavi:first').find('li').removeClass('selected');
 		$(event.currentTarget).addClass('selected');
 		
-		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first').children('.tabContent').hide();
-		$(event.currentTarget).parents('.tabBox:first').find('.tabContent-'+( $(event.currentTarget).index()+1+':first' )).show();
+		
+		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first > .tabContent').hide();
+		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first > .tabContent-'+( $(event.currentTarget).index()+1 )).show();
 		
 	}
 }

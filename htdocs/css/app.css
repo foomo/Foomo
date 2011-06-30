@@ -19,34 +19,6 @@ a:hover {
 	text-decoration: none;
 }
 
-h1 {
-	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 22px;
-	color: #0d2746;
-	font-weight: normal;
-}
-
-h2 {
-	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 18px;
-	color: #0d2746;
-	font-weight: normal;
-}
-
-h3 {
-	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 15px;
-	color: #0d2746;
-}
-
-hr {
-	clear: both;
-	height: 1px;
-	border:0;
-	border-bottom:1px solid #0d2746;
-}
-
-
 
 
 
@@ -263,6 +235,64 @@ header #logoBox #version{
 	padding: 0;
 	height: 35px;
 }
+
+#menuSub .menuSubButton {
+       position: relative;
+       margin: -2px 0 0 0;
+       cursor: pointer;
+}
+#menuSub .menuSubButton a {
+       font-weight: bold;
+       color: #0d2746;
+       text-decoration: none;
+}
+#menuSub .menuSubButton a:hover, #menuSub .menuSubButton a .selected{
+       color: #ffffff;
+}
+#menuSub .menuSubButton a:hover #buttonLeft {
+       background-position: left -40px;
+}
+#menuSub .menuSubButton a:hover #buttonLeft.selected, #menuSub .menuSubButton #buttonLeft.selected {
+       background-position: left -80px;
+}
+
+#menuSub .menuSubButton a:hover #buttonMiddle {
+       background-position: center -40px;
+}
+#menuSub .menuSubButton a:hover #buttonMiddle.selected, #menuSub .menuSubButton #buttonMiddle.selected {
+       background-position: center -80px;
+}
+
+#menuSub .menuSubButton a:hover #buttonRight {
+       background-position: right -40px;
+}
+#menuSub .menuSubButton a:hover #buttonRight.selected, #menuSub .menuSubButton #buttonRight.selected {
+       background-position: right -80px;
+}
+#menuSub .menuSubButton #buttonLeft {
+       position: relative;
+       float: left;
+       width: 10px;
+       height: 25px;
+       background: url('/foomo/img/site/buttons.png') no-repeat left top;
+}
+#menuSub .menuSubButton #buttonMiddle {
+       position: relative;
+       float: left;
+       padding: 2px 0 0 0;
+       height: 25px;
+       background: url('/foomo/img/site/buttons.png') no-repeat center top;
+}
+#menuSub .menuSubButton #buttonRight {
+       position: relative;
+       float: left;
+       width: 10px;
+       height: 25px;
+       background: url('/foomo/img/site/buttons.png') no-repeat right top;
+}
+
+
+
 
 
 

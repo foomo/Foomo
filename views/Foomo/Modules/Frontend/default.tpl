@@ -10,8 +10,47 @@ $enabledModules = Manager::getEnabledModules();
 $resI = 0;
 ?>
 <div id="appContent">
-	<li><a id="showModulesButton" href="#" onclick="showAllResources();">show module resources</a></li>
-	<li><a id="hideModulesButton" style="display:none" href="#" onclick="hideAllResources();">hide module resources</a></li>
+	
+	<?
+	$orderedModules = Manager::getAvailableModules();
+	sort($orderedModules);
+	foreach($orderedModules as $availableModule):
+
+		$moduleEnabled = 'disabled';
+		// the local vars here need to be renamed ...
+		$modStat = Manager::getModuleStatus($availableModule);
+		$modResources = Manager::getModuleResources($availableModule);
+		$resourceCount = count($modResources);
+		if(in_array($availableModule, $enabledModules)) {
+			$moduleEnabled = 'enabled';
+		}
+		$depsOk = true;
+		foreach(Manager::getRequiredModuleResources($availableModule) as $reqiredModuleResource) {
+			if(!$reqiredModuleResource->resourceValid()) {
+				$depsOk = false;
+				break;
+			}
+		}
+		$hintClass = $modStat==Manager::MODULE_STATUS_OK?'valid':'invalid';
+		$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($availableModule);
+		$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($availableModule);
+	?>
+	
+	<div class="toggleBox">
+		<div class="toogleButton">
+			<div class="toggleOpenIcon">+</div>
+			<div class="toggleOpenContent">Lorem ipsum dolor sit amet</div>
+		</div>
+		<div class="toggleContent">
+			Ut enim ad minim veniam, quis nostrud exerc. Irure dolor in reprehend incididunt ut labore et dolore magna aliqua.<br>
+			Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse molestaie cillum.
+		</div>
+	</div>
+	
+	
+	<?php endforeach; ?>
+	
+
 	<form action="<?= $view->url('actionUpdateModules'); ?>" method="POST" id="moduleForm">
 	<table title="foomo modules" id="moduleTable">
 		<tr>
@@ -104,7 +143,7 @@ $resI = 0;
 	</table>	
 	
 	
-	
-	
+	<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
+		
 	
 </div>
