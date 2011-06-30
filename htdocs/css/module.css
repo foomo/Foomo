@@ -122,17 +122,32 @@ option {
 	-moz-border-radius: 5px;
 }
 
+.innerBox {
+	margin: 5px;
+}
+
 .greyLine {
 	margin: 10px;
 	border-bottom:1px solid #e8e8e8;
 	
 }
 
+.leftBox {
+	position: absolute;
+}
+
+.rightBox {
+	position: absolute;
+	right: 0;
+}
 
 
 
 
-/* --- Boxes / Lines -------------------------------------------------------------------------------- */
+
+
+
+/* --- Buttons -------------------------------------------------------------------------------- */
 
 .linkButtonYellow {
 	padding: 4px 10px;

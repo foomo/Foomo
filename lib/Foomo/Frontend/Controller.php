@@ -64,12 +64,14 @@ class Controller
 	}
 
 	/**
-	 * @param string $mvcAppName
+	 * @param string $app
+	 * @param string $action
+	 * @param string $parameters
 	 */
-	public function actionShowMVCApp($app, $action)
+	public function actionShowMVCApp($app=null, $action='default', $parameters=array())
 	{
-		$this->model->currentModuleApp = str_replace('.', '\\', $app);
-		$this->model->updateNavi($app, $action);
+		$this->model->currentModuleApp = str_replace('.', '\\', $app) . '\\Frontend';
+		$this->model->updateNavi($app, $action, $parameters);
 	}
 
 	/**

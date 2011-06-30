@@ -329,7 +329,7 @@ class Config
 	 */
 	public static function getHtdocsPath($module)
 	{
-		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;;
+		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;
 	}
 
 	/**

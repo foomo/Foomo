@@ -7,37 +7,37 @@ $level = 0;
 
 /**
  * @todo: make partial
+ * @param Foomo\MVC\View $view
  */
 function renderLeaves($view, $leaf, $level) {
-	
+
 	$output = '<div class="level'.$level.'"><ul>' . PHP_EOL;
-	
+
 	foreach ($leaf['leaves'] as $subLeaf){
-		
+
 		$classes = '';
-		
+
 		if($subLeaf['active']){
 			$classes .= 'selected';
 		} else {
 			$classes .= 'default';
 		}
-	
+
 		if (!is_null($subLeaf['link'])) {
-			$output .= '<li class="'.$classes.'"><a href="' . $view->url('showMVCApp', array($subLeaf['link']['app'], $subLeaf['link']['action'])) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>';
+			$output .= '<li class="'.$classes.'"><a href="' . $view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters'])) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>';
 		} else {
-			$classes .= ' down';
+			if ($level > 0) $classes .= ' down';
 			$output .= '<li class="'.$classes.'">'.$subLeaf['name'] . PHP_EOL;
 		}
-		
+
 		if (!empty ($subLeaf['leaves']) ) {
-			$level++;
-			$output .= renderLeaves($view, $subLeaf, $level);
+			$output .= renderLeaves($view, $subLeaf, $level + 1);
 		}
 		$output .= '</li>' . PHP_EOL;
 	}
-	
+
 	$output .= '</ul></div>' . PHP_EOL;
-	
+
 	return $output;
 }
 

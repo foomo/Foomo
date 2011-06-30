@@ -6,6 +6,10 @@
 $def = new $domainConfigClass;
 $config = Foomo\Config::getCurrentConfYAML($module, $domain, $subDomain);
 
+if(empty($subDomainName)){
+	$subDomainName = '';
+}
+
 
 $delParms = array(
 	'module' => $module,

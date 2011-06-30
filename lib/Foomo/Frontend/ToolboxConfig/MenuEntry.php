@@ -51,6 +51,10 @@ class MenuEntry
 	 */
 	public $action;
 	/**
+	 * @var array
+	 */
+	public $parameters;
+	/**
 	 * @var string
 	 */
 	public $target;
@@ -65,16 +69,18 @@ class MenuEntry
 	 * @param string $module
 	 * @param string $app
 	 * @param string $action
+	 * @param string[] $parameters
 	 * @param string $target
 	 * @return Foomo\Frontend\ToolboxConfig\MenuEntry
 	 */
-	public function __construct($path, $name, $module, $app, $action='default', $target='_self')
+	public function __construct($path, $name, $module=null, $app=null, $action='default', array $parameters=array(), $target='_self')
 	{
 		$this->path = explode('.', $path);
 		$this->name = $name;
 		$this->module = $module;
 		$this->app = $app;
 		$this->action = $action;
+		$this->parameters = $parameters;
 		$this->target = $target;
 	}
 
@@ -92,6 +98,7 @@ class MenuEntry
 			'module' => $this->module,
 			'app' => $this->app,
 			'action' => $this->action,
+			'parameters' => $this->parameters,
 			'target' => $this->target,
 		);
 	}
@@ -106,11 +113,12 @@ class MenuEntry
 	 * @param string $module
 	 * @param string $app
 	 * @param string $action
+	 * @param string[] $parameters
 	 * @param string $target
 	 * @return Foomo\Frontend\ToolboxConfig\MenuEntry
 	 */
-	public static function create($path, $name, $module, $app, $action='default', $target='_self')
+	public static function create($path, $name, $module=null, $app=null, $action='default', array $parameters=array(), $target='_self')
 	{
-		return new self($path, $name, $module, $app, $action, $target);
+		return new self($path, $name, $module, $app, $action, $parameters, $target);
 	}
 }

@@ -32,12 +32,6 @@ class Model
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * what info to display
-	 *
-	 * @var string
-	 */
-	public $currentInfo;
-	/**
 	 * @var string
 	 */
 	public $currentFrameUrl = 'about:blank';
@@ -71,36 +65,12 @@ class Model
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * show an info
+	 * @todo make navi session persistent and use parameters
 	 *
-	 * @todo: reimplement with custom mvc app!?
-	 * @param string $type
-	 * @param string $block
-	 */
-	public function showInfo($type, $block = null)
-	{
-		switch ($type) {
-			case'php':
-				if ($block) {
-					phpinfo($block);
-				} else {
-					phpinfo();
-				}
-				exit;
-			case'APC':
-				header('Location: ' . \Foomo\ROOT_HTTP . '/apece.php');
-				exit;
-			case'Memcache':
-				header('Location: ' . \Foomo\ROOT_HTTP . '/memcache.php');
-				exit;
-		}
-	}
-
-	/**
 	 * @param string $app
 	 * @param string $action
 	 */
-	public function updateNavi($app, $action)
+	public function updateNavi($app, $action, $parameters)
 	{
 		$this->navi['Root']['active'] = $this->isActiveLeaf($this->navi['Root'], $app, $action);
 	}
@@ -109,6 +79,12 @@ class Model
 	// ~ Private methods
 	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @param array $leaf
+	 * @param string $app
+	 * @param string $action
+	 * @return boolean
+	 */
 	private function isActiveLeaf(&$leaf, $app, $action)
 	{
 		if (!is_null($leaf['link']) && $leaf['link']['app'] == $app && $leaf['link']['action'] == $action) {

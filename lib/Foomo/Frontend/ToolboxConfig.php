@@ -40,7 +40,7 @@ class ToolboxConfig extends \Foomo\Config\AbstractConfig
 	 * @var array
 	 */
 	public $menu = array(
-		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My\\Module\\Frontend', 'action' => 'default', 'target' => '_self')
+		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My.Module.Frontend', 'action' => 'default', 'target' => '_self')
 	);
 
 	//---------------------------------------------------------------------------------------------
@@ -69,19 +69,17 @@ class ToolboxConfig extends \Foomo\Config\AbstractConfig
 	/**
 	 * @param array $leaf
 	 * @param array $paths
-	 * @param array $link
+	 * @param Foomo\Frontend\ToolboxConfig\MenuEntry $menuEntry
 	 */
 	public static function toLeaf(array &$leaf, array $paths, $menuEntry)
 	{
 		$pathName = array_shift($paths);
-
-		if (!isset($leaf[$pathName])) {
-			$leaf[$pathName] = array('name' => $pathName, 'active' => false, 'link' => null, 'leaves' => array());
-		}
+		if (!isset($leaf[$pathName])) $leaf[$pathName] = array('name' => $pathName, 'active' => false, 'link' => null, 'leaves' => array());
 
 		if (count($paths) > 0) {
 			self::toLeaf($leaf[$pathName]['leaves'], $paths, $menuEntry);
 		} else {
+			if (is_null($menuEntry->app)) return;
 			$leaf[$pathName]['link'] = $menuEntry->toArray();
 			$leaf[$pathName]['link']['app'] = str_replace('\\', '.', $leaf[$pathName]['link']['app']);
 		}

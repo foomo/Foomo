@@ -68,9 +68,10 @@ class MVC
 	 *
 	 * @param mixed $app name or application instance
 	 * @param string $baseURL inject a baseURL
+	 * @param boolean $forceBaseURL force injection of a baseURL
 	 * @return string
 	 */
-	public static function run($app, $baseURL=null)
+	public static function run($app, $baseURL=null, $forceBaseURL=false)
 	{
 		// set up the application
 
@@ -84,7 +85,7 @@ class MVC
 		// set up the url handler and pass it the application id (still can be ovewwritten by the controller id)
 
 
-		$handler = new URLHandler($app, self::getBaseUrl($baseURL));
+		$handler = new URLHandler($app, self::getBaseUrl($baseURL, $forceBaseURL));
 
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
 
@@ -183,9 +184,18 @@ class MVC
 		return self::$caughtViews;
 	}
 
-	public static function getBaseUrl($baseURL = null)
+	/**
+	 * @todo: added force as there i cant set the baseurl otherwise
+	 *
+	 * @param string $baseURL
+	 * @param boolean $force
+	 * @return string
+	 */
+	public static function getBaseUrl($baseURL=null, $force=false)
 	{
-		if (count(MVCView::$viewStack) > 0) {
+		if ($force && !is_null($baseURL)) {
+			return $baseURL;
+		} else if (count(MVCView::$viewStack) > 0) {
 			return MVCView::$viewStack[count(MVCView::$viewStack) - 1]->path;
 		} else if (!$baseURL) {
 			$baseURL = $_SERVER['SCRIPT_NAME'];

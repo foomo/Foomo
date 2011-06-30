@@ -39,16 +39,52 @@ $resI = 0;
 	<div class="toggleBox">
 		<div class="toogleButton">
 			<div class="toggleOpenIcon">+</div>
-			<div class="toggleOpenContent">Lorem ipsum dolor sit amet</div>
+			<div class="toggleOpenContent"><div class="leftBox"><?= $availableModule ?> v <?= constant(str_replace('.', '\\', $availableModule) . '\\Module::VERSION') ?></div><div class="rightBox">Status: <?= $modStat==Manager::MODULE_STATUS_OK?'ok':'check'; ?></div></div>
 		</div>
 		<div class="toggleContent">
-			Ut enim ad minim veniam, quis nostrud exerc. Irure dolor in reprehend incididunt ut labore et dolore magna aliqua.<br>
-			Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse molestaie cillum.
+			
+			<div class="innerBox">
+				<?= Manager::getModuleDescription($availableModule); ?><br>
+			</div>
+			<hr class="greyLine">
+			<? if($hasMVCFrontEnd && !$hasFrontEnd): ?>
+				<?= $view->link('Open inline frontend', 'showMVCApp', array($availableModule), array('class' => 'linkButtonYellow')) ?>
+			<? elseif($availableModule == \Foomo\Module::NAME): ?>
+			
+			<? elseif(!$hasFrontEnd && !$hasFrontEnd): ?>
+				
+			<? else: ?>
+				<a class="linkButtonYellow" href="<?= $view->escape(Foomo\ROOT_HTTP . '/modules/' . $availableModule) ?>" target="_blank">Open new Frontend</a>
+			<? endif; ?>
+			
+			<div class="greyBox">
+				<div class="innerBox">
+				<?php
+					switch($modStat) {
+						case Manager::MODULE_STATUS_OK:
+							$msg = '<p>everything is cool with this module</p>';
+							break;
+						case Manager::MODULE_STATUS_REQUIRED_MODULES_MISSING:
+							$msg = '<p>there are other modules, that need to be enabled - check the dependencies</p>';
+							break;
+						case Manager::MODULE_STATUS_RESOURCES_INVALID:
+							$msg = '<p>invalid resources</p>';
+							break;
+						default:
+							$msg = $modStat;
+					}
+					echo $msg;
+					echo $view->partial('moduleResources', array('moduleName' => $availableModule));
+				?>	
+				</div>
+			</div>
+			
 		</div>
 	</div>
 	
-	
 	<?php endforeach; ?>
+	<br>
+	<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
 	
 
 	<form action="<?= $view->url('actionUpdateModules'); ?>" method="POST" id="moduleForm">
@@ -117,8 +153,8 @@ $resI = 0;
 		</tr>
 		<?php if($resourceCount > 0 || $modStat != Manager::MODULE_STATUS_OK): ?>
 		<tr>
-			<td style="display:none" id="resourceDisplay_<?php echo $resI ;$resI++; ?>">&nbsp;</td>
-			<td style="display:none;" id="resourceDisplay_<?php echo $resI ;$resI++; ?>" colspan="5" class="<?php echo $hintClass ?>">
+			<td id="resourceDisplay_<?php echo $resI ;$resI++; ?>">&nbsp;</td>
+			<td id="resourceDisplay_<?php echo $resI ;$resI++; ?>" colspan="5" class="<?php echo $hintClass ?>">
 				<?php
 					switch($modStat) {
 						case Manager::MODULE_STATUS_OK:
@@ -143,7 +179,7 @@ $resI = 0;
 	</table>	
 	
 	
-	<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
+	
 		
 	
 </div>
