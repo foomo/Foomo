@@ -23,6 +23,10 @@ use Foomo\MVC;
 
 /**
  * handle urls for MVC
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
 class URLHandler {

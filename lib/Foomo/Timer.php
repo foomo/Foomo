@@ -21,6 +21,10 @@ namespace Foomo;
 
 /**
  * performance monitoring with markers nested and accumulative stop watches
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Timer {
 	/**

@@ -21,6 +21,11 @@ namespace Foomo\Session;
 
 use Foomo\TestRunner\Suite;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class TestSuite extends Suite {
 	public function foomoTestSuiteGetList()
 	{

@@ -8,7 +8,10 @@ namespace Foomo;
 
 /**
  * yet another template engine
- * 
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
 class Template {
@@ -26,7 +29,7 @@ class Template {
 	 */
 	public $file;
 	/**
-	 * 
+	 *
 	 *
 	 * @var string
 	 */

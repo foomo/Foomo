@@ -21,6 +21,10 @@ namespace Foomo;
 
 /**
  * provides a simple interface for basic http authentication
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class BasicAuth {
 
@@ -75,9 +79,9 @@ class BasicAuth {
 
 	/**
 	 * name of the auth dir name
-	 * 
+	 *
 	 * @internal
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function getAuthDirname()
@@ -180,7 +184,7 @@ class BasicAuth {
 
 	public function logout()
 	{
-		
+
 	}
 
 }

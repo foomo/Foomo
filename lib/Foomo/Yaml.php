@@ -22,6 +22,9 @@ namespace Foomo;
 /**
  * yaml wrapper currently using symfonys yaml implementation, which could be better ;), but thanks for it anyways guys
  *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Yaml {
 

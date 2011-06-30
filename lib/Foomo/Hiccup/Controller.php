@@ -23,13 +23,17 @@ use Foomo\Hiccup;
 
 /**
  * system hiccup handling - when the system does not bootstrap any more
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
 final class Controller {
 	const CONTROLLER_ID = 'hiccup';
 	/**
 	 * model
-	 * 
+	 *
 	 * @var Foomo\Hiccup
 	 */
 	private $model;

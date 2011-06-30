@@ -19,6 +19,11 @@
 
 namespace Foomo\Log;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class Suite extends \Foomo\TestRunner\Suite {
 	public function foomoTestSuiteGetList()
 	{

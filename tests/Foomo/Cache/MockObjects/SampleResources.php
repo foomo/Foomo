@@ -19,6 +19,11 @@
 
 namespace Foomo\Cache\MockObjects;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class SampleResources {
 
 	/**
@@ -28,9 +33,9 @@ class SampleResources {
 	 * @param string $location
 	 * @param FancyClass $template
 	 * @param double $dbl
-	 * 
+	 *
 	 * @return string
-	
+
 	 */
 	public function noticeMEEEEEEE($timestamp, $location, $template, $dbl) {
 		$data = \Foomo\Cache\Proxy::call($this, 'getHoroscopeData', array($timestamp, $location));
@@ -50,12 +55,12 @@ class SampleResources {
 	}
 
 
-	
+
 
 
 	/**
 	 * a very useless, yet transparent method
-	 * 
+	 *
 	 * @Foomo\Cache\CacheResourceDescription
 	 *
 	 * @param string $foo
@@ -69,7 +74,7 @@ class SampleResources {
 
 	/**
 	 * a very useless, yet transparent method
-	 * 
+	 *
 	 * @Foomo\Cache\CacheResourceDescription
 	 *
 	 * @param string $foo

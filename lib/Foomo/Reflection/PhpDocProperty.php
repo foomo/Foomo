@@ -21,6 +21,10 @@ namespace Foomo\Reflection;
 
 /**
  * for properties described by @property
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class PhpDocProperty {
 

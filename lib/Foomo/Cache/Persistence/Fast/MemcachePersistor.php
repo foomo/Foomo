@@ -1,14 +1,33 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\Cache\Persistence\Fast;
 
 /**
  * Memcache persistor
  *
- *
  * example config in vhosts.conf
  * SetEnv "FOOMO_CACHE_FAST" "memcache::host=127.0.0.1,port=11211,persistent=true,weight=1,timeout=1,retry_interval=15,status=true;host=server2.com,port=11211"
-
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 

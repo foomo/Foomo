@@ -19,6 +19,11 @@
 
 namespace Foomo\Cache;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class DependencyModelTest extends \PHPUnit_Framework_TestCase {
 
 	/**
@@ -81,7 +86,7 @@ class DependencyModelTest extends \PHPUnit_Framework_TestCase {
 		  ),
 		);
 		$this->assertEquals($expectedTree, $dependencyTree);
-		
+
 	}
 
 	public function testGetDependencyList() {

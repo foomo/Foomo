@@ -21,7 +21,10 @@ namespace Foomo\Http;
 
 /**
  * a mock
- *
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class MockServer {
 	const ETAG_LAST_MODIFIED_RESOURCE = 'last-mdfd-rs';

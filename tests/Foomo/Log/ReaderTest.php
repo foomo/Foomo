@@ -21,6 +21,11 @@ namespace Foomo\Log;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ReaderTest extends TestCase {
 	/**
 	 * @var Reader

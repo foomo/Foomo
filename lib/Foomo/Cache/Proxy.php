@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\Cache;
@@ -10,6 +23,10 @@ use ReflectionAnnotatedMethod;
 
 /**
  * run your method calls through this class to get cached results
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Proxy {
 
@@ -36,11 +53,11 @@ class Proxy {
 
 	/**
 	 * will check if the constructor can be called or a singleton is available
-	 * 
+	 *
 	 * @param string $className
 	 * @internal
-	 * 
-	 * @return stdClass 
+	 *
+	 * @return stdClass
 	 */
 	public static function getClassInstance($className)
 	{
@@ -67,7 +84,7 @@ class Proxy {
 	 * @param mixed $classOrObject object/class to call
 	 * @param string $method name of the method
 	 * @param array $arguments arguments for the call
-	 * 
+	 *
 	 * @deprecated use CacheResourceReflection instead
 	 * @internal really ?!
 	 *
@@ -77,7 +94,7 @@ class Proxy {
 	{
 		// is it really
 		// trigger_error('stop using this use CacheResourceReflection instead', \E_USER_DEPRECATED);
-        
+
         $resource = new CacheResource();
 		if (($classOrObject instanceof DependencyModel) && $method == 'cachedGetDirectory') {
 
@@ -104,7 +121,7 @@ class Proxy {
 			$resource->hits = 0;
 			$resource->creationTime = \time();
 			$resource->debugCreationTime = \microtime(true);
-            
+
 
 			$argCounter = 0;
 			foreach ($cacheResourceRefl->parameters as $paramRefl) {
@@ -148,7 +165,7 @@ class Proxy {
 						}
 					}
 					$resource->properties[$paramRefl->name] = $arguments[$argCounter];
-                    
+
 				}
                 $resource->propertyTypes[$paramRefl->name] = $paramRefl->type;
 				$argCounter++;
@@ -169,10 +186,10 @@ class Proxy {
 
 	/**
 	 * computes an id for the resource with arguments / properties
-	 * 
+	 *
 	 * @param string $resourceName
 	 * @param array $arguments
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function getId($resourceName, $arguments)

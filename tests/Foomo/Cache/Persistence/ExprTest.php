@@ -21,6 +21,11 @@ namespace Foomo\Cache\Persistence;
 
 use \Foomo\Cache\Persistence\Expr;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ExprTest extends \PHPUnit_Framework_TestCase {
 
 
@@ -46,10 +51,10 @@ class ExprTest extends \PHPUnit_Framework_TestCase {
 		      );
 	//var_dump($expr->value[1][0]->value[0]);
 	//var_dump($expr->value[1][0]->value[1]);
-	
+
 	$this->assertEquals('Foomo\Cache\Persistence\Expr::groupAnd', $expr->value[0]);
 	$this->assertEquals('Foomo\Cache\Persistence\Expr::idEq',$expr->value[1][0]->value[0]);
 	$this->assertEquals('123456789', $expr->value[1][0]->value[1][0]);
-	
+
     }
 }

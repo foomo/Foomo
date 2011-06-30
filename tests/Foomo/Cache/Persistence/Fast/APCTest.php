@@ -21,6 +21,11 @@ namespace Foomo\Cache\Persistence\Fast;
 
 use Foomo\Cache\Manager;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class APCTest extends \PHPUnit_Framework_TestCase {
 
 	private $resource;

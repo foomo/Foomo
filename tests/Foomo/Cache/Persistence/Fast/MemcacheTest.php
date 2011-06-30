@@ -21,6 +21,11 @@ namespace Foomo\Cache\Persistence\Fast;
 
 use Foomo\Cache\Manager;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class MemcacheTest extends \Foomo\Cache\AbstractBaseTest {
 
 	private $resource;
@@ -30,7 +35,7 @@ class MemcacheTest extends \Foomo\Cache\AbstractBaseTest {
 	private $object;
 	private $apcPersistor;
 
-	
+
 	public function testLongId() {
 		$memcache = \Foomo\Cache\Manager::getFastPersistor();
 		$longId = '12345678901234567890-1234567890234567890-1234567890qwertyuiopsdfghjkl;xcvbnsdfghjkwertyuqwertyuasdfghjklqwertyuioaaaaaaaaaaaaaaaaaaaaaaadddddddddddddddddddddddddddddddddddddddddddddddhjksfgjaksfgahksfgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg';

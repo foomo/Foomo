@@ -21,8 +21,11 @@ namespace Foomo\MVC;
 
 /**
  * a mock controller
- * //@todo give it another name and its own file
  *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ * //@todo give it another name and its own file
  */
 class TestController {
   const CONTROLLER_ID = 'testModule';

@@ -19,6 +19,11 @@
 
 namespace Foomo\Frontend\ToolboxConfig;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author franklin <franklin@weareinteractive.com>
+ */
 class MenuEntry
 {
 	//---------------------------------------------------------------------------------------------

@@ -12,17 +12,20 @@ namespace Foomo;
  * maybe change the api to simplexml style
  * how to ensure a forced order / priorities, when adding css links or js
  * that needs to be possible:
- * 
+ *
  *	http://html5boilerplate.com/
  *		<!--[if lt IE 7]> <html lang="en-us" class="no-js ie6"> <![endif]-->
  *		<!-- JavaScript at the bottom, except for Modernizr -->
- *		<script src="//html5boilerplate.com/js/libs/modernizr-1.7.min.js"></script> 
- * 
+ *		<script src="//html5boilerplate.com/js/libs/modernizr-1.7.min.js"></script>
+ *
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo add js and css compiler
  * @todo maybe support haml and lesscss
  * @todo method chaining please
  * @todo remove csss ?!
- * 
  */
 class HTMLDocument {
 	private $indent = 0;
@@ -71,7 +74,7 @@ class HTMLDocument {
 	}
 
 	/**
-	 * @todo restructure html by example 
+	 * @todo restructure html by example
 	 */
 	public function __construct()
 	{
@@ -105,7 +108,7 @@ class HTMLDocument {
 
 	/**
 	 * set the docType (if you know what yut are doing)
-	 * 
+	 *
 	 * @param string $docType doc type
 	 */
 	public function setDocType($docType)
@@ -115,7 +118,7 @@ class HTMLDocument {
 
 	/**
 	 * get the doc type
-	 * 
+	 *
 	 * @return string doc type
 	 */
 	public function getDocType()
@@ -128,7 +131,7 @@ class HTMLDocument {
 	 * increment the source indentation
 	 *
 	 * @param integer $indentToInc
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function incIndent($indentToInc)
@@ -141,7 +144,7 @@ class HTMLDocument {
 	 * decrement the source indentation
 	 *
 	 * @param integer $indentToInc
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function decIndent($indentToDec)
@@ -183,7 +186,7 @@ class HTMLDocument {
 	 * add javascript code to the onLoad event
 	 *
 	 * @param string $javascript
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addOnLoad($javascript)
@@ -194,7 +197,7 @@ class HTMLDocument {
 
 	/**
 	 * reset the onload attribute of the body element
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function resetOnload()
@@ -208,7 +211,7 @@ class HTMLDocument {
 	 *
 	 * @param string $attributeName
 	 * @param string $attributeValue
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function setBodyAttribute($attributeName, $attributeValue)
@@ -239,7 +242,7 @@ class HTMLDocument {
 	 *
 	 * @param string $HTML arbitrary HTML - we are NOT validating what you add
 	 * @see Foomo\HTMLDocument::indentBlock()
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addBody($HTML)
@@ -252,7 +255,7 @@ class HTMLDocument {
 	 * Add HTML directly to the head
 	 *
 	 * @param string $HTML
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addHead($HTML)
@@ -266,7 +269,7 @@ class HTMLDocument {
 	 *
 	 * @see Foomo\HTMLDocument::addJavascripts()
 	 * @param string $javascript
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addJavascript($javascript)
@@ -281,7 +284,7 @@ class HTMLDocument {
 	 * @example <code>$bert->HTMLDocument->addJavascripts(array('/tm/js/script.js', 'anotherscript.js'));</code>
 	 * @see Foomo\HTMLDocument::addJavascript()
 	 * @param array $jsLinks
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addJavascripts($jsLinks)
@@ -311,7 +314,7 @@ class HTMLDocument {
 	 * set the title of you document
 	 *
 	 * @param string $title
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function setTitle($title)
@@ -345,7 +348,7 @@ class HTMLDocument {
 	 * Set the base url of the page. This is useful, if you for example want to export html, that would still link to resources on your webserver
 	 *
 	 * @param string $url
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function setBaseUrl($url)
@@ -370,7 +373,7 @@ class HTMLDocument {
 	 * if the document has been made static by using
 	 * this::makeStatic() headers will be sent to the browser
 	 * @param boolean $suppressHeaders if true headers will not be sent
-	 * 
+	 *
 	 * @return string HTML od the Document
 	 */
 	public function output($suppressHeaders = false)
@@ -379,7 +382,7 @@ class HTMLDocument {
 		$tagSuffix = '>';
 		$output = '';
 		$this->document['head']['meta'] .= '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">';
-		
+
 		$this->addMeta($meta);
 		foreach ($this->metaData as $key => $val) {
 			$this->document['head']['meta'] .= '<meta name="' . $key . '" content="' . $val . '"' . $tagSuffix . PHP_EOL;
@@ -466,8 +469,8 @@ class HTMLDocument {
 	}
 	/**
 	 * send http headers
-	 * 
-	 * @return Foomo\HTMLDocument 
+	 *
+	 * @return Foomo\HTMLDocument
 	 */
 	public function sendStaticHeaders()
 	{
@@ -505,7 +508,7 @@ class HTMLDocument {
 	 *
 	 * @example $doc->addMeta(array('keywords' => 'super, great, wonderful', 'description' => 'this is a wonderful page'));
 	 * @param array $meta arra('nameOfMetaEntry' => 'valueOfMetaEntry')
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addMeta($meta)
@@ -519,7 +522,7 @@ class HTMLDocument {
 	 *
 	 * @see Foomo\HTMLDocument::addStylesheets()
 	 * @param string $styleString CSS Style definition
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addStylesheet($styleString)
@@ -534,7 +537,7 @@ class HTMLDocument {
 	 * @see Foomo\HTMLDocument::addStylesheet()
 	 * @example <code>$bert->HTMLDocument->addStylesheets(array('my.css', 'path/to/my/other.css'))</code>
 	 * @param array $styleString CSS Style definition
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addStylesheets($stylesheets)
@@ -547,7 +550,7 @@ class HTMLDocument {
 	 * Add HTML to a frameset. If you call this function you turn the document into a frameset
 	 *
 	 * @param string $html
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addFrameset($html)
@@ -563,8 +566,8 @@ class HTMLDocument {
 	}
 	/**
 	 * @param string $newPragma
-	 * 
-	 * @return Foomo\HTMLDocument 
+	 *
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setPragma($newPragma)
 	{
@@ -573,8 +576,8 @@ class HTMLDocument {
 	}
 	/**
 	 * @param string $newEtag
-	 * 
-	 * @return Foomo\HTMLDocument 
+	 *
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setEtag($newEtag)
 	{
@@ -583,8 +586,8 @@ class HTMLDocument {
 	}
 	/**
 	 * @param string $expiryDate
-	 * 
-	 * @return Foomo\HTMLDocument 
+	 *
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setExpires($expiryDate)
 	{
@@ -603,7 +606,7 @@ class HTMLDocument {
 	}
 	/**
 	 * @param string $cacheControl
-	 * @return Foomo\HTMLDocument 
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setCacheControl($cacheControl)
 	{
@@ -613,8 +616,8 @@ class HTMLDocument {
 	/**
 	 *
 	 * @param integer $lastModified unix timestamp of last mod
-	 * 
-	 * @return Foomo\HTMLDocument 
+	 *
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setLastModified($lastModified)
 	{
@@ -625,7 +628,7 @@ class HTMLDocument {
 	/**
 	 * @todo implement it
 	 * @internal this is a draft / reminder
-	 * @param type $Etag 
+	 * @param type $Etag
 	 */
 	public function tryBrowserCache($Etag)
 	{
@@ -643,7 +646,7 @@ class HTMLDocument {
 	 * set a favicon note favicon may also be (animated) gifs
 	 *
 	 * @param string $pathToFavIcon /path/to/your/favicon.gif or .ico
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function setFavIcon($pathToFavIcon)
@@ -655,7 +658,7 @@ class HTMLDocument {
 	/**
 	 * Add a W3C HTML Validation Link to your page at the position of the current cursor
 	 * just a nice gadget for development
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addW3CHTMLValidationLink()
@@ -684,7 +687,7 @@ class HTMLDocument {
 	 *
 	 * @param string $name
 	 * @param string $filename
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function addDynCssSheet($name, $filename)
@@ -701,11 +704,11 @@ class HTMLDocument {
 	 * Set a value within a dynamic stylesheet
 	 *
 	 * @see Foomo\HTMLDocument::addDynCssSheet
-	 * 
+	 *
 	 * @param string $dynSheetName name of the sheet previously added
 	 * @param string $name name of the value
 	 * @param string $value value itself
-	 * 
+	 *
 	 * @return Foomo\HTMLDocument
 	 */
 	public function setDynCssSheetValue($dynSheetName, $name, $value)
@@ -716,8 +719,8 @@ class HTMLDocument {
 
 	/**
 	 * @param string $url
-	 * 
-	 * @return Foomo\HTMLDocument 
+	 *
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setCanonicalLink($url)
 	{

@@ -19,9 +19,14 @@
 
 namespace Foomo\MVC\View;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class Resource {
 	const TYPE_JS = 'js';
-	const TYPE_CSS = 'css';	
+	const TYPE_CSS = 'css';
 	public $type;
 	public $link;
 	public function __construct($type, $link)
@@ -33,7 +38,7 @@ class Resource {
 	{
 		return new self(self::TYPE_JS, $link);
 	}
-	
+
 	public static function css($link)
 	{
 		return new self(self::TYPE_CSS, $link);

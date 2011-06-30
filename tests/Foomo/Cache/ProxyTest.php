@@ -19,8 +19,13 @@
 
 namespace Foomo\Cache;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ProxyTest extends AbstractBaseTest {
-	
+
 	const MOCK_CLASS_NAME = 'Foomo\\Cache\\MockObjects\\SampleResources';
 
 	public function testGetEmptyResourceStatic() {

@@ -19,4 +19,9 @@
 
 namespace Foomo\Autoloader\Mock\Bar;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class Bla {}

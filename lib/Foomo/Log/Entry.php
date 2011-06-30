@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\Log;
@@ -10,7 +23,10 @@ namespace Foomo\Log;
  * php request log entry
  *
  * the contents can be controlled through Foomo\Log\DomainConfig
- *
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Entry {
 
@@ -27,7 +43,7 @@ class Entry {
 	public $logTime;
 	/**
 	 * http status code - see http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html , extracted from apache log
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $httpStatus;
@@ -39,7 +55,7 @@ class Entry {
 	public $sessionId;
 	/**
 	 * age of the session
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $sessionAge;

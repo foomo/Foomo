@@ -22,6 +22,11 @@ namespace Foomo;
 use PHPUnit_Framework_TestCase as TestCase;
 use Foomo\Module;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ModuleTest extends TestCase {
 	public function testGetView()
 	{

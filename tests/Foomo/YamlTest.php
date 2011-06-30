@@ -20,14 +20,18 @@
 namespace Foomo;
 
 use Foomo\Yaml;
+
 /**
  * test if symfonys yaml parser is friendly
  *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class YamlTest extends \PHPUnit_Framework_TestCase {
 	public function testParse()
 	{
-		$yaml = self::getYml('complex.yml');		
+		$yaml = self::getYml('complex.yml');
 		$result = Yaml::parse($yaml);
 		$this->assertEquals($result['bill-to']['given'], 'Chris');
 	}

@@ -12,6 +12,10 @@ use Exception;
 
 /**
  * class for handling class __autoloading in arbitrary projects
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class AutoLoader
 {

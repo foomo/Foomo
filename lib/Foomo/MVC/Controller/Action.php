@@ -21,6 +21,10 @@ namespace Foomo\MVC\Controller;
 
 /**
  * class describing a reflectoed method on a controller or class in general
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Action {
 

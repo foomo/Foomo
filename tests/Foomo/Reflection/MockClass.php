@@ -21,7 +21,10 @@ namespace Foomo\Reflection;
 
 /**
  * a mock class
- * 
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @property-read integer seppRead a test integer
  * @property-write integer seppWrite a test integer
  * @property integer seppReadWrite a test integer
@@ -30,16 +33,16 @@ class MockClass {
 
 	/**
 	 * foo prop
-	 * 
+	 *
 	 * @var Foomo\Reflection\MockClass
 	 */
 	public $foo;
 	/**
 	 * foo takes bar and returns foobar
-	 * 
+	 *
 	 * @param string $bar bar bar bar
 	 * @param array $fooBar foo bar comment
-	 * 
+	 *
 	 * @return string well it returns a poem
 	 * @throws Exception
 	 * @serviceMessage MyMessage
@@ -50,7 +53,7 @@ class MockClass {
 	 */
 	public function foo($bar, $fooBar)
 	{
-		
+
 	}
 
 }

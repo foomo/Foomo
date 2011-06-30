@@ -21,10 +21,14 @@ namespace Foomo;
 
 /**
  * a simple gd add on
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
-class GD {
-
+class GD
+{
 	/**
 	 * resamples and converts an image from a file to a file
 	 * supported mime types are:
@@ -40,7 +44,7 @@ class GD {
 	 * @param integer $targetH height of the target
 	 * @param integer $targetQuality compression quality of the resulting image
 	 * 								0 is a very bad quality at a very small file size
-	 * 								100 is a very good quality at a big filesize 
+	 * 								100 is a very good quality at a big filesize
 	 * 								applies to jpegs only
 	 * @return boolean
 	 */

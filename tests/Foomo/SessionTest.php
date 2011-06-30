@@ -19,6 +19,11 @@
 
 namespace Foomo;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class SessionTest extends \PHPUnit_Framework_TestCase {
 	public function setUp()
 	{
@@ -44,17 +49,17 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		Session::getClassInstance('Foomo\\Session\\TestMockClass');
 		Session::saveAndRelease();
 		$this->assertEquals(
-			'ab', 
+			'ab',
 			Session::getClassInstance('Foomo\\Session\\TestMockClass')->foo('a', 'b')
 		);
 	}
-	
+
 	/*
 	 * @expectedException Exception
 	public function testGetInstanceWhenNotLocked()
 	{
 		// var_dump(Session::getInstance());
-		Session::getClassInstance('Foomo\\Session\\TestMockClass')->instanceId = 'foobar';	
+		Session::getClassInstance('Foomo\\Session\\TestMockClass')->instanceId = 'foobar';
 	}
 	*/
 	public function testGetInstance()

@@ -19,6 +19,11 @@
 
 namespace Foomo\Config\Spec;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class DomainConfig extends \Foomo\Config\AbstractConfig {
 	const NAME = 'Foomo.coreSpecMockConfig';
 	public $foo = 'bar';

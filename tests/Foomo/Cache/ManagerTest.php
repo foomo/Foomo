@@ -22,6 +22,11 @@ namespace Foomo\Cache;
 use Foomo\Cache\Persistence\Expr;
 use Foomo\Timer;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ManagerTest extends AbstractBaseTest {
 
 	private $resource;
@@ -83,7 +88,7 @@ class ManagerTest extends AbstractBaseTest {
 			Manager::save($this->resource);
 		}
 	}
-	
-	
-	
+
+
+
 }

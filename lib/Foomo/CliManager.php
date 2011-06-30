@@ -23,6 +23,10 @@ use Foomo\Modules\Manager;
 
 /**
  * manage foomo from the command line
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class CliManager {
 
@@ -38,11 +42,11 @@ class CliManager {
 
 	/**
 	 * create a module
-	 * 
+	 *
 	 * @param string $name name of the module
 	 * @param string $description short description
 	 * @param string[] $dependencies modules that are needed to run this module
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createModule($name, $description, $dependencies)
@@ -90,8 +94,8 @@ class CliManager {
 	/**
 	 * get a config
 	 *
-	 * @param string $module 
-	 * @param string $domain 
+	 * @param string $module
+	 * @param string $domain
 	 * @param string $subDomain
 	 *
 	 * @return array
@@ -109,7 +113,7 @@ class CliManager {
 	 * @param string $module
 	 * @param string $domain
 	 * @param string $subDomain
-	 * 
+	 *
 	 * @return array
 	 */
 	public function setConfig($configFile, $module, $domain, $subDomain = null)
@@ -126,10 +130,10 @@ class CliManager {
 
 	/**
 	 * Edit a config with $EDITOR
-	 * 
-	 * @param string $module 
-	 * @param string $domain 
-	 * @param string $subDomain 
+	 *
+	 * @param string $module
+	 * @param string $domain
+	 * @param string $subDomain
 	 */
 	public function editConfig($module, $domain, $subDomain = null)
 	{

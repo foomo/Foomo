@@ -21,6 +21,11 @@ namespace Foomo;
 
 use Foomo\Cache\Manager;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class TranslationTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * my locale
@@ -33,11 +38,11 @@ class TranslationTest extends \PHPUnit_Framework_TestCase {
 		//Manager::reset(Manager::getResourceName('Foomo\\Translation', 'cachedGetLocaleTable'), true);
 		$baseDir = dirname(__FILE__ ) .\DIRECTORY_SEPARATOR . 'translationResources';
 		$this->locale = new Translation(
-			array( 
-				$baseDir . DIRECTORY_SEPARATOR . 'rootTwo', 
+			array(
+				$baseDir . DIRECTORY_SEPARATOR . 'rootTwo',
 				$baseDir . DIRECTORY_SEPARATOR . 'rootOne'
-			), 
-			__NAMESPACE__, 
+			),
+			__NAMESPACE__,
 			array('de', 'en')
 		);
 	}
@@ -70,9 +75,9 @@ class TranslationTest extends \PHPUnit_Framework_TestCase {
 	{
 		$translation = Translation::getModuleTranslation(Module::NAME, 'Foomo\\Frontend', array('en', 'de'));
 		$this->assertEquals('Hello %s !', $translation->_('GREET_DEFAULT'));
-		
+
 		$translation = Translation::getModuleTranslation(Module::NAME, 'Foomo\\Frontend', array('de', 'en'));
 		$this->assertEquals('Servus %s !', $translation->_('GREET_DEFAULT'));
-		
+
 	}
 }

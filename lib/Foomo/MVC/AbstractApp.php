@@ -21,6 +21,10 @@ namespace Foomo\MVC;
 
 /**
  * extend this to get MVC apps and overwrite the constructor, if you need special treatment for the model like session persistance
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 abstract class AbstractApp
 {

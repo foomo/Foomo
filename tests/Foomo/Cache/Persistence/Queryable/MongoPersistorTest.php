@@ -22,8 +22,9 @@ namespace Foomo\Cache\Persistence\Queryable;
 use Foomo\Cache\Persistence\Expr;
 
 /**
- *
- *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class MongoPersistorTest extends AbstractTest {
 
@@ -34,7 +35,7 @@ class MongoPersistorTest extends AbstractTest {
 	private $className;
 	private $object;
 	private $config;
-	
+
 
 	public function setUp() {
 		$domainConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
@@ -43,8 +44,8 @@ class MongoPersistorTest extends AbstractTest {
 			$queryablePersistorConf = $domainConfig->queryablePersistors['mongo'];
 			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
 			$mongoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
-		
-			
+
+
 			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
 			$this->object = new $this->className;
 			$this->method = 'getHoroscopeData';

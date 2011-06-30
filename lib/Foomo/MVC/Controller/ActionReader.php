@@ -22,6 +22,11 @@ namespace Foomo\MVC\Controller;
 use ReflectionMethod,
 	ReflectionClass;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ActionReader {
 
 	/**
@@ -74,7 +79,7 @@ class ActionReader {
 	 *
 	 * @param string $parameterName
 	 * @param string $docComment
-	 * 
+	 *
 	 * @return ActionParameter
 	 */
 	private static function extractParameter($parameterName, $docComment)

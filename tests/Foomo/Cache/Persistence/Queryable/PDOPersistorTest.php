@@ -22,8 +22,9 @@ namespace Foomo\Cache\Persistence\Queryable;
 use Foomo\Cache\Persistence\Expr;
 
 /**
- *
- *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class PDOPersistorTest extends AbstractTest {
 
@@ -47,7 +48,7 @@ class PDOPersistorTest extends AbstractTest {
 			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
 			$pdoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
 
-			
+
 			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
 			$this->object = new $this->className;
 			$this->method = 'getHoroscopeData';
@@ -55,26 +56,26 @@ class PDOPersistorTest extends AbstractTest {
 			$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
 			$this->resource->value = call_user_func_array(array($this->object, $this->method), $this->arguments);
 			$this->pdoPersistor = $pdoPersistor;
-			
+
 			$this->saveManagerSettings();
 			$this->clearMockCache($pdoPersistor, $fastPersistor);
 			\Foomo\Cache\Manager::initialize($pdoPersistor, $fastPersistor);
 		} else {
 			$this->markTestSkipped(
-				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME . 
+				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME .
 				' for module ' . \Foomo\Module::NAME . ' respectively the pdo config on it is empty'
 			);
 		}
 	}
-	
-	
+
+
 	public function tearDown() {
 		//set the mamager back
 		$this->restoreManagerSettings();
 	}
-	
-	
-	
+
+
+
 
 	public function testConnect() {
 		$this->assertNotNull($this->pdoPersistor->dbh);
@@ -188,5 +189,5 @@ class PDOPersistorTest extends AbstractTest {
 			$this->pdoPersistor->save($resource);
 		}
 	}
-		
+
 }

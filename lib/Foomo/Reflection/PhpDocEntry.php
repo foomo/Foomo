@@ -21,6 +21,10 @@ namespace Foomo\Reflection;
 
 /**
  * php doc entry converted to an object
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo make more generic and support annotations
  */
 class PhpDocEntry {
@@ -78,10 +82,10 @@ class PhpDocEntry {
 	 */
 	public $author;
 	/**
-	 * @var string 
+	 * @var string
 	 */
 	public $see;
-	
+
 	public function __construct($docString = null)
 	{
 		if (!is_null($docString)) {

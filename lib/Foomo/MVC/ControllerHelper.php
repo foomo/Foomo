@@ -26,6 +26,10 @@ use Foomo\HTMLDocument;
 
 /**
  * helps to control controllers ;) do not touch this ons
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @deprecated but still need it for Hiccup and Setup
  * @todo add routing support
  * @internal *very* much so
@@ -160,7 +164,7 @@ class ControllerHelper {
 	 *
 	 * @param mixed $app instance of some class
 	 * @param string $alternativeSource if you do not want to use $_REQUEST for incoming paramters, the pass them here
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public function control($app, $alternativeSource = null)
@@ -181,7 +185,7 @@ class ControllerHelper {
 	 * @param mixed $app name of the class for static calls or instance
 	 * @param array $alternativeSource source for parameters
 	 * @param string $baseUri endpoint
-	 * @param string $mode 
+	 * @param string $mode
 	 * @return mixed
 	 */
 	public static function run($app, $alternativeSource = null, $baseUri = null, $mode = null)
@@ -215,7 +219,7 @@ class ControllerHelper {
 	 * @param array $parameters
 	 * @param string $baseUri
 	 * @param string $mode
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function staticRenderAppLink($className, $methodName, $parameters = array(), $baseUri = null, $mode = 'modeGet')

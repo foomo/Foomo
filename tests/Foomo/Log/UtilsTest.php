@@ -21,6 +21,11 @@ namespace Foomo\Log;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class UtilsTest extends TestCase {
 	public function testGetSesssions()
 	{
@@ -38,7 +43,7 @@ class UtilsTest extends TestCase {
 		$keys = array_keys($filterProviders);
 		$this->assertTrue(in_array(\Foomo\Module::NAME, $keys), 'there should be a filter provider in module ' . \Foomo\Module::NAME);
 		$this->assertTrue(
-			isset($filterProviders[\Foomo\Module::NAME]) && 
+			isset($filterProviders[\Foomo\Module::NAME]) &&
 			is_array($filterProviders[\Foomo\Module::NAME]) &&
 			$filterProviders[\Foomo\Module::NAME]['Foomo\\Log\\Filters\\CommonFilters'] &&
 			$filterProviders[\Foomo\Module::NAME]['Foomo\\Log\\Filters\\CommonFilters']['allBadThings']

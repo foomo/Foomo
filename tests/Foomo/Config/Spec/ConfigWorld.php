@@ -21,6 +21,11 @@ namespace Foomo\Config\Spec;
 
 use Foomo\Config\Utils;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ConfigWorld {
 	public $testDomains = array('none' => null, 'mock' => 'myMockTestDomain');
 	public function cleanUp()
@@ -44,24 +49,24 @@ class ConfigWorld {
 	 */
 	public $testCase;
 	/**
-	 * @story given config does not exist for <?= $name . '/' . $domain ?> 
-	 * 
+	 * @story given config does not exist for <?= $name . '/' . $domain ?>
+	 *
 	 * @param string $module
 	 * @param string $name
 	 * @param string $domain
-	 * 
+	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
 	public function givenConfigDoesNotExist($module, $name, $domain) {
 		$this->testCase->assertFalse(\Foomo\Config::confExists($module, $name, $domain));
 	}
 	/**
-	 * @story when config is created <?= $name . '/' . $domain ?> 
-	 * 
-	 * @param string $module 
-	 * @param string $name 
+	 * @story when config is created <?= $name . '/' . $domain ?>
+	 *
+	 * @param string $module
+	 * @param string $name
 	 * @param string $domain
-	 * 
+	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
 	public function whenConfigIsCreatedFromDefault($module, $name, $domain)
@@ -69,18 +74,18 @@ class ConfigWorld {
 		\Foomo\Config::setConf(\Foomo\Config::getDefaultConfig($name), $module, $domain);
 	}
 	/**
-	 * @story then config exists for <?= $name . '/' . $domain ?> 
+	 * @story then config exists for <?= $name . '/' . $domain ?>
 	 * @param string $module
 	 * @param string $name
 	 * @param unknown $domain
-	 * 
+	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function thenConfigExists($module, $name, $domain) 
+	public function thenConfigExists($module, $name, $domain)
 	{
 		$this->testCase->assertTrue(\Foomo\Config::confExists($module, $name, $domain));
-	}	
-	
+	}
+
 	/**
 	 * @story given no old config exists
 	 * @return Foomo\Config\Spec\ConfigWorld
@@ -137,6 +142,6 @@ class ConfigWorld {
 		$oldConfigs = Utils::getOldConfigs();
 		$oldConfigCount = count($oldConfigs);
 		$this->testCase->assertTrue($oldConfigCount == 0, 'old config count should have been 0 got: ' . $oldConfigCount );
-	}	
-	
+	}
+
 }

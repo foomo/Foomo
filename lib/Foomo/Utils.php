@@ -21,18 +21,23 @@ namespace Foomo;
 
 /**
  * solves very common problems
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
-class Utils {
+class Utils
+{
 
 	/**
 	 * Exposes a file through the web server and streams it
 	 * Note: creates symlinks exposedDirecytory/exposedFile -> fileName
-	 * 
+	 *
 	 * @todo implement var/<runmode>/htdocs/moduleVar dir use
-	 * 
+	 *
 	 * @param string $fileName the full path to the file to be exposed
 	 * @param string $exposeDirectory a folder relative to \Foomo\ROOT in which the file will be exposed
-	 * @param string $exposedBaseFileName the exposed file (base) name. If null - basename from $fileName is used  
+	 * @param string $exposedBaseFileName the exposed file (base) name. If null - basename from $fileName is used
 	 */
 	public static function exposeAndStreamFile($fileName, $exposeDirectory, $exposedBaseFileName = null)
 	{

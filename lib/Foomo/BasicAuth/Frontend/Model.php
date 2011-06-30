@@ -19,12 +19,16 @@
 
 namespace Foomo\BasicAuth\Frontend;
 
-use \Foomo\BasicAuth\Utils;
-
-class Model {
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
+class Model
+{
 	/**
 	 * name of the current domain
-	 * 
+	 *
 	 * @var string
 	 */
 	public $currentAuthDomain;

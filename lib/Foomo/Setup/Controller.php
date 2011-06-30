@@ -23,6 +23,10 @@ use Foomo\Config;
 
 /**
  * framework setup
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
 class Controller {
@@ -50,7 +54,7 @@ class Controller {
 				$this->error = 'posted data are invalid';
 			}
 		}
-		return $this->render();		
+		return $this->render();
 	}
 
 	private function render()

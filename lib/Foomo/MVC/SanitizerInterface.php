@@ -21,6 +21,10 @@ namespace Foomo\MVC;
 
 /**
  * sanitized user input
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 interface SanitizerInterface {
 	/**
@@ -29,7 +33,7 @@ interface SanitizerInterface {
 	public function __construct($unsanitzedValue);
 	/**
 	 * get the sanitized value
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public function getSanitizedValue();

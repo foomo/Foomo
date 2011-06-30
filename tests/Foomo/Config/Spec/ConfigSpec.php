@@ -19,6 +19,11 @@
 
 namespace Foomo\Config\Spec;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 	/**
 	 * @var ConfigWorld
@@ -49,7 +54,7 @@ class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 			->whenOldConfigsAreRemoved()
 			->thenNoOldConfigExists()
 		;
-		
+
 	}
 	public function tearDown()
 	{
@@ -57,6 +62,6 @@ class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 	}
 	private function cleanup()
 	{
-		
+
 	}
 }

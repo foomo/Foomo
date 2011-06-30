@@ -18,6 +18,12 @@
  */
 
 namespace Foomo\Cache;
+
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 abstract class AbstractBaseTest extends Persistence\Queryable\AbstractTest{
 
 	public function setUp() {
@@ -37,10 +43,10 @@ abstract class AbstractBaseTest extends Persistence\Queryable\AbstractTest{
 			$this->markTestSkipped('missing configuration ' . \Foomo\Cache\Test\DomainConfig::NAME . ' for module ' . \Foomo\Module::NAME);
 		}
 	}
-	
+
 	public function tearDown() {
 		$this->restoreManagerSettings();
 	}
-	
-	
+
+
 }

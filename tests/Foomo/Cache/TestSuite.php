@@ -21,6 +21,11 @@ namespace Foomo\Cache;
 
 use Foomo\TestRunner\Suite;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class TestSuite extends Suite {
 	/**
 	 * get a list of class name, which will be accumulated into a test as a suite

@@ -23,8 +23,13 @@ use Foomo\Template;
 use Foomo\MVC;
 use Foomo\Timer;
 use Exception;
+
 /**
  * MVC version of Foomo\View
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class View extends \Foomo\View
 {

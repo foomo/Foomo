@@ -22,32 +22,75 @@ namespace Foomo\BasicAuth\Frontend;
 use Foomo\BasicAuth\Utils;
 use Foomo\MVC;
 
-class Controller {
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
+class Controller
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * @var Foomo\BasicAuth\Frontend\Model
 	 */
 	public $model;
-	public function actionDefault() {}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Action methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
+	public function actionDefault()
+	{
+	}
+
+	/**
+	 * @param string $domain
+	 * @param string $user
+	 * @param string $password
+	 */
 	public function actionUpdateUser($domain, $user, $password)
 	{
 		Utils::updateUser($domain, $user, $password);
 		MVC::redirect('showDomain', array($domain));
 	}
+
+	/**
+	 * @param string $domain
+	 */
 	public function actionDeleteDomain($domain)
 	{
 		Utils::deleteDomain($domain);
 	}
+
+	/**
+	 * @param string $domain
+	 */
 	public function actionCreateDomain($domain)
 	{
 		if(!empty($domain)) {
 			Utils::createDomain($domain);
 		}
 	}
+
+	/**
+	 * @param string $domain
+	 * @param string $user
+	 */
 	public function actionDeleteUser($domain, $user)
 	{
 		Utils::deleteUser($domain, $user);
 		MVC::redirect('showDomain', array($domain));
 	}
+
+	/**
+	 * @param string $domain
+	 */
 	public function actionShowDomain($domain)
 	{
 		$this->model->currentAuthDomain = $domain;

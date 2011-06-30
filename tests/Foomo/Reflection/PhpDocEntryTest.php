@@ -19,44 +19,49 @@
 
 namespace Foomo\Reflection;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 	const MOCK_CLASS_NAME = 'Foomo\\Reflection\\MockClass';
 	public function testClassProps()
 	{
 		$classRefl = new \ReflectionClass(self::MOCK_CLASS_NAME);
 		$classDoc = new PhpDocEntry($classRefl->getDocComment());
-		
+
 		$seppRead = $this->getPropDocs('seppRead', $classDoc);
 		$this->assertTrue($seppRead->read, 'sepp read must be readable');
 		$this->assertFalse($seppRead->write, 'sepp read must not be writable');
-		
+
 		$seppWrite = $this->getPropDocs('seppWrite', $classDoc);
 		$this->assertFalse($seppWrite->read, 'seppWrite must not be readable');
 		$this->assertTrue($seppWrite->write, 'seppWrite must be writable');
-		
+
 		$seppReadWrite = $this->getPropDocs('seppReadWrite', $classDoc);
 		$this->assertTrue($seppReadWrite->write && $seppReadWrite->read, 'must be readable and writable');
-		
+
 	}
-	
+
 	public function testParameters()
 	{
 		$docEntry = $this->getTestMethodDocEntry();
-		
+
 		$argBar = $this->getArg('bar', $docEntry);
 		$argFooBar = $this->getArg('fooBar', $docEntry);
-		
+
 		$this->assertEquals($argBar->name, 'bar');
 		$this->assertEquals($argBar->type, 'string');
 		$this->assertEquals($argBar->comment, 'bar bar bar');
-		
+
 		$this->assertEquals($argFooBar->name, 'fooBar');
 		$this->assertEquals($argFooBar->type, 'array');
 		$this->assertEquals($argFooBar->comment, 'foo bar comment');
 	}
 	/**
 	 * test method doc entry
-	 * 
+	 *
 	 * @return PhpDocEntry
 	 */
 	private function getTestMethodDocEntry()
@@ -66,7 +71,7 @@ class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testMiscMethodDocs()
 	{
-		
+
 		$docEntry = $this->getTestMethodDocEntry();
 		$this->assertEquals('ignore', $docEntry->serviceGen);
 		$this->assertEquals('ignore', $docEntry->wsdlGen);
@@ -76,7 +81,7 @@ class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('MyMessage', $docEntry->serviceMessage[0]->type);
 		$this->assertEquals('jan', $docEntry->author);
 	}
-	
+
 	public function testClassProp()
 	{
 		$refl = new \ReflectionProperty(self::MOCK_CLASS_NAME, 'foo');
@@ -92,7 +97,7 @@ class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 	private function getArg($name, PhpDocEntry $docEntry)
 	{
 		foreach($docEntry->parameters as $parameter) {
-			
+
 			if($parameter->name == $name) {
 				return $parameter;
 			}
@@ -101,7 +106,7 @@ class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 	}
 	/**
 	 * get class property docs
-	 * 
+	 *
 	 * @param string $name of property
 	 * @param PhpDocEntry $docEntry
 	 * @return PhpDocProperty

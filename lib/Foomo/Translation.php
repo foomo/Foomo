@@ -21,10 +21,15 @@ namespace Foomo;
 
 /**
  * translate stuff
- * @internal
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo implement plural, dual etc.
+ * @internal
  */
-class Translation {
+class Translation
+{
 
 	protected $_table = array();
 	protected $localeChain;
@@ -168,11 +173,11 @@ class Translation {
 	}
 	/**
 	 * get a translation for a module
-	 * 
+	 *
 	 * @param string $moduleName
 	 * @param string $namespace
 	 * @param string $localeChain
-	 * 
+	 *
 	 * @return Foomo\Translation
 	 */
 	public static function getModuleTranslation($moduleName, $namespace, $localeChain = null)

@@ -19,6 +19,11 @@
 
 namespace Foomo\MVC;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class AppDirectoryTest extends \PHPUnit_Framework_TestCase {
 	public function testResolveAppNotNamed()
 	{
@@ -32,5 +37,5 @@ class AppDirectoryTest extends \PHPUnit_Framework_TestCase {
 		$className = 'Foomo\\Frontend';
 		$this->assertEquals($className, AppDirectory::resolveClass($appId), 'could not resolve ' . $appId . ' to ' . $className);
 	}
-	
+
 }

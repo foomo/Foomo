@@ -21,6 +21,11 @@ namespace Foomo\Cache\Test;
 
 use Foomo\Config\AbstractConfig;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class DomainConfig extends AbstractConfig {
 	const NAME = 'Foomo.cacheTestConfig';
 	public $fastPersistors = array('memcached' => '', 'apc' => '');

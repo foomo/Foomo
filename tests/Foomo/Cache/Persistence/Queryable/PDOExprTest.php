@@ -22,6 +22,11 @@ namespace Foomo\Cache\Persistence\Queryable;
 use Foomo\Cache\Persistence\Expr;
 use \Foomo\Cache\Manager;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class PDOExprTest extends AbstractTest {
 
 	private $persistor;

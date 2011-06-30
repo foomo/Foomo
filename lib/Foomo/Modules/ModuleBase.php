@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\Modules;
@@ -9,6 +22,10 @@ namespace Foomo\Modules;
 /**
  * base class if you want to build your own module
  * and by the way there is a wizard in the backend to create modules
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 abstract class ModuleBase
 {
@@ -134,6 +151,7 @@ abstract class ModuleBase
 	}
 
 	/**
+	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
 	public static function getHtdocsVarDir($pathname='')
@@ -147,37 +165,51 @@ abstract class ModuleBase
 	/**
 	 * @return string
 	 */
+	public static function getHtdocsVarUrl()
+	{
+		return \Foomo\Config::getHtdocsVarUrl(self::getModuleName());
+	}
+
+	/**
+	 * @return string
+	 */
 	public static function getLogDir()
 	{
 		return \Foomo\Config::getLogDir(self::getModuleName());
 	}
 
 	/**
-	 * @param string $dirname [optional] relative path to subfolder
+	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
-	public static function getBaseDir($dirname='')
+	public static function getBaseDir($pathname='')
 	{
 		$ret = \Foomo\Config::getModuleDir(self::getModuleName());
-		if ($dirname != '') $ret .= DIRECTORY_SEPARATOR . $dirname;
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
 		if (!file_exists($ret)) throw new \Exception('Path ' . $ret . ' does not exist! ');
 		return $ret;
 	}
 
 	/**
+	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsUrl($pathname)
+	public static function getHtdocsDir($pathname='')
 	{
-		return \Foomo\Config::getHtdocsUrl(self::getModuleName());
+		$ret = \Foomo\Config::getHtdocsDir(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
 	}
 
 	/**
+	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsVarUrl()
+	public static function getHtdocsUrl($pathname='')
 	{
-		return \Foomo\Config::getHtdocsVarUrl(self::getModuleName());
+		$ret = \Foomo\Config::getHtdocsUrl(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
 	}
 
 	/**

@@ -25,6 +25,10 @@ use Foomo\Cache\Proxy;
 
 /**
  * helps to resolve apps when only the app id is known
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class AppDirectory {
 
@@ -32,7 +36,7 @@ class AppDirectory {
 	 * resolve an app by its id
 	 *
 	 * @param string $appId app id
-	 * 
+	 *
 	 * @return string name of the corresponding app class name
 	 */
 	public static function resolveClass($appId)
@@ -66,7 +70,7 @@ class AppDirectory {
 					$ret[$appId] = $refl->getName();
 				}
 			} catch (Exception $e) {
-				
+
 			}
 		}
 		return $ret;

@@ -7,7 +7,10 @@
 namespace Foomo;
 
 /**
- *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ * @author franklin <franklin@weareinteractive.com>
  */
 class View
 {

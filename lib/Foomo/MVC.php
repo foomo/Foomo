@@ -30,11 +30,15 @@ use ReflectionClass;
 
 /**
  * a simple MVC implementation
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo add a router
  * @todo add haml lesscss support
  */
-class MVC {
-
+class MVC
+{
 	private static $level = 0;
 	public static $handlers = array();
 	private static $pathArray = array();

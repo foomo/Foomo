@@ -24,14 +24,24 @@ use Foomo\Utils;
 /**
  * the hiccup model, provides functionality to get a site back up and running, when things got stuck
  *
+ * Includes for the SharedCache and avalanche facade
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo command line mode
  * @todo set run mode
  * @todo clear ALL caches
- *
- * Includes for the SharedCache and avalanche facade
  */
-class Hiccup {
+class Hiccup
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @return string
+	 */
 	public static function getStatus()
 	{
 		$contents = file_get_contents(Utils::getServerUrl(null, true) . '/' . \Foomo\ROOT_HTTP . '/status.php');
@@ -44,6 +54,9 @@ class Hiccup {
 		}
 	}
 
+	/**
+	 *
+	 */
 	public static function removeAutoloaderCache()
 	{
 		\Foomo\Cache\Manager::reset('Foomo\\AutoLoader::cachedGetClassMap', false);
@@ -52,9 +65,11 @@ class Hiccup {
 		\Foomo\Cache\Manager::reset('Foomo\\Modules\\Manager::cachedGetEnabledModulesOrderedByDependency', false);
 	}
 
+	/**
+	 *
+	 */
 	public static function removeConfigCache()
 	{
 		\Foomo\Cache\Manager::reset('Foomo\\Config::cachedGetConf', false);
 	}
-
 }

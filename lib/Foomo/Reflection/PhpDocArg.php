@@ -21,6 +21,10 @@ namespace Foomo\Reflection;
 
 /**
  * object representation of a parm doc comment
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class PhpDocArg {
 

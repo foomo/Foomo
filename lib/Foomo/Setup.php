@@ -21,6 +21,10 @@ namespace Foomo;
 
 /**
  * framework setup helper
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
 class Setup

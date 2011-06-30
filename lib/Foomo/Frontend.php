@@ -21,6 +21,10 @@ namespace Foomo;
 
 /**
  * frontend for foomo
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Frontend extends \Foomo\MVC\AbstractApp
 {

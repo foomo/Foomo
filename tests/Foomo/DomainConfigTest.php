@@ -24,6 +24,9 @@ use ReflectionClass;
 /**
  * test the domain config
  *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class DomainConfigTest extends \PHPUnit_Framework_TestCase {
 	public function testDefaultsAndParser()

@@ -19,6 +19,11 @@
 
 namespace Foomo\Cache\MockObjects;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class Node {
 	const PREFIX = 'node-';
 	public $id;
@@ -53,7 +58,7 @@ class Node {
 
 		$parentId = $this->id;
 		$childNodeIds = array();
-		$childNodeFunc = 
+		$childNodeFunc =
 
 		self::iterateAllNodesWithFunction(function(Node $node) use ($parentId, $childNodeIds) {
 			if($node->id == $parentId) {
@@ -112,7 +117,7 @@ class Node {
 			return $ret;
 		}
 	}
-	
+
 	private static function iterateAllNodesWithFunction($func)
 	{
 		$directoryIterator = new \DirectoryIterator(self::getFSResource()->getFileName());

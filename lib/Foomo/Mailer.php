@@ -21,6 +21,10 @@ namespace Foomo;
 
 /**
  * a simple mail interface
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo implement method chaining pattern ->to()->addHeaders()->addAttachments()->send()
  */
 class Mailer {
@@ -184,7 +188,7 @@ class Mailer {
 		if (self::$logLast) {
 			self::$lastSuccess = $success;
 			self::$lastSubject = $subject;
-			
+
 			self::$lastHtml = $html;
 			self::$lastPlain = $plaintext;
 			self::$lastTo = $to;
