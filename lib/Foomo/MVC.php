@@ -333,5 +333,4 @@ class MVC
 		header('Location: ' . self::getCurrentURLHandler()->renderMethodURL($action, $parameters));
 		exit;
 	}
-
 }

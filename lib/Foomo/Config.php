@@ -12,7 +12,7 @@ use InvalidArgumentException;
 
 /**
  * manages the application runmode and configuration
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -327,7 +327,7 @@ class Config
 	 * @param string $module
 	 * @return string
 	 */
-	public static function getHtdocsUrl($module)
+	public static function getHtdocsPath($module)
 	{
 		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;;
 	}
@@ -338,7 +338,7 @@ class Config
 	 * @param string $module
 	 * @return string
 	 */
-	public static function getHtdocsVarUrl($module='')
+	public static function getHtdocsVarPath($module='')
 	{
 		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
 		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;

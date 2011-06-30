@@ -22,7 +22,7 @@ namespace Foomo\Modules;
 /**
  * base class if you want to build your own module
  * and by the way there is a wizard in the backend to create modules
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -165,9 +165,9 @@ abstract class ModuleBase
 	/**
 	 * @return string
 	 */
-	public static function getHtdocsVarUrl()
+	public static function getHtdocsVarPath()
 	{
-		return \Foomo\Config::getHtdocsVarUrl(self::getModuleName());
+		return \Foomo\Config::getHtdocsVarPath(self::getModuleName());
 	}
 
 	/**
@@ -205,9 +205,9 @@ abstract class ModuleBase
 	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsUrl($pathname='')
+	public static function getHtdocsPath($pathname='')
 	{
-		$ret = \Foomo\Config::getHtdocsUrl(self::getModuleName());
+		$ret = \Foomo\Config::getHtdocsPath(self::getModuleName());
 		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
 		return $ret;
 	}
