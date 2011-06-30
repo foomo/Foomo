@@ -70,7 +70,7 @@ class MVC
 	 * @param string $baseURL inject a baseURL
 	 * @return string
 	 */
-	public static function run($app, $baseURL = null)
+	public static function run($app, $baseURL=null)
 	{
 		// set up the application
 

@@ -23,7 +23,7 @@ use Foomo\MVC;
 
 /**
  * handle urls for MVC
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -114,7 +114,7 @@ class URLHandler {
 		}
 		if (!isset(self::$classCache[$className])) {
 			if (!class_exists($className)) {
-				throw new InvalidArgumentException('invalid class >' . $className . '<');
+				throw new \InvalidArgumentException('invalid class >' . $className . '<');
 			}
 			// we might wanna do some caching here ...
 			self::$classCache[$className] = Controller\ActionReader::read($className);

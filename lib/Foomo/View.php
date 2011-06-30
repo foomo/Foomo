@@ -128,7 +128,7 @@ class View
 	 *
 	 * @return Foomo\View
 	 */
-	public static function fromFile($templateFile, $model = null)
+	public static function fromFile($templateFile, $model=null)
 	{
 		if (file_exists($templateFile)) {
 			return new self(new Template(basename($templateFile), $templateFile), $model);
