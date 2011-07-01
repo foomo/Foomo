@@ -8,7 +8,7 @@ namespace Foomo;
 
 /**
  * foomo core module
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -75,7 +75,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules', 'Modules', 'Foomo', 'Foomo\\Modules\\Frontend'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Log', 'Log', 'Foomo', 'Foomo\\Log\\Frontend'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Auth', 'Auth', 'Foomo', 'Foomo\\BasicAuth\\Frontend'),
-			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Auth', 'Foomo', 'Foomo\\Cache\\Frontend')
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Cache', 'Foomo', 'Foomo\\Cache\\Frontend')
 		);
 	}
 }
