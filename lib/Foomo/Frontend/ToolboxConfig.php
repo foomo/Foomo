@@ -40,7 +40,7 @@ class ToolboxConfig extends \Foomo\Config\AbstractConfig
 	 * @var array
 	 */
 	public $menu = array(
-		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My.Module.Frontend', 'action' => 'default', 'target' => '_self')
+		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My.Module.Frontend', 'action' => 'default', 'parameters' => array(), 'target' => '_self')
 	);
 
 	//---------------------------------------------------------------------------------------------
@@ -62,8 +62,16 @@ class ToolboxConfig extends \Foomo\Config\AbstractConfig
 	 */
 	public function getMenuEntry($path)
 	{
-		$entry = $this->menu['path'];
-		return ToolboxConfig\MenuEntry::create($path, $entry['name'], $entry['module'], $entry['app'], $entry['action'], $entry['target']);
+		$entry = $this->menu[$path];
+		return ToolboxConfig\MenuEntry::create(
+				$path,
+				$entry['name'],
+				$entry['module'],
+				$entry['app'],
+				(isset($entry['action'])) ? $entry['action'] : 'default',
+				(isset($entry['parameters'])) ? $entry['parameters'] : array(),
+				(isset($entry['target'])) ? $entry['target'] : '_self'
+		);
 	}
 
 	/**
