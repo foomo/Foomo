@@ -103,6 +103,9 @@ abstract class AbstractConfig
 	 */
 	public function __toString()
 	{
-		return Yaml::dump($this->getValue());
+		return ConfigYamlCommentDecorator::getCommentedYaml(
+			$this, 
+			'---' . PHP_EOL . Yaml::dump($this->getValue())
+		);
 	}
 }

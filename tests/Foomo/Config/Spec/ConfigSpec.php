@@ -60,8 +60,4 @@ class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 	{
 		$this->world->cleanUp();
 	}
-	private function cleanup()
-	{
-
-	}
 }

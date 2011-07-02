@@ -30,14 +30,49 @@ use Foomo\Config\AbstractConfig;
  */
 class DomainConfig extends AbstractConfig {
 	const NAME = 'Foomo.logger';
+	/**
+	 * @var boolean
+	 */
 	public $enabled = false;
+	/**
+	 * @var boolean
+	 */
 	public $replacePhpErrorLog = false;
+	/**
+	 * how many characters will be displayed of args, when printing errors
+	 * 
+	 * @var integer
+	 */
 	public $stringLogLength = 64;
+	/**
+	 * @var boolean
+	 */
 	public $logPostVars = false;
+	/**
+	 * @var boolean
+	 */
 	public $logGetVars = false;
+	/**
+	 * what $_SERVER vars should be logged
+	 * 
+	 * @var string[]
+	 */
 	public $trackServerVars = array('HTTP_USER_AGENT', 'HTTP_ACCEPT_LANGUAGE', 'REMOTE_ADDR', 'SERVER_PROTOCOL', 'QUERY_STRING', 'SCRIPT_NAME', 'HTTPS');
+	/**
+	 * what error types to track
+	 * 
+	 * @var string[]
+	 */
 	public $trackErrors = array('E_DEPRECATED', 'E_USER_DEPRECATED', 'E_PARSE', 'E_USER_WARNING', 'E_USER_ERROR', 'E_CORE_WARNING', 'E_CORE_ERROR', 'E_WARNING', 'E_ERROR', 'E_COMPILE_WARNING', 'E_COMPILE_ERROR', 'E_RECOVERABLE_ERROR');
+	/**
+	 * what error typed should a stack trace be recorded for
+	 * 
+	 * @var string[]
+	 */
 	public $trackStrackTracesForErrors = array('E_USER_WARNING', 'E_USER_ERROR', 'E_CORE_WARNING', 'E_CORE_ERROR', 'E_WARNING', 'E_ERROR', 'E_COMPILE_WARNING', 'E_COMPILE_ERROR', 'E_RECOVERABLE_ERROR');
+	/**
+	 * @var boolean
+	 */
 	public $trackExceptions = true;
 	public $trackErrorsAsIntegers = array();
 	public $trackStrackTracesForErrorsAsIntegers = array();

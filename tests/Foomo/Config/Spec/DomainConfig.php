@@ -26,5 +26,10 @@ namespace Foomo\Config\Spec;
  */
 class DomainConfig extends \Foomo\Config\AbstractConfig {
 	const NAME = 'Foomo.coreSpecMockConfig';
+	/**
+	 * well that is so cool
+	 * 
+	 * @var string
+	 */
 	public $foo = 'bar';
 }

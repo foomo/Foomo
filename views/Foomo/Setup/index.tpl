@@ -66,8 +66,8 @@ tr, td {
 	<h2>Environment</h2>
 </a>
 <?
-echo __DIR__ . '/../Frontend/partials/foomoInfo.tpl';
-include __DIR__ . '/../Frontend/partials/foomoInfo.tpl';
+echo __DIR__ . '/../Info/Frontend/partials/foomoInfo.tpl';
+include __DIR__ . '/../Info/Frontend/partials/foomoInfo.tpl';
 ?>
 <!-- Resources -->
 
