@@ -28,6 +28,20 @@ use Foomo\Config\AbstractConfig;
  */
 class DomainConfig extends AbstractConfig {
 	const NAME = 'Foomo.cacheTestConfig';
+	/**
+	 * hash of fast persistors
+	 * 
+	 * array('name' => 'configString')
+	 * 
+	 * @var array
+	 */
 	public $fastPersistors = array('memcached' => '', 'apc' => '');
+	/**
+	 * hash of queryable persistors
+	 * 
+	 * array('name' => 'configString')
+	 * 
+	 * @var array
+	 */
 	public $queryablePersistors = array('pdo' => '', 'mongo' => '');
 }

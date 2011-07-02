@@ -30,6 +30,15 @@ foreach($oldConfigs as $oldConfig) {
 	}
 }
 
+$yamlRenderFunc = function($yaml) {
+	if(class_exists('GeSHi')) {
+		$geshi = new GeSHi($yaml, 'rails'); 
+		return $geshi->parse_code();
+	} else {
+		return $view->escape($yaml);
+	}
+}
+
 ?>
 
 
@@ -59,7 +68,7 @@ foreach($oldConfigs as $oldConfig) {
 				<div class="tabContentBox">
 					<div class="tabContent tabContent-1 selected">
 						<h2>Regular</h2>
-						<div class="greyBox"><pre><?= $view->escape(\Foomo\Config::getConf($module, $domain, $subDomain)) ?></pre></div>
+						<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(\Foomo\Config::getConf($module, $domain, $subDomain))); ?></pre></div>
 					</div>
 					<div class="tabContent tabContent-2">
 						<h2>Dumped</h2>
@@ -92,7 +101,7 @@ foreach($oldConfigs as $oldConfig) {
 		<div class="tabContent tabContent-3">
 			
 			<h2>Default value</h2>
-			<div class="greyBox"><pre><?= $view->escape(\Foomo\Config::getDefaultConfig($domain)) ?></pre></div>
+			<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(\Foomo\Config::getDefaultConfig($domain))) ?></pre></div>
 			
 		</div>
 		
@@ -111,7 +120,7 @@ foreach($oldConfigs as $oldConfig) {
 				</div>
 				<div class="toggleContent">
 
-					<div class="greyBox"><pre><?= $view->escape(file_get_contents($oldConfig->filename)) ?></pre></div>
+					<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(file_get_contents($oldConfig->filename))) ?></pre></div>
 
 					<? $showOldConfId = 'old-' . $oldConfig->id; ?>
 					
