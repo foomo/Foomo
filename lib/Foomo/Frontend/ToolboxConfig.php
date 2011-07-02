@@ -40,7 +40,8 @@ class ToolboxConfig extends \Foomo\Config\AbstractConfig
 	 * @var array
 	 */
 	public $menu = array(
-		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My.Module.Frontend', 'action' => 'default', 'parameters' => array(), 'target' => '_self')
+		'Root.Path' => array('name' => 'Name', 'module' => 'My.Module', 'app' => 'My.Module.Frontend', 'action' => 'default', 'parameters' => array(), 'target' => '_self'),
+		'Root.Path.Two' => array('name' => 'Name Two', 'module' => 'My.Module.Two', 'app' => 'My.Module.Two.Frontend', 'action' => 'default', 'parameters' => array(), 'target' => '_self')
 	);
 
 	//---------------------------------------------------------------------------------------------
