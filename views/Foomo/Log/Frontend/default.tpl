@@ -5,36 +5,43 @@ $doc = Foomo\HTMLDocument::getInstance();
 $doc->addOnLoad('document.getElementById(\'filterInput\').value = \'\';');
 ?>
 <div id="fullContent">
-	<p>Webtail - Compose filter functions and tail the server</p>
-	<ul>
-	<? foreach(\Foomo\Log\Utils::getFilterProviders() as $module => $providers): ?>
-		<li>
-			<?= $module ?>
+	<h2>Webtail - Compose filter functions and tail the server</h2>
+	
+	<form action="<?= $view->escape($view->url('webTail'))?>" method="post">
+		<div class="greyBox">
+			<br>
 			<ul>
-				<? foreach($providers as $providerName => $provider): ?>
+			<? foreach(\Foomo\Log\Utils::getFilterProviders() as $module => $providers): ?>
 				<li>
-					<?= $providerName ?>
+					<?= $module ?>
 					<ul>
-						<? foreach($provider as $filterName => $docComment): ?>
-						<li title="<?= $docComment?$view->escape(str_replace(array('/**', '*/', ' * ', '  ', PHP_EOL), '',$docComment)):'' ?>">
-							<a
-								href="#"
-								onclick="
-									document.getElementById('filtersDisplay').innerHTML = document.getElementById('filterInput').value = document.getElementById('filterInput').value + '<?= $view->escape(addslashes($providerName . '::' . $filterName)) ?>' + String.fromCharCode(10)"
-							><?= $filterName ?></a>
+						<? foreach($providers as $providerName => $provider): ?>
+						<li>
+							<?= $providerName ?>
+							<ul>
+								<? foreach($provider as $filterName => $docComment): ?>
+								<li title="<?= $docComment?$view->escape(str_replace(array('/**', '*/', ' * ', '  ', PHP_EOL), '',$docComment)):'' ?>" style="float: left; margin-right: 20px;">
+									<input type="checkbox" class="checkBox" name="filterInput" value="<?= $view->escape(addslashes($providerName . '::' . $filterName)) ?>">
+									<!-- onclick="document.getElementById('filterInput').value = document.getElementById('filterInput').value + '<?= $view->escape(addslashes($providerName . '::' . $filterName)) ?>' + String.fromCharCode(10)"> -->
+									
+									<?= $filterName ?>
+								</li>
+								<? endforeach; ?>
+							</ul>
 						</li>
-						<? endforeach; ?>
+						<? endforeach ?>
 					</ul>
 				</li>
-				<? endforeach ?>
+			<? endforeach; ?>
 			</ul>
-		</li>
-	<? endforeach; ?>
-	</ul>
-	<p>Selected filters</p>
-	<pre id="filtersDisplay"></pre>
-	<form action="<?= $view->escape($view->url('webTail'))?>" method="post">
-		<input type="hidden" name="filters" id="filterInput" value="">
-		<input type="submit" value="tail">
+			<br>
+
+
+			<!--<input type="hidden" name="filters" id="filterInput" value="">-->
+			<div class="formBox">
+				<input class="submitButton" type="submit" value="Open Tail"/>
+			</div>
+
+		</div>
 	</form>
 </div>

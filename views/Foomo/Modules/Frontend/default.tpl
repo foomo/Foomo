@@ -35,28 +35,57 @@ $resI = 0;
 		$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($availableModule);
 		$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($availableModule);
 	?>
-	
+	<form action="<?= $view->url('actionUpdateModules'); ?>" method="POST" id="moduleForm">
 	<div class="toggleBox">
 		<div class="toogleButton">
 			<div class="toggleOpenIcon">+</div>
-			<div class="toggleOpenContent"><div class="leftBox"><?= $availableModule ?> v <?= constant(str_replace('.', '\\', $availableModule) . '\\Module::VERSION') ?></div><div class="rightBox">Status: <?= $modStat==Manager::MODULE_STATUS_OK?'ok':'check'; ?></div></div>
+			<div class="toggleOpenContent">
+				<div class="floatLeftBox" style="width:400px;">
+					<?= $availableModule ?> v <?= constant(str_replace('.', '\\', $availableModule) . '\\Module::VERSION') ?>
+				</div>
+				<div class="floatLeftBox" style="width:200px;">
+					<? if($hasMVCFrontEnd && !$hasFrontEnd): ?>
+						<?= $view->link('Open frontend', 'showMVCApp', array($availableModule), array('class' => 'linkButtonYellow')) ?>
+					<? elseif($availableModule == \Foomo\Module::NAME): ?>
+						&nbsp;
+					<? elseif(!$hasFrontEnd && !$hasFrontEnd): ?>
+						&nbsp;
+					<? else: ?>
+						<a class="linkButtonYellow" href="<?= $view->escape(Foomo\ROOT_HTTP . '/modules/' . $availableModule) ?>" target="_blank">Open a new frontend</a>
+					<? endif; ?>
+				</div>
+				<div class="floatLeftBox" style="width:140px;"><span style="font-weight: normal;">Status:</span> <?= $modStat==Manager::MODULE_STATUS_OK?'<span class="textGreen">ok</span>':'<span class="textRed">check</span>'; ?></div>
+				<div class="floatLeftBox"><span style="font-weight: normal;">Action:</span>
+				
+					<? if($availableModule == \Foomo\Module::NAME): ?>
+						<span title="well you do not want to fiddle around with the core ;)">none</span>
+					<? elseif($moduleEnabled != 'enabled' && !$depsOk): ?>
+						<span title="enable dependencies first">none</span>
+					<? elseif($moduleEnabled != 'enabled'): ?>
+						<a title="enable module <?= $availableModule ?>" href="#" onclick="document.getElementById('modField<?php echo $availableModule ?>').value='enable';document.getElementById('moduleForm').submit();"><span class="textGreen">enable</span></a><input type="hidden" value="disable" name="moduleStates[<?php echo $availableModule ?>]" id="modField<?php echo $availableModule ?>">
+					<? else: ?>
+						<a title="disable module <?= $availableModule ?>" href="#" onclick="document.getElementById('modField<?php echo $availableModule ?>').value='disable';document.getElementById('moduleForm').submit();"><span class="textRed">disable</span></a><input type="hidden" value="enable" name="moduleStates[<?php echo $availableModule ?>]" id="modField<?php echo $availableModule ?>">
+					<? endif; ?>
+				
+				</div>
+			</div>
 		</div>
 		<div class="toggleContent">
 			
 			<div class="innerBox">
-				<?= Manager::getModuleDescription($availableModule); ?><br>
-			</div>
-			<hr class="greyLine">
-			<? if($hasMVCFrontEnd && !$hasFrontEnd): ?>
-				<?= $view->link('Open inline frontend', 'showMVCApp', array($availableModule), array('class' => 'linkButtonYellow')) ?>
-			<? elseif($availableModule == \Foomo\Module::NAME): ?>
-			
-			<? elseif(!$hasFrontEnd && !$hasFrontEnd): ?>
+				<div class="halfBox">
+					Description:<br>
+					<b><?= Manager::getModuleDescription($availableModule); ?></b>
+				</div>
 				
-			<? else: ?>
-				<a class="linkButtonYellow" href="<?= $view->escape(Foomo\ROOT_HTTP . '/modules/' . $availableModule) ?>" target="_blank">Open new Frontend</a>
-			<? endif; ?>
-			
+				<div class="halfBox">
+					<? if( Manager::getRequiredModules($availableModule) ): ?>
+					Dependencies:<br>
+					<b><?= implode(', ', Manager::getRequiredModules($availableModule)); ?></b>
+					<? endif; ?>
+				</div>
+			</div>
+			<br>
 			<div class="greyBox">
 				<div class="innerBox">
 				<?php
@@ -81,105 +110,11 @@ $resI = 0;
 			
 		</div>
 	</div>
-	
+	</form>
 	<?php endforeach; ?>
-	<br>
+	
+	<hr class="greyLine">
+	
 	<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
-	
-
-	<form action="<?= $view->url('actionUpdateModules'); ?>" method="POST" id="moduleForm">
-	<table title="foomo modules" id="moduleTable">
-		<tr>
-			<td>&nbsp;</td>
-			<td>Name</td>
-			<td>Description</td>
-			<td>Dependencies</td>
-			<td>Status</td>
-			<td>Action</td>
-		</tr>
-	<?
-	$orderedModules = Manager::getAvailableModules();
-	sort($orderedModules);
-	foreach($orderedModules as $availableModule):
-
-		$moduleEnabled = 'disabled';
-		// the local vars here need to be renamed ...
-		$modStat = Manager::getModuleStatus($availableModule);
-		$modResources = Manager::getModuleResources($availableModule);
-		$resourceCount = count($modResources);
-		if(in_array($availableModule, $enabledModules)) {
-			$moduleEnabled = 'enabled';
-		}
-		$depsOk = true;
-		foreach(Manager::getRequiredModuleResources($availableModule) as $reqiredModuleResource) {
-			if(!$reqiredModuleResource->resourceValid()) {
-				$depsOk = false;
-				break;
-			}
-		}
-		$hintClass = $modStat==Manager::MODULE_STATUS_OK?'valid':'invalid';
-		$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($availableModule);
-		$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($availableModule);
-	?>
-		<tr>
-			<td style="text-align:center;"><?php echo '<img src="' . \Foomo\ROOT_HTTP . '/img/' . $moduleEnabled . '.gif" width="12" height="12" title="'. $moduleEnabled .'" alt="'. $moduleEnabled .'">'; ?></td>
-			<td>
-				<? if($hasMVCFrontEnd && !$hasFrontEnd): ?>
-					<?= $view->link($availableModule, 'showMVCApp', array($availableModule)) ?> MVC inline 
-				<? elseif($availableModule == \Foomo\Module::NAME): ?>
-					Foomo
-				<? elseif(!$hasFrontEnd && !$hasFrontEnd): ?>
-					<?= $availableModule ?> No Frontend
-				<? else: ?>
-					<a href="<?= $view->escape(Foomo\ROOT_HTTP . '/modules/' . $availableModule) ?>" target="_blank"><?= $availableModule ?></a> /index Frontend
-				<? endif; ?>
-				
-				v <?= constant(str_replace('.', '\\', $availableModule) . '\\Module::VERSION') ?>
-			</td>
-			<td><?= Manager::getModuleDescription($availableModule); ?></td>
-			<td><?= implode(', ', Manager::getRequiredModules($availableModule)); ?></td>
-			<td class="<?= $hintClass ?>"><?= $modStat==Manager::MODULE_STATUS_OK?'ok':'check'; ?></td>
-			<td>
-				<? if($availableModule == \Foomo\Module::NAME): ?>
-					<span title="well you do not want to fiddle around with the core ;)">none</span>
-				<? elseif($moduleEnabled != 'enabled' && !$depsOk): ?>
-					<span title="enable dependencies first">none</span>
-				<? elseif($moduleEnabled != 'enabled'): ?>
-					<a title="enable module <?= $availableModule ?>" href="#" onclick="document.getElementById('modField<?php echo $availableModule ?>').value='enable';document.getElementById('moduleForm').submit();">enable</a><input type="hidden" value="disable" name="moduleStates[<?php echo $availableModule ?>]" id="modField<?php echo $availableModule ?>">
-				<? else: ?>
-					<a title="disable module <?= $availableModule ?>" href="#" onclick="document.getElementById('modField<?php echo $availableModule ?>').value='disable';document.getElementById('moduleForm').submit();">disable</a><input type="hidden" value="enable" name="moduleStates[<?php echo $availableModule ?>]" id="modField<?php echo $availableModule ?>">
-				<? endif; ?>
-			</td>
-		</tr>
-		<?php if($resourceCount > 0 || $modStat != Manager::MODULE_STATUS_OK): ?>
-		<tr>
-			<td id="resourceDisplay_<?php echo $resI ;$resI++; ?>">&nbsp;</td>
-			<td id="resourceDisplay_<?php echo $resI ;$resI++; ?>" colspan="5" class="<?php echo $hintClass ?>">
-				<?php
-					switch($modStat) {
-						case Manager::MODULE_STATUS_OK:
-							$msg = '<p>everything is cool with this module</p>';
-							break;
-						case Manager::MODULE_STATUS_REQUIRED_MODULES_MISSING:
-							$msg = '<p>there are other modules, that need to be enabled - check the dependencies</p>';
-							break;
-						case Manager::MODULE_STATUS_RESOURCES_INVALID:
-							$msg = '<p>invalid resources</p>';
-							break;
-						default:
-							$msg = $modStat;
-					}
-					echo $msg;
-					echo $view->partial('moduleResources', array('moduleName' => $availableModule));
-				?>
-			</td>
-		</tr>
-		<?php endif; ?>
-	<?php endforeach; ?>
-	</table>	
-	
-	
-	
-		
 	
 </div>

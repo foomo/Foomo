@@ -7,7 +7,7 @@ body {
 	line-height: 17px;
 	text-align: left;
 	color: #0d2746;
-	background: url('/foomo/img/site/bg.gif') repeat-x top #f6f6f6;
+	background: #f6f6f6;
 }
 
 a {
@@ -20,6 +20,11 @@ a:hover {
 }
 
 
+#page {
+    width: 100%;
+    height: 100%;
+	background: url('/foomo/img/site/bg.gif') repeat-x top #f6f6f6;
+}
 
 
 
@@ -197,7 +202,6 @@ header #logoBox #version{
     position: relative;
 	margin: 20px auto 0;
     width: 960px;
-    background: #cacaca;
 }
 
 #fullContent li {

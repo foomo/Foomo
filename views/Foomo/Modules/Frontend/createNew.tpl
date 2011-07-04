@@ -1,18 +1,27 @@
 <?= $view->partial('menu') ?>
 <div id="appContent">
 	<form action="<?= $view->url('actionCreateModule') ?>" method="POST">
-		<label>name</label>
-		<p>
-			<input type="text" name="name">
-		</p>
-		<label>description</label>
-		<p>
-			<textarea name="description"></textarea>
-		</p>
-		<label>required modules - comma separated</label>
-		<p>
-			<textarea name="requiredModules"></textarea>
-		</p>
-		<input type="submit" name="submit" value="create">
-	</form>
+		<div class="greyBox">
+		
+			<div class="formBox">	
+				<div class="formTitle">Name</div>
+				<input type="text" name="name">
+			</div>
+			
+			<div class="formBox">	
+				<div class="formTitle">Description</div>
+				<textarea name="description"></textarea>
+			</div>
+			
+			<div class="formBox">	
+				<div class="formTitle">Required modules ( comma separated )</div>
+				<textarea name="requiredModules"></textarea>
+			</div>
+			
+			<div class="formBox">
+				<input class="submitButton" type="submit" value="Create Module"/>
+			</div>
+		
+		</div>
+	</form>	
 </div>

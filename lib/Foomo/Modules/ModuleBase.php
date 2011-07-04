@@ -194,6 +194,61 @@ abstract class ModuleBase
 	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
+	public static function getTestsDir($pathname='')
+	{
+		$ret = self::getBaseDir('tests');
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
+	}
+
+	/**
+	 * @param string $pathname append optional additional relative path
+	 * @return string
+	 */
+	public static function getDocsDir($pathname='')
+	{
+		$ret = self::getBaseDir('docs');
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
+	}
+
+	/**
+	 * @param string $pathname append optional additional relative path
+	 * @return string
+	 */
+	public static function getLibDir($pathname='')
+	{
+		$ret = self::getBaseDir('lib');
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
+	}
+
+	/**
+	 * @param string $pathname append optional additional relative path
+	 * @return string
+	 */
+	public static function getViewsDir($pathname='')
+	{
+		$ret = self::getBaseDir('views');
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
+	}
+
+	/**
+	 * @param string $pathname append optional additional relative path
+	 * @return string
+	 */
+	public static function getVendorDir($pathname='')
+	{
+		$ret = self::getBaseDir('vendor');
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
+	}
+
+	/**
+	 * @param string $pathname append optional additional relative path
+	 * @return string
+	 */
 	public static function getHtdocsDir($pathname='')
 	{
 		$ret = \Foomo\Config::getHtdocsDir(self::getModuleName());

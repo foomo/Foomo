@@ -6,41 +6,106 @@ use Foomo\BasicAuth\Utils;
 <div id="main">
 	<?= $view->partial('menu') ?>
 	<div id="appContent">
-		<? if($model->currentAuthDomain): ?>
-			<h3>Domain <?= $view->escape($model->currentAuthDomain) ?></h3>
-			<h4>Create a new user in domain <?= $view->escape($model->currentAuthDomain) ?></h4>
-			<form action="<?= $view->escape($view->url('updateUser')) ?>" method="post">
-				<input type="hidden" name="domain" value="<?= $view->escape($model->currentAuthDomain) ?>">
-				<label>name of the new user</label>
-				<input type="text" name="user">
-				<label>password</label>
-				<input type="password" name="password" value="">
-				<input type="submit" value="create new user">
-			</form>
-			<h4>Existing users</h4>
-			<ul>
-				<? foreach(Utils::getUsers($model->currentAuthDomain) as $user => $hash): ?>
-					<li>
-						<?= $view->escape($user) ?> - <?= $view->link('delete', 'deleteUser', array($model->currentAuthDomain, $user)) ?>
-						<form action="<?= $view->escape($view->url('updateUser')) ?>" method="post">
-							<input type="hidden" name="domain" value="<?= $view->escape($model->currentAuthDomain) ?>">
-							<input type="hidden" name="user" value="<?= $view->escape($user) ?>">
-							<input type="password" name="password">
-							<input type="submit" value="set password">
-						</form>
-					</li>
-				<? endforeach; ?>
-			</ul>
-		<? else: ?>
-			<h3>Existing authentication domains</h3>
-			<ul>
-				<? foreach(Utils::getDomains() as $domain): ?>
-					<li>
-						<?= $view->link($domain, 'showDomain', array($domain)) ?> -
-						<?= $view->link('delete', 'deleteDomain', array($domain)) ?>
-					</li>
-				<? endforeach; ?>
-			</ul>
-		<? endif; ?>
+		
+		<? foreach(Utils::getDomains() as $domain): ?>
+
+		<div class="toggleBox">
+			<div class="toogleButton">
+				<div class="toggleOpenIcon">+</div>
+				<div class="toggleOpenContent"><?= $domain ?></div>
+			</div>
+			<div class="toggleContent">
+				
+				<div class="tabBox">
+				
+					<div class="tabNavi">
+						<ul>
+							<li class="selected">Existing <?= $domain ?> users</li>
+							<li>Create a new <?= $domain ?> user</li>
+						</ul>
+						<hr class="greyLine">
+					</div>
+					
+					<div class="tabContentBox">
+
+						<div class="tabContent tabContent-1 selected">
+							
+
+
+								<? foreach(Utils::getUsers($domain) as $user => $hash): ?>
+								
+								<div class="toggleBox">
+									<div class="toogleButton">
+										<div class="toggleOpenIcon">+</div>
+										<div class="toggleOpenContent"><?= $view->escape($user) ?></div>
+									</div>
+									<div class="toggleContent">
+										
+										<form action="<?= $view->escape($view->url('updateUser')) ?>" method="post">
+											
+										<div class="greyBox">
+
+											<div class="formBox">
+												<div class="formTitle">New password</div>
+												<input type="password" name="password">
+											</div>
+											
+											<div class="formBox">
+
+												<input type="hidden" name="domain" value="<?= $view->escape($domain) ?>">
+												<input type="hidden" name="user" value="<?= $view->escape($user) ?>">
+												<input class="submitButton" type="submit" value="Set password">
+												
+											</div>
+										</form>
+										
+										</div>
+										
+										<?= $view->link('Delete user', 'deleteUser', array($domain, $user), array('class' => 'linkButtonRed')) ?>
+									</div>
+								</div>
+								
+								<? endforeach; ?>
+									
+
+							
+						</div>
+
+						<div class="tabContent tabContent-2">
+							
+							<div class="greyBox">
+
+							<form action="<?= $view->escape($view->url('updateUser')) ?>" method="post">
+								<div class="formBox">	
+									<div class="formTitle">Name of the new user</div>
+									<input type="text" name="user">
+								</div>
+								
+								<div class="formBox">	
+									<div class="formTitle">Password</div>
+									<input type="password" name="password" value="">
+								</div>
+								
+								<div class="formBox">
+									<input type="hidden" name="domain" value="<?= $view->escape($domain) ?>">
+									<input class="submitButton" type="submit" value="Create new user">
+								</div>
+							</form>
+
+							</div>
+							
+						</div>
+					</div>
+					
+				</div>
+				
+				<?= $view->link('Delete domain', 'deleteDomain', array($domain), array('class' => 'linkButtonRed')) ?>
+				
+			</div>
+		</div>
+		
+		<? endforeach; ?>
+		
+			
 	</div>
 </div>

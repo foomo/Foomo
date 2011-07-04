@@ -36,7 +36,8 @@ foreach($oldConfigs as $oldConfig) {
 <div class="tabBox">
 	<div class="tabNavi">
 		<ul>
-			<li class="selected">Current</li>
+			<li class="selected">Current Regular</li>
+			<li>Current Dump</li>
 			<li>Edit</li>
 			<li>Default</li>
 			<? if(count($oldOnes) > 0): ?><li>History</li><? endif; ?>
@@ -47,30 +48,19 @@ foreach($oldConfigs as $oldConfig) {
 		
 		<div class="tabContent tabContent-1 selected">
 		
-			<h2>Current</h2>
-			<div class="tabBox">
-				<div class="tabNavi">
-					<ul>
-						<li class="selected">Regular</li>
-						<li>Dumped</li>
-					</ul>
-					<hr class="greyLine">
-				</div>
-				<div class="tabContentBox">
-					<div class="tabContent tabContent-1 selected">
-						<h2>Regular</h2>
-						<div class="greyBox"><pre><?= $view->escape(\Foomo\Config::getConf($module, $domain, $subDomain)) ?></pre></div>
-					</div>
-					<div class="tabContent tabContent-2">
-						<h2>Dumped</h2>
-						<div class="greyBox"><pre><?= var_dump(\Foomo\Config::getConf($module, $domain, $subDomain)) ?></pre></div>
-					</div>
-				</div>
-			</div>
-			
+			<h2>Current Regular</h2>
+			<div class="greyBox"><pre><?= $view->escape(\Foomo\Config::getConf($module, $domain, $subDomain)) ?></pre></div>
+
 		</div>
 		
 		<div class="tabContent tabContent-2">
+		
+			<h2>Current Regular</h2>
+			<div class="greyBox"><pre><?= var_dump(\Foomo\Config::getConf($module, $domain, $subDomain)) ?></pre></div>
+
+		</div>
+		
+		<div class="tabContent tabContent-3">
 			
 			<h2>Edit value</h2>
 			<div class="greyBox">
@@ -89,7 +79,7 @@ foreach($oldConfigs as $oldConfig) {
 		
 		</div>
 
-		<div class="tabContent tabContent-3">
+		<div class="tabContent tabContent-4">
 			
 			<h2>Default value</h2>
 			<div class="greyBox"><pre><?= $view->escape(\Foomo\Config::getDefaultConfig($domain)) ?></pre></div>
@@ -98,7 +88,7 @@ foreach($oldConfigs as $oldConfig) {
 		
 		<? if(count($oldOnes) > 0): ?>
 		
-		<div class="tabContent tabContent-4">
+		<div class="tabContent tabContent-5">
 			
 			<h2>History</h2>
 

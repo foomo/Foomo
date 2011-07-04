@@ -89,6 +89,8 @@ $foundOldConfigs = array();
 
 		<? endforeach; ?>
 		
+		<hr class="greyLine">
+		
 		<?= $view->link('Delete all old configurations', 'removeOldConfs', array(), array('class' => 'linkButtonRed')); ?>
 
 	<? endif; ?>

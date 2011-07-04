@@ -38,7 +38,18 @@ h3 {
 	font-weight: normal;
 }
 
+br {
+	clear: both;
+}
 
+.textRed {
+	color: #c50707;
+}
+
+.textGreen {
+	color: #07c519;
+	
+}
 
 
 
@@ -73,6 +84,12 @@ option {
 	background: #e8e8e8;
 }
 
+.checkBox {
+	width: auto;
+	border: 1px dotted #0d2746;
+	background: #ffffff;
+}
+
 .submitButton {
 	font: bold 13px Arial, Helvetica, Verdana;
 	margin: 5px 10px 10px 0;
@@ -102,6 +119,7 @@ option {
 
 .greyBox {
 	position:relative;
+	clear: both;
 	margin: 10px 0;
 	width: 100%;
 	border: 1px solid #d7d7d7;
@@ -113,6 +131,7 @@ option {
 
 .whiteBox {
 	position:relative;
+	clear: both;
 	margin: 10px 0;
 	width: 100%;
 	border: 1px solid #d7d7d7;
@@ -123,6 +142,7 @@ option {
 }
 
 .innerBox {
+	clear: both;
 	margin: 5px;
 }
 
@@ -141,6 +161,18 @@ option {
 	right: 0;
 }
 
+.halfBox {
+	position: relative;
+	float:left;
+	margin: 0 20px 0 0;
+	width: 45%;
+}
+
+.floatLeftBox {
+	position: relative;
+	float: left;
+}
+
 
 
 
@@ -154,6 +186,17 @@ option {
 	text-decoration: none;
 	font-weight: bold;
 	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.linkButtonGrey {
+	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #bebebe;;
 	border: 1px solid #d7d7d7;
 	border-radius: 4px;
 	-webkit-border-radius: 4px;
