@@ -1,6 +1,9 @@
-<ul>
-	<li><?= $view->link('List resources', 'default') ?></li>
-	<li><?= $view->link('Reset cache', 'checkDialog', array('reset'), array('title' => 'Erase all cached objects and re-create cache storage structures.')) ?></li>
-	<li><?= $view->link('Populate fast cache', 'checkDialog', array('populateFastCache'), array('title' => 'Fills fast cache with persisted resources from the queryable cache')) ?></li>
-	<li><?= $view->link('Refresh dependency model', 'refreshDependencyModelAll', array(), array('title' => 'Refreshes the cached dependency model')) ?></li>
-</ul>
+<? /* @var $view Foomo\MVC\View */ ?>
+<nav id="menuSub">
+	<ul>
+		<li><?= $view->partial('menuButton', array('url' => 'default', 'name' => 'Overview' ), 'Foomo\Frontend') ?></li>
+		<li><?= $view->partial('menuButton', array('url' => 'checkDialog', 'name' => 'Reset cache', 'parameters' => array('reset') ), 'Foomo\Frontend') ?></li>
+		<li><?= $view->partial('menuButton', array('url' => 'checkDialog', 'name' => 'Populate fast cache', 'parameters' => array('populateFastCache') ), 'Foomo\Frontend') ?></li>
+	</ul>
+</nav>
+

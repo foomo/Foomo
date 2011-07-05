@@ -4,19 +4,6 @@
 ?>
 <? if(count($resources) > 0): ?>
 
-<!--
-<div class="toggleBox">
-	<div class="toogleButton">
-		<div class="toggleOpenIcon">+</div>
-		<div class="toggleOpenContent">sers </div>
-	</div>
-	<div class="toggleContent">
-				
-
-				
-	</div>
-</div>-->
-
 		<ul>
 		<? foreach($resources as $resourceName): ?>
 			<li>

@@ -42,7 +42,7 @@ br {
 	clear: both;
 }
 
-.textRed {
+.textRed, #errorMessage {
 	color: #c50707;
 }
 
@@ -174,6 +174,29 @@ option {
 }
 
 
+.floatMenu1 a{
+	margin: 0 0 30px 0;
+}
+
+.floatMenu {
+	clear: both;
+}
+
+.floatMenu ul {
+	margin: 0;
+	padding: 0;
+}
+.floatMenu li{
+	position: relative;
+	float: left;
+	margin: 0 10px 15px 0;
+	padding: 0 !important;
+}
+.floatMenu li a{
+	margin: 0;
+}
+
+
 
 
 
@@ -182,6 +205,7 @@ option {
 /* --- Buttons -------------------------------------------------------------------------------- */
 
 .linkButtonYellow {
+	position: relative;
 	padding: 4px 10px;
 	text-decoration: none;
 	font-weight: bold;

@@ -16,7 +16,7 @@ $userSetProps = array_keys($userDataHash);
 $defaultAnotation = new \Foomo\Cache\CacheResourceDescription;
 $unknown = array();
 $known = array('lifeTime','lifeTimeFast', 'dependencies', 'invalidationPolicy');
-
+//var_dump($userDataHash, $model->getAnnotationValidationStatus($model->currentResourceName), $resourceRefl);//, $userSetProps, $model->currentResourceName);
 foreach($userSetProps as $param) {
 	if (!\in_array($param, $known)) $unknown[] = $param;
 }
@@ -26,7 +26,14 @@ foreach($userSetProps as $param) {
 <?= $view->partial('annotation', (array) $resourceRefl->description) ?>
 
 <p>Derived from</p>
-<?= $view->partial('annotation', $userDataHash) ?>
+<pre>
+/**
+ * orginal doc comment @jan todo
+ */
+</pre>
+<? 
+
+?>
 
 <div id="errorMessage">
 	<? if(count ($unknown) > 0): ?>

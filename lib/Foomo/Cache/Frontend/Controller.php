@@ -51,6 +51,7 @@ class Controller {
 	{
 		$this->model->currentResourceName = $resourceName;
 		\Foomo\Cache\DependencyModel::getInstance()->getDirectory(true);
+		\Foomo\MVC::redirect('showCachedItems',array($resourceName));
 	}
 
 	public function actionRefreshDependencyModelAll($resourceName)

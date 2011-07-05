@@ -6,25 +6,45 @@
 	<?= $view->partial('header') ?>
 
 	<?= $view->partial('menu') ?>
-	<h2>Resources and dependencies</h2>
-	<?= $view->partial('dependencyTree', array('resources' => $model->getToplevelResources())) ?>
-	<hr>
-	<?= $view->partial('dependencyList', array('resources' => $model->getOrphanToplevelResources())) ?>
+	
+	<div class="rightBox">
+		<?= $view->link('Refresh dependency model', 'refreshDependencyModelAll', array(), array('title' => 'Refreshes the cached dependency model','class' => 'linkButtonYellow')) ?>
+	</div>
 
-	<h2>Cacheable resources by module</h2>
 	<? foreach($model->getResourceList() as $moduleName => $info): ?>
+	
 		<? if(count($info['resources'])>0): ?>
-			<h2><?= $moduleName ?> a </h2>
-			<ul>
-				<? foreach($info['resources'] as $resourceName): ?>
-					<li>
-						<?= $view->link($resourceName, 'showCachedItems', array($resourceName), array('title' => "Show cached resources")) ?>
-					</li>
-				<? endforeach; ?>
-			</ul>
+	
+			<h2><?= $moduleName ?></h2>
+			
+			<? foreach($info['resources'] as $resourceName): ?>
+			
+				<? if( count($model->getDependencies($resourceName)) >0 ): ?>
+
+					<div class="toggleBox">
+						<div class="toogleButton">
+							<div class="toggleOpenIcon">+</div>
+							<div class="toggleOpenContent"><?= $view->link($resourceName, 'showCachedItems', array($resourceName)) ?></div>
+						</div>
+						<div class="toggleContent">
+							<?= $view->partial('dependencyTree', array('resources' => $model->getDependencies($resourceName) )) ?>
+						</div>
+					</div>
+
+				<? else: ?>
+
+					<div class="greyBox">
+						<div class="innerBox" style="margin-left: 42px;">
+							<b><?= $view->link($resourceName, 'showCachedItems', array($resourceName)) ?></b>
+						</div>
+					</div>
+
+				<? endif; ?>
+			
+			<? endforeach; ?>
 			
 		<? endif; ?>
 			
 	<? endforeach; ?>
-
+			
 </div>

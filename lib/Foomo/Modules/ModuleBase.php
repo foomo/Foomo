@@ -276,6 +276,28 @@ abstract class ModuleBase
 		return \Foomo\Config::getConf(self::getModuleName(), $name, $domain);
 	}
 
+	/**
+	 * @param Foomo\Config\AbstractConfig $conf
+	 * @param string $domain
+	 * @return boolean
+	 */
+	public static function setConfig(\Foomo\Config\AbstractConfig $conf, $domain='')
+	{
+		return \Foomo\Config::setConf($conf, self::getModuleName(), $domain);
+	}
+
+	/**
+	 * does a config for a module exist or not
+	 *
+	 * @param string $name name of the config
+	 * @param string $domain you need multiple for a domain in a module - here you are
+	 * @return boolean
+	 */
+	public static function confExists($name, $domain='')
+	{
+		return \Foomo\Config::confExists(self::getModuleName(), $name, $domain);
+	}
+
 	//---------------------------------------------------------------------------------------------
 	// ~ Private static methods
 	//---------------------------------------------------------------------------------------------

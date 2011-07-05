@@ -10,7 +10,10 @@ $enabledModules = Manager::getEnabledModules();
 $resI = 0;
 ?>
 <div id="appContent">
-	
+	<div class="rightBox">
+		<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
+	</div>
+	<h2> Modules </h2>
 	<?
 	$orderedModules = Manager::getAvailableModules();
 	sort($orderedModules);
@@ -35,7 +38,6 @@ $resI = 0;
 		$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($availableModule);
 		$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($availableModule);
 	?>
-	<form action="<?= $view->url('actionUpdateModules'); ?>" method="POST" id="moduleForm">
 	<div class="toggleBox">
 		<div class="toogleButton">
 			<div class="toggleOpenIcon">+</div>
@@ -62,9 +64,15 @@ $resI = 0;
 					<? elseif($moduleEnabled != 'enabled' && !$depsOk): ?>
 						<span title="enable dependencies first">none</span>
 					<? elseif($moduleEnabled != 'enabled'): ?>
+						<?= $view->link('enable', 'enableModule', array($availableModule)) ?>
+						<!--
 						<a title="enable module <?= $availableModule ?>" href="#" onclick="document.getElementById('modField<?php echo $availableModule ?>').value='enable';document.getElementById('moduleForm').submit();"><span class="textGreen">enable</span></a><input type="hidden" value="disable" name="moduleStates[<?php echo $availableModule ?>]" id="modField<?php echo $availableModule ?>">
+						-->
 					<? else: ?>
+						<!--
 						<a title="disable module <?= $availableModule ?>" href="#" onclick="document.getElementById('modField<?php echo $availableModule ?>').value='disable';document.getElementById('moduleForm').submit();"><span class="textRed">disable</span></a><input type="hidden" value="enable" name="moduleStates[<?php echo $availableModule ?>]" id="modField<?php echo $availableModule ?>">
+						-->
+						<?= $view->link('disable', 'disableModule', array($availableModule)) ?>
 					<? endif; ?>
 				
 				</div>
@@ -110,11 +118,9 @@ $resI = 0;
 			
 		</div>
 	</div>
-	</form>
 	<?php endforeach; ?>
 	
 	<hr class="greyLine">
-	
-	<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
+
 	
 </div>

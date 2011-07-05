@@ -90,7 +90,9 @@ class DependencyModel {
 		if ($invalidateDependencyModelCache === true) {
 			$ret = null;
 			$emptyResource = Proxy::getEmptyResource($this, 'cachedGetDirectory', array());
-			Manager::invalidate($emptyResource, true, Invalidator::POLICY_INSTANT_REBUILD);
+			//Manager::invalidate($emptyResource, true, Invalidator::POLICY_DELETE);
+			//@todo an invalidate should be enough ...
+			Manager::reset($emptyResource->name);
 		}
 		if (!isset($ret)) {
 			$ret = Proxy::call($this, 'cachedGetDirectory');

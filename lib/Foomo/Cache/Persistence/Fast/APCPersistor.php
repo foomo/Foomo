@@ -88,7 +88,7 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 
 	public function __construct($config) {
 		if (!function_exists('apc_store')) {
-			throw new Exception('can not use this cach driver without apc', 1);
+			throw new \Exception('can not use this cache driver without apc', 1);
 		}
 	}
 

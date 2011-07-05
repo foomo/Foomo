@@ -7,6 +7,8 @@ use Foomo\BasicAuth\Utils;
 	<?= $view->partial('menu') ?>
 	<div id="appContent">
 		
+		<h2>Auth domains</h2>
+		
 		<? foreach(Utils::getDomains() as $domain): ?>
 
 		<div class="toggleBox">

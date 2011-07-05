@@ -25,11 +25,11 @@ $env = array(
 		'required' => true
 	),
 	'Foomo\\ROOT_HTTP' => array(
-		'docs' => 'that is where',
+		'docs' => 'that is where this toolbox is',
 		'required' => false
 	),
 	'Foomo\\CORE_CONFIG_DIR_MODULES' => array(
-		'docs' => 'modules root folder usually \Foomo\ROOT/modules can be overwritten with $_SERVER[\'\Foomo\CORE_CONFIG_DIR_MODULES\']',
+		'docs' => 'modules root folder usually \Foomo\ROOT/modules',
 		'required' => false
 	),
 	'Foomo\\CORE_CONFIG_DIR_VAR' => array(

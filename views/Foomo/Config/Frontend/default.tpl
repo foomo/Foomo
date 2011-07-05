@@ -62,6 +62,9 @@ $foundOldConfigs = array();
 		<br>
 		<hr>
 		<br>
+		<div class="rightBox">
+			<?= $view->link('Delete all old configurations', 'removeOldConfs', array(), array('class' => 'linkButtonRed')); ?>
+		</div>
 		<h2>Trash</h2>
 		
 		<? foreach($oldConfigs as $oldConfig): ?>
@@ -87,11 +90,8 @@ $foundOldConfigs = array();
 			</div>
 			<? endif; ?>
 
-		<? endforeach; ?>
-		
-		<hr class="greyLine">
-		
-		<?= $view->link('Delete all old configurations', 'removeOldConfs', array(), array('class' => 'linkButtonRed')); ?>
+		<? endforeach; ?>	
+
 
 	<? endif; ?>
 

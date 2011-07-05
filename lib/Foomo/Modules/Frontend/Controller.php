@@ -64,7 +64,22 @@ class Controller
 		Manager::setModuleStates($moduleStates);
 		MVC::redirect('administer');
 	}
-
+	/**
+	 * @param string $moduleName 
+	 */
+	public function actionEnableModule($moduleName)
+	{
+		Manager::enableModule($moduleName, true);
+		MVC::redirect('default');
+	}
+	/**
+	 * @param string $moduleName 
+	 */
+	public function actionDisableModule($moduleName)
+	{
+		Manager::disableModule($moduleName, true);
+		MVC::redirect('default');
+	}
 	/**
 	 * @param string $moduleName
 	 */

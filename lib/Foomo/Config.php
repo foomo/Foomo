@@ -124,6 +124,21 @@ class Config
 	}
 
 	/**
+	 * load configurations for a domain for all enabled modules
+	 *
+	 * @param string $name the domain of configuration like db, mail, YOU name it
+	 * @param string $domain you need multiple for a domain in a module - here you are
+	 * @return Foomo\Config\AbstractConfig[]
+	 */
+	public static function getConfs($name, $domain='')
+	{
+		$configs = array();
+		$modules = Modules\Manager::getEnabledModules();
+		foreach ($modules as $module) if (null != $config = self::getConf($module, $name, $domain)) $configs[] = $config;
+		return $configs;
+	}
+
+	/**
 	 * @param type $name
 	 * @return AbstractConfig
 	 */
@@ -156,7 +171,6 @@ class Config
 	 * @param AbstractConfig $conf the conf itself
 	 * @param string $module name of the module
 	 * @param string $domain use this if you have several of a kind
-	 *
 	 * @return boolean
 	 */
 	public static function setConf(AbstractConfig $conf, $module, $domain = '', $originalYaml = '')
@@ -194,7 +208,6 @@ class Config
 	 * @param string $module
 	 * @param string $name
 	 * @param string $domain
-	 *
 	 * @return string
 	 */
 	public static function getCurrentConfYAML($module, $name, $domain = '')
