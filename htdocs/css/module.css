@@ -38,6 +38,14 @@ h3 {
 	font-weight: normal;
 }
 
+h4, h5, h6 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 13px;
+	line-height: 1.9em;
+	color: #0d2746;
+	font-weight: normal;
+}
+
 br {
 	clear: both;
 }
@@ -187,8 +195,8 @@ option {
 .halfBox {
 	position: relative;
 	float:left;
-	margin: 0 20px 0 0;
-	width: 45%;
+	margin: 0 1% 0 0;
+	width: 49%;
 }
 
 .floatLeftBox {
@@ -225,6 +233,15 @@ option {
 }
 .floatMenu li a{
 	margin: 0;
+}
+
+.list {
+	padding: 0 0 0 25px;
+	list-style-type: disc;
+}
+
+.list li {
+	padding-left: 0 !important;
 }
 
 .listBox li{
@@ -286,6 +303,18 @@ option {
 	-moz-border-radius: 4px;
 }
 
+.linkButtonSmallGrey {
+	position: relative;
+	padding: 0 5px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #bebebe;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
 .linkButtonRed {
 	padding: 4px 10px;
 	text-decoration: none;
@@ -298,6 +327,17 @@ option {
 	-moz-border-radius: 4px;
 }
 
+.linkButtonSmallRed {
+	position: relative;
+	padding: 0 5px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #c50707;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
 
 
 
