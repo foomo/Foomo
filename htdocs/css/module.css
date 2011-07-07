@@ -1,3 +1,421 @@
+
+
+/* --- Global -------------------------------------------------------------------------------- */
+
+pre {
+	margin: 5px;
+	
+}
+
+hr {
+	clear: both;
+	height: 1px;
+	border:0;
+	border-bottom:1px solid #0d2746;
+}
+
+h1 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 22px;
+	line-height: 26px;
+	color: #0d2746;
+	font-weight: normal;
+}
+
+h2 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 18px;
+	line-height: 22px;
+	color: #0d2746;
+	font-weight: normal;
+}
+
+h3 {
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 15px;
+	line-height: 19px;
+	color: #0d2746;
+	font-weight: normal;
+}
+
+br {
+	clear: both;
+}
+
+.textRed, #errorMessage {
+	color: #c50707;
+}
+
+.textGreen {
+	color: #07c519;
+	
+}
+
+
+
+/* --- Forms -------------------------------------------------------------------------------- */
+
+textarea {
+	font: normal 13px Arial, Helvetica, Verdana;
+	padding: 5px;
+	width: 100%;
+	border: 1px dotted #0d2746;
+}
+
+input {
+	font: normal 13px Arial, Helvetica, Verdana;
+	padding: 5px;
+	width: 50%;
+	border: 1px dotted #0d2746;
+}
+
+select {
+	font: normal 13px Arial, Helvetica, Verdana;
+	padding: 5px;
+	height: 28px;
+	width: 50%;
+	border: 1px dotted #0d2746;
+	background: #ffffff;
+}
+
+option {
+	margin: 1px 0;
+	padding: 4px 0;
+	background: #e8e8e8;
+}
+
+.checkBox {
+	width: auto;
+	border: 1px dotted #0d2746;
+	background: #ffffff;
+}
+
+.submitButton {
+	font: bold 13px Arial, Helvetica, Verdana;
+	margin: 5px 10px 10px 0;
+	width: auto;
+	color: #0d2746;
+	border: none;
+	cursor: pointer;
+	background: #bebebe;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.formBox {
+	margin: 10px 20px 10px 10px;
+}
+
+.formTitle {
+	font-weight: bold;
+	margin: 15px 5px 5px 5px;
+}
+
+
+
+
+/* --- Boxes / Lines -------------------------------------------------------------------------------- */
+
+.greyBox {
+	position:relative;
+	clear: both;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #e8e8e8;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.whiteBox {
+	position:relative;
+	clear: both;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.innerBox {
+	clear: both;
+	margin: 5px;
+}
+
+.greyLine {
+	margin: 10px;
+	border-bottom:1px solid #e8e8e8;
+	
+}
+
+.leftBox {
+	position: absolute;
+}
+
+.rightBox {
+	position: absolute;
+	right: 0;
+}
+
+.halfBox {
+	position: relative;
+	float:left;
+	margin: 0 20px 0 0;
+	width: 45%;
+}
+
+.floatLeftBox {
+	position: relative;
+	float: left;
+}
+
+
+.floatMenu1 a{
+	margin: 0 0 30px 0;
+}
+
+.floatMenu {
+	clear: both;
+}
+
+.floatMenu ul {
+	margin: 0;
+	padding: 0;
+}
+.floatMenu li{
+	position: relative;
+	float: left;
+	margin: 0 10px 15px 0;
+	padding: 0 !important;
+}
+.floatMenu li a{
+	margin: 0;
+}
+
+
+
+
+
+
+
+/* --- Buttons -------------------------------------------------------------------------------- */
+
+.linkButtonYellow {
+	position: relative;
+	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.linkButtonGrey {
+	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #bebebe;;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.linkButtonRed {
+	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	color:#ffffff;
+	background: #c50707;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+
+
+
+
+
+
+/* --- ToggleBox -------------------------------------------------------------------------------- */
+
+.toggleBox {
+	position:relative;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.toggleBox .toogleButton {
+	height: 28px;
+	cursor: pointer;
+	font-weight: bold;
+	background: #e8e8e8;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.toggleBox .toogleButton .toggleOpenIcon {
+	float: left;
+	margin: 4px 10px;
+	width: 20px;
+	font-size: 15px;
+	text-align: center;
+	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.toggleBox .toogleButton .toggleOpenContent {
+	float: left;
+	margin: 5px 0;
+}
+
+.toggleBox .toggleContent {
+	position:relative;
+	clear: both;
+	margin: 10px;
+	display: none;
+}
+
+
+
+
+
+/* --- TabBox -------------------------------------------------------------------------------- */
+
+.tabBox {
+	position:relative;
+	margin: 10px 0;
+	width: 100%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.tabBox .tabNavi {
+	height: 35px;
+	font-weight: bold;
+}
+
+.tabBox .tabNavi ul {
+	padding: 0;
+	margin: 5px 0 0 5px;
+}
+
+.tabBox .tabNavi ul li {
+	float: left;
+	margin: 5px 5px;
+	padding: 3px 10px !important;
+	cursor: pointer;
+	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.tabBox .tabNavi ul li.selected {
+	background: #0d2746;
+	color: #ffffff;
+}
+
+.tabBox .tabContent{
+	display: none;
+	margin: 10px;
+}
+
+.tabBox .tabContent.selected{
+	display: block;
+}
+
+
+
+
+
+/* --- Configuration -------------------------------------------------------------------------------- */
+
+
+/*
+#moduleBox b {
+	float:left;
+}
+
+#moduleBox span {
+	float:left;
+}
+
+#moduleBox .detail {
+	clear: both;
+	position: relative;
+}
+
+#moduleBox .show {
+	clear: both;
+	position: relative;
+}
+
+#ctrlButtons {
+	float: left;
+	margin: 0 0 0 80px;
+}
+
+#ctrlButtons li {
+	float: left;
+	margin: 0 10px 0 0;
+	padding: 0;
+}
+
+#moduleBox #moduleHistoryItem{
+	clear: both;
+	position: relative;
+	width: 920px;
+	height: 22px;
+	margin: 2px 0;
+	padding: 7px 5px 3px;
+	background: #f6f6f6;
+}
+
+#moduleBox #moduleItem{
+	clear: both;
+	position: relative;
+	height: 22px;
+	padding: 7px 0 3px;
+}
+
+*/
+
+
+table {border-collapse: collapse;margin: 10px;width:100%}
+
+td, th { border: 1px solid #002f2f; font-size: 75%; vertical-align: baseline;padding:10px;}
+
+
+/* foomo info */
+#foomoInfo table, #foomoInfo td {
+	border : 1px solid grey;
+}
+#foomoInfo table {
+	width:100%;
+}
+
 .ok {
   color : green;
 }
@@ -5,59 +423,10 @@
   color : red;
 }
 
-@font-face {
-	font-family: 'MyriadWebPro';
-	src: url(MyriadWebPro.ttf);
-}
 
-body {background-color: #fafafa; color: #002f2f;padding:10px;}
-body, td, th {font-family: "Lucida Grande", Verdana, sans-serif;}
-pre {margin: 0; font-family: monospace;}
-table {border-collapse: collapse;margin: 10px;width:100%}
-
-a {
-	text-decoration:none;
-	color:#1111bb;
+.valid {
+	color: green;
 }
-a:hover {
+.invalid {
 	color:red;
-}
-
-td, th { border: 1px solid #002f2f; font-size: 75%; vertical-align: baseline;padding:10px;}
-h1 {
-	font-size: 150%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h2 {
-	font-size: 125%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h3 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h4 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h5 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-h6 {
-	font-size: 100%;
-	font-family: Helvetica, Verdana, sans-serif;
-	font-weight: normal;
-}
-/* foomo info */
-#foomoInfo table, #foomoInfo td {
-	border : 1px solid grey;
-}
-#foomoInfo table {
-	width:100%;
 }

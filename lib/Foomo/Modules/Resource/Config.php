@@ -1,13 +1,30 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\Modules\Resource;
 
 /**
  * a config resource
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Config extends \Foomo\Modules\Resource {
 
@@ -39,11 +56,11 @@ class Config extends \Foomo\Modules\Resource {
 
 	/**
 	 * get a config resource
-	 * 
+	 *
 	 * @param string $module
 	 * @param string $name
 	 * @param string $subDomain
-	 * 
+	 *
 	 * @return Foomo\Modules\Resources\Fs
 	 */
 	public static function getResource($module, $name, $subDomain = '')
@@ -78,9 +95,9 @@ class Config extends \Foomo\Modules\Resource {
 		if (\Foomo\Config::confExists($this->module, $this->name, $this->subDomain)) {
 			return 'config exists';
 		} else {
-			return 
-				'created default config for ' . 
-				$this->module . ' - ' . $this->name . 
+			return
+				'created default config for ' .
+				$this->module . ' - ' . $this->name .
 				' - ' . var_export(
 					\Foomo\Config::setConf(
 						\Foomo\Config::getDefaultConfig($this->name),

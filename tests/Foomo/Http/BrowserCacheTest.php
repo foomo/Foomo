@@ -1,5 +1,22 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\Http;
 
 use Foomo\Utils;
@@ -7,11 +24,14 @@ use Foomo\Utils;
 /**
  * test the "browser cache"
  *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class BrowserCacheTest extends \PHPUnit_Framework_TestCase {
-	
+
 	// helper functions
-	
+
 	/**
 	 * where to put the mock endpoint file
 	 *
@@ -19,7 +39,7 @@ class BrowserCacheTest extends \PHPUnit_Framework_TestCase {
 	 */
 	private function getEndPointFilename()
 	{
-		return \Foomo\ROOT . '/htdocs/foomoBrowserCacheTestEndPoint.php'; 
+		return \Foomo\ROOT . '/htdocs/foomoBrowserCacheTestEndPoint.php';
 	}
 	/**
 	 * get an endpoint
@@ -57,7 +77,7 @@ class BrowserCacheTest extends \PHPUnit_Framework_TestCase {
 	 * @param atring $action
 	 * @param array $parameters
 	 * @param array $headers
-	 * 
+	 *
 	 * @return string
 	 */
 	private function request($action, $parameters, $headers = array())
@@ -83,11 +103,11 @@ class BrowserCacheTest extends \PHPUnit_Framework_TestCase {
 			trigger_error('a curl error occurred ' . curl_error($ch), E_USER_ERROR);
 		}
 		return $result;
-	}	
-		
+	}
+
 	// set up and tear down
-	
-	
+
+
 	/**
 	 * set up a mock endpoint
 	 *
@@ -107,7 +127,7 @@ class BrowserCacheTest extends \PHPUnit_Framework_TestCase {
 	{
 		unlink($this->getEndPointFilename());
 	}
-		
+
 	private function getEnabled()
 	{
 		if(php_sapi_name() != 'cli') {
@@ -196,6 +216,6 @@ class BrowserCacheTest extends \PHPUnit_Framework_TestCase {
 		} else {
 			$this->skipp();
 		}
-		
+
 	}
 }

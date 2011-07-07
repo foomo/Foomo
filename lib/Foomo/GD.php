@@ -1,17 +1,34 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
 
 /**
  * a simple gd add on
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
-class GD {
-
+class GD
+{
 	/**
 	 * resamples and converts an image from a file to a file
 	 * supported mime types are:
@@ -27,7 +44,7 @@ class GD {
 	 * @param integer $targetH height of the target
 	 * @param integer $targetQuality compression quality of the resulting image
 	 * 								0 is a very bad quality at a very small file size
-	 * 								100 is a very good quality at a big filesize 
+	 * 								100 is a very good quality at a big filesize
 	 * 								applies to jpegs only
 	 * @return boolean
 	 */

@@ -1,9 +1,31 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\Cache\Frontend;
 
 use Foomo\Cache\Persistence\Expr;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class Controller {
 
 	/**
@@ -16,7 +38,7 @@ class Controller {
 		$this->model->currentInvalidationList = array();
 	}
 
-	public static function actionPopulateFastCache() 
+	public static function actionPopulateFastCache()
 	{
 		\Foomo\MVC::abort();
 		header('Content-Type: text/plain;charset=utf-8;');
@@ -25,18 +47,19 @@ class Controller {
 		exit;
 	}
 
-	public function actionRefreshDependencyModel($resourceName) 
+	public function actionRefreshDependencyModel($resourceName)
 	{
 		$this->model->currentResourceName = $resourceName;
 		\Foomo\Cache\DependencyModel::getInstance()->getDirectory(true);
+		\Foomo\MVC::redirect('showCachedItems',array($resourceName));
 	}
 
-	public function actionRefreshDependencyModelAll($resourceName) 
+	public function actionRefreshDependencyModelAll($resourceName)
 	{
 		\Foomo\Cache\DependencyModel::getInstance()->getDirectory(true);
 	}
 
-	public static function actionValidateStorageStructure($resourceName) 
+	public static function actionValidateStorageStructure($resourceName)
 	{
 		\Foomo\MVC::abort();
 		header('Content-Type: text/plain;charset=utf-8;');

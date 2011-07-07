@@ -1,0 +1,201 @@
+++ Templates
+
++++ Settings
+
+<geshi type="text">
+#
+# Here, or in other properties files in this directory, you can define
+# various properties that you want to make available to the template
+# processor while creating various templates.
+#
+
+# uncomment the next line and specify your user name to be used in new templates
+user=USERNAME <EMAIL>
+</geshi>
+
++++ License
+
+<geshi type="text">
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}This file is part of the foomo Opensource Framework.
+${licensePrefix}
+${licensePrefix}The foomo Opensource Framework is free software: you can redistribute it
+${licensePrefix}and/or modify it under the terms of the GNU Lesser General Public License as
+${licensePrefix}published  by the Free Software Foundation, either version 3 of the
+${licensePrefix}License, or (at your option) any later version.
+${licensePrefix}
+${licensePrefix}The foomo Opensource Framework is distributed in the hope that it will
+${licensePrefix}be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+${licensePrefix}of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+${licensePrefix}GNU Lesser General Public License for more details.
+${licensePrefix}
+${licensePrefix}You should have received a copy of the GNU Lesser General Public License along with
+${licensePrefix}the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+<#if licenseLast??>
+${licenseLast}
+</#if>
+</geshi>
+
++++ Foomo Class
+
+<geshi type="php">
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
+
+namespace Foomo;
+
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author ${user}
+ */
+class ${name}
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
+	public function __construct()
+	{
+	}
+}
+</geshi>
+
++++ Foomo Interface
+
+<geshi type="php">
+<#assign licenseFirst = "/* ">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
+
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author ${user}
+ */
+interface ${name}
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Interface methods
+	//---------------------------------------------------------------------------------------------
+}
+</geshi>
+
+
+++ Code Templates (PHP)
+
++++ cconst
+
+<geshi type="text">
+cconst
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ cvar
+
+<geshi type="text">
+cvar
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ ccon
+
+<geshi type="text">
+cvar
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ cpub
+
+<geshi type="text">
+cpub
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ cpriv
+
+<geshi type="text">
+cpriv
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ cprot
+
+<geshi type="text">
+cprot
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Protected methods
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ cabs
+
+<geshi type="text">
+cabs
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Abstract methods
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ cact
+
+<geshi type="text">
+cact
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Action methods
+	//---------------------------------------------------------------------------------------------
+</geshi>
+
++++ ctest
+
+<geshi type="text">
+ctest
+</geshi>
+
+<geshi type="text">
+//---------------------------------------------------------------------------------------------
+	// ~ Test methods
+	//---------------------------------------------------------------------------------------------
+</geshi>

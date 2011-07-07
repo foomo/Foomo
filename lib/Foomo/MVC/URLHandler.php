@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\MVC;
@@ -10,6 +23,10 @@ use Foomo\MVC;
 
 /**
  * handle urls for MVC
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
 class URLHandler {
@@ -36,7 +53,7 @@ class URLHandler {
 	public $lastAction;
 	/**
 	 * last action was called with these parameters
-	 * 
+	 *
 	 * @var array
 	 */
 	public $lastParameters;
@@ -47,13 +64,13 @@ class URLHandler {
 	public $path;
 	/**
 	 * id of the application
-	 * 
+	 *
 	 * @var string
 	 */
 	private $appId;
 	/**
 	 * controller class name
-	 * 
+	 *
 	 * @var string
 	 */
 	private $controllerClassName;
@@ -61,7 +78,7 @@ class URLHandler {
 	private static $instanceCounter = array();
 	/**
 	 * class / controller interface information
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $classCache = array();
@@ -97,7 +114,7 @@ class URLHandler {
 		}
 		if (!isset(self::$classCache[$className])) {
 			if (!class_exists($className)) {
-				throw new InvalidArgumentException('invalid class >' . $className . '<');
+				throw new \InvalidArgumentException('invalid class >' . $className . '<');
 			}
 			// we might wanna do some caching here ...
 			self::$classCache[$className] = Controller\ActionReader::read($className);
@@ -257,11 +274,11 @@ class URLHandler {
 
 	/**
 	 * Sanitize input
-	 * 
+	 *
 	 * @param Controller\ActionParameter $parameter
 	 * @param mixed $value
 	 * @internal
-	 * 
+	 *
 	 * @return mixed
 	 */
 	public static function castParameterToSanitized(Controller\ActionParameter $parameter, $value)
@@ -366,5 +383,4 @@ class URLHandler {
 	{
 		return $this->renderState();
 	}
-
 }

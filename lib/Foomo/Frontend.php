@@ -1,38 +1,70 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
 
-use Foomo\MVC\AbstractApp;
-
 /**
  * frontend for foomo
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
-class Frontend extends AbstractApp {
-	const NAME = 'Foomo.toolbox';
-	public static function setUpToolbox($title = 'foomo toolbox')
+class Frontend extends \Foomo\MVC\AbstractApp
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+
+	const BASIC_AUTH_REALM = 'foomo-toolbox';
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $title
+	 */
+	public static function setUpToolbox($title='foomo toolbox')
 	{
 		if(!file_exists(BasicAuth::getDefaultAuthFilename())) {
-			if(!headers_sent()) {
-				header('Content-Type: text/plain');
-			}
+			if(!headers_sent()) header('Content-Type: text/plain');
 			die('default auth file does not exist - you might want to run setup.php');
 		}
 
-		BasicAuth::auth('foomo-toolbox');
+		BasicAuth::auth(self::BASIC_AUTH_REALM);
 
 		$doc = HTMLDocument::getInstance()->setTitle($title);
-		
+
 		if(defined('Foomo\\ROOT_HTTP')) {
 			$doc
 				->addStylesheets(array(
-					\Foomo\ROOT_HTTP . '/css/module.css',
+                    'http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&v1',
+                    \Foomo\ROOT_HTTP . '/css/reset.css',
 					\Foomo\ROOT_HTTP . '/css/app.css',
+					\Foomo\ROOT_HTTP . '/css/module.css'
 				))
-				->addJavascripts(array(\Foomo\ROOT_HTTP . '/js/radJs.js'))
+				->addJavascripts(array(
+					ROOT_HTTP . '/js/radJs.js',
+					ROOT_HTTP . '/js/jquery-1.6.1.min.js',
+					ROOT_HTTP . '/js/modules.js'
+				))
 			;
 		}
 	}

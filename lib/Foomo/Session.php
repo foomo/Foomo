@@ -8,8 +8,13 @@ namespace Foomo;
 
 /**
  * session that provides the ability to run a (non) blocking session
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
-class Session {
+class Session
+{
 	const DEAULT_IDENTIFIER = 'defaultInstance';
 	/**
 	 * keeps all the class instances
@@ -36,7 +41,7 @@ class Session {
 	private $sessionId;
 	/**
 	 * was the session already locked
-	 * 
+	 *
 	 * @var bool
 	 */
 	private $locked = false;
@@ -89,7 +94,7 @@ class Session {
 		if(!class_exists($className)) {
 			trigger_error('can not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
 		}
-		
+
 		if (!isset($inst->instances[$key])) {
 			// @todo is that a good idea
 			self::lockAndLoad();
@@ -103,9 +108,9 @@ class Session {
 	}
 	/**
 	 * set a session class instance, session must be locked
-	 * 
+	 *
 	 * @param stdClass $instance
-	 * @param string $identifier 
+	 * @param string $identifier
 	 */
 	public static function setClassInstance($instance, $identifier = 'defaultInstance')
 	{
@@ -118,9 +123,9 @@ class Session {
 	}
 	/**
 	 * remove a class instance from the session
-	 * 
+	 *
 	 * @param mixed $instOrClassName
-	 * @param string $identifier 
+	 * @param string $identifier
 	 */
 	public static function unsetClassInstance($instOrClassName, $identifier = 'defaultInstance')
 	{
@@ -138,10 +143,10 @@ class Session {
 	}
 	/**
 	 * is a class instance set
-	 * 
+	 *
 	 * @param string $className
 	 * @param string $identifier
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function classInstanceIsset($className, $identifier = 'defaultInstance')
@@ -211,7 +216,7 @@ class Session {
 	}
 	/**
 	 * session config for the core
-	 * 
+	 *
 	 * @return Foomo\Session\DomainConfig
 	 */
 	public static function getConf()
@@ -342,8 +347,8 @@ class Session {
 	}
 	/**
 	 * shortcut to check if session is enabled and in that case lockAndLoad()
-	 * 
-	 * @param string $sessionId 
+	 *
+	 * @param string $sessionId
 	 */
 	public static function lockAndLoadIfEnabled($sessionId = null)
 	{
@@ -384,7 +389,7 @@ class Session {
 	}
 	/**
 	 * destroy the current session will destroy the current session data
-	 * 
+	 *
 	 * @param boolean $reinit by default will restart with the current session id
 	 */
 	public static function destroy($reinit = true)
@@ -413,7 +418,7 @@ class Session {
 	}
 	/**
 	 * get the sessionId, if the session is enabled
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function getSessionIdIfEnabled()
@@ -424,7 +429,7 @@ class Session {
 	}
 	/**
 	 * is the session enabled
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function getEnabled()
@@ -472,7 +477,7 @@ class Session {
 	public static function saveAndRelease()
 	{
 		if (self::$instance && self::$instance->locked) {
-			self::$instance->locked = false;			
+			self::$instance->locked = false;
 			self::$persistor->persist(
 				self::$instance->sessionId,
 				self::$instance
@@ -482,7 +487,7 @@ class Session {
 	}
 	/**
 	 * registered as a shutdown function
-	 * 
+	 *
 	 * @internal
 	 */
 	public static function foomoSessionShutDown()

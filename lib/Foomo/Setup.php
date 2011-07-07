@@ -1,41 +1,69 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
 
 /**
  * framework setup helper
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @internal
  */
-class Setup {
+class Setup
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Static variables
+	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @var array
+	 */
 	static $configDirLayout = array(
-		'common' => array(
-		),
-		'runMode' => array(
-			'modules'
-		)
+		'common'	=> array(),
+		'runMode'	=> array('modules')
 	);
+	/**
+	 * @var array
+	 */
 	static $varDirLayout = array(
-		'common' => array(
-		),
-		'runMode' => array(
+		'common'	=> array(),
+		'runMode'	=> array(
 			'basicAuth',
-			'db',
 			'logs',
 			'tmp',
 			'cache',
-			'sessions',
-			'tmp/flexClient',
 			'htdocs',
+			'modules',
 			'htdocs/modules',
 			'htdocs/modulesVar'
 		)
 	);
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @return boolean
+	 */
 	public static function getVarAndConfigFoldersAreAvailable()
 	{
 		return \file_exists(\Foomo\CORE_CONFIG_DIR_CONFIG) && \is_writable(\Foomo\CORE_CONFIG_DIR_CONFIG) && \file_exists(\Foomo\CORE_CONFIG_DIR_VAR) && \is_writable(\Foomo\CORE_CONFIG_DIR_VAR);
@@ -51,6 +79,57 @@ class Setup {
 		return file_exists(BasicAuth::getDefaultAuthFilename());
 	}
 
+	/**
+	 * generate the cli inc
+	 *
+	 * @return boolean
+	 */
+	public static function generateShell()
+	{
+		$filename = self::getShellFilename();
+		file_put_contents($filename, Module::getView(__CLASS__, 'shell')->render());
+		\chmod($filename, 0777);
+	}
+
+	/**
+	 * get the filename for the cli shell
+	 *
+	 * @return string
+	 */
+	public static function getShellFilename()
+	{
+		return
+			\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
+			Module::NAME . DIRECTORY_SEPARATOR .
+			'cli' . DIRECTORY_SEPARATOR .
+			'php-' . Config::getMode();
+	}
+
+	/**
+	 *
+	 */
+	public static function checkCoreConfigResources()
+	{
+		if (self::getVarAndConfigFoldersAreAvailable()) {
+			if (defined('\Foomo\CORE_CONFIG_DIR_CONFIG')) {
+				self::checkResourceFolder(\Foomo\CORE_CONFIG_DIR_CONFIG, '\Foomo\CORE_CONFIG_DIR_CONFIG');
+				self::checkLayout(\Foomo\CORE_CONFIG_DIR_CONFIG, self::$configDirLayout);
+			}
+			if (defined('\Foomo\CORE_CONFIG_DIR_VAR')) {
+				self::checkResourceFolder(\Foomo\CORE_CONFIG_DIR_VAR, '\Foomo\CORE_CONFIG_DIR_VAR');
+				self::checkLayout(\Foomo\CORE_CONFIG_DIR_VAR, self::$varDirLayout);
+			}
+		}
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $rootFolder
+	 * @param array $layout
+	 */
 	private static function checkLayout($rootFolder, $layout)
 	{
 		foreach ($layout['common'] as $commonDir) {
@@ -85,45 +164,10 @@ class Setup {
 	}
 
 	/**
-	 * generate the cli inc
 	 *
-	 * @return boolean
+	 * @param string $folder
+	 * @param string $type
 	 */
-	public static function generateShell()
-	{
-		$filename = self::getShellFilename();
-		file_put_contents($filename, Module::getView(__CLASS__, 'shell')->render());
-		\chmod($filename, 0777);
-	}
-
-	/**
-	 * get the filename for the cli shell
-	 * 
-	 * @return string
-	 */
-	public static function getShellFilename()
-	{
-		return 
-			\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
-			Module::NAME . DIRECTORY_SEPARATOR .
-			'cli' . DIRECTORY_SEPARATOR .
-			'php-' . Config::getMode();
-	}
-
-	public static function checkCoreConfigResources()
-	{
-		if (self::getVarAndConfigFoldersAreAvailable()) {
-			if (defined('\Foomo\CORE_CONFIG_DIR_CONFIG')) {
-				self::checkResourceFolder(\Foomo\CORE_CONFIG_DIR_CONFIG, '\Foomo\CORE_CONFIG_DIR_CONFIG');
-				self::checkLayout(\Foomo\CORE_CONFIG_DIR_CONFIG, self::$configDirLayout);
-			}
-			if (defined('\Foomo\CORE_CONFIG_DIR_VAR')) {
-				self::checkResourceFolder(\Foomo\CORE_CONFIG_DIR_VAR, '\Foomo\CORE_CONFIG_DIR_VAR');
-				self::checkLayout(\Foomo\CORE_CONFIG_DIR_VAR, self::$varDirLayout);
-			}
-		}
-	}
-
 	private static function checkResourceFolder($folder, $type)
 	{
 		if (!is_dir($folder)) {
@@ -132,5 +176,4 @@ class Setup {
 			trigger_error($msg, E_USER_ERROR);
 		}
 	}
-
 }

@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\Log;
@@ -12,17 +25,21 @@ use Foomo\Module;
 
 /**
  * collects data and writes logging entries
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class Logger {
 	/**
 	 * number of errors recorded during the current process lifetime
-	 * 
+	 *
 	 * @var integer
 	 */
 	public $errorCount = 0;
 	/**
 	 * last error
-	 * 
+	 *
 	 * @var array
 	 */
 	public $lastError;
@@ -46,12 +63,12 @@ class Logger {
 	public $autoExitOnError = true;
 	private function __construct()
 	{
-		
+
 	}
 
 	/**
 	 * me singleton
-	 * 
+	 *
 	 * @return Logger
 	 */
 	public static function getInstance()
@@ -103,9 +120,9 @@ class Logger {
 	}
 	/**
 	 * stringify and chop off a variable
-	 * 
+	 *
 	 * @param mixed $var
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getVarAsString($var)
@@ -137,7 +154,7 @@ class Logger {
 		/*
 		if(error_reporting() == 0) {
 			// sbdy put an @ in front what ever he was doing and let us hope he knew what he did
-			// might be interesting for the future as well 
+			// might be interesting for the future as well
 		}
 		*/
 		$this->lastError = array('no' => $errno, 'str' => $errstr, 'file' => $errfile, 'line' => $errline, 'error_reporting' => error_reporting());
@@ -339,8 +356,8 @@ class Logger {
 
 	/**
 	 * return the file /path/to/your/root/var/<runmode>/logs/foomoLogger
-	 * 
-	 * @return string 
+	 *
+	 * @return string
 	 */
 	public static function getLoggerFile()
 	{

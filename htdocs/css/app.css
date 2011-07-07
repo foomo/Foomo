@@ -1,51 +1,345 @@
 
+/* --- Globals -------------------------------------------------------------------------------- */
+
+
+body {
+	font: normal 13px Arial, Helvetica, Verdana;
+	line-height: 17px;
+	text-align: left;
+	color: #0d2746;
+	background: #f6f6f6;
+}
+
+a {
+	text-decoration: underline;
+	color: #0d2746;
+}
+
+a:hover {
+	text-decoration: none;
+}
+
+
+#page {
+    width: 100%;
+    height: 100%;
+	background: url('/foomo/img/site/bg.gif') repeat-x top #f6f6f6;
+}
+
+
+
+/* --- Header -------------------------------------------------------------------------------- */
+
+
 header {
-	
+    position: relative;
+	margin: 0 auto;
+    width: 960px;
+    height: 65px;
+    color: #ffffff;
+}
+
+header #infoTop {
+    position: absolute;
+    top: 2px;
+	width: 480px;
+	color: #0d2746;
+}
+
+header #infoTop div{
+    position: relative;
+	float: left;
+    margin: 0 30px 0 0;
+}
+
+header #menuTop {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    text-align: right;
+	width: 480px;
+	color: #0d2746;
+}
+
+header #menuTop div{
+    position: relative;
+	float: right;
+    margin: 0 0 0 30px;
+}
+
+header #logoBox {
+    position: absolute;
+    top: 30px;
+}
+
+header #logoBox #version{
+    position: absolute;
+    top: 7px;
+    left: 106px;
+    width: 80px;
+    font-size: 11px;
+}
+
+
+
+
+
+/* --- Menu -------------------------------------------------------------------------------- */
+
+#menuMain {
+    position: relative;
+	margin: 8px auto 0;
+    width: 960px;
+	height: 27px;
+}
+
+#menuMain .selected {
+	color: #ffffff;
+	border-bottom: 2px solid #ffffff;
+}
+
+#menuMain .selected a {
+	color: #ffffff;
 }
 
 #menuMain ul {
-	padding:0;
-}
-#menuMain li {
-	font-size: 125%;
-	display: inline;
-	padding-right: 8px;
+	position:relative;
+	height: 27px;
 }
 
-#main {
-	
+#menuMain ul li {
+	position:relative;
+	float: left;
+	font: bold 16px 'Ubuntu', Arial, Helvetica, Verdana;
+	height: 25px;
+	margin: 0 40px 0 0;
+}
+
+#menuMain ul li a{
+	display: block;
+	color: #ffd700;
+	text-decoration: none;
+    padding: 0 0 9px;
+}
+
+#menuMain ul li a:hover{
+	color: #ffffff;
+}
+
+#menuMain .level1 {
+	position:absolute;
+	left: -999em;
+	width: 200px;
+	z-index:1500;
+	background: #0d2746;
+	border: 1px solid #000000;
+}
+
+#menuMain .level1 ul li{
+	clear: both;
+	position:relative;
+	font: bold 13px Arial, Helvetica, Verdana;
+	margin: 0;
+	padding: 10px 10px;
+	width: 180px;
+	height: auto;
+	cursor: pointer;
+	color: #ffd700;
+	border-bottom: 1px solid #000000;
+}
+
+#menuMain ul li.down{
+	background: url('/foomo/img/site/graphics.png') no-repeat;
+	background-position: right -80px;
+}
+
+#menuMain .level1 ul li a{
+	padding: 0;
+	color: #ffd700;
+}
+
+#menuMain .level1 ul li a:hover{
+	color: #ffffff;
+}
+
+#menuMain .level0 li:hover .level1 {
+	left: -10px;
+}
+
+#menuMain .level1 div {
+	position:absolute;
+	top: -999em;
+	left: 200px;
+	width: 200px;
+	z-index:1500;
+	background: #0d2746;
+	border: 1px solid #000000;
+}
+
+#menuMain .level1 li:hover div {
+	top: -1px;
 }
 
 
+
+
+
+#breadcrumb {
+	position: relative;
+	margin: 4px auto 0;
+    width: 960px;
+	height: 22px;
+	border-bottom: 1px solid #cacaca;
+}
+
+
+
+
+
+/* --- Content -------------------------------------------------------------------------------- */
 
 #fullContent {
-	
+    position: relative;
+	margin: 20px auto 0;
+    width: 960px;
 }
 
-#appContent {
-	float:left;
-	padding-left: 20px;
+#fullContent li {
+	padding: 0 0 0 20px;
 }
+
+
+
+
+
+#main {
+    position: relative;
+	margin: 20px auto 0;
+    width: 960px;
+
+}
+
+#main li {
+	padding: 2px 0 2px 20px;
+}
+
+
+
 
 #menuSub {
-	min-width: 300px;
-	float:left;
-}
-#menuSub li {
-	list-style-type: none;
-}
-#menuSub ul {
-	padding: 0;
-}
-footer {
-	position:fixed;
-	right:0;
-	bottom:0;
+	clear: left;
+    position: relative;
+    width: 960px;
+	min-height: 45px;
 }
 
-.valid {
-	color: green;
+#menuSub li {
+	float: left;
+	margin: 0 10px 0 0;
+	padding: 0;
+	height: 35px;
 }
-.invalid {
-	color:red;
+
+#menuSub .menuSubButton {
+       position: relative;
+       margin: -2px 0 0 0;
+       cursor: pointer;
+}
+#menuSub .menuSubButton a {
+       font-weight: bold;
+       color: #0d2746;
+       text-decoration: none;
+}
+#menuSub .menuSubButton a:hover, #menuSub .menuSubButton a .selected{
+       color: #ffffff;
+}
+#menuSub .menuSubButton a:hover #buttonLeft {
+       background-position: left -40px;
+}
+#menuSub .menuSubButton a:hover #buttonLeft.selected, #menuSub .menuSubButton #buttonLeft.selected {
+       background-position: left -80px;
+}
+
+#menuSub .menuSubButton a:hover #buttonMiddle {
+       background-position: center -40px;
+}
+#menuSub .menuSubButton a:hover #buttonMiddle.selected, #menuSub .menuSubButton #buttonMiddle.selected {
+       background-position: center -80px;
+}
+
+#menuSub .menuSubButton a:hover #buttonRight {
+       background-position: right -40px;
+}
+#menuSub .menuSubButton a:hover #buttonRight.selected, #menuSub .menuSubButton #buttonRight.selected {
+       background-position: right -80px;
+}
+#menuSub .menuSubButton #buttonLeft {
+       position: relative;
+       float: left;
+       width: 10px;
+       height: 25px;
+       background: url('/foomo/img/site/buttons.png') no-repeat left top;
+}
+#menuSub .menuSubButton #buttonMiddle {
+       position: relative;
+       float: left;
+       padding: 2px 0 0 0;
+       height: 25px;
+       background: url('/foomo/img/site/buttons.png') no-repeat center top;
+}
+#menuSub .menuSubButton #buttonRight {
+       position: relative;
+       float: left;
+       width: 10px;
+       height: 25px;
+       background: url('/foomo/img/site/buttons.png') no-repeat right top;
+}
+
+
+
+
+
+
+
+#appContent {
+	clear: left;
+    position: relative;
+}
+
+
+
+
+
+/* --- Footer -------------------------------------------------------------------------------- */
+
+footer {
+    clear: left;
+    position: relative;
+	margin: 40px auto 0;
+    width: 960px;
+	height: 40px;
+    border-top: 1px solid #cacaca;
+}
+
+footer #copyright{
+	position: absolute;
+	width: 480px;
+	top: 5px;
+}
+
+footer #copyright a{
+	text-decoration: none;
+}
+
+footer #info {
+	position: absolute;
+	width: 480px;
+	top: 5px;
+	right: 0;
+}
+
+footer #info div {
+    position: relative;
+	float: right;
+    margin: 0 0 0 30px;
 }

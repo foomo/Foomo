@@ -1,9 +1,31 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\Config\Spec;
 
 use Foomo\Config\Utils;
 
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
 class ConfigWorld {
 	public $testDomains = array('none' => null, 'mock' => 'myMockTestDomain');
 	public function cleanUp()
@@ -27,24 +49,24 @@ class ConfigWorld {
 	 */
 	public $testCase;
 	/**
-	 * @story given config does not exist for <?= $name . '/' . $domain ?> 
-	 * 
+	 * @story given config does not exist for <?= $name . '/' . $domain ?>
+	 *
 	 * @param string $module
 	 * @param string $name
 	 * @param string $domain
-	 * 
+	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
 	public function givenConfigDoesNotExist($module, $name, $domain) {
 		$this->testCase->assertFalse(\Foomo\Config::confExists($module, $name, $domain));
 	}
 	/**
-	 * @story when config is created <?= $name . '/' . $domain ?> 
-	 * 
-	 * @param string $module 
-	 * @param string $name 
+	 * @story when config is created <?= $name . '/' . $domain ?>
+	 *
+	 * @param string $module
+	 * @param string $name
 	 * @param string $domain
-	 * 
+	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
 	public function whenConfigIsCreatedFromDefault($module, $name, $domain)
@@ -52,18 +74,18 @@ class ConfigWorld {
 		\Foomo\Config::setConf(\Foomo\Config::getDefaultConfig($name), $module, $domain);
 	}
 	/**
-	 * @story then config exists for <?= $name . '/' . $domain ?> 
+	 * @story then config exists for <?= $name . '/' . $domain ?>
 	 * @param string $module
 	 * @param string $name
 	 * @param unknown $domain
-	 * 
+	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function thenConfigExists($module, $name, $domain) 
+	public function thenConfigExists($module, $name, $domain)
 	{
 		$this->testCase->assertTrue(\Foomo\Config::confExists($module, $name, $domain));
-	}	
-	
+	}
+
 	/**
 	 * @story given no old config exists
 	 * @return Foomo\Config\Spec\ConfigWorld
@@ -120,6 +142,6 @@ class ConfigWorld {
 		$oldConfigs = Utils::getOldConfigs();
 		$oldConfigCount = count($oldConfigs);
 		$this->testCase->assertTrue($oldConfigCount == 0, 'old config count should have been 0 got: ' . $oldConfigCount );
-	}	
-	
+	}
+
 }

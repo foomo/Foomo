@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
@@ -10,6 +23,10 @@ use Foomo\Modules\Manager;
 
 /**
  * manage foomo from the command line
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class CliManager {
 
@@ -25,11 +42,11 @@ class CliManager {
 
 	/**
 	 * create a module
-	 * 
+	 *
 	 * @param string $name name of the module
 	 * @param string $description short description
 	 * @param string[] $dependencies modules that are needed to run this module
-	 * 
+	 *
 	 * @return string
 	 */
 	public function createModule($name, $description, $dependencies)
@@ -77,8 +94,8 @@ class CliManager {
 	/**
 	 * get a config
 	 *
-	 * @param string $module 
-	 * @param string $domain 
+	 * @param string $module
+	 * @param string $domain
 	 * @param string $subDomain
 	 *
 	 * @return array
@@ -96,7 +113,7 @@ class CliManager {
 	 * @param string $module
 	 * @param string $domain
 	 * @param string $subDomain
-	 * 
+	 *
 	 * @return array
 	 */
 	public function setConfig($configFile, $module, $domain, $subDomain = null)
@@ -113,10 +130,10 @@ class CliManager {
 
 	/**
 	 * Edit a config with $EDITOR
-	 * 
-	 * @param string $module 
-	 * @param string $domain 
-	 * @param string $subDomain 
+	 *
+	 * @param string $module
+	 * @param string $domain
+	 * @param string $subDomain
 	 */
 	public function editConfig($module, $domain, $subDomain = null)
 	{

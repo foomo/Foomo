@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo\Cache\Persistence\Queryable;
@@ -10,6 +23,10 @@ use \PDO;
 
 /**
  * A PDO peristor implementation. In its present form only for mysql.
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterface {
 	/**
@@ -132,7 +149,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 					 */
 					//trigger_error(__METHOD__ . ' trying to create the table. table was not there!' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 					$this->createTableForResource($resource);
-					//call save again after table was created. 
+					//call save again after table was created.
 					return $this->save($resource);
 					return true;
 				} else {
@@ -597,7 +614,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 * get all cached resource names
-	 * 
+	 *
 	 * @return array of resource names
 	 */
 	public function getCachedResourceNames() {
@@ -949,7 +966,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 * get a db connection
-	 * @throws Foomo\Doctrine\UnsupportedDatabaseTypeException
+	 *
 	 * @return \Doctrine\DBAL\Connection
 	 */
 	private function parseConfig($configStr, &$type, &$serverName, &$port, &$dbName, &$username, &$password) {

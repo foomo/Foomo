@@ -21,6 +21,7 @@ foreach($resources as $k => $modResource) {
 }
 ?>
 </ul>
+<br>
 <? if(!$allValid):?>
-	<?= $view->link('try create missing resoures for ' . $moduleName, 'actionTryCreateModuleResources', array($moduleName)) ?>
+	<?= $view->link('try create missing resoures for ' . $moduleName, 'actionTryCreateModuleResources', array($moduleName), array('class' => 'linkButtonGrey')) ?>
 <? endif; ?>

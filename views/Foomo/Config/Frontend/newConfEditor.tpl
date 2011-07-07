@@ -1,24 +1,36 @@
 <?= $view->partial('menu') ?>
 <div id="appContent">
+	
 	<form method="POST" action="<?= $view->url('actionCreateConf') ?>">
-		<p>Module</p>
-		<p>
-			<select name="module">
-				<? foreach(Foomo\Modules\Manager::getEnabledModules() as $moduleName): ?>
-					<option><?= $moduleName ?></option>
-				<? endforeach; ?>
-			</select>
-		</p>
-		<p>Module subdomain (optional)</p>
-		<p><input type="text" name="subDomain"></p>
-		<p>domain</p>
-		<p>
-			<select name="domain">
-				<? foreach(Foomo\Config\Utils::getAllDomainConfigClasses() as $domain => $className): ?>
-					<option value="<?= $domain ?>"><?= $domain . ' - ' . $className; ?></option>
-				<? endforeach; ?>
-			</select>
-		</p>
-		<p><input type="submit" value="create"/></p>
+		<div class="greyBox">
+			
+			<div class="formBox">	
+				<div class="formTitle">Module</div>
+				<select name="module">
+					<? foreach(Foomo\Modules\Manager::getEnabledModules() as $moduleName): ?>
+						<option><?= $moduleName ?></option>
+					<? endforeach; ?>
+				</select>
+			</div>
+		
+			<div class="formBox">
+				<div class="formTitle">Module subdomain (optional)</div>
+				<input type="text" name="subDomain">
+			</div>
+			
+			<div class="formBox">
+				<div class="formTitle">Domain</div>
+				<select name="domain">
+					<? foreach(Foomo\Config\Utils::getAllDomainConfigClasses() as $domain => $className): ?>
+						<option value="<?= $domain ?>"><?= $domain . ' - ' . $className; ?></option>
+					<? endforeach; ?>
+				</select>
+			</div>
+			<div class="formBox">
+				<input class="submitButton" type="submit" value="Create Configuration"/>
+			</div>
+			
+		</div>
 	</form>
+	
 </div>

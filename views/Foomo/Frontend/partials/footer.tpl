@@ -1,7 +1,7 @@
 <footer>
-	<small title="php runtime to boot the framework and execute this frontend in milliseconds">
-		boot: %foomoRunTimeBoot%,
-		run: %foomoRunTimeRun%
-		<a href="http://www.bestbytes.com" target="_bestbytes" title="most of this stuff will be free as in beer 1999 - <?= date('Y') ?> license pending">&copy; bestbytes</a>
-	</small>
+	<div id="copyright">&copy; <a href="http://www.bestbytes.com" target="_blank">bestbytes</a></div>
+	<div id="info">
+		<div>Run: <b>%foomoRunTimeRun%</b>ms</div>
+		<div>Boot: <b>%foomoRunTimeBoot%</b>ms</div>
+	</div>
 </footer>

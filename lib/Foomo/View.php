@@ -6,12 +6,17 @@
 
 namespace Foomo;
 
-use Exception;
-
 /**
- * yet another view
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ * @author franklin <franklin@weareinteractive.com>
  */
-class View {
+class View
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * current exception
@@ -31,6 +36,11 @@ class View {
 	 * @var Template
 	 */
 	protected $template;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
 	public function __construct(Template $template, $model = null, \Exception $exception = null)
 	{
 		$this->exception = $exception;
@@ -38,12 +48,27 @@ class View {
 		$this->template = $template;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Magic methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->render();
 	}
 
-	public function render($variables = array())
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param array $variables
+	 * @return string
+	 */
+	public function render($variables=array())
 	{
 		return $this->template->render($this->model, $this, $this->exception, $variables);
 	}
@@ -66,6 +91,36 @@ class View {
 	}
 
 	/**
+	 * Indent lines by given value
+	 *
+	 * @param string $lines lines to intend
+	 * @param int $indent number of intends
+	 * @return string indented lines
+	 */
+	public function indent($lines, $indent=1)
+	{
+		$output = array();
+		$lines = explode(PHP_EOL, $lines);
+		foreach($lines as $line) $output[] = str_repeat(chr(9), $indent) . $line;
+		return implode(PHP_EOL, $output);
+	}
+
+	/**
+	 * escape from XSS
+	 *
+	 * @param string $string untrusted data
+	 * @return string escaped / sanitized string
+	 */
+	public function escape($string)
+	{
+		return htmlspecialchars($string);
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
 	 * get a view instance the lazy way
 	 *
 	 * @param string $templateFile
@@ -73,13 +128,13 @@ class View {
 	 *
 	 * @return Foomo\View
 	 */
-	public static function fromFile($templateFile, $model = null)
+	public static function fromFile($templateFile, $model=null)
 	{
-		if(file_exists($templateFile)) {
+		if (file_exists($templateFile)) {
 			return new self(new Template(basename($templateFile), $templateFile), $model);
 		} else {
+			trigger_error('Template file ' . $templateFile . ' for view does not exist!', E_USER_WARNING);
 			return null;
 		}
 	}
-
 }

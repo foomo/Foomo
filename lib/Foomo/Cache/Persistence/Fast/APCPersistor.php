@@ -1,9 +1,30 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\Cache\Persistence\Fast;
 
 /**
  * fast cache persistor using APC
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
 class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 
@@ -18,7 +39,7 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 
 		$id = $this->getId($resource->id);
 		if(!apc_store($id, $resource, $expiration)) {
-			
+
 			////////////////////////////////////////////////////////////////////
 			// this is a very ugly hack:
 			//
@@ -39,10 +60,10 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 					trigger_error('could not remove apc persisitor fake entry for ' . $resource->id . ' ' . $fakeId);
 				}
 			}
-			
+
 			return false; // resource was not saved
 		}
-		
+
 		return true;
 	}
 	private function getId($id)
@@ -67,7 +88,7 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 
 	public function __construct($config) {
 		if (!function_exists('apc_store')) {
-			throw new Exception('can not use this cach driver without apc', 1);
+			throw new \Exception('can not use this cache driver without apc', 1);
 		}
 	}
 

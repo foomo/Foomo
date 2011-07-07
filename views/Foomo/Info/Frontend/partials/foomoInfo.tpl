@@ -1,4 +1,4 @@
-<table title="environment">
+<table>
 	<thead>
 		<tr>
 			<td>Name</td>
@@ -25,11 +25,11 @@ $env = array(
 		'required' => true
 	),
 	'Foomo\\ROOT_HTTP' => array(
-		'docs' => 'that is where',
+		'docs' => 'that is where this toolbox is',
 		'required' => false
 	),
 	'Foomo\\CORE_CONFIG_DIR_MODULES' => array(
-		'docs' => 'modules root folder usually \Foomo\ROOT/modules can be overwritten with $_SERVER[\'\Foomo\CORE_CONFIG_DIR_MODULES\']',
+		'docs' => 'modules root folder usually \Foomo\ROOT/modules',
 		'required' => false
 	),
 	'Foomo\\CORE_CONFIG_DIR_VAR' => array(
@@ -64,8 +64,8 @@ foreach($env as $name => $info):
 ?>
 	<tr class="<?= (is_null($value) && $info['required'])?'notOk':'ok' ?>">
 		<td><?= $name ?></td>
-		<td><?= htmlspecialchars($value) ?></td>
-		<td><?= htmlspecialchars($source) ?></td>
+		<td><?= $view->escape($value) ?></td>
+		<td><?= $view->escape($source) ?></td>
 		<td><?= ($info['required']?'yes':'no') ?></td>
 	</tr>
 	<? if(isset($env[$name])): ?>

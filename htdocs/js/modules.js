@@ -1,22 +1,83 @@
-function showAllResources()
-{
-	document.getElementById('hideModulesButton').style['display'] = 'block'; 
-	document.getElementById('showModulesButton').style['display'] = 'none'; 
-	allResourcesDisplay('table-cell');
+/* --- INITIALIZATION --------------------------------------------------------- */
+
+$(document).ready(function() {
+	
+	// create Foomo
+	window.foomo = new Foomo;
+	
+	// create ToggleBox
+	window.toggleBox = new Foomo.ToggleBox;
+	
+	// create TabBox
+	window.tabBox = new Foomo.TabBox;
+	
+});
+
+
+
+
+
+/* --- Foomo --------------------------------------------------------- */
+
+Foomo = function(){}
+
+
+
+
+
+/* --- Toggle Box --------------------------------------------------------- */
+
+Foomo.ToggleBox = function() {
+	
+	var a = this;
+	$(".toggleBox div.toogleButton").live('click', function(event) {
+		a.clickHandler(event);
+	});
+	
 }
 
-function hideAllResources()
-{
-	document.getElementById('hideModulesButton').style['display'] = 'none'; 
-	document.getElementById('showModulesButton').style['display'] = 'block'; 
-	allResourcesDisplay('none');
+Foomo.ToggleBox.prototype = {
+	
+	clickHandler: function(event) {
+		//console.log("clicker ");
+		
+		$(event.currentTarget).parent('.toggleBox').find('.toggleContent:first').toggle();
+		
+		if($(event.currentTarget).parent('.toggleBox').find('.toggleContent:first').is(':hidden')){
+			$(event.currentTarget).find('.toggleOpenIcon').text('+');
+		} else {
+			$(event.currentTarget).find('.toggleOpenIcon').text('-');
+		}
+	}
+	
 }
 
-function allResourcesDisplay(display)
-{
-	i=0;
-	while(resEl = document.getElementById('resourceDisplay_' + i)) {
-		resEl.style['display'] = display;
-		i++;
+
+
+
+
+/* --- Toggle Box --------------------------------------------------------- */
+
+Foomo.TabBox = function() {
+	
+	var a = this;
+	$(".tabBox div.tabNavi li").live('click', function(event) {
+		a.clickHandler(event);
+	});
+	
+}
+
+Foomo.TabBox.prototype = {
+	
+	clickHandler: function(event) {
+		//console.log("clicker "+$(event.currentTarget).index() );
+		
+		$(event.currentTarget).parents('.tabNavi:first').find('li').removeClass('selected');
+		$(event.currentTarget).addClass('selected');
+		
+		
+		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first > .tabContent').hide();
+		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first > .tabContent-'+( $(event.currentTarget).index()+1 )).show();
+		
 	}
 }

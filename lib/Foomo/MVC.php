@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
@@ -17,11 +30,15 @@ use ReflectionClass;
 
 /**
  * a simple MVC implementation
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo add a router
  * @todo add haml lesscss support
  */
-class MVC {
-
+class MVC
+{
 	private static $level = 0;
 	public static $handlers = array();
 	private static $pathArray = array();
@@ -51,9 +68,10 @@ class MVC {
 	 *
 	 * @param mixed $app name or application instance
 	 * @param string $baseURL inject a baseURL
+	 * @param boolean $forceBaseURL force injection of a baseURL
 	 * @return string
 	 */
-	public static function run($app, $baseURL = null)
+	public static function run($app, $baseURL=null, $forceBaseURL=false)
 	{
 		// set up the application
 
@@ -67,7 +85,7 @@ class MVC {
 		// set up the url handler and pass it the application id (still can be ovewwritten by the controller id)
 
 
-		$handler = new URLHandler($app, self::getBaseUrl($baseURL));
+		$handler = new URLHandler($app, self::getBaseUrl($baseURL, $forceBaseURL));
 
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
 
@@ -166,9 +184,18 @@ class MVC {
 		return self::$caughtViews;
 	}
 
-	public static function getBaseUrl($baseURL = null)
+	/**
+	 * @todo: added force as there i cant set the baseurl otherwise
+	 *
+	 * @param string $baseURL
+	 * @param boolean $force
+	 * @return string
+	 */
+	public static function getBaseUrl($baseURL=null, $force=false)
 	{
-		if (count(MVCView::$viewStack) > 0) {
+		if ($force && !is_null($baseURL)) {
+			return $baseURL;
+		} else if (count(MVCView::$viewStack) > 0) {
 			return MVCView::$viewStack[count(MVCView::$viewStack) - 1]->path;
 		} else if (!$baseURL) {
 			$baseURL = $_SERVER['SCRIPT_NAME'];
@@ -316,5 +343,4 @@ class MVC {
 		header('Location: ' . self::getCurrentURLHandler()->renderMethodURL($action, $parameters));
 		exit;
 	}
-
 }

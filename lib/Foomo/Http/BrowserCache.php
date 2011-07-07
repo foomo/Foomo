@@ -7,13 +7,14 @@
 namespace Foomo\Http;
 
 /**
- * 
  * handle the 304 not modified browser cache features documented in this RFC
- * 
- * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.3
- * 
- * @internal do not use this one yet
  *
+ * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.3
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ * @internal do not use this one yet
  */
 class BrowserCache {
 	/*
@@ -57,7 +58,7 @@ class BrowserCache {
 	private function __construct() {}
 
 	/**
-	 * private singleton 
+	 * private singleton
 	 *
 	 * @return BrowserCache
 	 */
@@ -91,9 +92,9 @@ class BrowserCache {
 
 	/**
 	 * check if the browser has a valid matching cache entry
-	 * 
+	 *
 	 * From http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.4
-	 * 
+	 *
 	 * - SHOULD send an entity tag validator unless it is not feasible to
 	 * 	 generate one.
 	 *
@@ -105,7 +106,7 @@ class BrowserCache {
 	 * 	 unless the risk of a breakdown in semantic transparency that
 	 * 	 could result from using this date in an If-Modified-Since header
 	 * 	 would lead to serious problems.
-	 * 
+	 *
 	 *
 	 * @return boolean true if the browser has a valid cache entry or false, if not
 	 */
@@ -171,7 +172,7 @@ class BrowserCache {
 	 *
 	 * @param integer $time a unix timestamp
 	 * @return string a formatted date
-	 * @internal 
+	 * @internal
 	 */
 	public static function getDate($time)
 	{
