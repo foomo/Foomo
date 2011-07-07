@@ -125,7 +125,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				trigger_error(__METHOD__ . ' failed in a transaction ' . $e->getMessage(), \E_USER_WARNING);
 				return false;
 			} else {
-				trigger_error(__METHOD__ . ' failed to save. is the resource table not there yet?' . $resource->name . $e->getMessage(), \E_USER_WARNING);
+				//trigger_error(__METHOD__ . ' failed to save. is the resource table not there yet?' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 				if (!$this->tableExists(self::tableNameFromResourceName($resource->name))) {
 					/**
 					 * if this throws an exception it will be caught at the manager level
