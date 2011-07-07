@@ -3,7 +3,6 @@
 /* @var $model Foomo\Cache\Frontend\Model */
 ?>
 <div id="fullContent">
-	<?= $view->partial('header') ?>
 
 	<?= $view->partial('menu') ?>
 	
@@ -34,7 +33,7 @@
 				<? else: ?>
 
 					<div class="greyBox">
-						<div class="innerBox" style="margin-left: 42px;">
+						<div class="innerBox" style="margin: 5px 5px 5px 42px;">
 							<b><?= $view->link($resourceName, 'showCachedItems', array($resourceName)) ?></b>
 						</div>
 					</div>

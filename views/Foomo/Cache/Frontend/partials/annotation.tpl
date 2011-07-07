@@ -12,7 +12,7 @@ $props = array(
 );
 
 ?>
-<div id="annotation">
+
 	@Foomo\Cache\CacheResourceDescription(
 		<?
 			$i = 0;
@@ -79,5 +79,5 @@ $props = array(
 			endforeach; 
 		?>
 )
-</div>
+
 

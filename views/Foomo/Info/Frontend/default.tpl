@@ -27,7 +27,9 @@ Session is not enabled!
 			<div class="toggleOpenContent">Enviroment</div>
 		</div>
 		<div class="toggleContent">
+			<div>
 			<?= $view->partial('foomoInfo') ?>
+			</div>
 		</div>
 	</div>
 

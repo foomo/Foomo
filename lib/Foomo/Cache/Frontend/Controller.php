@@ -114,7 +114,7 @@ class Controller {
 		\Foomo\MVC::abort();
 		header('Content-Type: text/plain');
 		echo 'Ivalidate called for resource with name ' . $resourceName . ' with invalidation policy ' . $invalidationPolicy . \PHP_EOL;
-		echo '-------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
+		echo '---------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
 		echo '--- as a result, the following cache resources will be invalidated:' . \PHP_EOL;
 
 		$this->model->currentResourceName = $resourceName;
@@ -169,7 +169,7 @@ class Controller {
 		\Foomo\MVC::abort();
 		header('Content-Type: text/plain');
 		echo 'Invalidation called for resource with name ' . $resourceName . ' and policy:' . $invalidationPolicy . \PHP_EOL;
-		echo '-------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
+		echo '---------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
 		echo 'the following cache resources will be invalidated:' . \PHP_EOL;
 		$this->model->currentResourceName = $resourceName;
 		$this->model->currentResourceId = null;
@@ -194,7 +194,7 @@ class Controller {
 		\Foomo\MVC::abort();
 		header('Content-Type: text/plain');
 		echo 'Preview of invalidation tree for resource with name ' . $resourceName . \PHP_EOL;
-		echo '-------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
+		echo '---------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
 		echo 'the following cache resources would be invalidated:' . \PHP_EOL;
 		$this->model->currentResourceName = $resourceName;
 		$this->model->currentResourceId = null;
@@ -220,7 +220,7 @@ class Controller {
 		\Foomo\MVC::abort();
 		header('Content-Type: text/plain');
 		echo 'Preview of invalidation for resource with name ' . $resourceName . ' and id ' . $resourceId . \PHP_EOL;
-		echo '-------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
+		echo '---------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
 		echo '--- the following cache resources would be invalidated:' . \PHP_EOL;
 
 		$this->model->currentResourceName = $resourceName;

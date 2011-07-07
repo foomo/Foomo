@@ -4,7 +4,7 @@
 
 pre {
 	margin: 5px;
-	
+	overflow: auto;
 }
 
 hr {
@@ -16,8 +16,8 @@ hr {
 
 h1 {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
-	font-size: 22px;
-	line-height: 26px;
+	font-size: 24px;
+	line-height: 1.9em;
 	color: #0d2746;
 	font-weight: normal;
 }
@@ -25,7 +25,7 @@ h1 {
 h2 {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
 	font-size: 18px;
-	line-height: 22px;
+	line-height: 1.9em;
 	color: #0d2746;
 	font-weight: normal;
 }
@@ -33,7 +33,7 @@ h2 {
 h3 {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
 	font-size: 15px;
-	line-height: 19px;
+	line-height: 1.9em;
 	color: #0d2746;
 	font-weight: normal;
 }
@@ -42,13 +42,23 @@ br {
 	clear: both;
 }
 
-.textRed, #errorMessage {
+.textRed, .nok, .invalid {
 	color: #c50707;
 }
 
-.textGreen {
+.textGreen, .ok, .valid {
 	color: #07c519;
 	
+}
+
+table {
+	width: 98%;
+}
+
+table, td, th {
+	margin: 10px 1%;
+	border: 1px solid #0d2746;
+	padding: 7px;
 }
 
 
@@ -90,6 +100,12 @@ option {
 	background: #ffffff;
 }
 
+.radioButton {
+	width: auto;
+	border: 1px dotted #0d2746;
+	background: #ffffff;
+}
+
 .submitButton {
 	font: bold 13px Arial, Helvetica, Verdana;
 	margin: 5px 10px 10px 0;
@@ -104,6 +120,7 @@ option {
 }
 
 .formBox {
+	clear: both;
 	margin: 10px 20px 10px 10px;
 }
 
@@ -116,6 +133,12 @@ option {
 
 
 /* --- Boxes / Lines -------------------------------------------------------------------------------- */
+
+
+.greyLine {
+	margin: 10px;
+	border-bottom:1px solid #e8e8e8;
+}
 
 .greyBox {
 	position:relative;
@@ -143,13 +166,7 @@ option {
 
 .innerBox {
 	clear: both;
-	margin: 5px;
-}
-
-.greyLine {
 	margin: 10px;
-	border-bottom:1px solid #e8e8e8;
-	
 }
 
 .leftBox {
@@ -159,6 +176,12 @@ option {
 .rightBox {
 	position: absolute;
 	right: 0;
+	top: 5px;
+}
+
+.horizontalBox {
+	clear: both;
+	margin: 0 10px;
 }
 
 .halfBox {
@@ -173,12 +196,20 @@ option {
 	float: left;
 }
 
+.floatLeftSpaceBox {
+	position: relative;
+	float: left;
+	margin: 0 30px 0 0;
+	text-align: center;
+}
 
-.floatMenu1 a{
-	margin: 0 0 30px 0;
+.clearBox {
+	position: relative;
+	clear: both;
 }
 
 .floatMenu {
+	position: relative;
 	clear: both;
 }
 
@@ -186,7 +217,7 @@ option {
 	margin: 0;
 	padding: 0;
 }
-.floatMenu li{
+.floatMenu ul li{
 	position: relative;
 	float: left;
 	margin: 0 10px 15px 0;
@@ -196,7 +227,23 @@ option {
 	margin: 0;
 }
 
+.listBox li{
+	padding: 0 !important;
+}
 
+.errorMessage {
+	position:relative;
+	clear: both;
+	margin: 10px 0;
+	padding:10px;
+	width: 47%;
+	color: #c50707;
+	border: 1px solid #e9c5c5;
+	background: #f5e9e9;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
 
 
 
@@ -207,6 +254,18 @@ option {
 .linkButtonYellow {
 	position: relative;
 	padding: 4px 10px;
+	text-decoration: none;
+	font-weight: bold;
+	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.linkButtonSmallYellow {
+	position: relative;
+	padding: 0 5px;
 	text-decoration: none;
 	font-weight: bold;
 	background: #ffd700;
@@ -238,6 +297,7 @@ option {
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
 }
+
 
 
 
@@ -347,86 +407,3 @@ option {
 }
 
 
-
-
-
-/* --- Configuration -------------------------------------------------------------------------------- */
-
-
-/*
-#moduleBox b {
-	float:left;
-}
-
-#moduleBox span {
-	float:left;
-}
-
-#moduleBox .detail {
-	clear: both;
-	position: relative;
-}
-
-#moduleBox .show {
-	clear: both;
-	position: relative;
-}
-
-#ctrlButtons {
-	float: left;
-	margin: 0 0 0 80px;
-}
-
-#ctrlButtons li {
-	float: left;
-	margin: 0 10px 0 0;
-	padding: 0;
-}
-
-#moduleBox #moduleHistoryItem{
-	clear: both;
-	position: relative;
-	width: 920px;
-	height: 22px;
-	margin: 2px 0;
-	padding: 7px 5px 3px;
-	background: #f6f6f6;
-}
-
-#moduleBox #moduleItem{
-	clear: both;
-	position: relative;
-	height: 22px;
-	padding: 7px 0 3px;
-}
-
-*/
-
-
-table {border-collapse: collapse;margin: 10px;width:100%}
-
-td, th { border: 1px solid #002f2f; font-size: 75%; vertical-align: baseline;padding:10px;}
-
-
-/* foomo info */
-#foomoInfo table, #foomoInfo td {
-	border : 1px solid grey;
-}
-#foomoInfo table {
-	width:100%;
-}
-
-.ok {
-  color : green;
-}
-.nok {
-  color : red;
-}
-
-
-.valid {
-	color: green;
-}
-.invalid {
-	color:red;
-}

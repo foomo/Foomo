@@ -22,25 +22,25 @@ foreach($userSetProps as $param) {
 }
 ?>
 
-<p>Parsed data</p>
-<?= $view->partial('annotation', (array) $resourceRefl->description) ?>
-
-<p>Derived from</p>
+Parsed data<br>
+<b><?= $view->partial('annotation', (array) $resourceRefl->description) ?></b><br>
+<br>
+Derived from<br>
 <pre>
+<?
 /**
  * orginal doc comment @jan todo
  */
+?>
 </pre>
 <? 
 
 ?>
 
-<div id="errorMessage">
-	<? if(count ($unknown) > 0): ?>
+<? if(count ($unknown) > 0): ?>
+<div class="errorMessage">
 		The following unsupported parameter(s) were found and ignored in the resource annotation: 
-		<p><?= \implode(', ', $unknown)?></p>
-	<? endif; ?>
-	<div>
-		<?= $view->escape($model->getAnnotationValidationStatus($model->currentResourceName))?>
-	</div>
+		<br><b><?= \implode(', ', $unknown)?></b><br>
+		<b><?= $view->escape($model->getAnnotationValidationStatus($model->currentResourceName))?></b>
 </div>
+<? endif; ?>

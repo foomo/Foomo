@@ -1,3 +1,4 @@
+
 /* --- INITIALIZATION --------------------------------------------------------- */
 
 $(document).ready(function() {
@@ -11,6 +12,14 @@ $(document).ready(function() {
 	// create TabBox
 	window.tabBox = new Foomo.TabBox;
 	
+	// create open Overlay
+	window.openOverlay = new Foomo.OpenOverlay;
+	
+	// create close Overlay
+	window.closeOverlay = new Foomo.CloseOverlay;
+	
+	// create close Overlay
+	window.backButton = new Foomo.BackButton;
 });
 
 
@@ -39,7 +48,6 @@ Foomo.ToggleBox = function() {
 Foomo.ToggleBox.prototype = {
 	
 	clickHandler: function(event) {
-		//console.log("clicker ");
 		
 		$(event.currentTarget).parent('.toggleBox').find('.toggleContent:first').toggle();
 		
@@ -70,14 +78,82 @@ Foomo.TabBox = function() {
 Foomo.TabBox.prototype = {
 	
 	clickHandler: function(event) {
-		//console.log("clicker "+$(event.currentTarget).index() );
-		
+
 		$(event.currentTarget).parents('.tabNavi:first').find('li').removeClass('selected');
 		$(event.currentTarget).addClass('selected');
 		
 		
 		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first > .tabContent').hide();
 		$(event.currentTarget).parents('.tabBox:first').find('.tabContentBox:first > .tabContent-'+( $(event.currentTarget).index()+1 )).show();
+	}
+}
+
+
+
+
+
+/* --- Overlay --------------------------------------------------------- */
+
+Foomo.CloseOverlay = function() {
+	
+	var a = this;
+	$("#overlay .closeOverlay").live('click', function(event) {
+		a.clickHandler(event);
+	});
+	
+}
+
+Foomo.CloseOverlay.prototype = {
+	
+	clickHandler: function(event) {
+
+		$(event.currentTarget).parents('#overlay:first').hide();
+		$('#overlayFrame').attr('src', '');
+	}
+}
+
+Foomo.OpenOverlay = function() {
+	
+	var a = this;
+	$(".overlay").live('click', function(event) {
+		a.clickHandler(event);
+	});
+	
+}
+
+Foomo.OpenOverlay.prototype = {
+	
+	clickHandler: function(event) {
+		event.preventDefault();
 		
+		var url = $(event.target).attr('href');
+		
+		$('#overlayFrame').attr('src', url);
+		$("#overlay").show();
+
+	}
+}
+
+
+
+
+
+/* --- Back Button --------------------------------------------------------- */
+
+Foomo.BackButton = function() {
+	
+	var a = this;
+	$(".backButton").live('click', function(event) {
+		a.clickHandler(event);
+	});
+	
+}
+
+Foomo.BackButton.prototype = {
+	
+	clickHandler: function(event) {
+		//console.log("click");
+		event.preventDefault();
+		history.back();
 	}
 }
