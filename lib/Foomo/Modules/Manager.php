@@ -51,7 +51,24 @@ class Manager
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
-
+	/**
+	 * get the name of the module on whichs htdocs the $_SERVER['DOCUMENT_ROOT'] variable is pointing to
+	 * 
+	 * @internal
+	 * @return string
+	 */
+	public static function getDocumentRootModule()
+	{
+		if(!empty($_SERVER['DOCUMENT_ROOT'])) {
+			$realDocRoot = realpath($_SERVER['DOCUMENT_ROOT']);
+			foreach(self::getEnabledModules() as $enabledModuleName) {
+				$moduleHTDocs = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $enabledModuleName . DIRECTORY_SEPARATOR . 'htdocs';
+				if(file_exists($moduleHTDocs) && is_dir($moduleHTDocs) && $realDocRoot == realpath($moduleHTDocs)) {
+					return $enabledModuleName;
+				}
+			}
+		}
+	}
 	/**
 	 * get all available modules
 	 * every folder in modules will be interpreted as a module definition
