@@ -17,7 +17,9 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\MVC\View;
+namespace Foomo\MVC\View\Resource;
+
+use Foomo\MVC\View\Resource;
 
 /**
  * @link www.foomo.org
@@ -25,5 +27,14 @@ namespace Foomo\MVC\View;
  * @author jan <jan@bestbytes.de>
  */
 class CSS extends Resource {
-
+	
+	public static function getResources($moduleName, array $relPaths)
+	{
+		
+	}
+	
+	public static function getResource($moduleName, $relPath)
+	{
+		
+	}
 }
