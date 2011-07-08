@@ -404,7 +404,7 @@ class Manager {
 		$namesIterator = self::$queryablePersistor->getCachedResourceNames();
 		echo 'Populating fast cache with cached resources from queryable cache' . PHP_EOL;
 		foreach ($namesIterator as $resourceName) {
-			echo '--------------------------------------------------------------------------------------------------------------------------------------------------------------------------' . PHP_EOL;
+			echo '---------------------------------------------------------------------------------------------------------------' . PHP_EOL;
 			echo $resourceName[0] . PHP_EOL;
 			$expr = \Foomo\Cache\Persistence\Expr::idNe('we want all resources - this is not an id');
 			$resources = Manager::query($resourceName[0], $expr);

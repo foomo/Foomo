@@ -19,12 +19,35 @@ a:hover {
 	text-decoration: none;
 }
 
+a:visited {
+	color: #50627a;
+}
+
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a
+{
+	text-decoration:none;
+}
 
 #page {
+	position: absolute;
+	z-index: 100000;
+    width: 100%;
+    height: 100%;
+	overflow: auto;
+
+}
+
+#innerPage {
     width: 100%;
     height: 100%;
 	background: url('/foomo/img/site/bg.gif') repeat-x top #f6f6f6;
 }
+
 
 
 
@@ -342,4 +365,64 @@ footer #info div {
     position: relative;
 	float: right;
     margin: 0 0 0 30px;
+}
+
+
+
+
+
+/* --- Footer -------------------------------------------------------------------------------- */
+
+#overlay{
+	position: absolute;
+	z-index: 100001;
+	width: 100%;
+	height: 100%;
+	display: none;
+}
+
+#overlay .overlayBg {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: #0d2746;
+	cursor: pointer;
+	filter:alpha(opacity=90);
+	opacity:0.90;
+}
+
+#overlay .overlayContent {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin: -315px 0 0 -480px;
+	width: 960px;
+	height: 630px;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#overlay .overlayContent .overlayCloseBtn{
+	margin: 10px 10px 0 0;
+	float: right;
+	cursor: pointer;
+	height: 20px;
+	padding: 4px 10px;
+	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
+	font-size: 24px;
+	background: #ffd700;
+	border: 1px solid #d7d7d7;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+#overlay .overlayContent #overlayFrame{
+	position: relative;
+	margin: 0 10px 10px 10px;
+	width: 940px;
+	height: 590px;
+	background: #ffffff;
 }

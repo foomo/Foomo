@@ -143,11 +143,15 @@ abstract class ModuleBase
 	}
 
 	/**
+	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
-	public static function getVarDir()
+	public static function getVarDir($pathname='')
 	{
-		return \Foomo\Config::getVarDir(self::getModuleName());
+		$ret = \Foomo\Config::getVarDir(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
+		return $ret;
 	}
 
 	/**
@@ -158,16 +162,19 @@ abstract class ModuleBase
 	{
 		$ret = \Foomo\Config::getHtdocsVarDir(self::getModuleName());
 		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
-		if (!file_exists($pathname)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $pathname)->tryCreate();
+		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
 		return $ret;
 	}
 
 	/**
+	 * @param string $pathname append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsVarPath()
+	public static function getHtdocsVarPath($pathname='')
 	{
-		return \Foomo\Config::getHtdocsVarPath(self::getModuleName());
+		$ret = \Foomo\Config::getHtdocsVarPath(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		return $ret;
 	}
 
 	/**
@@ -299,13 +306,13 @@ abstract class ModuleBase
 	}
 
 	//---------------------------------------------------------------------------------------------
-	// ~ Private static methods
+	// ~ Protected static methods
 	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * @return string defined module name
 	 */
-	private static function getModuleName()
+	protected static function getModuleName()
 	{
 		return (!$name = constant(get_called_class() . '::NAME')) ? str_replace('\\', '.', get_called_class()) : $name;
 	}

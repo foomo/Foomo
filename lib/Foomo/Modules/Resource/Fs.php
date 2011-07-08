@@ -21,7 +21,7 @@ namespace Foomo\Modules\Resource;
 
 /**
  * a file system resource
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -60,9 +60,7 @@ class Fs extends \Foomo\Modules\Resource
 	 */
 	private function __construct($type, $filename)
 	{
-		if (!in_array($type, array(self::TYPE_FILE, self::TYPE_FOLDER))) {
-			throw new InvalidArgumentException();
-		}
+		if (!in_array($type, array(self::TYPE_FILE, self::TYPE_FOLDER))) throw new \InvalidArgumentException();
 		$this->type = $type;
 		$this->filename = $filename;
 	}

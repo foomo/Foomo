@@ -2,7 +2,6 @@
 /* @var $view Foomo\MVC\View */
 /* @var $model Foomo\Cache\Frontend\Model */
 ?>
-<?= $view->partial('header') ?>
 
 <h2>Rebuilt cached resources when issued for:  <?= $view->escape($model->currentResourceName) ?></h2>
 <?= $view->partial('menu') ?>

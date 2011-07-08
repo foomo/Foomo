@@ -2,7 +2,7 @@
 $resources = Foomo\Modules\Manager::getModuleResources($moduleName);
 if(count($resources) == 0) { return; }
 ?>
-<ul>
+<pre>
 <?
 $allValid = true;
 foreach($resources as $k => $modResource) {
@@ -17,11 +17,10 @@ foreach($resources as $k => $modResource) {
 		$allValid = false;
 		$modResClass = 'invalid';
 	}
-	echo '<li><pre class="'.$modResClass.'">'.htmlspecialchars($modResource->resourceStatus()).'</pre></li>';
+	echo '<span class="'.$modResClass.'">'.htmlspecialchars($modResource->resourceStatus()).'</span><br>';
 }
 ?>
-</ul>
-<br>
+</pre>
 <? if(!$allValid):?>
 	<?= $view->link('try create missing resoures for ' . $moduleName, 'actionTryCreateModuleResources', array($moduleName), array('class' => 'linkButtonGrey')) ?>
 <? endif; ?>

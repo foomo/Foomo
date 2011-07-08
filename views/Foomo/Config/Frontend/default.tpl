@@ -56,7 +56,7 @@ $foundOldConfigs = array();
 		<? endforeach; ?>
 		<br>
 	<? endforeach; ?>
-	
+		
 	<? if(count($foundOldConfigs) < count($oldConfigs)): ?>
 		
 		<br>
