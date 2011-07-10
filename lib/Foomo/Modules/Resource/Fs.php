@@ -32,8 +32,6 @@ class Fs extends \Foomo\Modules\Resource
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
 
-	const TYPE_SOCKET	= 'socket';
-	const TYPE_FIFO		= 'fifo';
 	const TYPE_FOLDER	= 'dir';
 	const TYPE_FILE		= 'file';
 

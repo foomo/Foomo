@@ -59,12 +59,23 @@ class FS implements PersistorInterface {
 			}
 		}
 	}
+	private function getSavePath()
+	{
+		return ini_get('session.save_path');
+	}
 	public function lock($sessionId)
 	{
 		$lockFile = self::getFileName($sessionId);
 		$this->fps[$sessionId] = fopen($lockFile, 'w');
 		if (!flock($this->fps[$sessionId], LOCK_EX)) {
-			trigger_error('--- no write lock ---' . $sessionId);
+			$savePath = $this->getSavePath();
+			if(!is_dir($savePath)) {
+				trigger_error('session save path "' . $savePath . '" does not exist', E_USER_ERROR);
+			} elseif(!is_writable($savePath)) {
+				trigger_error('session save path "' . $savePath . '" is not writable', E_USER_ERROR);
+			} else {
+				trigger_error('could not obtain no write lock for sessionId: "' . $sessionId . '"');
+			}
 		}
 	}
 	public function load($sessionId)

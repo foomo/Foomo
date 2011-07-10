@@ -47,6 +47,7 @@ class Setup
 		'common'	=> array(),
 		'runMode'	=> array(
 			'basicAuth',
+			'sessions',
 			'logs',
 			'tmp',
 			'cache',
