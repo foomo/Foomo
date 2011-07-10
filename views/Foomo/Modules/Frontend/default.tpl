@@ -2,6 +2,10 @@
 
 use Foomo\Modules\Manager;
 
+// this is important to make sure module class constants are available
+
+Manager::loadAvailableModuleClasses();
+
 ?>
 <?= $view->partial('menu') ?>
 <?

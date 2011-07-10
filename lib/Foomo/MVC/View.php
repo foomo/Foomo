@@ -168,6 +168,9 @@ class View extends \Foomo\View
 	 * render a partial
 	 *
 	 * @param string $name name of the action
+	 * @param array $variables hash of variables, that will be extracted in the partial array('name' => 'value') will result is $name being available in the partial
+	 * @param string $class if you want to borrow a partial from another frontend
+	 * 
 	 * @return string partial output
 	 */
 	public function partial($name, $variables = array(), $class = '')

@@ -722,7 +722,7 @@ class Manager
 	 * try to load a module class
 	 *
 	 * @param string $moduleName name of the module
-	 *
+	 * 
 	 * @return boolean
 	 */
 	private static function tryLoadModuleClass($moduleName)
@@ -733,7 +733,16 @@ class Manager
 		}
 		return class_exists($moduleClassName, false);
 	}
-
+	/**
+	 * make sure module classes of not enabled modules are loaded
+	 * @intenal
+	 */
+	public static function loadAvailableModuleClasses()
+	{
+		foreach(self::getAvailableModules() as $availableModuleName) {
+			self::tryLoadModuleClass($availableModuleName);
+		}
+	}
 	/**
 	 * @param string $module
 	 * @return string
