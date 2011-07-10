@@ -129,17 +129,23 @@ abstract class ModuleBase
 	/**
 	 * @return string
 	 */
-	public static function getCacheDir()
+	public static function getCacheDir($pathname='')
 	{
-		return \Foomo\Config::getCacheDir(self::getModuleName());
+		$ret = \Foomo\Config::getCacheDir(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
+		return $ret;
 	}
 
 	/**
 	 * @return string
 	 */
-	public static function getTempDir()
+	public static function getTempDir($pathname='')
 	{
-		return \Foomo\Config::getTempDir(self::getModuleName());
+		$ret = \Foomo\Config::getTempDir(self::getModuleName());
+		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
+		return $ret;
 	}
 
 	/**
