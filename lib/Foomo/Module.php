@@ -55,7 +55,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
 			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME)
 		);
-		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST) {
+		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
 		}
 		return $ret;
