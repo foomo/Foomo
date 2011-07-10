@@ -30,7 +30,7 @@ foreach($oldConfigs as $oldConfig) {
 	}
 }
 
-$yamlRenderFunc = function($yaml) {
+$yamlRenderFunc = function($yaml, $view) {
 	if(class_exists('GeSHi')) {
 		$geshi = new GeSHi($yaml, 'rails'); 
 		return $geshi->parse_code();
@@ -59,7 +59,7 @@ $yamlRenderFunc = function($yaml) {
 		
 
 			<h2>Current Regular</h2>
-			<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(\Foomo\Config::getConf($module, $domain, $subDomain))); ?></pre></div>
+			<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(\Foomo\Config::getConf($module, $domain, $subDomain), $view)); ?></pre></div>
 
 		</div>
 		
@@ -92,7 +92,7 @@ $yamlRenderFunc = function($yaml) {
 		<div class="tabContent tabContent-4">
 			
 			<h2>Default value</h2>
-			<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(\Foomo\Config::getDefaultConfig($domain))) ?></pre></div>
+			<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(\Foomo\Config::getDefaultConfig($domain), $view)) ?></pre></div>
 			
 		</div>
 		
@@ -111,7 +111,7 @@ $yamlRenderFunc = function($yaml) {
 				</div>
 				<div class="toggleContent">
 
-					<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(file_get_contents($oldConfig->filename))) ?></pre></div>
+					<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(file_get_contents($oldConfig->filename), $view)) ?></pre></div>
 
 					<? $showOldConfId = 'old-' . $oldConfig->id; ?>
 					
