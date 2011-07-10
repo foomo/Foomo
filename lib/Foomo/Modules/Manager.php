@@ -722,10 +722,10 @@ class Manager
 	 * try to load a module class
 	 *
 	 * @param string $moduleName name of the module
-	 *
+	 * @internal
 	 * @return boolean
 	 */
-	private static function tryLoadModuleClass($moduleName)
+	public static function tryLoadModuleClass($moduleName)
 	{
 		$moduleClassName = self::getModuleClassByName($moduleName);
 		if ($moduleName != \Foomo\Module::NAME && !class_exists($moduleClassName, false)) {
