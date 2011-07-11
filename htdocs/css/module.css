@@ -22,7 +22,7 @@ h1 {
 	font-weight: normal;
 }
 
-h2 {
+h2, .textHead {
 	font-family: 'Ubuntu', Arial, Helvetica, Verdana;
 	font-size: 18px;
 	line-height: 1.9em;
@@ -65,9 +65,18 @@ table {
 
 table, td, th {
 	margin: 10px 1%;
-	border: 1px solid #0d2746;
 	padding: 7px;
 }
+
+td, th {
+	border: 1px solid #0d2746;
+}
+
+th {
+	background: #e8e8e8;
+}
+
+
 
 
 
@@ -187,6 +196,10 @@ option {
 	top: 5px;
 }
 
+.horizontalBox {
+	clear: both;
+	margin: 0 10px;
+}
 .horizontalBox {
 	clear: both;
 	margin: 0 10px;
