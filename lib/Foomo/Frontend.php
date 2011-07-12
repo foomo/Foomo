@@ -61,10 +61,8 @@ class Frontend extends \Foomo\MVC\AbstractApp
 					\Foomo\ROOT_HTTP . '/css/module.css'
 				))
 				->addJavascripts(array(
-					//'http://html5shim.googlecode.com/svn/trunk/html5.js',
-					ROOT_HTTP . '/js/radJs.js',
-					ROOT_HTTP . '/js/jquery-1.6.1.min.js',
-					ROOT_HTTP . '/js/modules.js'
+					\Foomo\ROOT_HTTP . '/js/jquery-1.6.1.min.js',
+					\Foomo\ROOT_HTTP . '/js/modules.js'
 				))
 			;
 		}

@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
@@ -38,7 +51,13 @@ class Config
 	 * @var string
 	 */
 	private static $currentMode = null;
-
+	/**
+	 * a runtime cache, that ensures, that you will get only one instance of a
+	 * cached conf when calling getConf() with the same values
+	 * 
+	 * @var array
+	 */
+	private static $confCache = array();
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
@@ -116,11 +135,16 @@ class Config
 	 * @param string $module name of the module, you want to configure
 	 * @param string $name the domain of configuration like db, mail, YOU name it
 	 * @param string $domain you need multiple for a domain in a module - here you are
+	 * 
 	 * @return Foomo\Config\AbstractConfig
 	 */
 	public static function getConf($module, $name, $domain='')
 	{
-		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetConf', array($module, $name, $domain));
+		$cacheKey = $module.$name.$domain;
+		if(!isset(self::$confCache[$cacheKey])) {
+			self::$confCache[$cacheKey] = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetConf', array($module, $name, $domain));
+		}
+		return self::$confCache[$cacheKey];
 	}
 
 	/**
@@ -243,6 +267,7 @@ class Config
 	 */
 	public static function resetCache()
 	{
+		self::$confCache = array();
 		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetConf', false);
 		//\Foomo\Cache\Manager::invalidateWithQuery(__CLASS__ . '::cachedGetConf', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
 	}
