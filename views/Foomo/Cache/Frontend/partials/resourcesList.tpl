@@ -4,12 +4,23 @@
 		 $valid = ($resource->status == \Foomo\Cache\CacheResource::STATUS_VALID) || ($resource->expirationTime < \time());
 		 $class = $valid?'valid':'invalid';
 		 $msg = $valid?'valid':'invalid';
+		 
+		 $propDefs = $resource->getPropertyDefinitions();
+		 $propDefsOut = '';
+		 $rows = 1;
+		 
+		 foreach ($propDefs as $propName => $propValue):
+			 if(isset($resource->properties[$propName])):
+				 $propDefsOut .= '<div class="horizontalBox">'.$view->escape($propName).': <span style="font-weight: normal;">'.$view->escape(is_string($resource->properties[$propName])?$resource->properties[$propName]:json_encode($resource->properties[$propName])).'<span></div>'.  chr(10);
+				 $rows++;
+			 endif;
+		 endforeach;
 ?>
 
 <div class="toggleBox">
-	<div class="toogleButton">
+	<div class="toogleButton" style="height: <? if($rows > 1): ?><?= (17*$rows)+28  ?><? else: ?>28<? endif; ?>px">
 		<div class="toggleOpenIcon">+</div>
-		<div class="toggleOpenContent"><?= $view->escape($resource->name) ?> (<?= $msg.' '.$resource->id?>)</div>
+		<div class="toggleOpenContent"><?= $view->escape($resource->name) ?>(<? if($rows > 1): ?><br><? endif; ?><?= $propDefsOut ?> )</div>
 	</div>
 	<div class="toggleContent">
 		
@@ -18,7 +29,6 @@
 				<ul>
 					<li class="selected">Info</li>
 					<li>Value</li>
-					<li>Properties</li>
 				</ul>
 				<hr class="greyLine">
 			</div>
@@ -30,38 +40,38 @@
 					<div class="greyBox">
 						<div class="innerBox">
 							<ul class="listBox">
-								<li>Resource id: <b><?= $resource->id ?></b></li>
-								<li>Resource name: <b><?= $resource->name ?></b></li>
-								<li>Source class: <b><?= $resource->sourceClass ?></b></li>
-								<li>Source method: <b><?= $resource->sourceMethod ?></b></li>
+								<li><b>Resource id:</b> <?= $resource->id ?></li>
+								<li><b>Resource name:</b> <?= $resource->name ?></li>
+								<li><b>Source class:</b> <?= $resource->sourceClass ?></li>
+								<li><b>Source method:</b> <?= $resource->sourceMethod ?></li>
 							<? if ($resource->sourceStatic == 0): ?>
-								<li>Static call: <b>FALSE (called on object)</b></li>
+								<li><b>Static call:</b> FALSE (called on object)</li>
 							<? else: ?>
-								<li>Static call: <b>TRUE (called on class)</b></li>
+								<li><b>Static call:</b> TRUE (called on class)</li>
 							<? endif; ?>
 
 							<? if ($resource->status != 0): ?>
-								<li>Status: <b>VALID</b></li>
+								<li><b>Status:</b> VALID</li>
 							<? else: ?>
-								<li>Status: <b>INVALID</b></li>
+								<li><b>Status:</b> INVALID</li>
 							<? endif; ?>
 
-								<li>Creation time: <b><?= date('Y-m-d H:i:s', $resource->creationTime) ?></b></li>
+								<li><b>Creation time:</b> <?= date('Y-m-d H:i:s', $resource->creationTime) ?></li>
 
 							<? if ($resource->expirationTime != 0): ?>
-								<li>Expiration time: <b><?= date('Y-m-d d.m.Y H:i:s', $resource->expirationTime) ?></b></li>
+								<li><b>Expiration time:</b> <?= date('Y-m-d d.m.Y H:i:s', $resource->expirationTime) ?></li>
 							<? else: ?>
-								<li>Expiration time: <b>Never</b></li>
+								<li><b>Expiration time:</b> Never</b></li>
 							<? endif; ?>
 
 							<? if ($resource->expirationTimeFast != 0): ?>
-								<li>Expiration time: <b><?= date('Y-m-d H:i:s', $resource->expirationTimeFast) ?></b></li>
+								<li><b>Expiration time:</b> <?= date('Y-m-d H:i:s', $resource->expirationTimeFast) ?></li>
 							<? else: ?>
-								<li>Expiration time: <b>Never</b></li>
+								<li><b>Expiration time:</b> Never</li>
 							<? endif; ?>
 
-								<li>Queryable cache hits: <b><?= $resource->hits ?></b></li>
-								<li>Invalidation policy: <b><?= $resource->invalidationPolicy ?></b></li>
+								<li><b>Queryable cache hits: </b><?= $resource->hits ?></li>
+								<li><b>Invalidation policy: </b><?= $resource->invalidationPolicy ?></li>
 							</ul>
 						</div>
 					</div>
@@ -73,31 +83,6 @@
 					<h2>Value</h2>
 					<div class="greyBox">
 					<?= var_dump($resource->value) ?>
-					</div>
-					
-				</div>
-				
-				<div class="tabContent tabContent-3">
-
-					<h2>Properties</h2>
-					<div class="greyBox">
-						<div class="innerBox">
-						
-					<?
-					
-						$propDefs = $resource->getPropertyDefinitions();
-						if(count($propDefs) == 0) {
-							return;
-						}
-						?>
-						Properties:<br>
-						<?	foreach ($propDefs as $propName => $propValue): ?>
-								<? if(isset($resource->properties[$propName])): ?>
-								<pre><?= $view->escape($propName) ?> = <?= $view->escape(is_string($resource->properties[$propName])?$resource->properties[$propName]:json_encode($resource->properties[$propName])) ?></pre>
-								<? endif; ?>
-						<? endforeach; ?>
-
-						</div>
 					</div>
 					
 				</div>

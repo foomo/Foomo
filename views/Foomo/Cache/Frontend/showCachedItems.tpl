@@ -13,16 +13,6 @@
 
 <div class="whiteBox">
 	<div class="innerBox">
-		<?= $view->partial('resourceAnnotation') ?>
-		<div class="greyBox">
-			<div class="innerBox">
-				<?= $view->partial('resourcePropertiesDefinitions',array('resourceName' =>$model->currentResourceName)); ?>
-				<hr>
-				<?= $view->partial('storageStatus',array('resourceName' => $model->currentResourceName)); ?>
-			</div>
-		</div>
-		<br>
-		
 		<div class="floatMenu">
 			<ul>
 				<li><?= $view->link('PREVIEW INVALIDATION', 'actionPreviewRebuildResourcesWithName', array($model->currentResourceName), array('title' => 'Preview invalidation', 'class' => 'linkButtonYellow overlay' )) ?></li>
@@ -35,8 +25,24 @@
 				<li><?= $view->link('DELETE', 'rebuildResourcesWithName', array($model->currentResourceName, \Foomo\Cache\Invalidator::POLICY_DELETE), array('title' => 'Delete all cached objects with the selected resource name. The dependency tree is traversed in full depth and dependent objects from other resources are also deleted.', 'class' => 'linkButtonRed overlay' )) ?></li>
 			</ul>
 		</div>
-		
 		<hr class="greyLine">
+		
+		<?= $view->partial('resourceAnnotation') ?>
+		<div class="greyBox">
+			<div class="innerBox">
+				<?= $view->partial('resourcePropertiesDefinitions',array('resourceName' =>$model->currentResourceName)); ?>
+				
+			</div>
+		</div>
+		
+		<div class="greyBox">
+			<div class="innerBox">
+				<?= $view->partial('storageStatus',array('resourceName' => $model->currentResourceName)); ?>
+			</div>
+		</div>
+		<br>
+		
+		<h2>Resources</h2>
 
 		<?= $view->partial('resourcesList', array('resources'=> $model->getCachedResourcesList())) ?>
 		

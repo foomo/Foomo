@@ -132,6 +132,7 @@ header #logoBox #version{
 
 #menuMain ul li {
 	position:relative;
+	color: #ffd700;
 	float: left;
 	font: bold 16px 'Ubuntu', Arial, Helvetica, Verdana;
 	height: 25px;

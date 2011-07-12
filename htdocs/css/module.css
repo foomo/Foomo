@@ -111,19 +111,19 @@ option {
 	background: #e8e8e8;
 }
 
-.checkBox {
+input[type=checkbox] {
 	width: auto;
 	border: 1px dotted #0d2746;
 	background: #ffffff;
 }
 
-.radioButton {
+input[type=radio] {
 	width: auto;
 	border: 1px dotted #0d2746;
 	background: #ffffff;
 }
 
-.submitButton {
+input[type=submit], input[type=reset] {
 	font: bold 13px Arial, Helvetica, Verdana;
 	margin: 5px 10px 10px 0;
 	width: auto;

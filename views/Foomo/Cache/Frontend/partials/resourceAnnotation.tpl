@@ -22,12 +22,13 @@ foreach($userSetProps as $param) {
 }
 ?>
 
-Parsed data<br>
-<b><?= $view->partial('annotation', (array) $resourceRefl->description) ?></b><br>
+<b>Parsed data</b><br>
+<?= $view->partial('annotation', (array) $resourceRefl->description) ?>><br>
 <br>
-Derived from<br>
-<pre>
 <?
+#<b>Derived from</b><br>
+#<pre>
+
 /**
  * orginal doc comment @jan todo
  */

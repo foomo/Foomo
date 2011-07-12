@@ -24,6 +24,7 @@ function renderLeaves($view, $leaf, $level) {
 		}
 
 		if (!is_null($subLeaf['link'])) {
+			if ($level > 0 && !empty ($subLeaf['leaves'])) $classes .= ' down';
 			$output .= '<li class="'.$classes.'"><a href="' . $view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters'])) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>';
 		} else {
 			if ($level > 0) $classes .= ' down';

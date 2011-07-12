@@ -170,7 +170,7 @@ class View extends \Foomo\View
 	 * @param string $name name of the action
 	 * @param array $variables hash of variables, that will be extracted in the partial array('name' => 'value') will result is $name being available in the partial
 	 * @param string $class if you want to borrow a partial from another frontend
-	 * 
+	 *
 	 * @return string partial output
 	 */
 	public function partial($name, $variables = array(), $class = '')
@@ -254,6 +254,19 @@ class View extends \Foomo\View
 			$this->translation = new \Foomo\Translation(MVC::getLocaleRoots($appClassName), self::getNamespace($appClassName), $this->localeChain);
 		}
 		return $this->translation->_($msgId, $msgPluralId, $count);
+	}
+
+	/**
+	 * translate string and escape it
+	 *
+	 * @param string $msgId
+	 * @param string $msgPluralId
+	 * @param integer $count
+	 * @return string translated string
+	 */
+	public function _e($msgId, $msgPluralId = null, $count = null)
+	{
+		return $this->escape($this->_($msgId, $msgPluralId, $count));
 	}
 
 	//---------------------------------------------------------------------------------------------
