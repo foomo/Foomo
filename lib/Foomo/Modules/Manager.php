@@ -32,7 +32,7 @@ use Foomo\Core\DomainConfig;
 
 /**
  * module management
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -53,7 +53,7 @@ class Manager
 	//---------------------------------------------------------------------------------------------
 	/**
 	 * get the name of the module on whichs htdocs the $_SERVER['DOCUMENT_ROOT'] variable is pointing to
-	 * 
+	 *
 	 * @internal
 	 * @return string
 	 */
@@ -148,10 +148,18 @@ class Manager
 	}
 
 	/**
+	 * @param string $module
+	 * @return boolean
+	 */
+	public static function isEnabled($module)
+	{
+		return in_array($module, self::getEnabledModules());
+	}
+
+	/**
 	 * enable a module
 	 *
 	 * @param string $module
-	 *
 	 * @return boolean
 	 */
 	public static function enableModule($module, $updateClassCache = false)
@@ -163,7 +171,6 @@ class Manager
 	 * disbale a module
 	 *
 	 * @param string $module
-	 *
 	 * @return boolean
 	 */
 	public static function disableModule($module, $updateClassCache = false)
@@ -175,7 +182,6 @@ class Manager
 	 * ask if the module with the given name is enabled
 	 *
 	 * @param string $moduleName
-	 *
 	 * @return boolean
 	 */
 	public static function isModuleEnabled($moduleName)
@@ -187,7 +193,6 @@ class Manager
 	 * ask if the module with the given name is enabled
 	 *
 	 * @param string $moduleName
-	 *
 	 * @return boolean
 	 */
 	public static function isModuleAvailable($moduleName)
@@ -213,7 +218,6 @@ class Manager
 	 * find out to which module a class belongs to
 	 *
 	 * @param string $className name of the class
-	 *
 	 * @return string name od the corresponding module
 	 */
 	public static function getClassModule($className)
@@ -256,10 +260,8 @@ class Manager
 	/**
 	 * get module lib folders
 	 *
-	 * @param type $module
-	 *
 	 * @internal
-	 *
+	 * @param type $module
 	 * @return string[] folder names
 	 */
 	public static function getModuleLibFolders($module)
@@ -284,7 +286,6 @@ class Manager
 	 * dry name resloving
 	 *
 	 * @param string $moduleName name of the module
-	 *
 	 * @return string
 	 */
 	private static function getModuleClassByName($moduleName)
@@ -296,7 +297,6 @@ class Manager
 	 * get the description of a module
 	 *
 	 * @param string $module name of the module
-	 *
 	 * @return string
 	 */
 	public static function getModuleDescription($module)
@@ -722,7 +722,7 @@ class Manager
 	 * try to load a module class
 	 *
 	 * @param string $moduleName name of the module
-	 * 
+	 *
 	 * @return boolean
 	 */
 	private static function tryLoadModuleClass($moduleName)

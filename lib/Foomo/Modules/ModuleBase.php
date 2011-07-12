@@ -127,59 +127,61 @@ abstract class ModuleBase
 	}
 
 	/**
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getCacheDir($pathname='')
+	public static function getCacheDir($relPath='')
 	{
 		$ret = \Foomo\Config::getCacheDir(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
 		return $ret;
 	}
 
 	/**
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getTempDir($pathname='')
+	public static function getTempDir($relPath='')
 	{
 		$ret = \Foomo\Config::getTempDir(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getVarDir($pathname='')
+	public static function getVarDir($relPath='')
 	{
 		$ret = \Foomo\Config::getVarDir(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsVarDir($pathname='')
+	public static function getHtdocsVarDir($relPath='')
 	{
 		$ret = \Foomo\Config::getHtdocsVarDir(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsVarPath($pathname='')
+	public static function getHtdocsVarPath($relPath='')
 	{
 		$ret = \Foomo\Config::getHtdocsVarPath(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
@@ -192,91 +194,91 @@ abstract class ModuleBase
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getBaseDir($pathname='')
+	public static function getBaseDir($relPath='')
 	{
 		$ret = \Foomo\Config::getModuleDir(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		if (!file_exists($ret)) throw new \Exception('Path ' . $ret . ' does not exist! ');
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getTestsDir($pathname='')
+	public static function getTestsDir($relPath='')
 	{
 		$ret = self::getBaseDir('tests');
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getDocsDir($pathname='')
+	public static function getDocsDir($relPath='')
 	{
 		$ret = self::getBaseDir('docs');
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getLibDir($pathname='')
+	public static function getLibDir($relPath='')
 	{
 		$ret = self::getBaseDir('lib');
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getViewsDir($pathname='')
+	public static function getViewsDir($relPath='')
 	{
 		$ret = self::getBaseDir('views');
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getVendorDir($pathname='')
+	public static function getVendorDir($relPath='')
 	{
 		$ret = self::getBaseDir('vendor');
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsDir($pathname='')
+	public static function getHtdocsDir($relPath='')
 	{
 		$ret = \Foomo\Config::getHtdocsDir(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
 	/**
-	 * @param string $pathname append optional additional relative path
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getHtdocsPath($pathname='')
+	public static function getHtdocsPath($relPath='')
 	{
 		$ret = \Foomo\Config::getHtdocsPath(self::getModuleName());
-		if ($pathname != '') $ret .= DIRECTORY_SEPARATOR . $pathname;
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
 		return $ret;
 	}
 
