@@ -45,7 +45,7 @@
 				<li><?= $view->link('Reset the autoloader', 'resetAutoloader', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></li>
 				<li><a title="wanna start over?" href="<?= \Foomo\ROOT_HTTP . '/setup.php' ?>">Setup</a></li>
 				<? if(Foomo\Session::getConf() && Foomo\Session::getConf()->type == 'foomo'): ?>
-					<li><a href="<?= \Foomo\ROOT_HTTP . '/sessionGc.php' ?>">collect RadSession garbage</a></li>
+					<li><a href="<?= \Foomo\ROOT_HTTP . '/sessionGc.php' ?>">collect session garbage</a></li>
 				<? endif; ?>
 				<li><a title="may be your life saver" href="<?= \Foomo\ROOT_HTTP . '/hiccup.php' ?>">Hiccup</a> &lt;-- you may want to bookmark that one</li>
 			</ul>
