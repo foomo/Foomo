@@ -38,7 +38,13 @@ class Config
 	 * @var string
 	 */
 	private static $currentMode = null;
-
+	/**
+	 * a runtime cache, that ensures, that you will get only one instance of a
+	 * cached conf when calling getConf() with the same values
+	 * 
+	 * @var array
+	 */
+	private static $confCache = array();
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
@@ -116,11 +122,16 @@ class Config
 	 * @param string $module name of the module, you want to configure
 	 * @param string $name the domain of configuration like db, mail, YOU name it
 	 * @param string $domain you need multiple for a domain in a module - here you are
+	 * 
 	 * @return Foomo\Config\AbstractConfig
 	 */
 	public static function getConf($module, $name, $domain='')
 	{
-		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetConf', array($module, $name, $domain));
+		$cacheKey = $module.$name.$domain;
+		if(!isset(self::$confCache[$cacheKey])) {
+			self::$confCache[$cacheKey] = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetConf', array($module, $name, $domain));
+		}
+		return self::$confCache[$cacheKey];
 	}
 
 	/**
@@ -243,6 +254,7 @@ class Config
 	 */
 	public static function resetCache()
 	{
+		self::$confCache = array();
 		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetConf', false);
 		//\Foomo\Cache\Manager::invalidateWithQuery(__CLASS__ . '::cachedGetConf', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
 	}
