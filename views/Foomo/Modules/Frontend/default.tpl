@@ -11,7 +11,7 @@ Manager::loadAvailableModuleClasses();
 <div id="appContent">
 	
 	<div class="rightBox">
-		<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow')); ?>
+		<?= $view->link('Try to create missing resources for all enabled modules', 'actionTryCreateAllModuleResources', array(), array('class' => 'linkButtonYellow overlay')); ?>
 	</div>
 	<h2>Enabled Modules </h2>
 	<?

@@ -43,6 +43,22 @@ class Rm extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
+	 * @return Foomo\CliCall\Rm
+	 */
+	public function force()
+	{
+		return $this->addArguments(array('-f'));
+	}
+
+	/**
+	 * @return Foomo\CliCall\Rm
+	 */
+	public function recursive()
+	{
+		return $this->addArguments(array('-r'));
+	}
+
+	/**
 	 *
 	 * @param string $filename
 	 * @return Foomo\CliCall\Rm

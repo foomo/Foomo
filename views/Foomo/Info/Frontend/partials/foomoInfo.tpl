@@ -1,10 +1,10 @@
 <table>
 	<thead>
 		<tr>
-			<td>Name</td>
-			<td>Value</td>
-			<td>Source</td>
-			<td>Required</td>
+			<th>Name</th>
+			<th>Value</th>
+			<th>Source</th>
+			<th>Required</th>
 		</tr>
 	</thead>
 	<tbody>

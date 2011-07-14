@@ -25,7 +25,7 @@
 				<li><?= $view->link('DELETE', 'rebuildResourcesWithName', array($model->currentResourceName, \Foomo\Cache\Invalidator::POLICY_DELETE), array('title' => 'Delete all cached objects with the selected resource name. The dependency tree is traversed in full depth and dependent objects from other resources are also deleted.', 'class' => 'linkButtonRed overlay' )) ?></li>
 			</ul>
 		</div>
-		<hr class="greyLine">
+		<hr class="greyFullLine">
 		
 		<?= $view->partial('resourceAnnotation') ?>
 		<div class="greyBox">

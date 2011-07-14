@@ -110,13 +110,17 @@ $yamlRenderFunc = function($yaml, $view) {
 					<div class="toggleOpenContent"><?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?></div>
 				</div>
 				<div class="toggleContent">
+					
+					<div class="verticalBox">
+						<?= $view->link('Restore configuration', 'restoreOldConf', array($oldConfig->id), array('class' => 'linkButtonYellow')); ?>
+						<?= $view->link('Delete configuration', 'deleteOldConf', array($oldConfig->id), array('class' => 'linkButtonRed')); ?>
+					</div>
+					
+					<hr class="greyFullLine">
 
 					<div class="greyBox"><pre><?= call_user_func_array($yamlRenderFunc, array(file_get_contents($oldConfig->filename), $view)) ?></pre></div>
 
 					<? $showOldConfId = 'old-' . $oldConfig->id; ?>
-					
-					<?= $view->link('Restore', 'restoreOldConf', array($oldConfig->id), array('class' => 'linkButtonYellow')); ?>
-					<?= $view->link('Delete', 'deleteOldConf', array($oldConfig->id), array('class' => 'linkButtonRed')); ?>
 					
 				</div>
 			</div>

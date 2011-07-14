@@ -18,6 +18,10 @@ use Foomo\BasicAuth\Utils;
 			</div>
 			<div class="toggleContent">
 				
+				<div class="deleteBox">
+					<?= $view->link('Delete domain', 'deleteDomain', array($domain), array('class' => 'linkButtonRed')) ?>
+				</div>
+				
 				<div class="tabBox">
 				
 					<div class="tabNavi">
@@ -31,8 +35,6 @@ use Foomo\BasicAuth\Utils;
 					<div class="tabContentBox">
 
 						<div class="tabContent tabContent-1 selected">
-							
-
 
 								<? foreach(Utils::getUsers($domain) as $user => $hash): ?>
 								
@@ -40,6 +42,7 @@ use Foomo\BasicAuth\Utils;
 									<div class="toogleButton">
 										<div class="toggleOpenIcon">+</div>
 										<div class="toggleOpenContent"><?= $view->escape($user) ?></div>
+										<div class="toggleOpenInfo"><?= $view->link('Delete user', 'deleteUser', array($domain, $user), array('class' => 'linkButtonSmallRed')) ?></div>
 									</div>
 									<div class="toggleContent">
 										
@@ -62,8 +65,7 @@ use Foomo\BasicAuth\Utils;
 										</form>
 										
 										</div>
-										
-										<?= $view->link('Delete user', 'deleteUser', array($domain, $user), array('class' => 'linkButtonRed')) ?>
+
 									</div>
 								</div>
 								
@@ -100,8 +102,6 @@ use Foomo\BasicAuth\Utils;
 					</div>
 					
 				</div>
-				
-				<?= $view->link('Delete domain', 'deleteDomain', array($domain), array('class' => 'linkButtonRed')) ?>
 				
 			</div>
 		</div>

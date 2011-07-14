@@ -17,7 +17,7 @@ $foundOldConfigs = array();
 		<? foreach($moduleConfigs as $subDomainName => $subDomainConfigs): ?>
 	
 		<? if(!empty($subDomainName)): ?>
-				<h3><?= $subDomainName ?></h3>
+				<h3><?= $module ?>/<?= $subDomainName ?></h3>
 		<? endif; ?>
 	
 		<? foreach($subDomainConfigs as $domain => $file): 
@@ -44,9 +44,13 @@ $foundOldConfigs = array();
 				}
 				?>
 				
+				<div class="deleteBox">
+					<?= $view->link('Delete configuration', 'deleteConf', array($module, $domain, $subDomainName), array('class' => 'linkButtonRed')); ?>
+				</div>
+				
 				<?= $view->partial('edit', array('domain' => $domain, 'module' => $module, 'subDomain' => $subDomainName, 'domainConfigClass' => $domainConfigClass)) ?>
 				
-				<?= $view->link('Delete current', 'deleteConf', array($module, $domain, $subDomainName), array('class' => 'linkButtonRed')); ?>
+				
 
 			</div>
 		</div>
@@ -62,8 +66,10 @@ $foundOldConfigs = array();
 		<br>
 		<hr>
 		<br>
-		<div class="rightBox">
-			<?= $view->link('Delete all old configurations', 'removeOldConfs', array(), array('class' => 'linkButtonRed')); ?>
+		<div class="clearBox">
+			<div class="rightBox">
+				<?= $view->link('Delete all old configurations', 'removeOldConfs', array(), array('class' => 'linkButtonRed')); ?>
+			</div>
 		</div>
 		<h2>Trash</h2>
 		
@@ -78,13 +84,18 @@ $foundOldConfigs = array();
 					<div class="toggleOpenContent"><?=	$oldConfig->module . '/' . (($oldConfig->domain != '')?$oldConfig->domain . '/':'') . $oldConfig->name ?> (<?= date('Y-m-d H:i:s', $oldConfig->timestamp) ?>)</div>
 				</div>
 				<div class="toggleContent">
-
+					
+					<div class="verticalBox">
+						<?= $view->link('Restore configuration', 'restoreOldConf', array($oldConfig->id), array('class' => 'linkButtonYellow')); ?>
+						<?= $view->link('Delete configuration', 'deleteOldConf', array($oldConfig->id), array('class' => 'linkButtonRed')); ?>
+					</div>
+					
+					<hr class="greyFullLine">
+					
 					<div class="greyBox"><pre><?= $view->escape(file_get_contents($oldConfig->filename)) ?></pre></div>
 
 					<? $showOldConfId = 'old-' . $oldConfig->id; ?>
 					
-					<?= $view->link('Restore', 'restoreOldConf', array($oldConfig->id), array('class' => 'linkButtonYellow')); ?>
-					<?= $view->link('Delete', 'deleteOldConf', array($oldConfig->id), array('class' => 'linkButtonRed')); ?>
 					
 				</div>
 			</div>

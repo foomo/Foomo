@@ -73,9 +73,12 @@ td, th {
 }
 
 th {
-	background: #e8e8e8;
+	background: #d1d1d1;
 }
 
+.tableInnerHead {
+	border: 0;
+}
 
 
 
@@ -136,6 +139,10 @@ input[type=submit], input[type=reset] {
 	-moz-border-radius: 5px;
 }
 
+.yamlEdit {
+	font-family: monospace;
+}
+
 .formBox {
 	clear: both;
 	margin: 10px 20px 10px 10px;
@@ -154,6 +161,10 @@ input[type=submit], input[type=reset] {
 
 .greyLine {
 	margin: 10px;
+	border-bottom:1px solid #e8e8e8;
+}
+
+.greyFullLine {
 	border-bottom:1px solid #e8e8e8;
 }
 
@@ -193,16 +204,25 @@ input[type=submit], input[type=reset] {
 .rightBox {
 	position: absolute;
 	right: 0;
-	top: 5px;
+	top: 7px;
+	z-index: 100;
+}
+
+.deleteBox {
+	position: absolute;
+	top:15px;
+	right:10px;
+	z-index: 100;
 }
 
 .horizontalBox {
 	clear: both;
 	margin: 0 10px;
 }
-.horizontalBox {
+
+.verticalBox {
 	clear: both;
-	margin: 0 10px;
+	margin: 10px 0;
 }
 
 .halfBox {
@@ -221,6 +241,13 @@ input[type=submit], input[type=reset] {
 	position: relative;
 	float: left;
 	margin: 0 30px 0 0;
+	text-align: center;
+}
+
+.floatRightSpaceBox {
+	position: relative;
+	float: right;
+	margin: 0 0 0 30px;
 	text-align: center;
 }
 
@@ -248,12 +275,17 @@ input[type=submit], input[type=reset] {
 	margin: 0;
 }
 
-.list {
+.ulList {
 	padding: 0 0 0 25px;
 	list-style-type: disc;
 }
 
-.list li {
+.olList {
+	padding: 0 0 0 25px;
+	list-style-type: decimal;
+}
+
+.ulList li, .olList li {
 	padding-left: 0 !important;
 }
 
@@ -295,7 +327,7 @@ input[type=submit], input[type=reset] {
 
 .linkButtonSmallYellow {
 	position: relative;
-	padding: 0 5px;
+	padding: 1px 7px;
 	text-decoration: none;
 	font-weight: bold;
 	background: #ffd700;
@@ -318,7 +350,7 @@ input[type=submit], input[type=reset] {
 
 .linkButtonSmallGrey {
 	position: relative;
-	padding: 0 5px;
+	padding: 1px 7px;
 	text-decoration: none;
 	font-weight: bold;
 	background: #bebebe;
@@ -342,9 +374,10 @@ input[type=submit], input[type=reset] {
 
 .linkButtonSmallRed {
 	position: relative;
-	padding: 0 5px;
+	padding: 1px 7px;
 	text-decoration: none;
 	font-weight: bold;
+	color:#ffffff;
 	background: #c50707;
 	border: 1px solid #d7d7d7;
 	border-radius: 4px;
@@ -397,6 +430,11 @@ input[type=submit], input[type=reset] {
 .toggleBox .toogleButton .toggleOpenContent {
 	float: left;
 	margin: 5px 0;
+}
+
+.toggleBox .toogleButton .toggleOpenInfo {
+	float: right;
+	margin: 5px 10px;
 }
 
 .toggleBox .toggleContent {

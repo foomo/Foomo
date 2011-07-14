@@ -1,14 +1,9 @@
 <?
 /* @var $view Foomo\MVC\View */
 /* @var $model Foomo\Frontend\Model */
-//var_export($model->navi);
 
 $level = 0;
 
-/**
- * @todo: make partial
- * @param Foomo\MVC\View $view
- */
 function renderLeaves($view, $leaf, $level) {
 
 	$output = '<div class="level'.$level.'"><ul>' . PHP_EOL;
@@ -25,10 +20,11 @@ function renderLeaves($view, $leaf, $level) {
 
 		if (!is_null($subLeaf['link'])) {
 			if ($level > 0 && !empty ($subLeaf['leaves'])) $classes .= ' down';
-			$output .= '<li class="'.$classes.'"><a href="' . $view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters'])) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>';
+			$output .= '<li class="'.$classes.'"><a href="' . \htmlspecialchars($view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters']))) .'" target="' . $subLeaf['link']['target'] . '">'.$subLeaf['link']['name'].'</a>'. PHP_EOL;
+
 		} else {
 			if ($level > 0) $classes .= ' down';
-			$output .= '<li class="'.$classes.'">'.$subLeaf['name'] . PHP_EOL;
+			$output .= '<li class="'.$classes.'"><span>'.$subLeaf['name'].'</span>' . PHP_EOL;
 		}
 
 		if (!empty ($subLeaf['leaves']) ) {
@@ -42,8 +38,30 @@ function renderLeaves($view, $leaf, $level) {
 	return $output;
 }
 
+
+function renderBreadcrumb($view, $leaf) {
+
+	$output = '';
+
+	foreach ($leaf['leaves'] as $subLeaf){
+
+		if($subLeaf['active']){ //  && !is_null($subLeaf['link'])
+			$output .= ' / <a href="'. \htmlspecialchars($view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters']))) .'">'.$subLeaf['link']['name'].'</a>';
+		}
+
+		if (!empty ($subLeaf['leaves']) ) {
+			$output .= renderBreadcrumb($view, $subLeaf);
+		}
+
+	}
+
+	return $output;
+}
+
 ?>
 <nav id="menuMain">
 	<?= renderLeaves($view, $model->navi['Root'], $level); ?>
 </nav>
-<div id="breadcrumb"><a href="<?= \htmlspecialchars($view->url('default', array())) ?>">Home</a> / </div>
+<div id="breadcrumb">
+	<a href="<?= \htmlspecialchars($view->url('default', array())) ?>">Home</a><?= renderBreadcrumb($view, $model->navi['Root']); ?>
+</div>

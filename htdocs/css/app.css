@@ -19,10 +19,6 @@ a:hover {
 	text-decoration: none;
 }
 
-a:visited {
-	color: #50627a;
-}
-
 h1 a,
 h2 a,
 h3 a,
@@ -143,7 +139,12 @@ header #logoBox #version{
 	display: block;
 	color: #ffd700;
 	text-decoration: none;
-    padding: 0 0 9px;
+	padding: 0 0 9px;
+}
+
+#menuMain ul li span{
+	display: block;
+	padding: 0 0 9px;
 }
 
 #menuMain ul li a:hover{
@@ -180,6 +181,11 @@ header #logoBox #version{
 #menuMain .level1 ul li a{
 	padding: 0;
 	color: #ffd700;
+}
+
+#menuMain .level1 ul li span{
+	display: block;
+	padding: 0;
 }
 
 #menuMain .level1 ul li a:hover{
@@ -244,7 +250,7 @@ header #logoBox #version{
 }
 
 #main li {
-	padding: 2px 0 2px 20px;
+	padding: 4px 0 4px 20px;
 }
 
 
