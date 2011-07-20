@@ -87,7 +87,11 @@ abstract class ModuleBase
 			if (strpos($className, '\\') !== false) {
 				// we have a namespace - let us prepend it
 				$classNameArray = explode('\\', $className);
-				$template = implode(DIRECTORY_SEPARATOR, array_slice($classNameArray, 0, count($classNameArray)-1)) . DIRECTORY_SEPARATOR . $template;
+				if($classNameArray[count($classNameArray)-1] == 'Frontend') {
+					$template = implode(DIRECTORY_SEPARATOR, $classNameArray) . DIRECTORY_SEPARATOR . $template;
+				} else {
+					$template = implode(DIRECTORY_SEPARATOR, array_slice($classNameArray, 0, count($classNameArray)-1)) . DIRECTORY_SEPARATOR . $template;
+				}
 			}
 			// pick the right directory
 			$moduleName = constant(\get_called_class() . '::NAME');
