@@ -119,7 +119,15 @@ class Translation
 		}
 		return isset($this->_table[$msgId]) ? $this->_table[$msgId] : $msgId;
 	}
-
+	/**
+	 * internal message table
+	 * 
+	 * @return array array('KEY' => 'value')
+	 */
+	public function getMessageTable()
+	{
+		return $this->_table;
+	}
 	public static function getMessage($localeRoots, $resourceName, $localeChain, $msgId, $msgIdPlural = null, $count = null)
 	{
 		$locale = new self($localeRoots, $resourceName, $localeChain);
