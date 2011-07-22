@@ -513,4 +513,12 @@ class Session
 			self::saveAndRelease();
 		}
 	}
+	/**
+	 * @internal
+	 * @return array
+	 */
+	public static function getSessionInstances()
+	{
+		return self::$instance->instances;
+	}
 }

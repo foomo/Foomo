@@ -15,6 +15,9 @@
 <? if(Foomo\Session::getEnabled()): ?>
 id   : <?= $view->escape(Foomo\Session::getSessionId()) . PHP_EOL ?>
 age  : <?= Foomo\Session::getAge() ?> calls
+<pre>
+<? var_dump(Foomo\Session::getSessionInstances()) ?>
+</pre>
 <? else: ?>
 Session is not enabled!
 <? endif; ?></pre>
