@@ -69,9 +69,10 @@ class MVC
 	 * @param mixed $app name or application instance
 	 * @param string $baseURL inject a baseURL
 	 * @param boolean $forceBaseURL force injection of a baseURL
+	 * @param boolean $forceNoHTMLDocument force no html document rendering
 	 * @return string
 	 */
-	public static function run($app, $baseURL=null, $forceBaseURL=false)
+	public static function run($app, $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
 	{
 		// set up the application
 
@@ -134,7 +135,7 @@ class MVC
 
 		$app->view = null;
 
-		if (self::$level == 1) {
+		if (self::$level == 1 && !$forceNoHTMLDocument) {
 			$doc = HTMLDocument::getInstance();
 			$doc->addBody($rendering);
 			Timer::addMarker(__CLASS__ . ' is done');
