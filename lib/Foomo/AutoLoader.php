@@ -25,7 +25,7 @@ use Exception;
 
 /**
  * class for handling class __autoloading in arbitrary projects
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -98,6 +98,15 @@ class AutoLoader
 	public static function getClassesByInterface($interface)
 	{
 		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassesByInterface', array((string) $interface));
+	}
+
+	/**
+	 * @param string $class
+	 * @return string[]
+	 */
+	public static function getClassesBySuperClass($class)
+	{
+		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassesBySuperClass', array((string) $class));
 	}
 
 	/**
@@ -346,6 +355,21 @@ class AutoLoader
 		return $ret;
 	}
 
+	/**
+	 * @Foomo\Cache\CacheResourceDescription()
+	 * @param string $class
+	 * @return string[]
+	 */
+	public static function cachedGetClassesBySuperClass($class)
+	{
+		$ret = array();
+		foreach (self::getClassMap() as $className => $classFileName) {
+			$refl = new ReflectionClass($className);
+			if ($refl->isSubclassOf($class) && !$refl->isAbstract()) $ret[] = $refl->getName();
+		}
+		return $ret;
+	}
+
 	//---------------------------------------------------------------------------------------------
 	// ~ Private methods
 	//---------------------------------------------------------------------------------------------
@@ -393,6 +417,7 @@ class AutoLoader
 	{
 		$tmp = new self();
 		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetClassesByInterface', false);
+		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetClassesBySuperClass', false);
 		return self::$classMap = $tmp->buildClassMap($silently);
 	}
 
