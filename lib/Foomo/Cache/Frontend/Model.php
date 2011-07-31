@@ -110,8 +110,7 @@ class Model {
 		return $this->dependencyModel->getAvailableResources();
 	}
 
-	public function getToplevelResources()
-	{
+	public function getToplevelResources() {
 		$this->addedResources[] = array();
 		$resources = $this->getAvailableResources();
 		$ret = array();
@@ -122,8 +121,26 @@ class Model {
 			}
 		}
 		sort($ret);
+		//check if topped by somebody else
+		$toRemove = array();
+		foreach($ret as $resourceName) {
+			$children = $this->dependencyModel->getDependencies($resourceName);
+			foreach($children as $child) {
+				if (in_array($child,$ret)) {
+					$toRemove[] = $child;
+				}
+			}
+		}
+		//remove topped 
+		foreach ($ret as $key => $value) {
+			if (\in_array($value, $toRemove)) {
+				unset($ret[$key]);
+			}
+		}
 		return $ret;
 	}
+	
+	
 
 	private function evaluateAdvancedUserExpression()
 	{
