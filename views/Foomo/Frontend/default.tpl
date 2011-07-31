@@ -40,7 +40,40 @@
 				printf($view->_($key), $view->escape($user));
 			?>
 			</h1>
+			
+			<hr>
+			<br>
+			
 			<h2>Shortcuts</h2>
+			
+			<div class="greyBox">
+				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
+					<b><?= $view->link('Reset the autoloader', 'resetAutoloader', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></b>
+				</div>
+			</div>
+			
+			<div class="greyBox">
+				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
+					<b><a title="wanna start over?" href="<?= \Foomo\ROOT_HTTP . '/setup.php' ?>">Setup</a></b>
+				</div>
+			</div>
+			
+			<? if(Foomo\Session::getConf() && Foomo\Session::getConf()->type == 'foomo'): ?>
+			<div class="greyBox">
+				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
+					<b><a href="<?= \Foomo\ROOT_HTTP . '/sessionGc.php' ?>">collect session garbage</a></b>
+				</div>
+			</div>
+			<? endif; ?>
+			
+			<div class="greyBox">
+				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
+					<b><a title="may be your life saver" href="<?= \Foomo\ROOT_HTTP . '/hiccup.php' ?>">Hiccup</a></b> (You may want to bookmark that one!)
+				</div>
+			</div>
+			
+			<?= $model->classMap ?>
+			<!--
 			<ul>
 				<li><?= $view->link('Reset the autoloader', 'resetAutoloader', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></li>
 				<li><a title="wanna start over?" href="<?= \Foomo\ROOT_HTTP . '/setup.php' ?>">Setup</a></li>
@@ -49,7 +82,7 @@
 				<? endif; ?>
 				<li><a title="may be your life saver" href="<?= \Foomo\ROOT_HTTP . '/hiccup.php' ?>">Hiccup</a> &lt;-- you may want to bookmark that one</li>
 			</ul>
-			<?= $model->classMap ?>
+			-->
 		</div>
 		<?= $view->partial('footer') ?>
 	</div>

@@ -21,7 +21,7 @@ namespace Foomo;
 
 /**
  * framework setup helper
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -89,7 +89,7 @@ class Setup
 	{
 		$filename = self::getShellFilename();
 		file_put_contents($filename, Module::getView(__CLASS__, 'shell')->render());
-		\chmod($filename, 0777);
+		@chmod($filename, 0777);
 	}
 
 	/**
