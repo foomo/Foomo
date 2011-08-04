@@ -140,7 +140,6 @@ class Model {
 		return $ret;
 	}
 	
-	
 
 	private function evaluateAdvancedUserExpression()
 	{

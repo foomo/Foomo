@@ -88,7 +88,11 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterfa
 	 */
 	public function delete(\Foomo\Cache\CacheResource $resource) {
 		$id = $this->getId($resource->id);
-		return $this->memcache->delete($id);
+		if ($this->memcache->get($id)) {
+			return $this->memcache->delete($id);
+		} else {
+			return true;
+		}
 	}
 
 	/**
