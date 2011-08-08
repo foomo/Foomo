@@ -113,7 +113,7 @@ class Model
 			if (!in_array($moduleName, $checkedModuleNames) && null != $config = \Foomo\Config::getConf(str_replace('\\', '.', $moduleName), \Foomo\Frontend\ToolboxConfig::NAME)) {
 				$menuEntries = $config->getMenuEntries();
 				$configuredModuleNames[] = $moduleName;
-			} else if (!in_array($moduleName, $configuredModuleNames)) {
+			} else if (!in_array($moduleName, $configuredModuleNames) && class_exists($className)) {
 				$menuEntries = $className::getMenu();
 			}
 			if (!in_array($moduleName, $checkedModuleNames)) $checkedModuleNames[] = $moduleName;
