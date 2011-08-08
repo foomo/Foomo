@@ -106,8 +106,8 @@ class View
 	/**
 	 * Indent lines by given value
 	 *
-	 * @param string $lines lines to intend
-	 * @param int $indent number of intends
+	 * @param string $lines lines to indent
+	 * @param int $indent number of indents
 	 * @return string indented lines
 	 */
 	public function indent($lines, $indent=1)
