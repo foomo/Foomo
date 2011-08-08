@@ -130,7 +130,10 @@ class Controller
 	 */
 	public function actionTryCreateModuleResources($moduleName)
 	{
-		$this->model->resourceCreationReport = Manager::tryCreateModuleResources($moduleName);
+		MVC::abort();
+		header('Content-Type: text/plain;charset=utf-8;');
+		echo Manager::tryCreateModuleResources($moduleName);
+		exit;
 	}
 
 	/**
@@ -138,9 +141,11 @@ class Controller
 	 */
 	public function actionTryCreateAllModuleResources()
 	{
-		$this->model->resourceCreationReport = '';
+		MVC::abort();
+		header('Content-Type: text/plain;charset=utf-8;');
 		foreach (Manager::getEnabledModules() as $enabledModuleName) {
-			$this->model->resourceCreationReport .= Manager::tryCreateModuleResources($enabledModuleName);
+			echo Manager::tryCreateModuleResources($enabledModuleName);
 		}
+		exit;
 	}
 }
