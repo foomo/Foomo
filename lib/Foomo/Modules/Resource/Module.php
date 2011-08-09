@@ -23,8 +23,14 @@ namespace Foomo\Modules\Resource;
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
+ * @author franklin <franklin@weareinteractive.com>
  */
-class Module extends \Foomo\Modules\Resource {
+class Module extends \Foomo\Modules\Resource
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * @var string
 	 */
@@ -33,6 +39,49 @@ class Module extends \Foomo\Modules\Resource {
 	 * @var string
 	 */
 	public $version;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @return boolean
+	 */
+	public function resourceValid()
+	{
+		if (!in_array($this->name, \Foomo\Modules\Manager::getEnabledModules())) return false;
+		if (null == $installedVersion = \Foomo\Modules\Manager::getModuleVersion($this->name)) return false;
+		return !(version_compare($installedVersion, $this->version) === -1);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function resourceStatus()
+	{
+		if(in_array($this->name, \Foomo\Modules\Manager::getAvailableModules())) {
+			if($this->resourceValid()) {
+				return 'Module ' . $this->name . ' is available in required version ' . $this->version;
+			} else {
+				return 'Module ' . $this->name . ' has to be version >= ' . $this->version .' but is only ' . \Foomo\Modules\Manager::getModuleVersion($this->name);
+			}
+		} else {
+			return 'Module ' . $this->name . ' is not available';
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function tryCreate()
+	{
+		return 'can not create a module or upgrade it ;)';
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 *
 	 * @param string $name
@@ -47,37 +96,4 @@ class Module extends \Foomo\Modules\Resource {
 		$ret->version = $version;
 		return $ret;
 	}
-	public function resourceValid()
-	{
-		$installedVersion = \Foomo\Modules\Manager::getModuleVersion($this->name);
-		if($installedVersion) {
-			// var_dump($this->name, version_compare($this->version, $installedVersion, '>='));
-			if(version_compare($installedVersion, $this->version) === -1) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	public function resourceStatus()
-	{
-		if(in_array($this->name, \Foomo\Modules\Manager::getAvailableModules())) {
-			if($this->resourceValid()) {
-				return 'Module ' . $this->name . ' is available in required version ' . $this->version;
-			} else {
-				return 'Module ' . $this->name . ' has to be version >= ' . $this->version .' but is only ' . \Foomo\Modules\Manager::getModuleVersion($this->name);
-			}
-		} else {
-			return 'Module ' . $this->name . ' is not available';
-		}
-	}
-
-	public function tryCreate()
-	{
-		return 'can not create a module or upgrade it ;)';
-	}
-
 }
