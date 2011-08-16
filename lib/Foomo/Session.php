@@ -28,7 +28,16 @@ namespace Foomo;
  */
 class Session
 {
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
+
 	const DEAULT_IDENTIFIER = 'defaultInstance';
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * keeps all the class instances
 	 *
@@ -78,19 +87,30 @@ class Session
 	 * @var string
 	 */
 	private $dirty = false;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
 	private function __construct()
 	{
 		$this->clientHash = self::getClientHash();
 		$this->startTime = time();
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Magic methods
+	//---------------------------------------------------------------------------------------------
+
 	public function __wakeUp()
 	{
-		if (is_null($this->age)) {
-			$this->age = 0;
-		}
+		if (is_null($this->age)) $this->age = 0;
 		$this->age++;
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * get a session persistent instance of a class - singleton style
@@ -104,20 +124,20 @@ class Session
 	{
 		$inst = self::getInstance();
 		$key = $inst->getInstanceKey($className, $identifier);
-		if(!class_exists($className)) {
-			trigger_error('can not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
-		}
+
+		# validate class
+		if(!class_exists($className)) trigger_error('can not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
 
 		if (!isset($inst->instances[$key])) {
 			// @todo is that a good idea
 			self::lockAndLoad();
+			// @fixme: if you don't update the inst you're inst won't be set... so I guess it's not that good idea
+			$inst = self::getInstance();
 			self::setClassInstance(new $className, $identifier);
 		}
-		if($inst->locked) {
-			return $inst->instances[$key];
-		} else {
-			return new Session\ImmutableProxy($inst->instances[$key]);
-		}
+		// @fixme: jan, this does not work with i.e. casted method parameters or get_class(), which we use quite often
+		return $inst->instances[$key];
+		#return ($inst->locked) ? $inst->instances[$key] : new \Foomo\Session\ImmutableProxy($inst->instances[$key]);
 	}
 	/**
 	 * set a session class instance, session must be locked
@@ -129,9 +149,7 @@ class Session
 	{
 		$inst = self::getInstance();
 		$inst->checkIsLocked();
-		if(!is_object($instance)) {
-			throw new \InvalidArgumentException('$instance has to be an object');
-		}
+		if (!is_object($instance)) throw new \InvalidArgumentException('$instance has to be an object');
 		$inst->instances[$inst->getInstanceKey(get_class($instance), $identifier)] = $instance;
 	}
 	/**
@@ -165,10 +183,7 @@ class Session
 	public static function classInstanceIsset($className, $identifier = 'defaultInstance')
 	{
 		$inst = self::getInstance();
-		return isset(
-			$inst->
-			instances[$inst->getInstanceKey($className, $identifier)]
-		);
+		return isset($inst->instances[$inst->getInstanceKey($className, $identifier)]);
 	}
 	private function getInstanceKey($className, $identifier)
 	{
@@ -197,9 +212,7 @@ class Session
 	}
 	private function checkIsLocked()
 	{
-		if(!$this->locked) {
-			throw new \Exception('write access to an unlocked session');
-		}
+		if (!$this->locked) throw new \Exception('write access to an unlocked session');
 	}
 	private function verifyClient()
 	{
@@ -221,11 +234,8 @@ class Session
 	 */
 	public static function getInstance()
 	{
-		if (self::$instance) {
-			return self::$instance;
-		} else {
-			trigger_error('can not access session - is it enabled?', E_USER_ERROR);
-		}
+		if (!self::$instance) trigger_error('can not access session - is it enabled?', E_USER_ERROR);
+		return self::$instance;
 	}
 	/**
 	 * session config for the core
@@ -260,15 +270,8 @@ class Session
 				// got a cookie
 				self::$instance = self::$persistor->load($_COOKIE[$conf->name]);
 				if (!self::$instance || !self::$instance->sessionIsValid($conf)) {
-					if (!self::$instance) {
-						if (!self::$disabled) {
-							// trigger_error('no inst from >' . $_COOKIE[$conf->name] . '<');
-						}
-					}
 					if (self::$instance && !self::$instance->sessionIsValid($conf)) {
-						if (!self::$disabled) {
-							trigger_error('invalid session');
-						}
+						if (!self::$disabled) trigger_error('invalid session');
 					}
 					self::start($conf);
 				} else {
@@ -300,9 +303,7 @@ class Session
 		self::$instance->dirty = true;
 		self::$instance->sessionId = self::makeSessionId($conf->salt, $conf->paranoiaLevel);
 		self::$instance->lock();
-		if(!$reStart) {
-			self::sendCookie($conf, self::$instance->sessionId);
-		}
+		if(!$reStart) self::sendCookie($conf, self::$instance->sessionId);
 	}
 
 	private static function sendCookie(Session\DomainConfig $conf, $sessionId)
@@ -380,23 +381,17 @@ class Session
 	 * @param string $sessionId load another session, take care this only means looking into it, not hijacking it ...
 	 *
 	 */
-	public static function lockAndLoad($sessionId = null)
+	public static function lockAndLoad($sessionId=null)
 	{
 		if (!self::$disabled) {
 			if (self::$instance && !self::$instance->locked) {
-				if(is_null($sessionId)) {
-					$sessionId = self::getSessionId();
-				}
+				if (is_null($sessionId)) $sessionId = self::getSessionId();
 				self::$persistor->lock($sessionId);
 				$inst = self::$persistor->load($sessionId);
-				if(!is_null($inst)) {
-					self::$instance = $inst;
-				}
+				if(!is_null($inst)) self::$instance = $inst;
 				self::$instance->locked = self::$instance->dirty = true;
-			} else {
-				if (!self::$instance) {
-					trigger_error('can not lock session, that was not started', E_USER_ERROR);
-				}
+			} else if (!self::$instance) {
+				trigger_error('can not lock session, that was not started', E_USER_ERROR);
 			}
 		}
 	}

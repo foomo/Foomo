@@ -54,7 +54,7 @@ class Config
 	/**
 	 * a runtime cache, that ensures, that you will get only one instance of a
 	 * cached conf when calling getConf() with the same values
-	 * 
+	 *
 	 * @var array
 	 */
 	private static $confCache = array();
@@ -135,7 +135,7 @@ class Config
 	 * @param string $module name of the module, you want to configure
 	 * @param string $name the domain of configuration like db, mail, YOU name it
 	 * @param string $domain you need multiple for a domain in a module - here you are
-	 * 
+	 *
 	 * @return Foomo\Config\AbstractConfig
 	 */
 	public static function getConf($module, $name, $domain='')
@@ -263,6 +263,7 @@ class Config
 	/**
 	 * deprecated hack to invalidate the config cache
 	 *
+	 * @deprecated
 	 * @internal
 	 */
 	public static function resetCache()

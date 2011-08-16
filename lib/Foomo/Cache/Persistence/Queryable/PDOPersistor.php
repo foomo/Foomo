@@ -23,7 +23,7 @@ use \PDO;
 
 /**
  * A PDO peristor implementation. In its present form only for mysql.
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -187,7 +187,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			}
 			return $object;
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . ' : ' . $e->getMessage());
+			// @todo: disabled this as this always comes after autoloader reset
+			#\trigger_error(__CLASS__ . __METHOD__ . ' : ' . $e->getMessage());
 			return null;
 		}
 	}
@@ -738,7 +739,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			else
 				return false;
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			// @todo: disabled this as this always comes after autoloader reset
+			#\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 			return false;
 		}
 	}
