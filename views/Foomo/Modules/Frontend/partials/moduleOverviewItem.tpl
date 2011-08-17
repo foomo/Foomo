@@ -3,8 +3,8 @@
 	use Foomo\Modules\Manager;
 
 	$enabledModules = Manager::getEnabledModules();
-	
-	
+
+
 	$moduleEnabled = 'disabled';
 	// the local vars here need to be renamed ...
 	$modStat = Manager::getModuleStatus($module);
@@ -23,7 +23,7 @@
 	$hintClass = $modStat==Manager::MODULE_STATUS_OK?'valid':'invalid';
 	$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($module);
 	$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($module);
-	
+
 	/*
 				<? if($module == \Foomo\Module::NAME): ?>
 					<span title="well you do not want to fiddle around with the core ;)">none</span>
@@ -31,17 +31,17 @@
 					<span title="enable dependencies first">none</span>
 				<? else ?>
 	 */
-	
-	
+
+
 ?>
 <div class="toggleBox">
 	<div class="toogleButton">
 		<div class="toggleOpenIcon">+</div>
 		<div class="toggleOpenContent">
 			<?= $module ?> v <?= constant(str_replace('.', '\\', $module) . '\\Module::VERSION') ?>
-		</div>	
+		</div>
 		<div class="toggleOpenInfo">
-			
+
 			<div class="floatRightSpaceBox" style="width:70px;">
 				<? if($module == \Foomo\Module::NAME): ?>
 					&nbsp;
@@ -53,11 +53,11 @@
 					<?= $view->link('Disable', 'disableModule', array($module), array('class' => 'linkButtonSmallYellow')) ?>
 				<? endif; ?>
 			</div>
-			
+
 			<div class="floatRightSpaceBox">
 				<span style="font-weight: normal;">Status:</span> <?= $modStat==Manager::MODULE_STATUS_OK?'<span class="textGreen">ok</span>':'<span class="textRed">check</span>'; ?>
 			</div>
-			
+
 			<div class="floatRightSpaceBox">
 				<? if($hasMVCFrontEnd && !$hasFrontEnd): ?>
 					<?= $view->link('Open module frontend', 'showMVCApp', array($module), array('class' => 'linkButtonSmallYellow')) ?>
@@ -69,7 +69,7 @@
 					<a class="linkButtonSmallYellow" href="<?= $view->escape(Foomo\ROOT_HTTP . '/modules/' . $module) ?>" target="_blank">Open a new module frontend</a>
 				<? endif; ?>
 			</div>
-			
+
 		</div>
 	</div>
 	<div class="toggleContent">
@@ -106,7 +106,7 @@
 				}
 				echo $msg;
 				echo $view->partial('moduleResources', array('moduleName' => $module));
-			?>	
+			?>
 			</div>
 		</div>
 

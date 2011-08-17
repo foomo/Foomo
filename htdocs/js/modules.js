@@ -43,7 +43,7 @@ Foomo.ToggleBox = function() {
 		a.clickHandler(event);
 	});
 	// @todo: find better selector eg refactor template
-	$(".toggleBox div.toogleButton .toggleOpenContent a, .toggleBox div.toogleButton .toggleOpenContent form").live('click', function(event) {
+	$(".toggleBox div.toogleButton a, .toggleBox div.toogleButton .toggleOpenContent form").live('click', function(event) {
 		a.openContentClickHandler(event);
 	});
 
@@ -64,7 +64,7 @@ Foomo.ToggleBox.prototype = {
 	},
 
 	openContentClickHandler: function(event) {
-		event.stopPropagation()
+		event.stopPropagation();
 	}
 }
 

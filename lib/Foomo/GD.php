@@ -48,7 +48,7 @@ class GD
 	 * 								applies to jpegs only
 	 * @return boolean
 	 */
-	public static function reSampleImage($srcMime, $targetMime, $srcFName, $targetFName, $targetW, $targetH, $targetQuality = null)
+	public static function reSampleImage($srcMime, $targetMime, $srcFName, $targetFName, $targetW=null, $targetH=null, $targetQuality = null)
 	{
 		//sizes
 		if (!file_exists($srcFName)) {
@@ -131,21 +131,23 @@ class GD
 
 		$gd = new self();
 		$targetHeight = $targetWidth = null;
-		if ($maxHeight < $maxWidth) {
+		
+		// assumed we scale to the width
+		$scaleWidth = $maxWidth / $sourceWidth;
+		//var_dump('sw ' . $sourceWidth, 'sh ' . $sourceHeight, 'mw ' . $maxWidth, 'mh ' . $maxHeight, $scaleWidth);
+		if ($maxHeight < $maxWidth && $maxHeight >= $sourceHeight * $scaleWidth) {
+			//var_dump('landscape');
 			// landscape
-			if ($sourceWidth > $sourceHeight) {
-				$targetWidth = $maxWidth;
-			} else {
-				$targetHeight = $maxHeight;
-			}
+			$targetWidth = $maxWidth;
+			$targetHeight = null;
 		} else {
 			// portrait
-			if ($sourceWidth < $sourceHeight) {
-				$targetHeight = $maxHeight;
-			} else {
-				$targetWidth = $maxWidth;
-			}
+			//var_dump('portrait');
+			$targetHeight = $maxHeight;
+			$targetWidth = null;
 		}
+		//var_dump($targetWidth, $targetHeight);
+		//exit;
 		return $gd->reSampleImage($srcMime, $targetMime, $srcFName, $targetFName, $targetWidth, $targetHeight, $targetQuality);
 	}
 
