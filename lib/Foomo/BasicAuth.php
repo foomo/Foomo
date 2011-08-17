@@ -21,7 +21,7 @@ namespace Foomo;
 
 /**
  * provides a simple interface for basic http authentication
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -116,6 +116,7 @@ class BasicAuth {
 		if (!$this->checkAuthentication()) {
 			header('HTTP/1.0 401 Unauthorized');
 			header('WWW-Authenticate: Basic realm=' . $realm);
+			trigger_error('Basic auth failed for ' . $realm, E_USER_WARNING);
 			exit;
 		} else {
 			return true;

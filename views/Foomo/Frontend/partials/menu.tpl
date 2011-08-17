@@ -46,7 +46,11 @@ function renderBreadcrumb($view, $leaf) {
 	foreach ($leaf['leaves'] as $subLeaf){
 
 		if($subLeaf['active']){ //  && !is_null($subLeaf['link'])
-			$output .= ' / <a href="'. \htmlspecialchars($view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters']))) .'">'.$subLeaf['link']['name'].'</a>';
+			if (!is_null($subLeaf['link'])) {
+				$output .= ' / <a href="'. \htmlspecialchars($view->url('showMVCApp', array_merge(array($subLeaf['link']['app'], $subLeaf['link']['action']), $subLeaf['link']['parameters']))) .'">'.$subLeaf['link']['name'].'</a>';
+			} else {
+				$output .= ' / '.$subLeaf['name'];
+			}
 		}
 
 		if (!empty ($subLeaf['leaves']) ) {
