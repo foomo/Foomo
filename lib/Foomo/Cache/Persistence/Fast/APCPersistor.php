@@ -83,10 +83,12 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 	}
 
 	public function delete(\Foomo\Cache\CacheResource $resource) {
-                if (apc_fecth($this->getId($resource->id))){
-			return apc_delete($this->getId($resource->id));   
+                if (!apc_fecth($this->getId($resource->id))){
+                     return true;   
+                } else {
+                     return apc_delete($this->getId($resource->id));
                 }
-		return true;
+		
 	}
 
 	public function __construct($config) {
