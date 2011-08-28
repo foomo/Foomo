@@ -361,7 +361,12 @@ class Logger {
 	 */
 	public static function getLoggerFile()
 	{
-		return \Foomo\Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
+		$customLogfile = self::getInstance()->config->customLogfile;
+		if(empty($customLogfile)) {
+			return \Foomo\Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
+		} else {
+			return $customLogfile;
+		}
 	}
 
 }

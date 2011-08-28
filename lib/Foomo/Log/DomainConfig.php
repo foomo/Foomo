@@ -35,6 +35,12 @@ class DomainConfig extends AbstractConfig {
 	 */
 	public $enabled = false;
 	/**
+	 * path to a custom logfile
+	 * 
+	 * @var string
+	 */
+	public $customLogfile;
+	/**
 	 * @var boolean
 	 */
 	public $replacePhpErrorLog = false;
