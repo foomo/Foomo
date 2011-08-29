@@ -33,7 +33,7 @@ use Foomo\Config;
  */
 class Utils {
 	const UMASK_FOLDER = 0775;
-	const UMASK_FILE = 0764;
+	const UMASK_FILE = 0664;
 
 	/**
 	 * create a module skeleton

@@ -70,8 +70,13 @@ abstract class AbstractConfig
 	public function setValue($value)
 	{
 		if (is_array($value)) {
+			$refl = new \ReflectionClass($this);
 			foreach ($value as $k => $v) {
-				$this->$k = $v;
+				/* @var $reflProp \ReflectionProperty */
+				$reflProp = $refl->getProperty($k);
+				if($reflProp->isPublic() || $reflProp->isProtected()) {
+					$this->$k = $v;
+				}
 			}
 		}
 	}
