@@ -2,11 +2,22 @@
 
 header('Content-Type: text/plain');
 
-$a = array('a' => 'one', 'b' => 'two');
-$b = array('a' => 'three', 'c' => 'four');
 
-$c = array_merge($a, $b);
-$d = array_merge($b, $a);
+$service = new \Creation\Client\Services\Finder();
+
+$list = \RadFsFacade::ls('4e4ca53fa2843851956528');
+
+foreach ($list as $item) {
+	/* @var $item RadFsItem */
+	echo  $item->names['en'] . ' - ' . $item->contentId . PHP_EOL;
+}
+
+
+#$a = array('a' => 'one', 'b' => 'two');
+#$b = array('a' => 'three', 'c' => 'four');
+
+#$c = array_merge($a, $b);
+#$d = array_merge($b, $a);
 
 #$view->link("[YES, proceed]", 'setupone');
 #$view->link("[YES, proceed]", 'setupone', array($model->currentResourceName));
@@ -61,31 +72,31 @@ function DoHTMLEntities ($string) {
 #var_dump(array('foo' => 'bar', 'bar' => 'foo'));
 
 
-echo \Foomo\Wordpress\Module::getBaseDir() . PHP_EOL;
-echo \Foomo\Wordpress\Module::getPluginsDir() . PHP_EOL;
-echo \Foomo\Wordpress\Module::getPluginsPath() . PHP_EOL;
-echo \Foomo\Wordpress\Module::getThemesDir() . PHP_EOL;
-echo \Foomo\Wordpress\Module::getThemesPath() . PHP_EOL;
-echo \Foomo\Wordpress\Module::getWordpressDir() . PHP_EOL;
-echo \Foomo\Wordpress\Module::getWordpressPath() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getBaseDir() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getPluginsDir() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getPluginsPath() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getThemesDir() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getThemesPath() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getWordpressDir() . PHP_EOL;
+#echo \Foomo\Wordpress\Module::getWordpressPath() . PHP_EOL;
 
-echo PHP_EOL;
-echo PHP_EOL;
+#echo PHP_EOL;
+#echo PHP_EOL;
 
-echo \Foomo\Site\Module::getBaseDir() . PHP_EOL;
-echo \Foomo\Site\Module::getCacheDir() . PHP_EOL;
-echo \Foomo\Site\Module::getCachePath() . PHP_EOL;
-echo \Foomo\Site\Module::getContentDir() . PHP_EOL;
-echo \Foomo\Site\Module::getContentPath() . PHP_EOL;
-echo \Foomo\Site\Module::getDbDir() . PHP_EOL;
-echo \Foomo\Site\Module::getHtdocsDir() . PHP_EOL;
-echo \Foomo\Site\Module::getHtdocsPath() . PHP_EOL;
-echo \Foomo\Site\Module::getHtdocsVarDir() . PHP_EOL;
-echo \Foomo\Site\Module::getHtdocsVarPath() . PHP_EOL;
-echo \Foomo\Site\Module::getPluginsDir() . PHP_EOL;
-echo \Foomo\Site\Module::getPluginsPath() . PHP_EOL;
-echo \Foomo\Site\Module::getThemesDir() . PHP_EOL;
-echo \Foomo\Site\Module::getThemesPath() . PHP_EOL;
-echo \Foomo\Site\Module::getUploadDir() . PHP_EOL;
-echo \Foomo\Site\Module::getUploadPath() . PHP_EOL;
-echo \Foomo\Site\Module::getVarDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getBaseDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getCacheDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getCachePath() . PHP_EOL;
+#echo \Foomo\Site\Module::getContentDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getContentPath() . PHP_EOL;
+#echo \Foomo\Site\Module::getDbDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getHtdocsDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getHtdocsPath() . PHP_EOL;
+#echo \Foomo\Site\Module::getHtdocsVarDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getHtdocsVarPath() . PHP_EOL;
+#echo \Foomo\Site\Module::getPluginsDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getPluginsPath() . PHP_EOL;
+#echo \Foomo\Site\Module::getThemesDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getThemesPath() . PHP_EOL;
+#echo \Foomo\Site\Module::getUploadDir() . PHP_EOL;
+#echo \Foomo\Site\Module::getUploadPath() . PHP_EOL;
+#echo \Foomo\Site\Module::getVarDir() . PHP_EOL;
