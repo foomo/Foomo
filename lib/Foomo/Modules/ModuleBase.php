@@ -190,11 +190,15 @@ abstract class ModuleBase
 	}
 
 	/**
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getLogDir()
+	public static function getLogDir($relPath='')
 	{
-		return \Foomo\Config::getLogDir(self::getModuleName());
+		$ret = \Foomo\Config::getLogDir(self::getModuleName());
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
+		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
+		return $ret;
 	}
 
 	/**
