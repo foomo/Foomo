@@ -49,7 +49,7 @@ class ConfigWorld {
 	 */
 	public $testCase;
 	/**
-	 * @story given config does not exist for <?= $name . '/' . $domain ?>
+	 * @story given config does not exist for <?= $name . (isset($domain)?'/' . $domain:'') ?>
 	 *
 	 * @param string $module
 	 * @param string $name
@@ -61,7 +61,7 @@ class ConfigWorld {
 		$this->testCase->assertFalse(\Foomo\Config::confExists($module, $name, $domain));
 	}
 	/**
-	 * @story when config is created <?= $name . '/' . $domain ?>
+	 * @story when config is created <?= $name . (isset($domain)?'/' . $domain:'') ?>
 	 *
 	 * @param string $module
 	 * @param string $name
@@ -69,19 +69,19 @@ class ConfigWorld {
 	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function whenConfigIsCreatedFromDefault($module, $name, $domain)
+	public function whenConfigIsCreatedFromDefault($module, $name, $domain = '')
 	{
 		\Foomo\Config::setConf(\Foomo\Config::getDefaultConfig($name), $module, $domain);
 	}
 	/**
-	 * @story then config exists for <?= $name . '/' . $domain ?>
+	 * @story then config exists for <?= $name . (isset($domain)?'/' . $domain:'') ?>
 	 * @param string $module
 	 * @param string $name
 	 * @param unknown $domain
 	 *
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function thenConfigExists($module, $name, $domain)
+	public function thenConfigExists($module, $name, $domain = '')
 	{
 		$this->testCase->assertTrue(\Foomo\Config::confExists($module, $name, $domain));
 	}
