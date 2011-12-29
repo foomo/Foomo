@@ -48,7 +48,7 @@ class ImmutableProxyTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testWrongReadAccess()
 	{
-		// we have a testing problem here ...
+		\PHPUnit_Framework_Error_Notice::$enabled = false;
 		$mock = new TestMockClass;
 		$immutableProxy = new ImmutableProxy($mock);
 		$this->assertEquals(null, $immutableProxy->bar);
