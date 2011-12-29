@@ -53,4 +53,9 @@ class ImmutableProxyTest extends \PHPUnit_Framework_TestCase {
 		$immutableProxy = new ImmutableProxy($mock);
 		$this->assertEquals(null, $immutableProxy->bar);
 	}
+	public function tearDown()
+	{
+		\PHPUnit_Framework_Error_Notice::$enabled = true;
+	}
+
 }
