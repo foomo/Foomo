@@ -33,7 +33,7 @@ class AppDirectoryTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testResolveAppNamed()
 	{
-		$appId = 'Foomo.toolbox';
+		$appId = 'Foomo';
 		$className = 'Foomo\\Frontend';
 		$this->assertEquals($className, AppDirectory::resolveClass($appId), 'could not resolve ' . $appId . ' to ' . $className);
 	}
