@@ -24,8 +24,10 @@ namespace Foomo\Cache;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-abstract class AbstractBaseTest extends Persistence\Queryable\AbstractTest{
+abstract class AbstractBaseTest extends Persistence\Queryable\AbstractTest {
 
+	protected $setupWasSuccessful = false;
+	
 	public function setUp() {
 		$domainConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
 		if($domainConfig) {
@@ -33,19 +35,29 @@ abstract class AbstractBaseTest extends Persistence\Queryable\AbstractTest{
 			$queryablePersistorConf = $domainConfig->queryablePersistors['pdo'];
 			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
 			$pdoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
-			$this->saveManagerSettings();
-			$this->clearMockCache($pdoPersistor, $fastPersistor);
-			Manager::initialize($pdoPersistor, $fastPersistor);
-			\ob_start();
-			//Manager::reset(null, true, false);
-			\ob_end_clean();
+			if(is_object($fastPersistor) && is_object($pdoPersistor)) {
+				$this->saveManagerSettings();
+				$this->clearMockCache($pdoPersistor, $fastPersistor);
+				Manager::initialize($pdoPersistor, $fastPersistor);
+				\ob_start();
+				//Manager::reset(null, true, false);
+				\ob_end_clean();
+				$this->setupWasSuccessful = true;
+			} else {
+				$this->markTestSkipped('configuration ' . \Foomo\Cache\Test\DomainConfig::NAME . ' for module ' . \Foomo\Module::NAME . ' seems invalid - I could not get proper persistor from it');
+				$this->setupWasSuccessful = false;
+			}
 		} else {
+			$this->setupWasSuccessful = false;
+		}
+		if(!$this->setupWasSuccessful) {
 			$this->markTestSkipped('missing configuration ' . \Foomo\Cache\Test\DomainConfig::NAME . ' for module ' . \Foomo\Module::NAME);
 		}
 	}
-
 	public function tearDown() {
-		$this->restoreManagerSettings();
+		if($this->setupWasSuccessful) {
+			$this->restoreManagerSettings();
+		}
 	}
 
 
