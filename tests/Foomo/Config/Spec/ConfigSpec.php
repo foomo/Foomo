@@ -51,10 +51,15 @@ class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 			->whenConfigIsSet($module = \Foomo\Module::NAME, $config = new DomainConfig, $domain = 'test')
 			->whenConfigIsSet($module, $config, $domain)
 			->thenOldConfigExists($module, $configName = DomainConfig::NAME, $domain)
+			->whenConfigIsSet($module, $config, $domainA = 'testA')
+			->whenOldConfigsAreRemoved($module, null, $domainA)
+			->thenOldConfigExists($module, $configName, $domain)
+			->whenOldConfigsAreRemoved($module, $configName)
+			->thenNoOldConfigExists()	
+			->whenConfigIsSet($module, $config, $domain)
 			->whenOldConfigsAreRemoved()
 			->thenNoOldConfigExists()
 		;
-
 	}
 	public function tearDown()
 	{

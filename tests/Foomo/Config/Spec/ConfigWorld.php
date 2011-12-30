@@ -128,11 +128,14 @@ class ConfigWorld {
 		);
 	}
 	/**
-	 * @story when old configs are removed
+	 * @story when old configs are removed module: <?= isset($module)?$module:'na' ?>, name: <?= isset($name)?$name:'na' ?>, domain: <?= isset($domain)?$domain:'na' ?>
+	 * @param string $module
+	 * @param string $name
+	 * @param string $domain 
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function whenOldConfigsAreRemoved() {
-		Utils::removeOldConfigs();
+	public function whenOldConfigsAreRemoved($module = null, $name = null, $domain = null) {
+		Utils::removeOldConfigs($module, $name, $domain);
 	}
 	/**
 	 * @story then no old config exists
