@@ -62,24 +62,7 @@ class CliCall
 	 * @var string
 	 */
 	public $lastCommandExecuted;
-	/**
-	 * execution time real
-	 *
-	 * @var float
-	 */
-	public $timeReal;
-	/**
-	 * execution time sys
-	 *
-	 * @var float
-	 */
-	public $timeSys;
-	/**
-	 * execution time user
-	 *
-	 * @var float
-	 */
-	public $timeUser;
+
 	/**
 	 * resolved command to call
 	 *
@@ -98,6 +81,18 @@ class CliCall
 	 * @var array
 	 */
 	public $envVars = array();
+	/**
+	 * callback functions when streaming std err
+	 * 
+	 * @var function
+	 */
+	private $stdErrStreamCallback = array();
+	/**
+	 * callback functions when streaming std out
+	 * 
+	 * @var function
+	 */
+	private $stdOutStreamCallback = array();
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
@@ -120,7 +115,26 @@ class CliCall
 	//---------------------------------------------------------------------------------------------
 	// ~ Public methods
 	//---------------------------------------------------------------------------------------------
-
+	/**
+	 * magic method to handle timeReal, timeSys, timeUser deprecation
+	 * 
+	 * @param string $name
+	 * @return mixed
+	 * @internal
+	 */
+	public function __get($name)
+	{
+		switch($name) {
+			case 'timeReal':
+			case 'timeSys':
+			case 'timeUser':
+				trigger_error('timing stats are not supported anymore', E_USER_DEPRECATED);
+				break;
+			default:
+				trigger_error('accessing undefined property ' . $name, E_USER_NOTICE);
+		}
+		return null;
+	}
 	/**
 	 * @param array $arguments
 	 * @return Foomo\CliCall
@@ -140,49 +154,101 @@ class CliCall
 		$this->arguments = array_merge($this->arguments, $arguments);
 		return $this;
 	}
-
+	/**
+	 * render the command string
+	 * 
+	 * @return string
+	 */
+	private function renderCommand()
+	{
+		$cmd = $this->cmd;
+		foreach ($this->arguments as $arg) {
+			$cmd .= ' ' . escapeshellarg($arg);
+		}
+		return $cmd;
+	}
+	/**
+	 * if you expect a lot of output define callback handlers $this->stdOut will
+	 * not be used
+	 *  
+	 * @param array $callbackFunctions
+	 * 
+	 * @return Foomo\CliCall
+	 */
+	public function setStdOutStreamCallback($callbackFunction)
+	{
+		$this->stdOutStreamCallback = $callbackFunction;
+		return $this;
+	}
+	/**
+	 * if you expect a lot of output define callback handlers $this->stdErr will
+	 * not be used
+	 *  
+	 * @param function $callbackFunction
+	 * 
+	 * @return Foomo\CliCall
+	 */
+	public function setStdErrStreamCallback($callbackFunction)
+	{
+		$this->stdErrStreamCallback = $callbackFunction;
+		return $this;
+	}
 	/**
 	 * execute the command line call
+	 * 
 	 * @return Foomo\CliCall
 	 */
 	public function execute()
 	{
-		$cmd = '';
-		foreach ($this->envVars as $name => $value) {
-			$cmd .= 'export ' . $name . '=' . escapeshellarg($value) . ' ; ';
+		// setup
+		$pipes = array();
+		$descriptorSpec = array(
+			1 => array('pipe', 'w'),
+			2 => array('pipe', 'w')
+		);
+		$process = proc_open($this->lastCommandExecuted = $this->renderCommand(), $descriptorSpec, $pipes, $cwd = null, $this->envVars);
+		if(is_resource($process)) {
+			// run
+			$running = true;
+			while($running) {
+				$status = proc_get_status($process);
+				$running = $status['running'] == true;
+				$this->handleStream($pipes[1], $this->stdOut, $this->stdOutStreamCallback);
+				$this->handleStream($pipes[2], $this->stdErr, $this->stdErrStreamCallback);
+			}
+			// clean up
+			proc_close($process);
+			foreach($pipes as $pipe) {
+				if(is_resource($pipe)) {
+					fclose($pipe);
+				}
+			}
+			// report
+			$this->exitStatus = $status['exitcode'];
+			$this->stdErr = trim($this->stdErr);
+			$this->stdOut = trim($this->stdOut);
+			$this->updateReport();
+		} else {
+			trigger_error('could not spawn process', E_USER_ERROR);
 		}
-		$tempDir = Config::getTempDir();
-		$cleanClass = \str_replace('\\', '_', __CLASS__);
-		$errorTempFileName = tempnam($tempDir, $cleanClass . '-StdErr-');
-		$errorTimeTempFileName = tempnam($tempDir, $cleanClass . '-StdErrTime-');
-		$outTempFileName = tempnam($tempDir, $cleanClass . '-StdOut-');
-
-		$cmd .= escapeshellarg($this->cmd);
-
-		foreach ($this->arguments as $arg) {
-			$cmd .= ' ' . escapeshellarg($arg);
-		}
-
-		$cmd .= ' 2>' . $errorTempFileName . ' 1>' . $outTempFileName;
-
-//		$cmd = '2>' . $errorTimeTempFileName . '  time -p /bin/bash -c ' . escapeshellarg($cmd);
-		$cmd = '{ time -p ' . $cmd . ' ; } 2>' . $errorTimeTempFileName;
-		$this->lastCommandExecuted = $cmd;
-		$outLines = array();
-		$ret = exec($cmd, $outLines, $this->exitStatus);
-		$this->stdErr = trim(file_get_contents($errorTempFileName));
-		$this->stdOut = trim(file_get_contents($outTempFileName));
-		$this->parseTime(file_get_contents($errorTimeTempFileName));
-		@unlink($errorTempFileName);
-		@unlink($outTempFileName);
-		@unlink($errorTimeTempFileName);
-		$this->updateReport();
 		return $this;
 	}
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Private methods
 	//---------------------------------------------------------------------------------------------
+
+	private function handleStream($stream, &$target, $callback)
+	{
+		if($callback) {
+			call_user_func_array($callback, array($stream));
+		} else {
+			$bytes = stream_get_contents($stream);
+			if($bytes !== false && !empty($bytes)) {
+				$target .= $bytes;
+			}
+		}
+	}
 
 	/**
 	 * try to resolve the given command
@@ -212,20 +278,7 @@ class CliCall
 		$this->report = \Foomo\Module::getView('Foomo\\CliCall', 'cliCallReport', $this)->render();
 	}
 
-	/**
-	 * @param string $report
-	 */
-	private function parseTime($report)
-	{
-		$lines = explode(PHP_EOL, $report);
-		foreach ($lines as $line) {
-			$line = trim($line);
-			$parts = explode(' ', $line);
-			$type = 'time' . ucfirst($parts[0]);
-			$this->$type = (float) trim($parts[count($parts) - 1]);
-		}
-	}
-
+	
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
