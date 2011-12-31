@@ -27,22 +27,15 @@ use Foomo\Config\Utils;
  * @author jan <jan@bestbytes.de>
  */
 class ConfigWorld {
-	public $testDomains = array('none' => null, 'mock' => 'myMockTestDomain');
+	public $testDomains = array('none' => null, 'mock' => 'myMockTestDomain', 'test' => 'test', 'testA' => 'testA');
 	public function cleanUp()
 	{
-		Utils::removeOldConfigs();
-		$oldConfigs = \Foomo\Config\Utils::getOldConfigs();
-		foreach($oldConfigs as $oldConfig) {
-			/* @var $oldConfig \Foomo\Config\OldConfig */
-			if($oldConfig->domain == DomainConfig::NAME) {
-				\unlink($oldConfig->filename);
-			}
-		}
 		foreach($this->testDomains as $testDomain) {
 			if(\Foomo\Config::confExists(\Foomo\Module::NAME, DomainConfig::NAME, $testDomain)) {
 				\Foomo\Config::removeConf(\Foomo\Module::NAME, DomainConfig::NAME, $testDomain);
 			}
 		}
+		Utils::removeOldConfigs(\Foomo\Module::NAME, DomainConfig::NAME);
 	}
 	/**
 	 * @var \PHPUnit_Framework_TestCase
@@ -88,10 +81,15 @@ class ConfigWorld {
 
 	/**
 	 * @story given no old config exists
+	 * 
+	 * @param string $module
+	 * @param string $name
+	 * @param string $domain 
+	 * 
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function givenNoOldConfigExists() {
-		Utils::removeOldConfigs();
+	public function givenNoOldConfigExists($module = null, $name = null, $domain = null) {
+		Utils::removeOldConfigs($module, $name, $domain);
 	}
 	/**
 	 * @story when config is set
@@ -138,13 +136,22 @@ class ConfigWorld {
 		Utils::removeOldConfigs($module, $name, $domain);
 	}
 	/**
-	 * @story then no old config exists
+	 * @story then no old config exists in module: "<?= $module ?>" for name: "<?= $name ?>" 
+	 * 
+	 * @param string $module
+	 * @param string $name
+	 * 
 	 * @return Foomo\Config\Spec\ConfigWorld
 	 */
-	public function thenNoOldConfigExists() {
+	public function thenNoOldConfigExists($module, $name) {
 		$oldConfigs = Utils::getOldConfigs();
-		$oldConfigCount = count($oldConfigs);
-		$this->testCase->assertTrue($oldConfigCount == 0, 'old config count should have been 0 got: ' . $oldConfigCount );
+		$oldConfigCount = 0;
+		foreach($oldConfigs as $oldConfig) {
+			if($oldConfig->name == $name && $oldConfig->module == $module) {
+				$oldConfigCount ++;
+			}
+		}
+		$this->testCase->assertEquals(0, $oldConfigCount, 'there are still old configs in module: ' . $module . ' for name: ' . $name);
 	}
 
 }
