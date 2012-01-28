@@ -126,7 +126,11 @@ class Reader implements \Iterator {
 			if ($rawEntry == self::DISABLED_ENTRY) {
 				return null;
 			}
-			$entry = \unserialize(\gzinflate(\base64_decode($rawEntry)));
+			$rawEntry = \base64_decode($rawEntry);
+			if(function_exists('gzinflate')) {
+				$rawEntry = gzinflate($rawEntry);
+			}
+			$entry = \unserialize($rawEntry);
 			if ($entry !== false && is_object($entry) && $entry instanceof Entry) {
 				// get the rest from the front
 				// cut the entry from the line, and the log time to make things faster
