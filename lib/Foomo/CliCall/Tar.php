@@ -127,12 +127,15 @@ class Tar extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 *
+	 * create a call
+	 * 
 	 * @param string $filename
+	 * 
 	 * @return Foomo\CliCall\Tar
 	 */
-	public static function create($filename)
+	public static function create()
 	{
-		return new self($filename);
+		
+		return new self($filename = func_get_arg(0));
 	}
 }

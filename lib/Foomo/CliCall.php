@@ -284,13 +284,25 @@ class CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
+	 * create a cli call
+	 * 
 	 * @param string $cmd name or abolute path of the command, if the program file does not exist, we will call which to find it
 	 * @param array $arguments array of arguments
 	 * @param array $envVars array('varName' => value, ...)
+	 * 
 	 * @return Foomo\CliCall
 	 */
-	public static function create($cmd, $arguments=array(), $envVars=array())
+	public static function create()
 	{
+		$args = func_get_args();
+		$cmd = $args[0];
+		$arguments = self::extractOptionalArg($args, 1, array());
+		$envVars = self::extractOptionalArg($args, 2, array());
 		return new self($cmd, $arguments, $envVars);
 	}
+	protected static function extractOptionalArg($argArray, $index, $default)
+	{
+		return (isset($argArray[$index]))?$argArray[$index]:$default;
+	}
+	
 }
