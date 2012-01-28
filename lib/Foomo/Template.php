@@ -41,12 +41,6 @@ class Template {
 	 * @var string
 	 */
 	public $file;
-	/**
-	 *
-	 *
-	 * @var string
-	 */
-	private $buffer;
 	public static $stack = array();
 
 	/**
@@ -75,16 +69,10 @@ class Template {
 	 */
 	public function render($model = null, View $view = null, \Exception $exception = null, array $variables = array())
 	{
-		ob_start(array($this, 'handle'));
+		ob_start();
 		$this->run($model, $view, $exception, $variables);
-		ob_end_clean();
-		return $this->buffer;
-	}
-
-	public function handle($buffer)
-	{
-		$this->buffer .= $buffer;
-		return '';
+		$rendering = ob_get_clean();
+		return $rendering;
 	}
 
 	private function run($model, $view, $exception, $variables)
