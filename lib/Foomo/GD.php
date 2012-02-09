@@ -59,6 +59,18 @@ class GD
 			return false;
 		$sourceW = $srcData[0];
 		$sourceH = $srcData[1];
+		if(is_null($targetW)) {
+			$targetW = $sourceW;
+		}
+		if(is_null($targetH)) {
+			$targetH = $sourceH;
+		}
+		if($sourceH === 0 || $sourceW === 0) {
+			return false;
+		}
+		if($targetH == 0 || $targetW == 0) {
+			trigger_error('invalid target size must not be 0', E_USER_ERROR);
+		}
 		if (!(isset($targetH) AND isset($targetW))) {
 			if (isset($targetW)) {
 				$scale = $targetW / $sourceW;
