@@ -73,9 +73,11 @@ abstract class AbstractConfig
 			$refl = new \ReflectionClass($this);
 			foreach ($value as $k => $v) {
 				/* @var $reflProp \ReflectionProperty */
-				$reflProp = $refl->getProperty($k);
-				if($reflProp->isPublic() || $reflProp->isProtected()) {
-					$this->$k = $v;
+				if($refl->hasProperty($k)) {
+					$reflProp = $refl->getProperty($k);
+					if($reflProp->isPublic() || $reflProp->isProtected()) {
+						$this->$k = $v;
+					}
 				}
 			}
 		}

@@ -67,7 +67,7 @@ class TranslationTest extends \PHPUnit_Framework_TestCase {
 	{
 		$this->assertEquals('rootTwo-de', $this->locale->_('test'));
 	}
-	public function testLcaleChainFallBack()
+	public function testLocaleChainFallBack()
 	{
 		$this->assertEquals('fallback-rootOne-de', $this->locale->_('fallback'));
 	}

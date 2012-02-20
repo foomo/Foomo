@@ -125,4 +125,22 @@ class CliCallTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('', $call->stdOut);
 		$this->assertEquals('', $call->stdErr);
 	}
+	public function testCallbackStream()
+	{
+		$cmdFile = tempnam(Config::getTempDir(), 'testCmd_');
+		$script = 'php -r "ini_set(\"display_errors\", \"Off\");foreach(array(1,2,3) as \$num) {sleep(1); echo \$num . PHP_EOL;};trigger_error(\"autsch\", E_USER_ERROR);"';
+		file_put_contents($cmdFile, $script);
+		$expectedStdOut = implode(array(1,2,3), PHP_EOL) . PHP_EOL;
+		$stdOut = '';
+		$call = CliCall::create('bash', array($cmdFile))
+			->setStdOutStreamCallback(function($stream) use (&$stdOut) {
+				$stdOut .= stream_get_contents($stream);
+			})
+			->execute()
+		;
+		unlink($cmdFile);
+		$this->assertEquals($expectedStdOut, $stdOut);
+		$this->assertContains('autsch', $call->stdErr);
+		$this->assertEquals(255, $call->exitStatus);
+	}
 }

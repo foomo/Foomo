@@ -1,47 +1,36 @@
 <?php
 /* @var $model Foomo\CliCall */
 ?>Foomo\CliCall Report :
-  
-  called:
-  
-    <?php echo $model->cmd . ' ' .implode(' ', $model->arguments)?>
-  	
-  
-  rendered command :
+
+  called :
   
     <?php echo implode(PHP_EOL . '    ', explode(';', $model->lastCommandExecuted)) ?>
     
-  	
+<? if(count($model->envVars)>0): ?>  	
   environement variables exported:
  
 <?php foreach($model->envVars as $key => $value): ?>
     <?php echo $key . ' => ' . $value ?>
 <?php endforeach; ?>
-
+<? endif; ?>
 
   execution date : 
     
     <?php echo date('Y-m-d H:i:s') ?>
     
   
-  execution time :
-    
-    real : <?php echo $model->timeReal ?>
-    
-    sys  : <?php echo $model->timeSys ?>
-    
-    user : <?php echo $model->timeUser ?>
-    
-
   exit status:
   
     <?php echo $model->exitStatus ?>
-    
-<?php foreach(array('stdOut', 'stdErr') as $stdType): ?>    
-  <?php echo $stdType ?> :
+
+  
+<?php foreach(array('stdOut', 'stdErr') as $stdType): ?>
+<? if(!empty($model->$stdType)): ?>
+<?php echo $stdType ?> :
   
     ---------------------------------------------------------------------------
     | <?php echo implode(PHP_EOL . '    | ', explode(PHP_EOL, $model->$stdType)) ?>
 
     ---------------------------------------------------------------------------
+<? endif; ?>
 <?php endforeach; ?>   

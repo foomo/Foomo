@@ -136,6 +136,7 @@ class Session
 			self::setClassInstance(new $className, $identifier);
 		}
 		// @fixme: jan, this does not work with i.e. casted method parameters or get_class(), which we use quite often
+		// well so far there is nothing __magic I can do
 		return $inst->instances[$key];
 		#return ($inst->locked) ? $inst->instances[$key] : new \Foomo\Session\ImmutableProxy($inst->instances[$key]);
 	}

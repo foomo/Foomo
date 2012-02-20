@@ -17,25 +17,31 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\MVC;
+namespace Foomo\Reflection;
 
 /**
- * @link www.foomo.org
+ * @link	www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
- * @author jan <jan@bestbytes.de>
+ * @author	franklin <franklin@weareinteractive.com>
  */
-class AppDirectoryTest extends \PHPUnit_Framework_TestCase {
-	public function testResolveAppNotNamed()
-	{
-		$appId = 'Foomo.TestRunner.Frontend';
-		$className = 'Foomo\\TestRunner\\Frontend';
-		$this->assertEquals($className, AppDirectory::resolveClass($appId), 'could not resolve ' . $appId . ' to ' . $className);
-	}
-	public function testResolveAppNamed()
-	{
-		$appId = 'Foomo';
-		$className = 'Foomo\\Frontend';
-		$this->assertEquals($className, AppDirectory::resolveClass($appId), 'could not resolve ' . $appId . ' to ' . $className);
-	}
+class Utils
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @param string $className
+	 * @param array $args
+	 * @return stdClass
+	 */
+	public static function createInstance($className, $args=array())
+	{
+		if (count($args) == 0) {
+			return new $className;
+		} else {
+			$reflection = new \ReflectionClass($className);
+			return $reflection->newInstanceArgs($args);
+		}
+	}
 }

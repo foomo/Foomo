@@ -228,12 +228,13 @@ class Fs extends \Foomo\Modules\Resource
 	 *
 	 * @param string $type one of self::TYPE_...
 	 * @param string $relFilename relative filename
-	 *
+	 * @param string $module name of the module
+	 * 
 	 * @return Foomo\Modules\Resource\Fs
 	 */
-	public static function getVarResource($type, $relFilename)
+	public static function getVarResource($type, $relFilename, $module = 'Foomo')
 	{
-		return new self($type, \Foomo\Config::getVarDir() . DIRECTORY_SEPARATOR . $relFilename);
+		return new self($type, \Foomo\Config::getVarDir($module) . DIRECTORY_SEPARATOR . $relFilename);
 	}
 
 	/**
