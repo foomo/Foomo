@@ -70,7 +70,7 @@ abstract class ModuleBase
 	 * get a view for an app
 	 *
 	 * @param mixed $app instance or class name
-	 * @param string $template relative path from /path/to/your/module/teplates
+	 * @param string $template relative path from /path/to/your/module/views
 	 * @param mixed $model whatever your model may be
 	 *
 	 * @return Foomo\View

@@ -59,12 +59,14 @@ class Rm extends \Foomo\CliCall
 	}
 
 	/**
-	 *
+	 * create a call
+	 * 
 	 * @param string $filename
+	 * 
 	 * @return Foomo\CliCall\Rm
 	 */
-	public static function create($path)
+	public static function create()
 	{
-		return new self($path);
+		return new self($filename = func_get_arg(0));
 	}
 }

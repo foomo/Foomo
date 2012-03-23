@@ -299,8 +299,12 @@ class Logger {
 		$stopwatchEntries = Timer::getStopwatchEntries();
 
 		$serialized = serialize($entry = new Entry($this->config, $this->phpErrors, $markers, $stopwatchEntries, $this->exception, $this->transactions, $this->processingTime));
-		$gzipped = \gzdeflate($serialized);
-		$base64 = \base64_encode($gzipped);
+		if(function_exists('gzdeflate')) {
+			$gzipped = \gzdeflate($serialized);
+			$base64 = \base64_encode($gzipped);
+		} else {
+			$base64 = \base64_encode($serialized);
+		}
 		apache_setenv('FOOMO_LOG_ENTRY', $base64);
 		apache_setenv('FOOMO_SESSION_AGE', \Foomo\Session::getAge());
 	}

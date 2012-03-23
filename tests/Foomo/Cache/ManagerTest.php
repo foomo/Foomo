@@ -37,13 +37,14 @@ class ManagerTest extends AbstractBaseTest {
 
 	public function setUp() {
 		parent::setUp();
-
-		$this->className = 'Foomo\Cache\MockObjects\SampleResources';
-		$this->object = new $this->className;
-		$this->method = 'getHoroscopeData';
-		$this->arguments = array(0, 'myLocation');
-		$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
-		$this->resource->value = \call_user_func_array(array($this->object, $this->method), $this->arguments);
+		if($this->setupWasSuccessful) {
+			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
+			$this->object = new $this->className;
+			$this->method = 'getHoroscopeData';
+			$this->arguments = array(0, 'myLocation');
+			$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
+			$this->resource->value = \call_user_func_array(array($this->object, $this->method), $this->arguments);
+		}
 	}
 
 	public function testLoadSaveDelete() {

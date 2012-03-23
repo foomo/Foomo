@@ -36,11 +36,13 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 	private $mailLogLast;
 	public function setUp()
 	{
+		\PHPUnit_Framework_Error_Notice::$enabled = false;
 		$this->mailer = new Mailer;
 		$this->mailEnabled = Mailer::$enabled;
 		$this->mailLogLast = Mailer::$logLast;
 		Mailer::$enabled = false;
 		Mailer::$logLast = true;
+		
 	}
 	public function testSmtpConf()
 	{
@@ -69,7 +71,6 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 	{
 		Mailer::$enabled = $this->mailEnabled;
 		Mailer::$logLast = $this->mailLogLast;
-
 		Config::removeConf(\Foomo\Module::NAME, \Foomo\Config\Smtp::NAME, self::TEST_SUB_DOMAIN);
 	}
 	public function testMail()
@@ -104,5 +105,9 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 	private function getFilename($name)
 	{
 		return __DIR__ . \DIRECTORY_SEPARATOR . 'mailerResources' . \DIRECTORY_SEPARATOR . $name;
+	}
+	public static function tearDownAfterClass()
+	{
+		\PHPUnit_Framework_Error_Notice::$enabled = true;
 	}
 }
