@@ -50,7 +50,7 @@ class Frontend extends \Foomo\MVC\AbstractApp
 
 		BasicAuth::auth(self::BASIC_AUTH_REALM);
 
-		$doc = HTMLDocument::getInstance()->setTitle($title);
+		$doc = \Foomo\HTMLDocument::getInstance()->setTitle($title);
 
 		if(defined('Foomo\\ROOT_HTTP')) {
 			$doc
