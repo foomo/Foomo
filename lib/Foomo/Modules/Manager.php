@@ -288,7 +288,7 @@ class Manager
 	 * @param string $moduleName name of the module
 	 * @return string
 	 */
-	private static function getModuleClassByName($moduleName)
+	public static function getModuleClassByName($moduleName)
 	{
 		return implode('\\', explode('.', $moduleName)) . '\\Module';
 	}

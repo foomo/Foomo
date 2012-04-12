@@ -43,13 +43,22 @@ class Mkdir extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 *
+	 * create a call
+	 * 
 	 * @param string $path
 	 * @param boolean $recursive
+	 * 
 	 * @return Foomo\CliCall\Mkdir
 	 */
-	public static function create($path, $recursive=true)
+	public static function create()
 	{
-		return new self($path, $recursive=true);
+		$args = func_get_args();
+		$path = $args[0];
+		if(isset($args[1])) {
+			$recursive = $args[1];
+		} else {
+			$recursive = true;
+		}
+		return new self($path, $recursive);
 	}
 }

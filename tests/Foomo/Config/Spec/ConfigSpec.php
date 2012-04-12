@@ -47,14 +47,19 @@ class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 	public function testScenarioOldConfigs()
 	{
 		$this->world
-			->givenNoOldConfigExists()
-			->whenConfigIsSet($module = \Foomo\Module::NAME, $config = new DomainConfig, $domain = 'test')
+			->givenNoOldConfigExists($module = \Foomo\Module::NAME, $configName = DomainConfig::NAME)
+			->whenConfigIsSet($module, $config = new DomainConfig, $domain = 'test')
 			->whenConfigIsSet($module, $config, $domain)
-			->thenOldConfigExists($module, $configName = DomainConfig::NAME, $domain)
-			->whenOldConfigsAreRemoved()
-			->thenNoOldConfigExists()
+			->thenOldConfigExists($module, $configName, $domain)
+			->whenConfigIsSet($module, $config, $domainA = 'testA')
+			->whenOldConfigsAreRemoved($module, null, $domainA)
+			->thenOldConfigExists($module, $configName, $domain)
+			->whenOldConfigsAreRemoved($module, $configName)
+			->thenNoOldConfigExists($module, $configName)
+			->whenConfigIsSet($module, $config, $domain)
+			->whenOldConfigsAreRemoved($module, $configName)
+			->thenNoOldConfigExists($module, $configName)
 		;
-
 	}
 	public function tearDown()
 	{

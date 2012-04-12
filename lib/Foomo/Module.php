@@ -44,6 +44,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	 */
 	public static function initializeModule()
 	{
+		include_once('Mail/mime.php');
 		\Foomo\Utils::addIncludePaths(array(
 			\Foomo\ROOT . \DIRECTORY_SEPARATOR . 'vendor' . \DIRECTORY_SEPARATOR . 'symfony'
 		));

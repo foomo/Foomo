@@ -87,15 +87,28 @@ class Utils {
 		}
 		return $ret;
 	}
+	private static function match($a, $b)
+	{
+		return is_null($b) || $a == $b;
+	}
 	/**
 	 * remove old configurations
+	 * 
+	 * @param string $module
+	 * @param string $name
+	 * @param string $domain 
 	 */
-	public static function removeOldConfigs()
+	public static function removeOldConfigs($module = null, $name = null, $domain = null)
 	{
 		$oldConfigs = self::getOldConfigs();
 		foreach ($oldConfigs as $oldConfig) {
 			/* @var $oldConfig OldConfig */
-			unlink($oldConfig->filename);
+			$moduleMatch = self::match($oldConfig->module, $module);
+			$nameMatch = self::match($oldConfig->name, $name);
+			$domainMatch = self::match($oldConfig->domain, $domain);
+			if($moduleMatch && $nameMatch && $domainMatch) {
+				unlink($oldConfig->filename);
+			}
 		}
 	}
 

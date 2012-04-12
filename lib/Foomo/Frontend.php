@@ -28,6 +28,7 @@ namespace Foomo;
  */
 class Frontend extends \Foomo\MVC\AbstractApp
 {
+	const NAME = 'Foomo';
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
@@ -55,7 +56,7 @@ class Frontend extends \Foomo\MVC\AbstractApp
 		if(defined('Foomo\\ROOT_HTTP')) {
 			$doc
 				->addStylesheets(array(
-                    'http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&v1',
+                    (isset($_SERVER['HTTPS'])?'https':'http') . '://fonts.googleapis.com/css?family=Ubuntu:regular,bold&v1',
                     \Foomo\ROOT_HTTP . '/css/reset.css',
 					\Foomo\ROOT_HTTP . '/css/app.css',
 					\Foomo\ROOT_HTTP . '/css/module.css'

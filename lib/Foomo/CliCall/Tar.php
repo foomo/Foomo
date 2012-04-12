@@ -58,7 +58,8 @@ class Tar extends \Foomo\CliCall
 	 */
 	public function __construct($filename)
 	{
-		if (file_exists($filename)) throw new \Exception('File ' . $filename . ' already exist!');
+		if (file_exists($filename)) trigger_error('File ' . $filename . ' already exist!', \E_USER_ERROR);
+		if (!\is_writable(\dirname($filename))) trigger_error('Folder ' . \dirname($filename) . ' is not writeable!', \E_USER_ERROR);
 		$this->filename = $filename;
 		parent::__construct('tar');
 	}
@@ -93,7 +94,7 @@ class Tar extends \Foomo\CliCall
 	 * @param string[] $sources
 	 * @return Foomo\CliCall\Tar
 	 */
-	public function addSources($sources)
+	public function addSources(array $sources)
 	{
 		$this->sources = array_unique(array_merge($this->sources, $sources));
 		return $this;
@@ -126,12 +127,15 @@ class Tar extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 *
+	 * create a call
+	 * 
 	 * @param string $filename
+	 * 
 	 * @return Foomo\CliCall\Tar
 	 */
-	public static function create($filename)
+	public static function create()
 	{
-		return new self($filename);
+		
+		return new self($filename = func_get_arg(0));
 	}
 }

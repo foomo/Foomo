@@ -33,7 +33,7 @@ abstract class ModuleBase
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
 
-	const VERSION = '0.1.1';
+	const VERSION = '0.2.0';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
@@ -70,7 +70,7 @@ abstract class ModuleBase
 	 * get a view for an app
 	 *
 	 * @param mixed $app instance or class name
-	 * @param string $template relative path from /path/to/your/module/teplates
+	 * @param string $template relative path from /path/to/your/module/views
 	 * @param mixed $model whatever your model may be
 	 *
 	 * @return Foomo\View
@@ -190,11 +190,15 @@ abstract class ModuleBase
 	}
 
 	/**
+	 * @param string $relPath append optional additional relative path
 	 * @return string
 	 */
-	public static function getLogDir()
+	public static function getLogDir($relPath='')
 	{
-		return \Foomo\Config::getLogDir(self::getModuleName());
+		$ret = \Foomo\Config::getLogDir(self::getModuleName());
+		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
+		if (!file_exists($ret)) Resource\Fs::getAbsoluteResource(Resource\Fs::TYPE_FOLDER, $ret)->tryCreate();
+		return $ret;
 	}
 
 	/**
