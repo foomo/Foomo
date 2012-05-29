@@ -116,7 +116,7 @@ class BasicAuth {
 		if (!$this->checkAuthentication()) {
 			header('HTTP/1.0 401 Unauthorized');
 			header('WWW-Authenticate: Basic realm=' . $realm);
-			trigger_error('Basic auth failed for ' . $realm, E_USER_WARNING);
+			#trigger_error('Basic auth failed for ' . $realm, E_USER_WARNING);
 			exit;
 		} else {
 			return true;
