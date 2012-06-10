@@ -55,29 +55,42 @@ class GD
 			return false;
 		}
 		$srcData = @getImageSize($srcFName);
-		if (!$srcData)
+		if (!$srcData) {
 			return false;
+		}
 		$sourceW = $srcData[0];
 		$sourceH = $srcData[1];
-		if(is_null($targetW)) {
-			$targetW = $sourceW;
-		}
-		if(is_null($targetH)) {
-			$targetH = $sourceH;
-		}
 		if($sourceH === 0 || $sourceW === 0) {
 			return false;
 		}
-		if($targetH == 0 || $targetW == 0) {
+		if (isset($targetW) && !isset($targetH)) {
+			$scale = $targetW / $sourceW;
+			$targetH = ceil($scale * $sourceH);
+		} else if(!isset($targetW) && isset($targetH)) {
+			$scale = $targetH / $sourceH;
+			$targetW = ceil($scale * $sourceW);
+		} else {
+			if(is_null($targetW)) {
+				$targetW = $sourceW;
+			}
+			if(is_null($targetH)) {
+				$targetH = $sourceH;
+			}
+		}
+		if($targetH === 0 || $targetW === 0) {
 			trigger_error('invalid target size must not be 0', E_USER_ERROR);
 		}
-		if (!(isset($targetH) AND isset($targetW))) {
-			if (isset($targetW)) {
-				$scale = $targetW / $sourceW;
-				$targetH = ceil($scale * $sourceH);
-			} else {
-				$scale = $targetH / $sourceH;
-				$targetW = ceil($scale * $sourceW);
+		if(is_null($srcMime)) {
+			switch($srcData['2']) {
+				case IMAGETYPE_GIF:
+					$srcMime = 'image/gif';
+					break;
+				case IMAGETYPE_PNG:
+					$srcMime = 'image/png';
+					break;
+				case IMAGETYPE_JPEG:
+					$srcMime = 'image/jpeg';
+					break;
 			}
 		}
 		switch ($srcMime) {
@@ -137,30 +150,34 @@ class GD
 	public static function resampleImageToMaxValues($srcMime, $targetMime, $srcFName, $targetFName, $maxWidth, $maxHeight, $targetQuality = null)
 	{
 		$size = @getimagesize($srcFName);
-
-		$sourceWidth = $size[0];
-		$sourceHeight = $size[1];
-
-		$gd = new self();
-		$targetHeight = $targetWidth = null;
-		
-		// assumed we scale to the width
-		$scaleWidth = $maxWidth / $sourceWidth;
-		//var_dump('sw ' . $sourceWidth, 'sh ' . $sourceHeight, 'mw ' . $maxWidth, 'mh ' . $maxHeight, $scaleWidth);
-		if ($maxHeight < $maxWidth && $maxHeight >= $sourceHeight * $scaleWidth) {
-			//var_dump('landscape');
-			// landscape
-			$targetWidth = $maxWidth;
-			$targetHeight = null;
-		} else {
-			// portrait
-			//var_dump('portrait');
-			$targetHeight = $maxHeight;
-			$targetWidth = null;
+		$targetWidth = $maxWidth;
+		$targetHeight = $maxHeight;
+		// switching over the source ratio
+		switch(self::getImageRatio($size[0], $size[1])) {
+			case self::RATIO_LANDSCAPE:
+				$targetHeight = null;
+				break;
+			case self::RATIO_PORTRAIT:
+			case self::RATIO_SQUARE:
+				$targetWidth = null;
+				break;
 		}
-		//var_dump($targetWidth, $targetHeight);
-		//exit;
+		
+		$gd = new self();
 		return $gd->reSampleImage($srcMime, $targetMime, $srcFName, $targetFName, $targetWidth, $targetHeight, $targetQuality);
+	}
+	const RATIO_LANDSCAPE = 'landscape';
+	const RATIO_PORTRAIT = 'portrait';
+	const RATIO_SQUARE = 'square';
+	private static function getImageRatio($width, $height)
+	{
+		if($width > $height) {
+			return self::RATIO_LANDSCAPE;
+		} else if($height > $width) {
+			return self::RATIO_PORTRAIT;
+		} else {
+			return self::RATIO_SQUARE;
+		}
 	}
 
 	/**
