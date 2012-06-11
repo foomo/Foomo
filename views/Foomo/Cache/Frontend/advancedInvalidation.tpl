@@ -62,9 +62,11 @@
 				
 				<? if (!empty($model->advancedInvalidationUserExpressionInterpretationString)): ?>
 				<div class="formBox">
-					<div class="errorMessage">
-						Compiled expression:<br>	
-						<b><?= $view->escape($model->advancedInvalidationUserExpressionInterpretationString) ?></b>
+					<div class="greyBox">
+						<div class="innerBox">
+							Compiled expression:<br>	
+							<b><?= $view->escape($model->advancedInvalidationUserExpressionInterpretationString) ?></b>
+						<div>
 					</div>
 				</div>	
 				<? endif; ?>
