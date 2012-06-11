@@ -250,9 +250,6 @@ class Session
 
 	public static function init($reStart = false)
 	{
-		if (php_sapi_name() == 'cli') {
-			self::disable();
-		}
 		/* @var $conf \Foomo\Session\DomainConfig */
 		$conf = self::getConf();
 		if (!is_null($conf) && $conf->enabled) {
