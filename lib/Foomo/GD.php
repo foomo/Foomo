@@ -55,31 +55,15 @@ class GD
 			return false;
 		}
 		$srcData = @getImageSize($srcFName);
-		if (!$srcData) {
-			return false;
-		}
 		$sourceW = $srcData[0];
 		$sourceH = $srcData[1];
-		if($sourceH === 0 || $sourceW === 0) {
+		if (!$srcData || $sourceW === 0 || $sourceH === 0) {
 			return false;
 		}
-		if (isset($targetW) && !isset($targetH)) {
-			$scale = $targetW / $sourceW;
-			$targetH = ceil($scale * $sourceH);
-		} else if(!isset($targetW) && isset($targetH)) {
-			$scale = $targetH / $sourceH;
-			$targetW = ceil($scale * $sourceW);
-		} else {
-			if(is_null($targetW)) {
-				$targetW = $sourceW;
-			}
-			if(is_null($targetH)) {
-				$targetH = $sourceH;
-			}
-		}
-		if($targetH === 0 || $targetW === 0) {
-			trigger_error('invalid target size must not be 0', E_USER_ERROR);
-		}
+		$computedSize = self::computeResampledSize($sourceW, $sourceH, $targetW, $targetH);
+		$targetW = $computedSize['width'];
+		$targetH = $computedSize['height'];
+		
 		if(is_null($srcMime)) {
 			switch($srcData['2']) {
 				case IMAGETYPE_GIF:
@@ -118,7 +102,6 @@ class GD
 				imagesavealpha($targetImg, true);
 				$transparentColor = imagecolorallocatealpha($targetImg, 0, 0, 0, 127);
 				imagefill($targetImg, 0, 0, $transparentColor);
-			//imagealphablending($targetImg, false);
 			case'image/gif':
 				imagecopyresampled($targetImg, $srcImg, 0, 0, 0, 0, $targetW, $targetH, $sourceW, $sourceH);
 				imagePng($targetImg, $targetFName);
@@ -134,7 +117,37 @@ class GD
 		}
 		return true;
 	}
-
+	/**
+	 * compute a scaled size
+	 * 
+	 * @param integer $width
+	 * @param integer $height
+	 * @param integer $targetWidth
+	 * @param integer $targetHeight 
+	 * 
+	 * @return array('width' => int, 'height' => int)
+	 */
+	private static function computeResampledSize($width, $height, $targetWidth = null, $targetHeight = null)
+	{
+		if($targetHeight === 0 || $targetWidth === 0) {
+			trigger_error('must not resample to size 0', E_USER_ERROR);
+		}
+		if (isset($targetWidth) && !isset($targetHeight)) {
+			$scale = $targetWidth / $width;
+			$targetHeight = ceil($scale * $height);
+		} else if(!isset($targetWidth) && isset($targetHeight)) {
+			$scale = $targetHeight / $height;
+			$targetWidth = ceil($scale * $width);
+		} else {
+			if(is_null($targetWidth)) {
+				$targetWidth = $width;
+			}
+			if(is_null($targetHeight)) {
+				$targetHeight = $height;
+			}
+		}
+		return array('width' => $targetWidth, 'height' => $targetHeight);
+	}
 	/**
 	 * resamples an image maintaining it proportion
 	 *
@@ -154,51 +167,15 @@ class GD
 		$sourceHeight = $size[1];
 		$targetWidth = $maxWidth;
 		$targetHeight = $maxHeight;
-		$targetRatio = self::getImageFormat($targetWidth, $targetHeight);
-		// switching over the source ratio
-		switch(self::getImageFormat($sourceWidth, $sourceHeight)) {
-			case self::RATIO_LANDSCAPE:
-				switch($targetRatio) {
-					case self::RATIO_PORTRAIT:
-						$targetWidth = null;
-						break;
-					case self::RATIO_SQUARE:					
-					case self::RATIO_LANDSCAPE:
-						$targetHeight = null;
-						break;
-				}
-				break;
-			case self::RATIO_PORTRAIT:
-				switch($targetRatio) {
-					case self::RATIO_PORTRAIT:
-						$targetHeight = null;						
-						break;
-					case self::RATIO_SQUARE:					
-					case self::RATIO_LANDSCAPE:
-						$targetWidth = null;
-						break;
-				}
-				break;
-			case self::RATIO_SQUARE:
-				$targetWidth = null;
-				break;
+		$resampledSizeFromWidth = self::computeResampledSize($sourceWidth, $sourceHeight, $maxWidth, null);
+		// $resampledSizeFromHeight = self::computeResampledSize($size[0], $size[1], null, $maxheight);
+		if($resampledSizeFromWidth['width'] <= $maxWidth && $resampledSizeFromWidth['height'] <= $maxHeight) {
+			$targetHeight = null;
+		} else {
+			$targetWidth = null;
 		}
-		
 		$gd = new self();
 		return $gd->reSampleImage($srcMime, $targetMime, $srcFName, $targetFName, $targetWidth, $targetHeight, $targetQuality);
-	}
-	const RATIO_LANDSCAPE = 'landscape';
-	const RATIO_PORTRAIT = 'portrait';
-	const RATIO_SQUARE = 'square';
-	private static function getImageFormat($width, $height)
-	{
-		if($width > $height) {
-			return self::RATIO_LANDSCAPE;
-		} else if($height > $width) {
-			return self::RATIO_PORTRAIT;
-		} else {
-			return self::RATIO_SQUARE;
-		}
 	}
 
 	/**
