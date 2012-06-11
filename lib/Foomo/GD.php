@@ -150,14 +150,35 @@ class GD
 	public static function resampleImageToMaxValues($srcMime, $targetMime, $srcFName, $targetFName, $maxWidth, $maxHeight, $targetQuality = null)
 	{
 		$size = @getimagesize($srcFName);
+		$sourceWidth = $size[0];
+		$sourceHeight = $size[1];
 		$targetWidth = $maxWidth;
 		$targetHeight = $maxHeight;
+		$targetRatio = self::getImageFormat($targetWidth, $targetHeight);
 		// switching over the source ratio
-		switch(self::getImageRatio($size[0], $size[1])) {
+		switch(self::getImageFormat($sourceWidth, $sourceHeight)) {
 			case self::RATIO_LANDSCAPE:
-				$targetHeight = null;
+				switch($targetRatio) {
+					case self::RATIO_PORTRAIT:
+						$targetWidth = null;
+						break;
+					case self::RATIO_SQUARE:					
+					case self::RATIO_LANDSCAPE:
+						$targetHeight = null;
+						break;
+				}
 				break;
 			case self::RATIO_PORTRAIT:
+				switch($targetRatio) {
+					case self::RATIO_PORTRAIT:
+						$targetHeight = null;						
+						break;
+					case self::RATIO_SQUARE:					
+					case self::RATIO_LANDSCAPE:
+						$targetWidth = null;
+						break;
+				}
+				break;
 			case self::RATIO_SQUARE:
 				$targetWidth = null;
 				break;
@@ -169,7 +190,7 @@ class GD
 	const RATIO_LANDSCAPE = 'landscape';
 	const RATIO_PORTRAIT = 'portrait';
 	const RATIO_SQUARE = 'square';
-	private static function getImageRatio($width, $height)
+	private static function getImageFormat($width, $height)
 	{
 		if($width > $height) {
 			return self::RATIO_LANDSCAPE;

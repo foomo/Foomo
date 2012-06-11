@@ -45,7 +45,9 @@ class GDTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testMaxResizeLandscape()
 	{
-		$this->assertEquals(self::MAX_SIZE, $this->maxResize('landscape', self::MAX_SIZE)->width);
+		$resized = $this->maxResize('landscape', self::MAX_SIZE);
+		$this->assertEquals(self::MAX_SIZE, $resized->width);
+		$this->assertTrue(self::MAX_SIZE >= $resized->height);
 	}
 	public function testMaxResizeSquare()
 	{
@@ -55,6 +57,8 @@ class GDTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testMaxResizePortrait()
 	{
-		$this->assertEquals(self::MAX_SIZE, $this->maxResize('portrait', self::MAX_SIZE)->height);
+		$resized = $this->maxResize('portrait', self::MAX_SIZE);
+		$this->assertEquals(self::MAX_SIZE, $resized->height);
+		$this->assertTrue(self::MAX_SIZE >= $resized->width);
     }
 }
