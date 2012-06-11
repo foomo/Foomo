@@ -44,7 +44,10 @@ class Scaffolder
 	{
 		if(self::appExists($namespace)) {
 			throw new \Exception('app already exists');
-		} 
+		}
+		if(empty($namespace)) {
+			throw new \Exception('namespace was not set');
+		}
 		if(!in_array($module, Manager::getEnabledModules())) {
 			throw new \Exception('module ' . $module . ' not enabled');
 		}
