@@ -115,9 +115,22 @@ class Mailer {
 		if (!isset($headers['Return-Path']) && !empty($headers['From'])) {
 			$hdrs['Return-Path'] = $headers['From'];
 		}
-		foreach ($headers as $headerName => $headerValue) {
+
+		foreach($headers as $headerName => $headerValue) {
 			$hdrs[$headerName] = $headerValue;
+
+			/*
+			 * see http://pear.php.net/manual/en/package.mail.mail.send.php:
+			 * Note by: arminfrey@gmail.com, 2007-07-08 05:13 UTC
+			 * In order to send e-mail to cc or bcc with smtp you have to list the cc e-mail address both as a
+			 * recipient (which decides where the e-mail is sent) and in the cc header, which tells the mail
+			 * client how to display it.
+			 */
+			if (($headerName == 'Cc' || $headerName == 'Bcc') && !empty($headerValue)) {
+				$to .= ',' . $headerValue;
+			}
 		}
+
 		if (!empty($plaintext) && !empty($html)) {
 			// multipart
 			$mime = new \Mail_mime(PHP_EOL);
