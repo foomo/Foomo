@@ -236,12 +236,30 @@ class MVC
 	 */
 	public static function getViewAsset($appClassName, $assetPath)
 	{
+		return self::getViewAssetInPath('modules', $appClassName, $assetPath);
+	}
+	/**
+	 * same like the above
+	 * 
+	 * @see self::getViewAsset
+	 * 
+	 * @param string $appClassName name of the app class
+	 * @param string $assetPath relative path separated with forward slashes from the htdocs folder in your module
+	 * 
+	 * @return string PATH in the URL
+	 */
+	public static function getViewVarAsset($appClassName, $assetPath)
+	{
+		return self::getViewAssetInPath('modulesVar', $appClassName, $assetPath);
+	}
+	private static function getViewAssetInPath($root, $appClassName, $assetPath)
+	{
 		foreach(self::getAssetRoots($appClassName) as $moduleName => $assetRoot) {
 			if(file_exists($assetRoot . DIRECTORY_SEPARATOR . $assetPath)) {
-				return \Foomo\ROOT_HTTP . '/modules/' . $moduleName . '/' . $assetPath;
+				return \Foomo\ROOT_HTTP . '/' . $root . '/' . $moduleName . '/' . $assetPath;
 			}
 		}
-		trigger_error('asset "' . $assetPath . '" not found for app class "' . $appClassName . '"', E_USER_WARNING);
+		trigger_error('asset "' . $assetPath . '" not found for app class "' . $appClassName . '" in root ' . $root, E_USER_WARNING);
 	}
 	/**
 	 * get a partial template
