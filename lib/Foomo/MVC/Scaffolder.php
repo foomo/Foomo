@@ -61,6 +61,7 @@ class Scaffolder
 		
 		// create folders		
 		$dirLib = self::createAndGetModuleNamespaceDir($module, $namespaceArray, 'lib');
+		$dirLocale = self::createAndGetModuleNamespaceDir($module, $namespaceArray, 'locale');
 		$dirViews = self::createAndGetModuleNamespaceDir($module, $namespaceArray, 'views');
 		foreach(array('partials') as $viewFolder) {
 			self::createAndGetModuleNamespaceDir($module, array_merge($namespaceArray, array($viewFolder)), 'views');
@@ -76,6 +77,16 @@ class Scaffolder
 			'module' => $module
 		);
 
+		// write locale
+		$locales = array('de', 'en');
+		foreach($locales as $locale) {
+			$localeFile = $dirLocale->getFileName() . DIRECTORY_SEPARATOR . $locale . '.yml';
+			if(!file_exists($localeFile)) {
+				file_put_contents($localeFile, 'LOCALE: ' . $locale);
+			} else {
+				throw new \Exception('locale already exists');
+			}
+		}
 		// write classes
 		// Model, Controller
 		foreach(array('Model' => 'model.tpl', 'Controller' => 'controller.tpl') as $className => $templateName) {
