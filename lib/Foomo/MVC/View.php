@@ -199,6 +199,21 @@ class View extends \Foomo\View
 		return MVC::getViewAsset($class, $rawAsset);
 	}
 	/**
+	 * get an URL path for an asset in the modules htdocs var dir
+	 * 
+	 * @param string $rawAsset relative path from your apps var/<runmode>/htdocs/modulesVar/<moduleName> folder
+	 * @param string $class borrow from another app
+	 * 
+	 * @return string path part of the URL
+	 */
+	public function assetVar($rawAsset, $class = null)
+	{
+		if(empty($class)) {
+			$class = get_class($this->app);
+		}
+		return MVC::getViewVarAsset($class, $rawAsset);
+	}
+	/**
 	 * render a partial
 	 *
 	 * @param string $name name of the action
