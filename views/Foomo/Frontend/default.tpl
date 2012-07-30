@@ -62,21 +62,21 @@
 
 			<div class="greyBox">
 				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
-					<b><a title="wanna start over?" href="<?= \Foomo\ROOT_HTTP . '/setup.php' ?>">Setup</a></b>
+					<b><a title="wanna start over?" href="<?= $view->asset('setup.php') ?>">Setup</a></b>
 				</div>
 			</div>
 
 			<? if(Foomo\Session::getConf() && Foomo\Session::getConf()->enabled): ?>
 			<div class="greyBox">
 				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
-					<b><a class="overlay" href="<?= \Foomo\ROOT_HTTP . '/sessionGc.php' ?>">Collect Session Garbage</a></b>
+					<b><a class="overlay" href="<?= $view->asset('sessionGc.php') ?>">Collect Session Garbage</a></b>
 				</div>
 			</div>
 			<? endif; ?>
 
 			<div class="greyBox">
 				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
-					<b><a title="may be your life saver" href="<?= \Foomo\ROOT_HTTP . '/hiccup.php' ?>">Hiccup</a></b> (You may want to bookmark that one!)
+					<b><a title="may be your life saver" href="<?= $view->asset('hiccup.php') ?>">Hiccup</a></b> (You may want to bookmark that one!)
 				</div>
 			</div>
 

@@ -147,6 +147,7 @@ class View extends \Foomo\View
 	 * @param string $methodName method to call
 	 * @param array $parameters parameters
 	 * @param array $attributes array('name' => 'value')
+	 * 
 	 * @return string <a href="/bla/blubb/parmOne/parmTwo" title="title - looks like a tooltip" target="_self">link text</a>
 	 */
 	public function link($linkText, $methodName='default', array $parameters=array(), array $attributes=array())
@@ -163,7 +164,55 @@ class View extends \Foomo\View
 		$ret .= '>' . $this->escape($linkText) . '</a>';
 		return $ret;
 	}
-
+	/**
+	 * get multiple paths for multiple assets
+	 * 
+	 * @param array $rawAssets
+	 * @param string $class borrow from another app
+	 * 
+	 * @return array
+	 */
+	public function assets(array $rawAssets, $class = null)
+	{
+		$ret = array();
+		foreach($rawAssets as $rawAsset) {
+			$asset = $this->asset($rawAsset, $class);
+			if(!empty($asset)) {
+				$ret[] = $asset;
+			}
+		}
+		return $ret;
+	}
+	/**
+	 * get an URL path for an asset
+	 * 
+	 * @param string $rawAsset relative path from your apps module/htdocs folder
+	 * @param string $class borrow from another app
+	 * 
+	 * @return string path part of the URL
+	 */
+	public function asset($rawAsset, $class = null)
+	{
+		if(empty($class)) {
+			$class = get_class($this->app);
+		}
+		return MVC::getViewAsset($class, $rawAsset);
+	}
+	/**
+	 * get an URL path for an asset in the modules htdocs var dir
+	 * 
+	 * @param string $rawAsset relative path from your apps var/<runmode>/htdocs/modulesVar/<moduleName> folder
+	 * @param string $class borrow from another app
+	 * 
+	 * @return string path part of the URL
+	 */
+	public function assetVar($rawAsset, $class = null)
+	{
+		if(empty($class)) {
+			$class = get_class($this->app);
+		}
+		return MVC::getViewVarAsset($class, $rawAsset);
+	}
 	/**
 	 * render a partial
 	 *

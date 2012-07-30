@@ -75,7 +75,11 @@ class AppDirectory {
 		}
 		return $ret;
 	}
-
+	/**
+	 * get a directory of available apps as a hash
+	 * 
+	 * @return array array('id' => classname, ...)
+	 */
 	public static function getAppClassDirectory()
 	{
 		return Proxy::call(__CLASS__, 'cachedGetAppClassDirectory');
