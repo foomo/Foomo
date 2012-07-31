@@ -70,7 +70,7 @@
 								<li><b>Creation time:</b> <?= date('Y-m-d H:i:s', $resource->creationTime) ?></li>
 
 							<? if ($resource->expirationTime != 0): ?>
-								<li><b>Expiration time:</b> <?= date('Y-m-d d.m.Y H:i:s', $resource->expirationTime) ?></li>
+								<li><b>Expiration time:</b> <?= date('Y-m-d H:i:s', $resource->expirationTime) ?></li>
 							<? else: ?>
 								<li><b>Expiration time:</b> Never</b></li>
 							<? endif; ?>
