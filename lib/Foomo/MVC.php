@@ -70,6 +70,7 @@ class MVC
 	 * @param string $baseURL inject a baseURL
 	 * @param boolean $forceBaseURL force injection of a baseURL
 	 * @param boolean $forceNoHTMLDocument force no html document rendering
+	 * 
 	 * @return string
 	 */
 	public static function run($app, $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
