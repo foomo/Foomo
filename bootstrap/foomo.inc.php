@@ -120,7 +120,7 @@ try {
 		Cache\DependencyModel::getInstance()->getDirectory();
 		Timer::addMarker('class map is initialized');
 		define('Foomo\\ROOT_HTTP', Config::getConf(Module::NAME, Core\DomainConfig::NAME)->rootHttp);
-        Timer::addMarker('will initialize modules');
+		Timer::addMarker('will initialize modules');
 		Modules\Manager::initializeModules();
 		Timer::addMarker('modules are initialized');
 		Log\Logger::bootstrap();

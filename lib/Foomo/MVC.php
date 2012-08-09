@@ -70,6 +70,7 @@ class MVC
 	 * @param string $baseURL inject a baseURL
 	 * @param boolean $forceBaseURL force injection of a baseURL
 	 * @param boolean $forceNoHTMLDocument force no html document rendering
+	 * 
 	 * @return string
 	 */
 	public static function run($app, $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
@@ -224,7 +225,43 @@ class MVC
 			return $appName;
 		}
 	}
-
+	/**
+	 * get an asset path for your app
+	 * you can inherit them from parent apps too and you will get a warning when
+	 * you are referencing assets, that are not there
+	 * 
+	 * @param string $appClassName name of the app class
+	 * @param string $assetPath relative path separated with forward slashes from the htdocs folder in your module
+	 * 
+	 * @return string PATH in the URL
+	 */
+	public static function getViewAsset($appClassName, $assetPath)
+	{
+		return self::getViewAssetInPath('modules', $appClassName, $assetPath);
+	}
+	/**
+	 * same like the above
+	 * 
+	 * @see self::getViewAsset
+	 * 
+	 * @param string $appClassName name of the app class
+	 * @param string $assetPath relative path separated with forward slashes from the htdocs folder in your module
+	 * 
+	 * @return string PATH in the URL
+	 */
+	public static function getViewVarAsset($appClassName, $assetPath)
+	{
+		return self::getViewAssetInPath('modulesVar', $appClassName, $assetPath);
+	}
+	private static function getViewAssetInPath($root, $appClassName, $assetPath)
+	{
+		foreach(self::getAssetRoots($appClassName) as $moduleName => $assetRoot) {
+			if(file_exists($assetRoot . DIRECTORY_SEPARATOR . $assetPath)) {
+				return \Foomo\ROOT_HTTP . '/' . $root . '/' . $moduleName . '/' . $assetPath;
+			}
+		}
+		trigger_error('asset "' . $assetPath . '" not found for app class "' . $appClassName . '" in root ' . $root, E_USER_WARNING);
+	}
 	/**
 	 * get a partial template
 	 *
@@ -259,14 +296,14 @@ class MVC
 	}
 	/**
 	 * where do the class templates come from
+	 * 
 	 * @param string $appClassName name of the application class
+	 * 
 	 * @return string path to the corresponding folder typically in modules/xyz/views/appName
 	 */
 	private static function getTemplateBase($appClassName)
 	{
 		$appClassModule = Manager::getClassModule($appClassName);
-		//$appId = self::getAppName($appClassName);
-
 		$templateFileBase =
 				\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
 				$appClassModule . DIRECTORY_SEPARATOR .
@@ -277,19 +314,29 @@ class MVC
 		;
 		return $templateFileBase;
 	}
-
-	public static function getLocaleRoots($appClassName)
+	private static function getRoots($type, $appClassName, $asHash = false)
 	{
 		$roots = array();
 		$refl = new ReflectionClass($appClassName);
 		while ($refl) {
 			$appClassModule = Manager::getClassModule($appClassName);
-			$appId = self::getAppName($appClassName);
-			$localeBase = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $appClassModule;
-			$roots[] = $localeBase . DIRECTORY_SEPARATOR . 'locale';
+			$base = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $appClassModule;
+			if($asHash) {
+				$roots[$appClassModule] = $base . DIRECTORY_SEPARATOR . $type;
+			} else {
+				$roots[] = $base . DIRECTORY_SEPARATOR . $type;				
+			}
 			$refl = $refl->getParentClass();
 		}
 		return array_unique($roots);
+	}
+	private static function getAssetRoots($appClassName)
+	{
+		return self::getRoots('htdocs', $appClassName, true);
+	}
+	public static function getLocaleRoots($appClassName)
+	{
+		return self::getRoots('locale', $appClassName);
 	}
 
 	private static function getExceptionTemplate($appClassName)

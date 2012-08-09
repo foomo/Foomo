@@ -69,6 +69,11 @@ class Model {
 			$libFolders = Manager::getModuleLibFolders($module);
 			//var_dump($libFolders);
 			foreach ($availableResources as $resourceName) {
+				// this is a hack to keep the test mock objects from polluting the toolbox
+				$hideName = 'Foomo\\Cache\\MockObjects';
+				if(substr($resourceName, 0, strlen($hideName)) == $hideName) {
+					continue;
+				}
 				$resourceClassName = $this->resourceNameToClassName($resourceName);
 				$resourceClassFile = AutoLoader::getClassFileName($resourceClassName);
 				// var_dump($resourceClassFile);

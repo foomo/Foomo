@@ -55,29 +55,26 @@ class GD
 			return false;
 		}
 		$srcData = @getImageSize($srcFName);
-		if (!$srcData)
-			return false;
 		$sourceW = $srcData[0];
 		$sourceH = $srcData[1];
-		if(is_null($targetW)) {
-			$targetW = $sourceW;
-		}
-		if(is_null($targetH)) {
-			$targetH = $sourceH;
-		}
-		if($sourceH === 0 || $sourceW === 0) {
+		if (!$srcData || $sourceW === 0 || $sourceH === 0) {
 			return false;
 		}
-		if($targetH == 0 || $targetW == 0) {
-			trigger_error('invalid target size must not be 0', E_USER_ERROR);
-		}
-		if (!(isset($targetH) AND isset($targetW))) {
-			if (isset($targetW)) {
-				$scale = $targetW / $sourceW;
-				$targetH = ceil($scale * $sourceH);
-			} else {
-				$scale = $targetH / $sourceH;
-				$targetW = ceil($scale * $sourceW);
+		$computedSize = self::computeResampledSize($sourceW, $sourceH, $targetW, $targetH);
+		$targetW = $computedSize['width'];
+		$targetH = $computedSize['height'];
+		
+		if(is_null($srcMime)) {
+			switch($srcData['2']) {
+				case IMAGETYPE_GIF:
+					$srcMime = 'image/gif';
+					break;
+				case IMAGETYPE_PNG:
+					$srcMime = 'image/png';
+					break;
+				case IMAGETYPE_JPEG:
+					$srcMime = 'image/jpeg';
+					break;
 			}
 		}
 		switch ($srcMime) {
@@ -105,7 +102,6 @@ class GD
 				imagesavealpha($targetImg, true);
 				$transparentColor = imagecolorallocatealpha($targetImg, 0, 0, 0, 127);
 				imagefill($targetImg, 0, 0, $transparentColor);
-			//imagealphablending($targetImg, false);
 			case'image/gif':
 				imagecopyresampled($targetImg, $srcImg, 0, 0, 0, 0, $targetW, $targetH, $sourceW, $sourceH);
 				imagePng($targetImg, $targetFName);
@@ -121,7 +117,37 @@ class GD
 		}
 		return true;
 	}
-
+	/**
+	 * compute a scaled size
+	 * 
+	 * @param integer $width
+	 * @param integer $height
+	 * @param integer $targetWidth
+	 * @param integer $targetHeight 
+	 * 
+	 * @return array('width' => int, 'height' => int)
+	 */
+	private static function computeResampledSize($width, $height, $targetWidth = null, $targetHeight = null)
+	{
+		if($targetHeight === 0 || $targetWidth === 0) {
+			trigger_error('must not resample to size 0', E_USER_ERROR);
+		}
+		if (isset($targetWidth) && !isset($targetHeight)) {
+			$scale = $targetWidth / $width;
+			$targetHeight = ceil($scale * $height);
+		} else if(!isset($targetWidth) && isset($targetHeight)) {
+			$scale = $targetHeight / $height;
+			$targetWidth = ceil($scale * $width);
+		} else {
+			if(is_null($targetWidth)) {
+				$targetWidth = $width;
+			}
+			if(is_null($targetHeight)) {
+				$targetHeight = $height;
+			}
+		}
+		return array('width' => $targetWidth, 'height' => $targetHeight);
+	}
 	/**
 	 * resamples an image maintaining it proportion
 	 *
@@ -137,29 +163,18 @@ class GD
 	public static function resampleImageToMaxValues($srcMime, $targetMime, $srcFName, $targetFName, $maxWidth, $maxHeight, $targetQuality = null)
 	{
 		$size = @getimagesize($srcFName);
-
 		$sourceWidth = $size[0];
 		$sourceHeight = $size[1];
-
-		$gd = new self();
-		$targetHeight = $targetWidth = null;
-		
-		// assumed we scale to the width
-		$scaleWidth = $maxWidth / $sourceWidth;
-		//var_dump('sw ' . $sourceWidth, 'sh ' . $sourceHeight, 'mw ' . $maxWidth, 'mh ' . $maxHeight, $scaleWidth);
-		if ($maxHeight < $maxWidth && $maxHeight >= $sourceHeight * $scaleWidth) {
-			//var_dump('landscape');
-			// landscape
-			$targetWidth = $maxWidth;
+		$targetWidth = $maxWidth;
+		$targetHeight = $maxHeight;
+		$resampledSizeFromWidth = self::computeResampledSize($sourceWidth, $sourceHeight, $maxWidth, null);
+		// $resampledSizeFromHeight = self::computeResampledSize($size[0], $size[1], null, $maxheight);
+		if($resampledSizeFromWidth['width'] <= $maxWidth && $resampledSizeFromWidth['height'] <= $maxHeight) {
 			$targetHeight = null;
 		} else {
-			// portrait
-			//var_dump('portrait');
-			$targetHeight = $maxHeight;
 			$targetWidth = null;
 		}
-		//var_dump($targetWidth, $targetHeight);
-		//exit;
+		$gd = new self();
 		return $gd->reSampleImage($srcMime, $targetMime, $srcFName, $targetFName, $targetWidth, $targetHeight, $targetQuality);
 	}
 

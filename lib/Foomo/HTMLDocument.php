@@ -43,6 +43,7 @@ namespace Foomo;
 class HTMLDocument {
 	private $indent = 0;
 	private $docTypeString = '<!DOCTYPE html>';
+	private $htmlOpeningTag = '<html>';
 	private $metaData = array();
 	private $styleSheetData = array();
 	/**
@@ -123,10 +124,13 @@ class HTMLDocument {
 	 * set the docType (if you know what yut are doing)
 	 *
 	 * @param string $docType doc type
+	 * 
+	 * @return Foomo\HTMLDocument
 	 */
 	public function setDocType($docType)
 	{
 		$this->docTypeString = $docType;
+		return $this;
 	}
 
 	/**
@@ -139,6 +143,28 @@ class HTMLDocument {
 		return $this->docTypeString;
 	}
 
+	/**
+	 * set the html opening tag
+	 *
+	 * @param string $htmlOpeningTag html opening tag
+	 * 
+	 * @return Foomo\HTMLDocument
+	 */
+	public function setHTMLOpeningTag($htmlOpeningTag)
+	{
+		$this->htmlOpeningTag = $htmlOpeningTag;
+		return $this;
+	}
+
+	/**
+	 * get the html opening tag
+	 *
+	 * @return string html opening tag
+	 */
+	public function getHTMLOpeningTag()
+	{
+		return $this->htmlOpeningTag;
+	}
 
 	/**
 	 * increment the source indentation
@@ -418,7 +444,9 @@ class HTMLDocument {
 		}
 
 		$output .= $this->docTypeString . PHP_EOL;
-		$output .= '<html>' . PHP_EOL;
+		if(!empty($this->htmlOpeningTag)) {
+			$output .= $this->htmlOpeningTag . PHP_EOL;
+		}
 		$output .= '<head>' . PHP_EOL;
 		foreach ($this->document as $docPartName => $docPartArray) {
 			switch ($docPartName) {
