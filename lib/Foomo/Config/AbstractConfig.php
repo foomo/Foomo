@@ -65,15 +65,33 @@ abstract class AbstractConfig
 			if($reflProperty->isPublic()) {
 				$propName = $reflProperty->getName();
 				$val = $this->$propName;
-				if(is_object($val)) {
-					$val = (array) $val;
+				if(is_object($val) || is_array($val)) {
+					$val = $this->deepToArray($val);
 				}
 				$ret[$propName] = $val;
 			}
 		}
 		return $ret;
 	}
-
+	/**
+	 * deep casting to an array
+	 * 
+	 * @param mixed $value
+	 * 
+	 * @return array
+	 */
+	private function deepToArray($value)
+	{
+		$ret = array();
+		foreach($value as $k => $p) {
+			if(is_array($p) || is_object($p)) {
+				$ret[$k] = $this->deepToArray($p);
+			} else {
+				$ret[$k] = $p;
+			}
+		}
+		return $ret;
+	}
 	/**
 	 * set the configuration array
 	 *
