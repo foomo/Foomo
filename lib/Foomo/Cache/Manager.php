@@ -351,7 +351,7 @@ class Manager {
 		if ($expirationTime == 0) {
 			return true;
 		} else {
-			if (\time() > $expirationTime)
+			if (\time() < $expirationTime)
 				return true;
 			else
 				return false; //expired

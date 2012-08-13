@@ -58,7 +58,20 @@ abstract class AbstractConfig
 	 */
 	public function getValue()
 	{
-		return (array) $this;
+		$ret = array();
+		$refl = new \ReflectionClass($this);
+		/* @var $reflProperty \ReflectionProperty */
+		foreach($refl->getProperties() as $reflProperty) {
+			if($reflProperty->isPublic()) {
+				$propName = $reflProperty->getName();
+				$val = $this->$propName;
+				if(is_object($val)) {
+					$val = (array) $val;
+				}
+				$ret[$propName] = $val;
+			}
+		}
+		return $ret;
 	}
 
 	/**

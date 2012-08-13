@@ -94,7 +94,8 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Memcache', 'Memcache', self::NAME, 'Foomo.Info', 'memcache', array(), '_blank'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Auth', 'Auth', self::NAME, 'Foomo.BasicAuth'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Log', 'Log', self::NAME, 'Foomo.Log'),
-			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Cache', self::NAME, 'Foomo.Cache')
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Cache', self::NAME, 'Foomo.Cache'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.Foomo', 'MVC Scaffolder', self::NAME, 'Foomo.MVC')
 		);
 	}
 }
