@@ -154,16 +154,26 @@ class URLHandler {
 
 		return $id;
 	}
-
-	public static function getAppCallData(AbstractApp $app, $baseURL = null)
+	/**
+	 * get method and paramaeters to call a controller on an app
+	 * 
+	 * @param \Foomo\MVC\AbstractApp $app
+	 * @param string $baseURL
+	 * @param string $uri
+	 * 
+	 * @return array
+	 */
+	public static function getAppCallData(AbstractApp $app, $baseURL = null, $uri = null)
 	{
-
 		$handler = new self($app, $baseURL);
-		return $handler->getCallData($app);
+		return $handler->getCallData($app, $uri);
 	}
 
-	public function getCallData(AbstractApp $app)
+	public function getCallData(AbstractApp $app, $uri = null)
 	{
+		if(is_null($uri)) {
+			$uri = $_SERVER['REQUEST_URI'];
+		}
 		if (!isset($this->baseURL)) {
 			$this->baseURL = MVC::getBaseUrl();
 		}
@@ -171,7 +181,7 @@ class URLHandler {
 		$alternativeSource = $_REQUEST;
 		// load information about the
 		$controllerCache = $this->loadClass($controller);
-		$URI = substr($_SERVER['REQUEST_URI'], strlen($this->baseURL) + 1);
+		$URI = substr($uri, strlen($this->baseURL) + 1);
 		$parts = explode('/', $URI);
 		$cleanParts = array();
 		foreach ($parts as $part) {
