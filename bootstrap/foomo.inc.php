@@ -52,7 +52,7 @@ include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
 include_once(ROOT . '/lib/Foomo/AutoLoader.php');
 include_once(ROOT . '/lib/Foomo/Log/Logger.php');
 include_once(ROOT . '/lib/Foomo/Utils.php');
-#include_once(ROOT . '/lib/Foomo/Reflection/addendum-0.4.0/annotations.php');
+include_once(ROOT . '/lib/Foomo/Reflection/addendum-0.4.0/annotations.php');
 include_once(ROOT . '/lib/Foomo/Config/AbstractConfig.php');
 include_once(ROOT . '/lib/Foomo/Core/DomainConfig.php');
 include_once(ROOT . '/lib/Foomo/Config.php');
