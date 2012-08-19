@@ -236,6 +236,19 @@ class Fs extends \Foomo\Modules\Resource
 	{
 		return new self($type, \Foomo\Config::getVarDir($module) . DIRECTORY_SEPARATOR . $relFilename);
 	}
+	/**
+	 * get a FS resource that is relative to \Foomo\ROOT/var/currentRunMode/tmp/<module>/<rel>/<file>/<name>
+	 *
+	 * @param string $type one of self::TYPE_...
+	 * @param string $relFilename relative filename
+	 * @param string $module name of the module
+	 * 
+	 * @return Foomo\Modules\Resource\Fs
+	 */
+	public static function getTempResource($type, $relFilename, $module = 'Foomo')
+	{
+		return new self($type, \Foomo\Config::getTempDir($module) . DIRECTORY_SEPARATOR . $relFilename);
+	}
 
 	/**
 	 * self::getDynamicHtdocsResource(self::TYPE_FOLDER, 'foo', 'css') . DIRECTORY_SEPARATOR . 'bar.css' =>

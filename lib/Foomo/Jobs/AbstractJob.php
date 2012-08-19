@@ -26,16 +26,111 @@ namespace Foomo\Jobs;
  */
 abstract class AbstractJob
 {
-	private function getConfig()
+	/**
+	 * default max execution time
+	 * 
+	 * @var integer
+	 */
+	protected $defaultMaxExecutionTime;
+	/**
+	 * default memory limit
+	 * 
+	 * @var integer
+	 */
+	protected $defaultMemoryLimit;
+	/**
+	 * locks by default
+	 * 
+	 * @var boolean
+	 */
+	protected $defaultLock = true;
+	
+	/**
+	 *
+	 * @var string
+	 */
+	protected $defaultExecutionRule;
+	public function __construct() 
 	{
-		\Foomo\Config::getConfByName(DomainConfig::NAME);
+		if(empty($this->defaultMaxExecutionTime)) {
+			$this->defaultMaxExecutionTime = ini_get('max_execution_time');
+		}
+		if(empty($this->defaultMemoryLimit)) {
+			$this->defaultMemoryLimit = ini_get('memory_limit');
+		}
 	}
-	public function getMaxRuntime()
+	public function getId()
 	{
-		
+		return md5(serialize($this));
 	}
 	/**
-	 * run a job
+	 * override this two allow locking dependent on a jobs data
+	 * 
+	 * @return string
 	 */
-	public static function runJob();
+	protected function getLockId()
+	{
+		return __CLASS__;
+	}
+	protected function getConfig()
+	{
+		$myClassName = get_called_class();
+		foreach(\Foomo\Config::getConfsByName(DomainConfig::NAME) as $config) {
+			if($config->className == $myClassName) {
+				return $config;
+			}
+		}
+		$default = new DomainConfig(true);
+		$default->className = $myClassName;
+		return $default;
+	}
+	/**
+	 * max execution time
+	 * 
+	 * @return integer
+	 */
+	public function getMaxExecutionTime()
+	{
+		return $this->getConfig()->maxExecutionTime;
+	}
+	/**
+	 * ini style memory limit
+	 * 
+	 * @return string
+	 */
+	public function getMemoryLimit()
+	{
+		return $this->getConfig()->memoryLimit;
+	}
+	/**
+	 * lock or not
+	 * 
+	 * @return boolean
+	 */
+	public function getLock()
+	{
+		return $this->getConfig()->lock;
+	}
+	/**
+	 * 
+	 * @return string
+	 */
+	public function getExecutionRule()
+	{
+		return $this->getConfig()->executionRule;
+	}
+	/**
+	 * create a job
+	 * 
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public static function create()
+	{
+		$className = get_called_class();
+		return new $className;
+	}
+	/**
+	 * do your thing here
+	 */
+	abstract public function run();
 }

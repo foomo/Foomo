@@ -27,13 +27,34 @@ namespace Foomo\Jobs;
 class DomainConfig extends \Foomo\Config\AbstractConfig
 {
 	const NAME = 'Foomo.Jobs.jobConfig';
+	/**
+	 * php.ini style memory_limit setting
+	 * 
+	 * @var string
+	 */
 	public $memoryLimit;
+	/**
+	 * php.ini max_execution_time  in seconds 0 is no limit
+	 * 
+	 * @var integer
+	 */
 	public $maxExecutionTime;
-	public $locks = true;
+	/**
+	 * the job will try to get a lock
+	 * 
+	 * @var boolean
+	 */
+	public $lock = true;
+	/**
+	 * class name of the job
+	 * 
+	 * @var string
+	 */
 	public $className;
 	/**
-	 *
-	 * @var type 
+	 * will be passed to cron
+	 * 
+	 * @var string
 	 */
 	public $executionRule;
     //---------------------------------------------------------------------------------------------

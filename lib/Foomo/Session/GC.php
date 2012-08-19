@@ -37,17 +37,19 @@ class GC implements GCPrinterInterface {
 
 	const DATE_FORMAT = 'Y-m-d H:i:s';
 
-	public function __construct($flushOutput = true, $verbose = false)
+	public function __construct($flushOutput = true)
 	{
 		if (!$flushOutput) {
 			$this->output = __CLASS__ . ' garbage collection :' . PHP_EOL . PHP_EOL;
 		}
 	}
-
-	public static function run()
+	public static function run($flushOutput = true)
 	{
 		$inst = new self;
-		$inst->runVerboseGC();
+		$inst->runVerboseGC($flushOutput);
+		if(!$flushOutput) {
+			return $inst->output;
+		}
 	}
 	private function runVerboseGC() {
 		$sessionConfig = Session::getConf();
@@ -57,7 +59,6 @@ class GC implements GCPrinterInterface {
 			$persistorGC = new $persistorGCClass($this);
 			$startTime = microtime(true);
 
-			$now = time();
 			$gcLifeTime = ini_get('session.gc_maxlifetime');
 			$cookieLifetime = ini_get('session.cookie_lifetime');
 			if ($cookieLifetime == 0) {

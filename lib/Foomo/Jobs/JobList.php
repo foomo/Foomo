@@ -24,25 +24,10 @@ namespace Foomo\Jobs;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class Runner
+interface JobList
 {
 	/**
-	 * run a job
-	 * 
-	 * @param string $jobId
-	 * 
-	 * @throws \InvalidArgumentException
+	 * get jobs
 	 */
-	public static function runJob($jobId)
-	{
-		foreach(Utils::collectJobs() as $module => $jobs) {
-			foreach($jobs as $job) {
-				if($job->getId() == $jobId) {
-					call_user_func_array(array($job, 'run'), array());
-					return;
-				}
-			}
-		}
-		throw new \InvalidArgumentException('given job was not found');
-	}
+	public static function getJobs();
 }

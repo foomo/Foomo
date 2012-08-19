@@ -24,25 +24,32 @@ namespace Foomo\Jobs;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class Runner
+class UtilsTest extends \PHPUnit_Framework_TestCase
 {
-	/**
-	 * run a job
-	 * 
-	 * @param string $jobId
-	 * 
-	 * @throws \InvalidArgumentException
-	 */
-	public static function runJob($jobId)
+	public function testCollectJobs()
 	{
-		foreach(Utils::collectJobs() as $module => $jobs) {
+		$jobs = Utils::collectJobs();
+		$this->assertArrayHasKey(\Foomo\Module::NAME, $jobs);
+		$enabledModules = \Foomo\Modules\Manager::getEnabledModules();
+		$sessionEnabled = \Foomo\Session::getEnabled();
+		$sessionGCFound = false;
+		$fileGCFound = false;
+		foreach($jobs as $module => $jobs) {
+			$this->assertTrue(in_array($module, $enabledModules));
 			foreach($jobs as $job) {
-				if($job->getId() == $jobId) {
-					call_user_func_array(array($job, 'run'), array());
-					return;
+				$this->assertInstanceOf(__NAMESPACE__ . '\\AbstractJob', $job);
+				if($module == \Foomo\Module::NAME && $sessionEnabled && $job instanceof \Foomo\Session\GCJob) {
+					$sessionGCFound = true;
+				}
+				if($job instanceof Common\FileGC) {
+					$fileGCFound = true;
+					var_dump($job);
 				}
 			}
 		}
-		throw new \InvalidArgumentException('given job was not found');
+		$this->assertTrue($fileGCFound, 'could not find a file gc');
+		if($sessionEnabled) {
+			$this->assertTrue($sessionGCFound, 'session gc job was not found');
+		}
 	}
 }

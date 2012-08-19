@@ -17,32 +17,17 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Jobs;
+namespace Foomo\Session;
  
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class Runner
+class GCJob extends \Foomo\Jobs\AbstractJob
 {
-	/**
-	 * run a job
-	 * 
-	 * @param string $jobId
-	 * 
-	 * @throws \InvalidArgumentException
-	 */
-	public static function runJob($jobId)
+	public function run()
 	{
-		foreach(Utils::collectJobs() as $module => $jobs) {
-			foreach($jobs as $job) {
-				if($job->getId() == $jobId) {
-					call_user_func_array(array($job, 'run'), array());
-					return;
-				}
-			}
-		}
-		throw new \InvalidArgumentException('given job was not found');
+		\Foomo\Utils::appendToPhpErrorLog(GC::run(false));
 	}
 }

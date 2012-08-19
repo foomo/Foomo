@@ -55,7 +55,15 @@ abstract class ModuleBase
 	public static function initializeModule()
 	{
 	}
-
+	/**
+	 * jobs you want to be executed
+	 * 
+	 * @return \Foomo\Jobs\AbstractJob[]
+	 */
+	public static function getJobs()
+	{
+		
+	}
 	/**
 	 * describe your module - text only
 	 *
