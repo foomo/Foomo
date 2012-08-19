@@ -78,6 +78,19 @@ class ConfigWorld {
 	{
 		$this->testCase->assertTrue(\Foomo\Config::confExists($module, $name, $domain));
 	}
+	
+	// missing method on your world:
+	/**
+	 * @story then configs identified by name exist
+	 * @param string $name
+	 * @return Foomo\Config\Spec\ConfigWorld
+	 */
+	public function thenConfigsIdentifiedByNameExist($name, $count) 
+	{
+		$configs = \Foomo\Config::getConfsByName($name);
+		$this->testCase->assertCount($count, $configs);
+		return $this;
+	}	
 
 	/**
 	 * @story given no old config exists
