@@ -24,7 +24,7 @@ namespace Foomo\Jobs;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-interface JobList
+interface JobListInterface
 {
 	/**
 	 * get jobs

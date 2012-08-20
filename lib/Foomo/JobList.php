@@ -24,7 +24,7 @@ namespace Foomo;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class JobList implements Jobs\JobList
+class JobList implements Jobs\JobListInterface
 {
 	public static function getJobs()
 	{

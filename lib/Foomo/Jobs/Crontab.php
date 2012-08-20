@@ -27,7 +27,7 @@ namespace Foomo\Jobs;
 class Crontab
 {
 	/**
-	 * @var JobList
+	 * @var JobListInterface
 	 */
 	private $moduleJobLists;
 	/**
