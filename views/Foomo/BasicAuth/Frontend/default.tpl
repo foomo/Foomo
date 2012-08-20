@@ -4,12 +4,17 @@
 use Foomo\BasicAuth\Utils;
 ?>
 <div id="main">
-	<?= $view->partial('menu') ?>
+	<?= $view->partial('menu', array('allowedDomains' => $model->allowedDomains)) ?>
 	<div id="appContent">
 		
 		<h2>Auth domains</h2>
 		
-		<? foreach(Utils::getDomains() as $domain): ?>
+		<? 
+			foreach(Utils::getDomains() as $domain):
+				if(!empty($model->allowedDomains) && !in_array($domain, $model->allowedDomains)) {
+					continue;
+				}
+		?>
 
 		<div class="toggleBox">
 			<div class="toogleButton">
@@ -18,10 +23,11 @@ use Foomo\BasicAuth\Utils;
 			</div>
 			<div class="toggleContent">
 				
-				<div class="deleteBox">
-					<?= $view->link('Delete domain', 'deleteDomain', array($domain), array('class' => 'linkButtonRed')) ?>
-				</div>
-				
+				<? if(empty($model->allowedDomains)): ?>
+					<div class="deleteBox">
+						<?= $view->link('Delete domain', 'deleteDomain', array($domain), array('class' => 'linkButtonRed')) ?>
+					</div>
+				<? endif; ?>
 				<div class="tabBox">
 				
 					<div class="tabNavi">
