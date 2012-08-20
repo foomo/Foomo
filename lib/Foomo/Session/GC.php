@@ -45,8 +45,8 @@ class GC implements GCPrinterInterface {
 	}
 	public static function run($flushOutput = true)
 	{
-		$inst = new self;
-		$inst->runVerboseGC($flushOutput);
+		$inst = new self($flushOutput);
+		$inst->runVerboseGC();
 		if(!$flushOutput) {
 			return $inst->output;
 		}

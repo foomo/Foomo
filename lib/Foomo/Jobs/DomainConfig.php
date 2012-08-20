@@ -28,43 +28,15 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 {
 	const NAME = 'Foomo.Jobs.jobConfig';
 	/**
-	 * php.ini style memory_limit setting
-	 * 
-	 * @var string
-	 */
-	public $memoryLimit;
-	/**
-	 * php.ini max_execution_time  in seconds 0 is no limit
-	 * 
-	 * @var integer
-	 */
-	public $maxExecutionTime;
-	/**
-	 * the job will try to get a lock
+	 * use curl and the
 	 * 
 	 * @var boolean
 	 */
-	public $lock = true;
+	public $useCurl = true;
 	/**
-	 * class name of the job
+	 * will be shellescaped when passed to curl -k might be a friend ...
 	 * 
-	 * @var string
+	 * @var string[]
 	 */
-	public $className;
-	/**
-	 * will be passed to cron
-	 * 
-	 * @var string
-	 */
-	public $executionRule;
-    //---------------------------------------------------------------------------------------------
-    // ~ Constructor
-    //---------------------------------------------------------------------------------------------
-    public function __construct($createDefault = false)
-    {
-		if($createDefault) {
-			$this->memoryLimit = ini_get('memory_limit');
-			$this->maxExecutionTime = ini_get('max_execution_time');
-		}
-    }
+	public $curlOptions = array();
 }

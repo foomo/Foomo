@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the foomo Opensource Framework.
  * 
@@ -18,35 +17,23 @@
  */
 
 namespace Foomo\Jobs;
- 
+
+use Foomo\MVC\AbstractApp;
+
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
- * @author Jan Halfar jan@bestbytes.com
+ * @author jan
  */
-class Runner
+
+class Frontend extends AbstractApp 
 {
 	/**
-	 * run a job
-	 * 
-	 * @param string $jobId
-	 * 
-	 * @throws \InvalidArgumentException
+	 * @var Frontend\Model
 	 */
-	public static function runJob($jobId)
-	{
-		// @todo have a sutdown hook for fatalities ...
-		$executionSecret = Utils::getExecutionSecret();
-		foreach(Utils::collectJobs() as $module => $jobs) {
-			foreach($jobs as $job) {
-				if($job->getSecretId($executionSecret) == $jobId) {
-					trigger_error('running job ' . get_class($job) . ' ' . $job->getDescription() . $jobId);
-					call_user_func_array(array($job, 'run'), array());
-					trigger_error('done running job ' . get_class($job) . ' ' . $jobId);
-					return;
-				}
-			}
-		}
-		throw new \InvalidArgumentException('given job was not found ' . $jobId);
-	}
+	public $model;
+	/**
+	 * @var Frontend\Controller
+	 */
+	public $controller;
 }

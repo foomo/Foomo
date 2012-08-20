@@ -63,12 +63,10 @@ class FileGCTest extends \PHPUnit_Framework_TestCase
 		$this->drop($this->getTestStructure(), $this->getTestRootDir());
 		$this->create($this->getTestStructure(), $this->getTestRootDir());
 		clearstatcache();
-		sleep(2);
-		clearstatcache();
 	}
 	public function tearDown()
 	{
-		//$this->drop($this->getTestStructure(), $this->getTestRootDir());
+		$this->drop($this->getTestStructure(), $this->getTestRootDir());
 	}
 	/**
 	 * @return FileGC

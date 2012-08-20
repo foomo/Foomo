@@ -26,13 +26,13 @@ namespace Foomo\Config;
  */
 class TempFileGCCreator
 {
-	public static function getGCs()
+	public static function getGC()
 	{
-		$ret = array();
 		// loop all enabled modules
 		/* @var $gc \Foomo\Jobs\Common\FileGC */
 		$gc = \Foomo\Jobs\Common\FileGC::create()
 			->recursive(true)
+			->maxExecutionTime(4000)
 			->addDirectories(array(\Foomo\Config::getTempDir()))
 		;
 		foreach(\Foomo\Modules\Manager::getEnabledModules() as $module) {
@@ -63,7 +63,7 @@ class TempFileGCCreator
 				$gc->addProtectedDirectories($nonConflictingDirs);
 			}
 		}
-		return array($gc);
+		return $gc;
 	}
 	/**
 	 * is one of $dirs a subdirectory of $dir and does thus conflict?

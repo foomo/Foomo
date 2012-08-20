@@ -103,7 +103,8 @@ class Setup
 			\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
 			Module::NAME . DIRECTORY_SEPARATOR .
 			'cli' . DIRECTORY_SEPARATOR .
-			'php-' . Config::getMode();
+			'php-' . Config::getMode()
+		;
 	}
 
 	/**

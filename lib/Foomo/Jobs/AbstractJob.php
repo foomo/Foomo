@@ -27,42 +27,60 @@ namespace Foomo\Jobs;
 abstract class AbstractJob
 {
 	/**
-	 * default max execution time
+	 * max execution time
 	 * 
 	 * @var integer
 	 */
-	protected $defaultMaxExecutionTime;
+	protected $maxExecutionTime;
 	/**
-	 * default memory limit
+	 * memory limit
 	 * 
 	 * @var integer
 	 */
-	protected $defaultMemoryLimit;
+	protected $memoryLimit;
 	/**
-	 * locks by default
+	 * lock
 	 * 
 	 * @var boolean
 	 */
-	protected $defaultLock = true;
-	
+	protected $lock = true;
 	/**
-	 *
+	 * cron rule
+	 * 
 	 * @var string
 	 */
-	protected $defaultExecutionRule;
+	protected $executionRule;
+	
 	public function __construct() 
 	{
-		if(empty($this->defaultMaxExecutionTime)) {
-			$this->defaultMaxExecutionTime = ini_get('max_execution_time');
+		if(empty($this->maxExecutionTime)) {
+			$this->maxExecutionTime = ini_get('max_execution_time');
 		}
-		if(empty($this->defaultMemoryLimit)) {
-			$this->defaultMemoryLimit = ini_get('memory_limit');
+		if(empty($this->memoryLimit)) {
+			$this->memoryLimit = ini_get('memory_limit');
 		}
 	}
+	/**
+	 * my id - override this, if this algorythm does not work for you
+	 * 
+	 * @return string
+	 */
 	public function getId()
 	{
-		return md5(serialize($this));
+		return sha1(serialize($this));
 	}
+	/**
+	 * you can execute me with that
+	 * 
+	 * @param string $executionSecret
+	 * 
+	 * @return string
+	 */
+	public function getSecretId($executionSecret)
+	{
+		return sha1($this->getId() . '-' . $executionSecret);
+	}
+
 	/**
 	 * override this two allow locking dependent on a jobs data
 	 * 
@@ -72,17 +90,14 @@ abstract class AbstractJob
 	{
 		return __CLASS__;
 	}
-	protected function getConfig()
+	/**
+	 * describe what this job does
+	 * 
+	 * @return string
+	 */
+	public function getDescription()
 	{
-		$myClassName = get_called_class();
-		foreach(\Foomo\Config::getConfsByName(DomainConfig::NAME) as $config) {
-			if($config->className == $myClassName) {
-				return $config;
-			}
-		}
-		$default = new DomainConfig(true);
-		$default->className = $myClassName;
-		return $default;
+		return '';
 	}
 	/**
 	 * max execution time
@@ -91,7 +106,7 @@ abstract class AbstractJob
 	 */
 	public function getMaxExecutionTime()
 	{
-		return $this->getConfig()->maxExecutionTime;
+		return $this->maxExecutionTime;
 	}
 	/**
 	 * ini style memory limit
@@ -100,7 +115,7 @@ abstract class AbstractJob
 	 */
 	public function getMemoryLimit()
 	{
-		return $this->getConfig()->memoryLimit;
+		return $this->memoryLimit;
 	}
 	/**
 	 * lock or not
@@ -109,7 +124,7 @@ abstract class AbstractJob
 	 */
 	public function getLock()
 	{
-		return $this->getConfig()->lock;
+		return $this->lock;
 	}
 	/**
 	 * 
@@ -117,7 +132,55 @@ abstract class AbstractJob
 	 */
 	public function getExecutionRule()
 	{
-		return $this->getConfig()->executionRule;
+		return $this->executionRule;
+	}
+	/**
+	 * max execution time
+	 * 
+	 * @param integer $value php.ini style
+	 * 
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public function maxExecutionTime($value)
+	{
+		$this->maxExecutionTime = $value;
+		return $this;
+	}
+	/**
+	 * set ini style memory limit
+	 * 
+	 * @param string $value
+	 * 
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public function memoryLimit($value)
+	{
+		$this->memoryLimit = $value;
+		return $this;
+	}
+	/**
+	 * lock or not
+	 * 
+	 * @param boolean $value
+	 * 
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public function lock($value = true)
+	{
+		$this->lock = $value;
+		return $this;
+	}
+	/**
+	 * the crontab * thingie
+	 * 
+	 * @param string $rule see the unix crontab docs
+	 * 
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public function executionRule($rule)
+	{
+		$this->executionRule = $rule;
+		return $this;
 	}
 	/**
 	 * create a job

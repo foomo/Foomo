@@ -43,7 +43,6 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 				}
 				if($job instanceof Common\FileGC) {
 					$fileGCFound = true;
-					var_dump($job);
 				}
 			}
 		}

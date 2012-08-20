@@ -28,9 +28,9 @@ class JobList implements Jobs\JobList
 {
 	public static function getJobs()
 	{
-		$jobs = Config\TempFileGCCreator::getGCs();
+		$jobs = array(Config\TempFileGCCreator::getGC());
 		if(Session::getEnabled()) {
-			$jobs[] = Session\GCJob::create();
+			$jobs[] = Session\GCJob::create()->maxExecutionTime(3000);
 		}
 		return $jobs;
 	}

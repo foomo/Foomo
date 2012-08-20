@@ -27,6 +27,7 @@ use Foomo\Jobs\AbstractJob;
  */
 class FileGC extends AbstractJob
 {
+	protected $executionRule = '0	*	*	*	*';
 	/**
 	 * scan subdirectories recursively for garbage or not
 	 * 
@@ -51,6 +52,23 @@ class FileGC extends AbstractJob
 	 * @var string[]
 	 */
 	protected $protectedDirectories = array();
+	public function getDescription()
+	{
+		return 
+			'will remove files older than ' . $this->maxAge . ' s ' . 
+			' from the directories ' . implode(', ', $this->directories) .
+			' while keeping the directories ' . implode(', ', $this->protectedDirectories)
+		;
+	}
+	public function getId()
+	{
+		return sha1(
+			__CLASS__ . 
+			implode(',', array_merge($this->directories, $this->protectedDirectories)) . 
+			$this->recursive?'rec':'nonrec' . 
+			$this->maxAge
+		);
+	}
 	/**
 	 * directories to be cleaned from garbage
 	 * 
@@ -157,7 +175,6 @@ class FileGC extends AbstractJob
 	}
 	private function tryRMDir($dir)
 	{
-		
 		if(
 			!in_array($dir, $this->protectedDirectories) &&
 			!in_array($dir, $this->directories)

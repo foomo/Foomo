@@ -26,6 +26,15 @@ namespace Foomo\Session;
  */
 class GCJob extends \Foomo\Jobs\AbstractJob
 {
+	protected $executionRule = '0	*	*	*	*';
+	public function getId()
+	{
+		return sha1(__CLASS__);
+	}
+	public function getDescription()
+	{
+		return 'collects session garbage i.e. stored sessions that have expired';
+	}
 	public function run()
 	{
 		\Foomo\Utils::appendToPhpErrorLog(GC::run(false));

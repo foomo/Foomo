@@ -17,36 +17,37 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Jobs;
+namespace Foomo\Jobs\Frontend;
  
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
- * @author Jan Halfar jan@bestbytes.com
+ * @author jan
  */
-class Runner
+ 
+class Controller
 {
 	/**
-	 * run a job
-	 * 
-	 * @param string $jobId
-	 * 
-	 * @throws \InvalidArgumentException
+	 * my model
+	 *
+	 * @var Foomo\Jobs\Frontend\Model
 	 */
-	public static function runJob($jobId)
+	public $model;
+	public function actionDefault() {}
+	private function plain($output) 
 	{
-		// @todo have a sutdown hook for fatalities ...
-		$executionSecret = Utils::getExecutionSecret();
-		foreach(Utils::collectJobs() as $module => $jobs) {
-			foreach($jobs as $job) {
-				if($job->getSecretId($executionSecret) == $jobId) {
-					trigger_error('running job ' . get_class($job) . ' ' . $job->getDescription() . $jobId);
-					call_user_func_array(array($job, 'run'), array());
-					trigger_error('done running job ' . get_class($job) . ' ' . $jobId);
-					return;
-				}
-			}
-		}
-		throw new \InvalidArgumentException('given job was not found ' . $jobId);
+		\Foomo\MVC::abort();
+		header('Content-Type: text/plain;charset=utf-8;');
+		echo $output;
+		exit;
+	}
+	public function actionPreviewCrontab()
+	{
+		$this->plain(\Foomo\Jobs\Utils::getCrontab());
+	}
+	public function actionInstallCrontab()
+	{
+		\Foomo\Jobs\Utils::installCrontab();
+		$this->plain('installed cron tab');
 	}
 }

@@ -67,7 +67,8 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 		$ret = array(
 			Modules\Resource\PearPackage::getResource('Mail'),
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
-			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME)
+			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME),
+			Modules\Resource\Config::getResource(self::NAME, Jobs\DomainConfig::NAME)
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
@@ -95,7 +96,8 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Auth', 'Auth', self::NAME, 'Foomo.BasicAuth'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Log', 'Log', self::NAME, 'Foomo.Log'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Cache', self::NAME, 'Foomo.Cache'),
-			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.Foomo', 'MVC Scaffolder', self::NAME, 'Foomo.MVC')
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.Foomo', 'MVC Scaffolder', self::NAME, 'Foomo.MVC'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.Foomo', 'Jobs', self::NAME, 'Foomo.Jobs')
 		);
 	}
 }

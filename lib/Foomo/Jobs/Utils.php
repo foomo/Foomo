@@ -39,4 +39,45 @@ class Utils
 		}
 		return $jobs;
 	}
+	/**
+	 * get the status of a job
+	 * 
+	 * @param \Foomo\Jobs\AbstractJob $job
+	 * 
+	 * @return string
+	 */
+	public static function getStatus(AbstractJob $job)
+	{
+		return 'not implemented yet';
+	}
+	public static function getExecutionSecret()
+	{
+		$executionSecretFilename = self::getExecutionSecretFilename();
+		if(!file_exists($executionSecretFilename)) {
+			self::makeExecutionSecret();
+		}
+		return file_get_contents($executionSecretFilename);
+	}
+	private static function makeExecutionSecret()
+	{
+		file_put_contents(self::getExecutionSecretFilename(), uniqid('', true) . '-' . uniqid('', true) . '-' . uniqid('', true) );
+	}
+	/**
+	 * 
+	 * @return string
+	 */
+	private static function getExecutionSecretFilename()
+	{
+		return \Foomo\Config::getVarDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'job-execution-secret.txt';
+	}
+	public static function getCrontab()
+	{
+		$crontab = new Crontab(self::collectJobs(), self::getExecutionSecret());
+		return $crontab->getCrontab();
+	}
+	public static function installCrontab()
+	{
+		$crontab = new Crontab(self::collectJobs(), self::getExecutionSecret());
+		$crontab->installCrontab();
+	}
 }
