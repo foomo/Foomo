@@ -13,5 +13,5 @@
 	<td><?= $job->getLock()?'yes':'no' ?></td>
 	<td><?= $view->escape($job->getMaxExecutionTime()) ?></td>
 	<td><?= $view->escape($job->getMemoryLimit()) ?></td>
-	<td><?= \Foomo\Jobs\Utils::getStatus($job) ?></td>
+	<td><?= \Foomo\Jobs\Utils::getStatus($job)->status ?></td>
 </tr>

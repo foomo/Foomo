@@ -36,13 +36,29 @@ class Runner
 	public static function runJob($jobId)
 	{
 		// @todo have a sutdown hook for fatalities ...
+		// http://de.php.net/register_shutdown_function
+		// @example foomo logger shutdownListener
 		$executionSecret = Utils::getExecutionSecret();
 		foreach(Utils::collectJobs() as $module => $jobs) {
 			foreach($jobs as $job) {
+				/* @var $job AbstractJob */
 				if($job->getSecretId($executionSecret) == $jobId) {
+					ini_set('max_execution_time', $job->getMaxExecutionTime());
+					ini_set('memory_limit', $job->getMemoryLimit());
+					if($job->getLock()) {
+						// use for the lock name in var lock-
+						$job->getId();
+						// try to obtain the lock
+						// you can not get it
+						// exit gracefully if lock not older than max execution time
+						// die fatally throw runtimeexception saying why
+					}
 					trigger_error('running job ' . get_class($job) . ' ' . $job->getDescription() . $jobId);
 					call_user_func_array(array($job, 'run'), array());
 					trigger_error('done running job ' . get_class($job) . ' ' . $jobId);
+					if($job->getLock()) {
+						// clean up
+					}
 					return;
 				}
 			}

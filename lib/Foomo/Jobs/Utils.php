@@ -44,11 +44,15 @@ class Utils
 	 * 
 	 * @param \Foomo\Jobs\AbstractJob $job
 	 * 
-	 * @return string
+	 * @return JobStatus
 	 */
 	public static function getStatus(AbstractJob $job)
 	{
-		return 'not implemented yet';
+		// check if job is running
+		// check the age
+		$ret = new JobStatus();
+		$ret->status = JobStatus::STATUS_NOT_RUNNING;
+		return $ret;
 	}
 	public static function getExecutionSecret()
 	{
