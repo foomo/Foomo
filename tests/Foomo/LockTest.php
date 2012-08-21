@@ -25,44 +25,88 @@ namespace Foomo;
  * @author jan <jan@bestbytes.de>
  */
 class LockTest extends \PHPUnit_Framework_TestCase {
-	public function setUp()
-	{
+
+	public function setUp() {
+		$this->exposeTestScript();
 	}
-	
-	public function testGetLock()
-	{
+
+	public function tearDown() {
+		$this->hideTestScript();
+		parent::tearDown();
+	}
+
+	public function testGetLock() {
 		$lockName1 = 'testLock1';
 		$lockName2 = 'testLock2';
-		
 		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = true);
 		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
-		
-		$lockObtained2 = \Foomo\Lock::lock($lockName1, $blocking = false);
-		
-		$this->assertFalse($lockObtained2,'should not be able to obtain second lock');
-		
+
+		//issue another process
+		$sucess = file_get_contents(\Foomo\Utils::getServerUrl() . '/foomo/lock.php?lockName=' . $lockName1);
+
+		$this->assertFalse($sucess != 'false', 'should not be able to obtain second lock');
+
 		$lockReleased = \Foomo\Lock::release($lockName1);
 		$this->assertTrue($lockReleased);
-		
-		
+
 		// after the release it should work
-		
-		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = false);
-		
-		
-	
-		
-		
+		//issue another process
+		$sucess = file_get_contents(\Foomo\Utils::getServerUrl() . '/foomo/lock.php?lockName=' . $lockName1);
+		$this->assertFalse($sucess != 'true', 'should work after lock is released');
 	}
-	
-	
+
 	public function testLockAge() {
 		$lockName1 = 'testLock1';
 		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = false);
 		sleep(3);
 		$lockInfo = \Foomo\Lock::getLockInfo($lockName1);
 		$this->assertEquals(3, $lockInfo['lock_age']);
-			
 	}
+
+	public function testGetInfo() {
+		//get a lock from this process
+		$lockName1 = 'testLock1';
+		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = true);
+		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
+
+		$info = \Foomo\Lock::getLockInfo($lockName1);
+
+		$this->assertTrue($info['is_locked'], 'should be locked after lock call');
+		$this->assertTrue($info['caller_is_owner'], 'should owned by us');
+		$this->assertLessThanOrEqual(5, $info['lock_age']);
+
+		//release and lock from another process
+		\Foomo\Lock::release($lockName1);
+
+		//start second process but do not wait for return!
 	
+		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/lock.php?lockName='.$lockName1.'&sleep=5');
+	
+		$info1 = \Foomo\Lock::getLockInfo($lockName1);
+		
+		$this->assertTrue($info1['is_locked'], 'should be locked after lock call');
+		$this->assertFalse($info1['caller_is_owner'], 'we should not be owning it');
+		
+	}
+
+	private function exposeTestScript() {
+		$file = __DIR__ . DIRECTORY_SEPARATOR . 'lock.php';
+		symlink($file, \Foomo\Config::getHtdocsDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'lock.php');
+	}
+
+	private function hideTestScript() {
+		unlink(\Foomo\Config::getHtdocsDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'lock.php');
+	}
+
+	private function callAsync($url) {
+		$ch = \curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $url );
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+		curl_exec($ch);
+		curl_close($ch);
+		
+	}
 }
