@@ -30,11 +30,11 @@ interface QueryablePersistorInterface extends \Foomo\Cache\Persistence\FastPersi
 	 * finds all resources matching expression
 	 *
 	 * @param string $resourceName
-	 * @param \Foomo\Cache\Persistence\Expr $expr
+	 * @param Foomo\Cache\Persistence\Expr $expr
 	 * @param integer $limit
 	 * @param integer $offset
 	 *
-	 * @return CacheResourceIterator
+	 * @return Foomo\Cache\CacheResourceIterator
 	 */
 	public function query($resourceName, $expr, $limit, $offset);
 
