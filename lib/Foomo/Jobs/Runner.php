@@ -44,7 +44,6 @@ class Runner {
 					$jobId = $job->getId();
 					\register_shutdown_function('Foomo\Jobs\Runner::shutdownListener', array($jobId));
 					self::$callback = true;
-					ini_set('max_execution_time', $job->getMaxExecutionTime());
 					set_time_limit($job->getMaxExecutionTime());
 					ini_set('memory_limit', $job->getMemoryLimit());
 					$locked = false;
