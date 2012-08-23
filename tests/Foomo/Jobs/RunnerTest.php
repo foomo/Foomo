@@ -62,10 +62,10 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertFalse($status->isLocked, 'should not be locked');
 	}
 
-	public function testDieInSleepJob() {
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=DieInSleepJob');
-		sleep(4);
-		$status = \Foomo\Jobs\Utils::getStatus(Mock\DieInSlepJob::create());
+	public function testDieWhileWorkingJob() {
+		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=DieWhileWorkingJob');
+		sleep(2);
+		$status = \Foomo\Jobs\Utils::getStatus(Mock\DieWhileWorkingJob::create());
 		$this->assertNotEquals(getmypid(), $status->pid, 'pid should differ');
 		$this->assertFalse($status->isLocked, 'should not be locked');
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now');
@@ -80,8 +80,6 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 		$this->assertEquals(JobStatus::ERROR_ATTEMPTED_CONCURRENT_RUN, $status->errorCode);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
-		var_dump($status);
-		
 	}
 	
 	

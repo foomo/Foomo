@@ -32,7 +32,7 @@ class TestJobList implements \Foomo\Jobs\JobListInterface
 			SleeperJob::create(),
 			DierJob::create(),
 			ExiterJob::create(),
-			DieInSlepJob::create(),
+			DieWhileWorkingJob::create(),
 		);
 	}
 }

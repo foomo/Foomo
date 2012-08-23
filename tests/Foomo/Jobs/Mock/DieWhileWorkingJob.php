@@ -6,12 +6,12 @@ namespace Foomo\Jobs\Mock;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class DieInSlepJob extends \Foomo\Jobs\AbstractJob
+class DieWhileWorkingJob extends \Foomo\Jobs\AbstractJob
 {
         protected $executionRule = '*   *       *       *       *';
         
 		public function getMaxExecutionTime() {
-			return 2;
+			return 1;
 		}
 		public function getId()
         {
@@ -23,8 +23,10 @@ class DieInSlepJob extends \Foomo\Jobs\AbstractJob
         }
         public function run()
         {	
-			for ($i=0; $i<25; $i++) {
-				sleep(1);
+			//i should live forever
+			while (true) {
+				$i = 1 + 1;
+				
 			}
         }
 }

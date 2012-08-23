@@ -21,10 +21,10 @@ if (isset($_GET['job'])) {
 		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\ExiterJob::create()->getSecretId($executionSecret));
 	}
 
-	if ($jobName == 'DieInSleepJob') {
+	if ($jobName == 'DieWhileWorkingJob') {
 		$jobs = \Foomo\Jobs\Utils::collectJobs();
 		$executionSecret = \Foomo\Jobs\Utils::getExecutionSecret();
-		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\DieInSlepJob::create()->getSecretId($executionSecret));
+		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\DieWhileWorkingJob::create()->getSecretId($executionSecret));
 	}
 }
 
