@@ -1,17 +1,15 @@
 <?php
-
 /* @var $model Foomo\Jobs\Frontend\Model */
 /* @var $view Foomo\MVC\View */
-
 ?><nav id="menuSub">
 	<ul>
-		<li><?= $view->partial('menuButton', array('url' => 'previewCrontab', 'name' => 'preview crontab' ), 'Foomo\Frontend') ?></li>
-		<li><?= $view->partial('menuButton', array('url' => 'installCrontab', 'name' => 'install crontab' ), 'Foomo\Frontend') ?></li>
+		<li><?= $view->partial('menuButton', array('url' => 'previewCrontab', 'name' => 'preview crontab'), 'Foomo\Frontend') ?></li>
+		<li><?= $view->partial('menuButton', array('url' => 'installCrontab', 'name' => 'install crontab'), 'Foomo\Frontend') ?></li>
 	</ul>
 </nav>
 
-<? if(!isset($_SERVER['HTTPS'])): ?>
-<div class="errorContainer">You are not using https to connect to your server => all cronjobs well be called over http when using curl</div>
+<? if (!isset($_SERVER['HTTPS'])): ?>
+	<div class="errorContainer">You are not using https to connect to your server => all cronjobs well be called over http when using curl</div>
 <? endif; ?>
 <table>
 	<thead>
@@ -32,15 +30,24 @@
 				memory limit
 			</th>
 			<th>
-				status
+				run status
+			</th>
+			<th>
+				error code
+			</th>
+			<th>
+				last started
+			</th>
+			<th>
+				last ended
 			</th>
 		</tr>
 	</thead>
 	<tbody>
-		<? foreach(\Foomo\Jobs\Utils::collectJobs() as $module => $jobs): ?>
-		<? foreach($jobs as $job): ?>
-			<?= $view->partial('job', array('job' => $job, 'module' => $module)) ?>
-		<? endforeach; ?>
+<? foreach (\Foomo\Jobs\Utils::collectJobs() as $module => $jobs): ?>
+			<? foreach ($jobs as $job): ?>
+				<?= $view->partial('job', array('job' => $job, 'module' => $module)) ?>
+			<? endforeach; ?>
 		<? endforeach; ?>
 	</tbody>
 </table>

@@ -27,4 +27,14 @@ namespace Foomo\Jobs\Frontend;
  
 class Model
 {
+	public $currentJobId;
+	
+	
+	public function getJob() {
+		return \Foomo\Jobs\Utils::getJobById($this->currentJobId);
+	}
+	
+	public function getJobStatus() {
+		return \Foomo\Jobs\Utils::getStatus($this->getJob());
+	}
 }

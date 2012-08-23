@@ -18,26 +18,72 @@
  */
 
 namespace Foomo\Jobs;
- 
+
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class JobStatus
-{
+class JobStatus {
+
 	const STATUS_RUNNING = 'running';
-	const STATUS_NOT_RUNNING = 'not running';	
+	const STATUS_NOT_RUNNING = 'not running';
 	const ERROR_DIED = 'died';
 	const ERROR_TIMEOUT = 'timeout';
+	const ERROR_NO_LOCK = 'no lock';
+	const ERROR_ATTEMPTED_CONCURRENT_RUN = 'attempted concurent run';
+
 	/**
 	 * one of self::STATUS_...
 	 * @var string
 	 */
 	public $status;
+
 	/**
 	 * one of self::ERROR_...
 	 * @var string
 	 */
-	public $error;
+	public $errorCode;
+
+	/**
+	 * 
+	 * @var string  $errorMessage 
+	 */
+	public $errorMessage;
+
+	/**
+	 *
+	 * @var integer timestamp of last ruun start
+	 */
+	public $startTime;
+
+	/**
+	 * timestamp of last end (done or error)
+	 * @var integer 
+	 */
+	public $endTime;
+
+	/**
+	 * process id
+	 * @var integer 
+	 */
+	public $pid;
+
+	/**
+	 * 
+	 * @var boolean 
+	 */
+	public $isLocked;
+
+	/**
+	 * @return boolean
+	 */
+	public function isOk() {
+		if (empty($this->errorCode) || $this->errorCode == JobStatus::ERROR_ATTEMPTED_CONCURRENT_RUN) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

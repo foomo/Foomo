@@ -60,6 +60,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = false);
 		sleep(3);
 		$lockInfo = \Foomo\Lock::getLockInfo($lockName1);
+		var_dump($lockInfo);
 		$this->assertEquals(3, $lockInfo['lock_age']);
 	}
 
@@ -68,27 +69,31 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 		$lockName1 = 'testLock1';
 		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = true);
 		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
-
 		$info = \Foomo\Lock::getLockInfo($lockName1);
-
+		var_dump($info);
 		$this->assertTrue($info['is_locked'], 'should be locked after lock call');
 		$this->assertTrue($info['caller_is_owner'], 'should owned by us');
 		$this->assertLessThanOrEqual(5, $info['lock_age']);
 
 		//release and lock from another process
 		\Foomo\Lock::release($lockName1);
-
-		//start second process but do not wait for return!
-	
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/lock.php?lockName='.$lockName1.'&sleep=5');
-	
-		$info1 = \Foomo\Lock::getLockInfo($lockName1);
 		
+		//start second process but do not wait for return!
+		
+		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/lock.php?lockName='.$lockName1.'&sleep=5');
+		sleep(1);
+		$info1 = \Foomo\Lock::getLockInfo($lockName1);
+		var_dump($info1);
 		$this->assertTrue($info1['is_locked'], 'should be locked after lock call');
 		$this->assertFalse($info1['caller_is_owner'], 'we should not be owning it');
 		
+		$this->assertNotEquals(getmypid(), $info1['pid'], 'pids should not match'); 
+		
 	}
-
+	
+	
+	
+	
 	private function exposeTestScript() {
 		$file = __DIR__ . DIRECTORY_SEPARATOR . 'lock.php';
 		symlink($file, \Foomo\Config::getHtdocsDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'lock.php');
@@ -100,13 +105,11 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 
 	private function callAsync($url) {
 		$ch = \curl_init();
-
 		curl_setopt($ch, CURLOPT_URL, $url );
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 1);
 		curl_exec($ch);
 		curl_close($ch);
-		
 	}
 }

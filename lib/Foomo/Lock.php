@@ -13,9 +13,10 @@ class Lock {
 	 * lock. start the synchronization block
 	 * @param string $lockName
 	 * @param boolean $blocking
+	 * $param object $lockData whatever payload you might want to serialize into the lock file for latter use
 	 * @return boolean 
 	 */
-	public static function lock($lockName, $blocking = true) {
+	public static function lock($lockName, $blocking = true, $lockData = null) {
 		$lockFileHandle = self::getLockHandle($lockName);
 		if (!$lockFileHandle) {
 			return false;
@@ -27,7 +28,8 @@ class Lock {
 			$lockType = ($lockType | LOCK_NB);
 		}
 		if (flock($lockFileHandle, $lockType)) { // do an exclusive lock
-			touch(self::getLockFile($lockName));
+			//touch(self::getLockFile($lockName));
+			self::insertLockData(self::getLockContentsFile($lockName), $lockData);
 			return true;
 		} else {
 			//trigger_error('could not get the lock ' . $lockName, E_USER_WARNING);
@@ -50,7 +52,10 @@ class Lock {
 		} else {
 			flock($lockFileHandle, LOCK_UN); // release the lock
 			fclose($lockFileHandle);
+		unlink(self::getLockFile($lockName));
+		//unlink(self::getLockContentsFile($lockName));
 			unset(self::$lockHandles[$lockName]);
+			
 			return true;
 		}
 	}
@@ -60,13 +65,35 @@ class Lock {
 	 * @param string $lockName
 	 * @return array hash with the following keys: lock_file, lock_age, caller_is_owner, is_locked
 	 */
-	public function getLockInfo($lockName) {
+	public static function getLockInfo($lockName) {
 		$info = array();
 		$info['lock_file'] = self::getLockFile($lockName);
-		$info['lock_age'] = self::getLockAge($lockName);
 		$info['caller_is_owner'] = self::isLockedByCaller($lockName);
 		$info['is_locked'] = self::isLocked($lockName);
+
+		$lockFileContents = self::getLockFileContents($lockName);
+		$info['pid'] = $lockFileContents['pid'];
+		$info['lockData'] = $lockFileContents['lockData'];
+		$info['lock_age'] = ($lockFileContents['timestamp'] !== false && $info['is_locked'] === true) ? time() - intval($lockFileContents['timestamp']) : false;
 		return $info;
+	}
+
+	private static function getLockFileContents($lockName) {
+		$file = self::getLockContentsFile($lockName);
+		if (!file_exists($file)) {
+			throw new \Exception('file does not exist');
+		}
+		$contents = file_get_contents($file);
+		if ($contents) {
+			$contents = unserialize($contents);
+		} else {
+			$contents = array(
+				'pid' => false,
+				'timestamp' => false,
+				'lockData' => false,
+			);
+		}
+		return $contents;
 	}
 
 	/**
@@ -76,7 +103,7 @@ class Lock {
 	 */
 	private static function getLockHandle($lockName) {
 		$lockFile = self::getLockFile($lockName);
-		$lockFileHandle = fopen($lockFile, "r+");
+		$lockFileHandle = fopen($lockFile, "w+");
 		return $lockFileHandle;
 	}
 
@@ -85,16 +112,13 @@ class Lock {
 		$lockFile = $baseDir . DIRECTORY_SEPARATOR . '.' . $lockName . '.lock';
 		return $lockFile;
 	}
-
-	private static function getLockAge($lockName) {
-		clearstatcache();
-		if (self::isLocked($lockName)) {
-			$lockFile = self::getLockFile($lockName);
-			return time() - filectime($lockFile);
-		} else {
-			return false;
-		}
+	
+	private static function getLockContentsFile($lockName) {
+		$baseDir = \Foomo\Config::getVarDir(\Foomo\Module::NAME);
+		$lockFile = $baseDir . DIRECTORY_SEPARATOR . '.' . $lockName . '.data';
+		return $lockFile;
 	}
+
 
 	private static function isLockedByCaller($lockName) {
 		return isset(self::$lockHandles[$lockName]);
@@ -107,13 +131,22 @@ class Lock {
 			//check if somebody else has it
 			$canGetLock = self::lock($lockName, $blocking = false);
 			self::release($lockName);
-			
+
 			if ($canGetLock) {
 				return false;
 			} else {
 				return true;
 			}
 		}
+	}
+
+	private static function insertLockData($lockContentsFile, $lockData = null) {
+		$data = array(
+			'pid' => getmypid(),
+			'timestamp' => time(),
+			'lockData' => $lockData,
+		);
+		file_put_contents($lockContentsFile, serialize($data));
 	}
 
 }

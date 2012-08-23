@@ -17,41 +17,22 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Jobs\Frontend;
+namespace Foomo\Jobs\Mock;
  
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
- * @author jan
+ * @author Jan Halfar jan@bestbytes.com
  */
- 
-class Controller
+class TestJobList implements \Foomo\Jobs\JobListInterface
 {
-	/**
-	 * my model
-	 *
-	 * @var Foomo\Jobs\Frontend\Model
-	 */
-	public $model;
-	public function actionDefault() {}
-	private function plain($output) 
+	public static function getJobs()
 	{
-		\Foomo\MVC::abort();
-		header('Content-Type: text/plain;charset=utf-8;');
-		echo $output;
-		exit;
-	}
-	public function actionPreviewCrontab()
-	{
-		$this->plain(\Foomo\Jobs\Utils::getCrontab());
-	}
-	public function actionInstallCrontab()
-	{
-		\Foomo\Jobs\Utils::installCrontab();
-		$this->plain('installed cron tab');
-	}
-	
-	public function actionStatusView($jobId) {
-		$this->model->currentJobId = $jobId;
+		return array(
+			SleeperJob::create(),
+			DierJob::create(),
+			ExiterJob::create(),
+			DieInSlepJob::create(),
+		);
 	}
 }

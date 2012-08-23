@@ -12,10 +12,18 @@ if ($sleep == 0) {
 	exit;
 } else {
 	
-	$lockObtained = \Foomo\Lock::lock($lockName, $blocking = true);
+	$lockObtained = \Foomo\Lock::lock($lockName, $blocking = false, 'description');
+	//trigger_error('lock obtained ' . ($lockObtained ? 'true' : 'false'));
 	echo $lockObtained ? 'true' : 'false';
+	$info = \Foomo\Lock::getLockInfo($lockName);
+	trigger_error('data ' . $info['lockData']);
+	trigger_error('pid ' . $info['pid']);
+	
+	
 	sleep($sleep);
-	\Foomo\Lock::release($lockName);
+	$release = \Foomo\Lock::release($lockName);
+	trigger_error('lock released ' . ($release ? 'true' : 'false'));
+	
 	exit;
 	
 }
