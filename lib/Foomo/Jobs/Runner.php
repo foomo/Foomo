@@ -92,7 +92,7 @@ class Runner {
 				echo "Can do custom output and/or logging for fatal error here...";
 				Utils::updateStatusJobError($params[0], getmypid(), $errorCode = JobStatus::ERROR_DIED, $errorMessage = $error['message'], $isRunning = false, $isLocked = false);
 			} else {
-				Utils::updateStatusJobError($params[0], getmypid(), $errorCode = JobStatus::ERROR_DIED, $errorMessage = 'looks like job called exit()... could not detect fatal in shutdown listener', $isRunning = false, $isLocked = false);
+				Utils::updateStatusJobError($params[0], getmypid(), $errorCode = JobStatus::ERROR_DIED, $errorMessage = 'looks like job called exit()... could not detect fatal in shutdown listener. Last error: ' . $error['message'], $isRunning = false, $isLocked = false);
 			}
 			self::$callback = false;
 		}
