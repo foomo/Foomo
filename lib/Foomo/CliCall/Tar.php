@@ -31,36 +31,19 @@ class Tar extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * The output tgz filename
-	 *
 	 * @var string
 	 */
-	public $filename;
-	/**
-	 * Current directory name
-	 *
-	 * @var string
-	 */
-	public $dirname;
-	/**
-	 * file
-	 *
-	 * @var string[]
-	 */
-	public $sources = array();
+	private $directory;
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $filename
+	 *
 	 */
-	public function __construct($filename)
+	public function __construct()
 	{
-		if (file_exists($filename)) trigger_error('File ' . $filename . ' already exist!', \E_USER_ERROR);
-		if (!\is_writable(\dirname($filename))) trigger_error('Folder ' . \dirname($filename) . ' is not writeable!', \E_USER_ERROR);
-		$this->filename = $filename;
 		parent::__construct('tar');
 	}
 
@@ -69,73 +52,121 @@ class Tar extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $dirname
-	 * @return Foomo\CliCall\Tar
+	 * @return \Foomo\CliCall\Tar
 	 */
-	public function moveIntoDirectory($dirname)
+	public function createArchive()
 	{
-		if (!file_exists($dirname)) throw new \Exception('Directory ' . $dirname . ' does not exist!');
-		$this->dirname = $dirname;
-		$this->addArguments(array('--directory', $this->dirname));
-		return $this;
+		return $this->addArguments(array('-c'));
+	}
+
+	/**
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function extractArchive()
+	{
+		return $this->addArguments(array('-x'));
+	}
+
+	/**
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function compress()
+	{
+		return $this->addArguments(array('-z'));
+	}
+
+	/**
+	 * Use archive file or device ARCHIVE
+	 *
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function file()
+	{
+		return $this->addArguments(array('-f'));
+	}
+
+	/**
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function verbose()
+	{
+		return $this->addArguments(array('-v'));
+	}
+
+	/**
+	 * Remove each file prior to extracting over it
+	 *
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function unlinkFirst()
+	{
+		return $this->addArguments(array('--unlink-first'));
+	}
+
+	/**
+	 * Empty hierarchies prior to extracting directory
+	 *
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function recursiveUnlink()
+	{
+		return $this->addArguments(array('--recursive-unlink'));
+	}
+
+	/**
+	 * Remove files after adding them to the archive
+	 *
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function removeFiles()
+	{
+		return $this->addArguments(array('--remove-files'));
+	}
+
+	/**
+	 * @param string $directory
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function directory($directory)
+	{
+		$this->directory = $directory;
+		return $this->addArguments(array('-C', $directory));
 	}
 
 	/**
 	 * @param string[] $exclude
-	 * @return Foomo\CliCall\Tar
+	 * @return \Foomo\CliCall\Tar
 	 */
 	public function addDirectoryFiles($exclude=array('.', '..'))
 	{
-		if (is_null($this->dirname)) throw new \Exception('You need to call moveIntoDirectory() first');
-		return $this->addSources(array_values(array_diff(\scandir($this->dirname), $exclude)));
-	}
-
-	/**
-	 * @param string[] $sources
-	 * @return Foomo\CliCall\Tar
-	 */
-	public function addSources(array $sources)
-	{
-		$this->sources = array_unique(array_merge($this->sources, $sources));
-		return $this;
-	}
-
-	/**
-	 * @return Foomo\CliCall\Tar
-	 */
-	public function createTgz()
-	{
-		$this->addArguments(array('-czvf', $this->filename));
-		$this->addArguments($this->sources);
-		$this->execute();
-		return $this;
-	}
-
-	/**
-	 * @return Foomo\CliCall\Tar
-	 */
-	public function createTar()
-	{
-		$this->addArguments(array('-cvf', $this->filename));
-		$this->addArguments($this->sources);
-		$this->execute();
-		return $this;
+		if (is_null($this->dirname)) trigger_error('You need to call moveIntoDirectory() first', \E_USER_ERROR);
+		return $this->addArguments(\array_values(\array_diff(\scandir($this->dirname), $exclude)));
 	}
 
 	//---------------------------------------------------------------------------------------------
-	// ~ Public static methods
+	// ~ Overriden methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param array $arguments
+	 * @return \Foomo\CliCall\Tar
+	 */
+	public function addArguments(array $arguments)
+	{
+		return parent::addArguments($arguments);
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Overriden static methods
 	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * create a call
-	 * 
-	 * @param string $filename
-	 * 
-	 * @return Foomo\CliCall\Tar
+	 *
+	 * @return \Foomo\CliCall\Tar
 	 */
 	public static function create()
 	{
-		
-		return new self($filename = func_get_arg(0));
+		return new self();
 	}
 }

@@ -30,11 +30,12 @@ class Find extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $source
+	 * @param string|string[] $sources
 	 */
-	public function __construct($source)
+	public function __construct($sources)
 	{
-		parent::__construct('find', array($source));
+		if (!\is_array($sources)) $sources = array($sources);
+		parent::__construct('find', $sources);
 	}
 
 	//---------------------------------------------------------------------------------------------
@@ -42,34 +43,70 @@ class Find extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $value
-	 * @return Foomo\CliCall\Find
+	 * @param string $type
+	 * @return \Foomo\CliCall\Find
 	 */
-	public function type($value)
+	public function type($type)
 	{
-		return $this->addArguments(array('-type', $value));
+		return $this->addArguments(array('-type', $type));
 	}
 
 	/**
-	 * @param string $value
-	 * @return Foomo\CliCall\Find
+	 * @param string $name
+	 * @return \Foomo\CliCall\Find
 	 */
-	public function name($value)
+	public function name($name)
 	{
-		return $this->addArguments(array('-name', $value));
+		return $this->addArguments(array('-name', $name));
 	}
 
 	/**
-	 * @param string $value
-	 * @return Foomo\CliCall\Find
+	 * @param string $mtime
+	 * @return \Foomo\CliCall\Find
 	 */
-	public function mtime($value)
+	public function mtime($mtime)
 	{
-		return $this->addArguments(array('-mtime', $value));
+		return $this->addArguments(array('-mtime', $mtime));
 	}
 
 	/**
-	 * @return Foomo\CliCall\Find
+	 * @param string $ctime
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function ctime($ctime)
+	{
+		return $this->addArguments(array('-ctime', $ctime));
+	}
+
+	/**
+	 * @param string $filename
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function newer($filename)
+	{
+		return $this->addArguments(array('-newer', $filename));
+	}
+
+	/**
+	 * @param string $filename
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function anewer($filename)
+	{
+		return $this->addArguments(array('-anewer', $filename));
+	}
+
+	/**
+	 * @param string $filename
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function cnewer($filename)
+	{
+		return $this->addArguments(array('-cnewer', $filename));
+	}
+
+	/**
+	 * @return \Foomo\CliCall\Find
 	 */
 	public function delete()
 	{
@@ -77,7 +114,7 @@ class Find extends \Foomo\CliCall
 	}
 
 	/**
-	 * @return Foomo\CliCall\Find
+	 * @return \Foomo\CliCall\Find
 	 */
 	public function exec()
 	{
@@ -85,18 +122,30 @@ class Find extends \Foomo\CliCall
 	}
 
 	//---------------------------------------------------------------------------------------------
-	// ~ Public static methods
+	// ~ Overriden methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param array $arguments
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function addArguments(array $arguments)
+	{
+		return parent::addArguments($arguments);
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Overriden static methods
 	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * create a call
 	 *
-	 * @param string $source
-	 *
-	 * @return Foomo\CliCall\Find
+	 * @param string $sources
+	 * @return \Foomo\CliCall\Find
 	 */
-	public static function create($source)
+	public static function create($sources)
 	{
-		return new self($source = func_get_arg(0));
+		return new self($sources);
 	}
 }

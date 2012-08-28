@@ -33,6 +33,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
+	const VERSION = '0.3.0';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -67,7 +68,14 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 		$ret = array(
 			Modules\Resource\PearPackage::getResource('Mail'),
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
-			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME)
+			\Foomo\Modules\Resource\CliCommand::getResource('rm'),
+			\Foomo\Modules\Resource\CliCommand::getResource('mv'),
+			\Foomo\Modules\Resource\CliCommand::getResource('tar'),
+			\Foomo\Modules\Resource\CliCommand::getResource('zip'),
+			\Foomo\Modules\Resource\CliCommand::getResource('find'),
+			\Foomo\Modules\Resource\CliCommand::getResource('mkdir'),
+			\Foomo\Modules\Resource\CliCommand::getResource('which'),
+			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME),
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Cache\Test\DomainConfig::NAME);

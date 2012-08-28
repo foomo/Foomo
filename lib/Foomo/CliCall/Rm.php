@@ -31,11 +31,11 @@ class Rm extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $filename
+	 * @param string|string[] $file
 	 */
-	public function __construct($filename, $recursive=true)
+	public function __construct($file)
 	{
-		parent::__construct('rm', ($recursive) ? array('-r', $filename) : array($filename));
+		parent::__construct('rm', (\is_array($file) ? $file : array($file)));
 	}
 
 	//---------------------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ class Rm extends \Foomo\CliCall
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @return Foomo\CliCall\Rm
+	 * @return \Foomo\CliCall\Rm
 	 */
 	public function force()
 	{
@@ -51,22 +51,38 @@ class Rm extends \Foomo\CliCall
 	}
 
 	/**
-	 * @return Foomo\CliCall\Rm
+	 * @return \Foomo\CliCall\Rm
 	 */
 	public function recursive()
 	{
 		return $this->addArguments(array('-r'));
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Overriden methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param array $arguments
+	 * @return \Foomo\CliCall\Rm
+	 */
+	public function addArguments(array $arguments)
+	{
+		return parent::addArguments($arguments);
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Overriden static methods
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * create a call
-	 * 
-	 * @param string $filename
-	 * 
-	 * @return Foomo\CliCall\Rm
+	 *
+	 * @param string|string[] $file
+	 * @return \Foomo\CliCall\Rm
 	 */
-	public static function create()
+	public static function create($file)
 	{
-		return new self($filename = func_get_arg(0));
+		return new self($file);
 	}
 }
