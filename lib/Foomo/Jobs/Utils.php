@@ -113,6 +113,7 @@ class Utils {
 		$status->endTime = false;
 		$status->errorCode = '';
 		$status->errorMessage = '';
+		self::log($jobId, $status);
 		self::persistStatus($fileName, $status);
 	}
 
@@ -131,6 +132,7 @@ class Utils {
 		$status->endTime = time();
 		$status->errorCode = '';
 		$status->errorMessage = '';
+		self::log($jobId, $status);
 		self::persistStatus($fileName, $status);
 	}
 
@@ -153,6 +155,7 @@ class Utils {
 		$status->endTime = time();
 		$status->errorCode = $errorCode;
 		$status->errorMessage = $errorMessage;
+		self::log($jobId, $status);
 		self::persistStatus($fileName, $status);
 	}
 
@@ -167,7 +170,29 @@ class Utils {
 	}
 
 	private static function getJobStatusFile($jobId) {
-		return \Foomo\Config::getVarDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . $jobId . '.dat';
+		return \Foomo\Module::getLogDir('jobs') . DIRECTORY_SEPARATOR . $jobId . '.ser';
+	}
+
+	private static function getJoblogFile() {
+		return \Foomo\Module::getLogDir() . DIRECTORY_SEPARATOR . 'jobs.log';
+	}
+
+	private static function log($jobId, JobStatus $status) {
+		$fp = fopen(self::getJoblogFile(), 'a+');
+
+		$statusString = 'event time	    ' . date('Y-m-d H:i:s') . PHP_EOL;
+		$statusString = $statusString . 'job id		    ' . $jobId . PHP_EOL;
+		$statusString = $statusString . 'status			' . $status->status . PHP_EOL;
+		$statusString = $statusString . 'is locked		' . ($status->isLocked ? 'true' : 'false') . PHP_EOL;
+		$statusString = $statusString . 'pid			' . $status->pid . PHP_EOL;
+		$statusString = $statusString . 'start time		' . date('Y-m-d H:i:s', $status->startTime) . PHP_EOL;
+		$statusString = $statusString . 'end time		' . date('Y-m-d H:i:s', $status->endTime) . PHP_EOL;
+		$statusString = $statusString . 'error code		' . $status->errorCode . PHP_EOL;
+		$statusString = $statusString . 'error message		' . $status->errorMessage . PHP_EOL;
+		$statusString = $statusString . '-------------------------------------------------------------------------' . PHP_EOL;
+
+		fwrite($fp, $statusString);
+		fclose($fp);
 	}
 
 	private static function persistStatus($fileName, $status) {

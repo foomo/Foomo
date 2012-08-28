@@ -17,13 +17,13 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 	public function testRun() {
 		$jobs = Utils::collectJobs();
 		$executionSecret = Utils::getExecutionSecret();
-		\Foomo\Jobs\Runner::runJob(Mock\SleeperJob::create()->getSecretId($executionSecret));
+		\Foomo\Jobs\Runner::runAJob(Mock\SleeperJob::create());
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status);
 	}
 
 	public function testSleeperJob() {
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=SleeperJob');
+		self::callAsync('SleeperJob');
 		sleep(1);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 		$this->assertEquals(JobStatus::STATUS_RUNNING, $status->status, 'we should be running now');
@@ -37,7 +37,7 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testDierJob() {
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=DierJob');
+		self::callAsync('DierJob');
 		sleep(1);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\DierJob::create());
 		$this->assertEquals(JobStatus::STATUS_RUNNING, $status->status, 'we should be running now');
@@ -54,7 +54,7 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 
 	
 	public function testExiterJob() {
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=ExiterJob');
+		self::callAsync('ExiterJob');
 		sleep(2);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\ExiterJob::create());
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now');
@@ -63,7 +63,7 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testDieWhileWorkingJob() {
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=DieWhileWorkingJob');
+		self::callAsync('DieWhileWorkingJob');
 		sleep(2);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\DieWhileWorkingJob::create());
 		$this->assertNotEquals(getmypid(), $status->pid, 'pid should differ');
@@ -74,29 +74,36 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 	
 	
 	public function testConcurrency() {
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=SleeperJob');
+		self::callAsync('SleeperJob');
 		sleep(1);
-		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/runJob.php?job=SleeperJob');
+		self::callAsync('SleeperJob');
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 		$this->assertEquals(JobStatus::ERROR_ATTEMPTED_CONCURRENT_RUN, $status->errorCode);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 	}
 	
-	
-	
-	
 	private function exposeTestScript() {
 		$file = __DIR__ . DIRECTORY_SEPARATOR . 'runJob.php';
-		symlink($file, \Foomo\Config::getHtdocsDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'runJob.php');
+		symlink($file, $this->getTempJobRunnerFile());
 	}
 
 	private function hideTestScript() {
-		unlink(\Foomo\Config::getHtdocsDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . '/runJob.php');
+		unlink($this->getTempJobRunnerFile());
+	}
+	
+	private function getTempJobRunnerFile()
+	{
+		return \Foomo\Module::getHtdocsVarDir() . DIRECTORY_SEPARATOR . 'runJob.php';
+	}
+	
+	private function getTempRunnerEndpoint($job)
+	{
+		return \Foomo\Utils::getServerUrl() . \Foomo\Module::getHtdocsVarPath() . '/runJob.php?job=' . urlencode($job);
 	}
 
-	private function callAsync($url) {
+	private function callAsync($job) {
 		$ch = \curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_URL, $this->getTempRunnerEndpoint($job));
 		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 1);

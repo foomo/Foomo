@@ -41,51 +41,54 @@ class Runner {
 			foreach ($jobs as $job) {
 				/* @var $job AbstractJob */
 				if ($job->getSecretId($executionSecret) == $jobSecretId) {
-					$jobId = $job->getId();
-					\register_shutdown_function('Foomo\Jobs\Runner::shutdownListener', array($jobId));
-					self::$callback = true;
-					set_time_limit($job->getMaxExecutionTime());
-					ini_set('memory_limit', $job->getMemoryLimit());
-					$locked = false;
-					$pid = getmypid();
-					if ($job->getLock()) {
-						$locked = \Foomo\Lock::lock($jobId, $blocking = false);
-						if (!$locked) {
-							$lockData = \Foomo\Lock::getLockInfo($job->getId());
-							if ($lockData['lock_age'] < $job->getMaxExecutionTime()) {
-								trigger_error('previous run of job ' . $job->getId() . ' still running while trying to run again', E_USER_WARNING);
-								Utils::updateStatusJobError($jobId, $pid, JobStatus::ERROR_ATTEMPTED_CONCURRENT_RUN, 'attempted concurent run', $isRunning = true, $isLocked = true);
-								self::$callback = false;
-								return;
-							} else {
-								Utils::updateStatusJobError($jobId, $pid, $errorCode = JobStatus::ERROR_NO_LOCK, $errorMessage = 'could not obtain lock to run job');
-								Utils::updateStatusJobError($jobId, $pid, JobStatus::ERROR_NO_LOCK, 'could not obtain lock to run job', $isRunning = false, $isLocked = false);
-								throw new \RuntimeException('Could not obtain lock to run job ' . $jobId);
-							}
-						}
-					}
-					trigger_error('running job ' . get_class($job) . ' ' . $job->getDescription() . $jobId);
-					Utils::updateStatusJobStart($jobId, $pid, $locked);
 
-					call_user_func_array(array($job, 'run'), array());
+					self::runAJob($job);
 
-					Utils::updateStatusJobDone($jobId, $pid, $locked);
-					trigger_error('done running job ' . get_class($job) . ' ' . $jobId);
-					if ($job->getLock()) {
-						// clean up
-						\Foomo\Lock::release($job->getId());
-						Utils::updateStatusJobDone($jobId, $pid, false);
-					}
-					self::$callback = false;
 					return;
 				}
 			}
 		}
-		throw new \InvalidArgumentException('given job was not found ' . $jobId);
+		throw new \InvalidArgumentException('given job was not found ' . $jobSecretId);
+	}
+
+	public static function runAJob(AbstractJob $job) {
+		self::$callback = true;
+		$jobId = $job->getId();
+		\register_shutdown_function('Foomo\Jobs\Runner::shutdownListener', array($jobId));
+		set_time_limit($job->getMaxExecutionTime());
+		ini_set('memory_limit', $job->getMemoryLimit());
+		$locked = false;
+		$pid = getmypid();
+		if ($job->getLock()) {
+			$locked = \Foomo\Lock::lock($jobId, $blocking = false);
+			if (!$locked) {
+				$lockData = \Foomo\Lock::getLockInfo($job->getId());
+				if ($lockData['lock_age'] < $job->getMaxExecutionTime()) {
+					trigger_error('previous run of job ' . $job->getId() . ' still running while trying to run again', E_USER_WARNING);
+					Utils::updateStatusJobError($jobId, $pid, JobStatus::ERROR_ATTEMPTED_CONCURRENT_RUN, 'attempted concurent run', $isRunning = true, $isLocked = true);
+					self::$callback = false;
+					return;
+				} else {
+					Utils::updateStatusJobError($jobId, $pid, $errorCode = JobStatus::ERROR_NO_LOCK, $errorMessage = 'could not obtain lock to run job');
+					Utils::updateStatusJobError($jobId, $pid, JobStatus::ERROR_NO_LOCK, 'could not obtain lock to run job', $isRunning = false, $isLocked = false);
+					throw new \RuntimeException('Could not obtain lock to run job ' . $jobId);
+				}
+			}
+		}
+		Utils::updateStatusJobStart($jobId, $pid, $locked);
+		
+		call_user_func_array(array($job, 'run'), array());
+
+		Utils::updateStatusJobDone($jobId, $pid, $locked);
+		if ($job->getLock()) {
+			// clean up
+			\Foomo\Lock::release($job->getId());
+			Utils::updateStatusJobDone($jobId, $pid, false);
+			self::$callback = false;
+		}
 	}
 
 	public static function shutDownListener($params) {
-
 		if (self::$callback) {
 			$error = error_get_last();
 			if (isset($error['type']) && ($error['type'] === E_ERROR || $error['type'] === E_USER_ERROR)) {

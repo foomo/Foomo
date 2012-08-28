@@ -4,27 +4,19 @@ if (isset($_GET['job'])) {
 	$jobName = $_GET['job'];
 
 	if ($jobName == 'SleeperJob') {
-		$jobs = \Foomo\Jobs\Utils::collectJobs();
-		$executionSecret = \Foomo\Jobs\Utils::getExecutionSecret();
-		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\SleeperJob::create()->getSecretId($executionSecret));
+		\Foomo\Jobs\Runner::runAJob(\Foomo\Jobs\Mock\SleeperJob::create());
 	}
 
 	if ($jobName == 'DierJob') {
-		$jobs = \Foomo\Jobs\Utils::collectJobs();
-		$executionSecret = \Foomo\Jobs\Utils::getExecutionSecret();
-		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\DierJob::create()->getSecretId($executionSecret));
+		\Foomo\Jobs\Runner::runAJob(\Foomo\Jobs\Mock\DierJob::create());
 	}
 
 	if ($jobName == 'ExiterJob') {
-		$jobs = \Foomo\Jobs\Utils::collectJobs();
-		$executionSecret = \Foomo\Jobs\Utils::getExecutionSecret();
-		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\ExiterJob::create()->getSecretId($executionSecret));
+		\Foomo\Jobs\Runner::runAJob(\Foomo\Jobs\Mock\ExiterJob::create());
 	}
 
 	if ($jobName == 'DieWhileWorkingJob') {
-		$jobs = \Foomo\Jobs\Utils::collectJobs();
-		$executionSecret = \Foomo\Jobs\Utils::getExecutionSecret();
-		\Foomo\Jobs\Runner::runJob(\Foomo\Jobs\Mock\DieWhileWorkingJob::create()->getSecretId($executionSecret));
+		\Foomo\Jobs\Runner::runAJob(\Foomo\Jobs\Mock\DieWhileWorkingJob::create());
 	}
 }
 

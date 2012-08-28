@@ -29,11 +29,11 @@ class TestJobList implements \Foomo\Jobs\JobListInterface
 	public static function getJobs()
 	{
 		return array(
-			/**SleeperJob::create(),
+			/*
+			SleeperJob::create(),
 			DierJob::create(),
 			ExiterJob::create(),
 			DieWhileWorkingJob::create(),
-			 * 
 			 */
 		);
 	}
