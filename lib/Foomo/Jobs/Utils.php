@@ -27,7 +27,7 @@ namespace Foomo\Jobs;
 class Utils {
 
 	public static function collectJobs() {
-		$jobLists = \Foomo\AutoLoader::getClassesByInterface(__NAMESPACE__ . '\\JoblistInterface');
+		$jobLists = \Foomo\AutoLoader::getClassesByInterface(__NAMESPACE__ . '\\JobListInterface');
 		$jobs = array();
 		foreach ($jobLists as $joblistClassName) {
 			$moduleName = \Foomo\Modules\Manager::getClassModule($joblistClassName);
