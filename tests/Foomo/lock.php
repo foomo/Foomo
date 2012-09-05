@@ -7,12 +7,12 @@ if (isset($_GET['sleep'])) {
 }
 
 if ($sleep == 0) {
-	$lockObtained = \Foomo\Lock::lock($lockName, $blocking = false);
+	$lockObtained = \Foomo\Lock::lockResource($lockName, $blocking = false);
 	echo $lockObtained ? 'true' : 'false';
 	exit;
 } else {
 	
-	$lockObtained = \Foomo\Lock::lock($lockName, $blocking = false, 'description');
+	$lockObtained = \Foomo\Lock::lockResource($lockName, $blocking = false, 'description');
 	//trigger_error('lock obtained ' . ($lockObtained ? 'true' : 'false'));
 	echo $lockObtained ? 'true' : 'false';
 	$info = \Foomo\Lock::getLockInfo($lockName);
@@ -21,7 +21,7 @@ if ($sleep == 0) {
 	
 	
 	sleep($sleep);
-	$release = \Foomo\Lock::release($lockName);
+	$release = \Foomo\Lock::releaseResource($lockName);
 	trigger_error('lock released ' . ($release ? 'true' : 'false'));
 	
 	exit;

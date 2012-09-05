@@ -60,7 +60,7 @@ class Runner {
 		$locked = false;
 		$pid = getmypid();
 		if ($job->getLock()) {
-			$locked = \Foomo\Lock::lock($jobId, $blocking = false);
+			$locked = \Foomo\Lock::lockResource($jobId, $blocking = false);
 			if (!$locked) {
 				$lockData = \Foomo\Lock::getLockInfo($job->getId());
 				if ($lockData['lock_age'] < $job->getMaxExecutionTime()) {
@@ -82,7 +82,7 @@ class Runner {
 		Utils::updateStatusJobDone($jobId, $pid, $locked);
 		if ($job->getLock()) {
 			// clean up
-			\Foomo\Lock::release($job->getId());
+			\Foomo\Lock::releaseResource($job->getId());
 			Utils::updateStatusJobDone($jobId, $pid, false);
 			self::$callback = false;
 		}

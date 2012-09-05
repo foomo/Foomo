@@ -16,7 +16,7 @@ class Lock {
 	 * $param object $lockData whatever payload you might want to serialize into the lock file for latter use
 	 * @return boolean 
 	 */
-	public static function lock($lockName, $blocking = true, $lockData = null) {
+	public static function lockResource($lockName, $blocking = true, $lockData = null) {
 		$lockFileHandle = self::getLockHandle($lockName);
 		if (!$lockFileHandle) {
 			return false;
@@ -41,7 +41,7 @@ class Lock {
 	 * release. end the synchronization block
 	 * @param type $lockName 
 	 */
-	public static function release($lockName) {
+	public static function releaseResource($lockName) {
 		$lockFileHandle = false;
 		if (isset(self::$lockHandles[$lockName])) {
 			$lockFileHandle = self::$lockHandles[$lockName];
@@ -129,8 +129,8 @@ class Lock {
 			return true;
 		} else {
 			//check if somebody else has it
-			$canGetLock = self::lock($lockName, $blocking = false);
-			self::release($lockName);
+			$canGetLock = self::lockResource($lockName, $blocking = false);
+			self::releaseResource($lockName);
 
 			if ($canGetLock) {
 				return false;
