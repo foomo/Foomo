@@ -142,7 +142,11 @@ class Config
 	{
 		$cacheKey = $module.$name.$domain;
 		if(!isset(self::$confCache[$cacheKey])) {
-			self::$confCache[$cacheKey] = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetConf', array($module, $name, $domain));
+			self::$confCache[$cacheKey] = \Foomo\Cache\Proxy::call(
+				__CLASS__,
+				'cachedGetConf',
+				array($module, $name, $domain)
+			);
 		}
 		return self::$confCache[$cacheKey];
 	}
@@ -158,8 +162,23 @@ class Config
 	{
 		$configs = array();
 		$modules = Modules\Manager::getEnabledModules();
-		foreach ($modules as $module) if (null != $config = self::getConf($module, $name, $domain)) $configs[] = $config;
+		foreach ($modules as $module) {
+			if (null != $config = self::getConf($module, $name, $domain)) {
+				$configs[] = $config;
+			}
+		}
 		return $configs;
+	}
+	/**
+	 * get configs by their name
+	 *
+	 * @param string $name
+	 *
+	 * @return Foomo\Config\AbstractConfig[]
+	 */
+	public static function getConfsByName($name)
+	{
+		return Cache\Proxy::call(__CLASS__, 'cachedGetConfsByName', array($name));
 	}
 
 	/**
@@ -270,7 +289,7 @@ class Config
 	{
 		self::$confCache = array();
 		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetConf', false);
-		//\Foomo\Cache\Manager::invalidateWithQuery(__CLASS__ . '::cachedGetConf', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
+		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetConfsByName', false);
 	}
 
 	/**
@@ -283,6 +302,30 @@ class Config
 		return self::$currentMode;
 	}
 
+	/**
+	 * @return boolean
+	 */
+	public static function isTestMode()
+	{
+		return (self::getMode() == self::MODE_TEST);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public static function isDevelopmentMode()
+	{
+		return (self::getMode() == self::MODE_DEVELOPMENT);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public static function isProductionMode()
+	{
+		return (self::getMode() == self::MODE_PRODUCTION);
+	}
+	
 	/**
 	 * get the directory where all the configs go to - this is rails inspired
 	 *
@@ -414,7 +457,30 @@ class Config
 	//---------------------------------------------------------------------------------------------
 	// ~ Cached methods
 	//---------------------------------------------------------------------------------------------
-
+	/**
+	 * get configs by their name in all modules / domains
+	 *
+	 * @Foomo\Cache\CacheResourceDescription
+	 *
+	 * @param string $name name of the DomainConfig
+	 *
+	 * @return Foomo\Config\AbstractConfig[]
+	 */
+	public static function cachedGetConfsByName($name)
+	{
+		$ret = array();
+		foreach(Config\Utils::getConfigs() as $module => $domains) {
+			foreach($domains as $domainName => $domain) {
+				foreach($domain as $configFile) {
+					$currentName = substr(basename($configFile), 0, -4);
+					if($name == $currentName) {
+						$ret[] = self::getConf($module, $currentName, $domainName);
+					}
+				}
+			}
+		}
+		return $ret;
+	}
 	/**
 	 * @Foomo\Cache\CacheResourceDescription()
 	 *

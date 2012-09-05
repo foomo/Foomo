@@ -33,6 +33,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
+	const VERSION = '0.3.0';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -67,7 +68,16 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 		$ret = array(
 			Modules\Resource\PearPackage::getResource('Mail'),
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
-			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME)
+			Modules\Resource\Config::getResource(self::NAME, Jobs\DomainConfig::NAME),
+			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME),			
+			\Foomo\Modules\Resource\CliCommand::getResource('rm'),
+			\Foomo\Modules\Resource\CliCommand::getResource('mv'),
+			\Foomo\Modules\Resource\CliCommand::getResource('tar'),
+			\Foomo\Modules\Resource\CliCommand::getResource('zip'),
+			\Foomo\Modules\Resource\CliCommand::getResource('find'),
+			\Foomo\Modules\Resource\CliCommand::getResource('mkdir'),
+			\Foomo\Modules\Resource\CliCommand::getResource('which'),
+
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
@@ -92,10 +102,12 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Php', 'PHP', self::NAME, 'Foomo.Info', 'php'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Apc', 'APC', self::NAME, 'Foomo.Info', 'apc', array(), '_blank'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Memcache', 'Memcache', self::NAME, 'Foomo.Info', 'memcache', array(), '_blank'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Jobs', 'Jobs', self::NAME, 'Foomo.Jobs'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Auth', 'Auth', self::NAME, 'Foomo.BasicAuth'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Log', 'Log', self::NAME, 'Foomo.Log'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Cache', 'Cache', self::NAME, 'Foomo.Cache'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.Foomo', 'MVC Scaffolder', self::NAME, 'Foomo.MVC')
+
 		);
 	}
 }

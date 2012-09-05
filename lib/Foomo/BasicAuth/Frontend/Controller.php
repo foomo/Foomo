@@ -95,4 +95,8 @@ class Controller
 	{
 		$this->model->currentAuthDomain = $domain;
 	}
+	public function allowDomains($domains)
+	{
+		$this->model->allowedDomains = $domains;
+	}
 }
