@@ -79,6 +79,42 @@ class Find extends \Foomo\CliCall
 	}
 
 	/**
+	 * @param string $atime
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function atime($atime)
+	{
+		return $this->addArguments(array('-atime', $atime));
+	}
+
+	/**
+	 * @param string $mmin
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function mmin($mmin)
+	{
+		return $this->addArguments(array('-mmin', $mmin));
+	}
+
+	/**
+	 * @param string $cmin
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function cmin($cmin)
+	{
+		return $this->addArguments(array('-cmin', $cmin));
+	}
+
+	/**
+	 * @param string $amin
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function amin($amin)
+	{
+		return $this->addArguments(array('-amin', $amin));
+	}
+
+	/**
 	 * @param string $filename
 	 * @return \Foomo\CliCall\Find
 	 */
@@ -103,6 +139,28 @@ class Find extends \Foomo\CliCall
 	public function cnewer($filename)
 	{
 		return $this->addArguments(array('-cnewer', $filename));
+	}
+
+	/**
+	 *  Descend at most levels (a non-negative integer) levels of directories below the command line arguments.  -maxdepth 0
+     *  means only apply the tests and actions to the command line arguments.
+	 *
+	 * @param integer $maxDepth
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function maxDepth($maxDepth)
+	{
+		return $this->addArguments(array('-maxdepth', $maxDepth));
+	}
+
+	/**
+	 * File is empty and is either a regular file or a directory.
+	 *
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function addEmpty()
+	{
+		return $this->addArguments(array('-empty'));
 	}
 
 	/**
@@ -132,6 +190,14 @@ class Find extends \Foomo\CliCall
 	public function addArguments(array $arguments)
 	{
 		return parent::addArguments($arguments);
+	}
+
+	/**
+	 * @return \Foomo\CliCall\Find
+	 */
+	public function execute()
+	{
+		parent::execute();
 	}
 
 	//---------------------------------------------------------------------------------------------
