@@ -259,7 +259,7 @@ class Manager {
 	 * @param integer $limit
 	 * @param integer $offset
 	 *
-	 * @return \Foomo\Cache\Persistence\CacheResourceIterator
+	 * @return Foomo\Cache\CacheResourceIterator
 	 */
 	public static function query($resourceName, Expr $expr = null, $limit = 0, $offset = 0)
 	{
