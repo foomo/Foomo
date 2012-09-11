@@ -18,7 +18,7 @@
  */
 
 namespace Foomo\Jobs;
- 
+
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
@@ -26,40 +26,51 @@ namespace Foomo\Jobs;
  */
 abstract class AbstractJob
 {
+
 	/**
 	 * max execution time
 	 * 
 	 * @var integer
 	 */
 	protected $maxExecutionTime;
+
 	/**
 	 * memory limit
 	 * 
 	 * @var integer
 	 */
 	protected $memoryLimit;
+
 	/**
 	 * lock
 	 * 
 	 * @var boolean
 	 */
 	protected $lock = true;
+
+	/**
+	 * description
+	 * @var string 
+	 */
+	protected $description = '';
+
 	/**
 	 * cron rule
 	 * 
 	 * @var string
 	 */
 	protected $executionRule;
-	
-	public function __construct() 
+
+	public function __construct()
 	{
-		if(empty($this->maxExecutionTime)) {
+		if (empty($this->maxExecutionTime)) {
 			$this->maxExecutionTime = ini_get('max_execution_time');
 		}
-		if(empty($this->memoryLimit)) {
+		if (empty($this->memoryLimit)) {
 			$this->memoryLimit = ini_get('memory_limit');
 		}
 	}
+
 	/**
 	 * my id - override this, if this algorythm does not work for you
 	 * 
@@ -69,6 +80,7 @@ abstract class AbstractJob
 	{
 		return sha1(serialize($this));
 	}
+
 	/**
 	 * you can execute me with that
 	 * 
@@ -90,6 +102,7 @@ abstract class AbstractJob
 	{
 		return __CLASS__;
 	}
+
 	/**
 	 * describe what this job does
 	 * 
@@ -97,8 +110,9 @@ abstract class AbstractJob
 	 */
 	public function getDescription()
 	{
-		return '';
+		return $this->description;
 	}
+
 	/**
 	 * max execution time
 	 * 
@@ -108,6 +122,7 @@ abstract class AbstractJob
 	{
 		return $this->maxExecutionTime;
 	}
+
 	/**
 	 * ini style memory limit
 	 * 
@@ -117,6 +132,7 @@ abstract class AbstractJob
 	{
 		return $this->memoryLimit;
 	}
+
 	/**
 	 * lock or not
 	 * 
@@ -126,6 +142,7 @@ abstract class AbstractJob
 	{
 		return $this->lock;
 	}
+
 	/**
 	 * 
 	 * @return string
@@ -134,6 +151,7 @@ abstract class AbstractJob
 	{
 		return $this->executionRule;
 	}
+
 	/**
 	 * max execution time
 	 * 
@@ -146,6 +164,7 @@ abstract class AbstractJob
 		$this->maxExecutionTime = $value;
 		return $this;
 	}
+
 	/**
 	 * set ini style memory limit
 	 * 
@@ -158,6 +177,7 @@ abstract class AbstractJob
 		$this->memoryLimit = $value;
 		return $this;
 	}
+
 	/**
 	 * lock or not
 	 * 
@@ -170,6 +190,7 @@ abstract class AbstractJob
 		$this->lock = $value;
 		return $this;
 	}
+
 	/**
 	 * the crontab * thingie
 	 * 
@@ -182,6 +203,73 @@ abstract class AbstractJob
 		$this->executionRule = $rule;
 		return $this;
 	}
+
+	/**
+	 * set description
+	 * @param string $description
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public function setDescription($description)
+	{
+		$this->description = $description;
+		return $this;
+	}
+
+	/**
+	 * set the crontab style execution rule for daily execution
+	 * @param string $executionRule
+	 * @return \Foomo\SimpleData\MongoDB\BackupJob
+	 */
+	public function doDaily()
+	{
+		$this->executionRule = '0 0 * * *';
+		return $this;
+	}
+
+	/**
+	 * set the crontab style execution rule for hourly execution
+	 * @param string $executionRule
+	 * @return \Foomo\SimpleData\MongoDB\BackupJob
+	 */
+	public function doHourly()
+	{
+		$this->executionRule = '0 * * * *';
+		return $this;
+	}
+
+	/**
+	 * set the crontab style execution rule for weekly execution
+	 * @param string $executionRule
+	 * @return \Foomo\SimpleData\MongoDB\BackupJob
+	 */
+	public function doWeekly()
+	{
+		$this->executionRule = ' 	0 0 * * 0';
+		return $this;
+	}
+
+	/**
+	 * set the crontab style execution rule for monthly execution
+	 * @param string $executionRule
+	 * @return \Foomo\SimpleData\MongoDB\BackupJob
+	 */
+	public function doMonthly()
+	{
+		$this->executionRule = '0 0 1 * *';
+		return $this;
+	}
+
+	/**
+	 * set the crontab style execution rule for yearly execution
+	 * @param string $executionRule
+	 * @return \Foomo\SimpleData\MongoDB\BackupJob
+	 */
+	public function doYearly()
+	{
+		$this->executionRule = '0 0 1 1 *';
+		return $this;
+	}
+
 	/**
 	 * create a job
 	 * 
@@ -192,6 +280,7 @@ abstract class AbstractJob
 		$className = get_called_class();
 		return new $className;
 	}
+
 	/**
 	 * do your thing here
 	 */

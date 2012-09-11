@@ -69,6 +69,7 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertNotEquals(getmypid(), $status->pid, 'pid should differ');
 		$this->assertFalse($status->isLocked, 'should not be locked');
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now');
+		$this->assertEquals(JobStatus::ERROR_DIED, $status->errorCode);
 		
 	}
 	
