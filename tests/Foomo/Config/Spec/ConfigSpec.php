@@ -36,11 +36,13 @@ class ConfigSpec extends \Foomo\TestRunner\AbstractSpec {
 	}
 	public function testScenarioCreation()
 	{
+		$i = 1;
 		foreach($this->world->testDomains as $domain) {
 			$this->world
 				->givenConfigDoesNotExist($module = \Foomo\Module::NAME, $name = DomainConfig::NAME, $domain)
 				->whenConfigIsCreatedFromDefault($module, $name, $domain)
 				->thenConfigExists($module, $name, $domain)
+				->thenConfigsIdentifiedByNameExist($name, $i++)
 			;
 		}
 	}

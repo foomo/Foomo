@@ -27,6 +27,12 @@ namespace Foomo\BasicAuth\Frontend;
 class Model
 {
 	/**
+	 * allowed domains
+	 * 
+	 * @var string[]
+	 */
+	public $allowedDomains = array();
+	/**
 	 * name of the current domain
 	 *
 	 * @var string

@@ -42,16 +42,16 @@ class Frontend extends \Foomo\MVC\AbstractApp
 	/**
 	 * @param string $title
 	 */
-	public static function setUpToolbox($title='foomo toolbox')
+	public static function setUpToolbox($title='foomo toolbox', $authDomain = BasicAuth::DEFAULT_AUTH_DOMAIN, $realm = self::BASIC_AUTH_REALM)
 	{
-		if(!file_exists(BasicAuth::getDefaultAuthFilename())) {
+		if(!file_exists(BasicAuth::getAuthFilename($authDomain))) {
 			if(!headers_sent()) header('Content-Type: text/plain');
-			die('default auth file does not exist - you might want to run setup.php');
+			die('auth file does not exist - you might want to run setup.php');
 		}
-
-		BasicAuth::auth(self::BASIC_AUTH_REALM);
-
-		$doc = \Foomo\HTMLDocument::getInstance()->setTitle($title);
+		
+		BasicAuth::auth($realm, $authDomain);
+		
+		$doc = HTMLDocument::getInstance()->setTitle($title);
 
 		if(defined('Foomo\\ROOT_HTTP')) {
 			$favRoot = \Foomo\ROOT_HTTP . '/img/site/favIcons';

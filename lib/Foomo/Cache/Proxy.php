@@ -23,7 +23,7 @@ use ReflectionAnnotatedMethod;
 
 /**
  * run your method calls through this class to get cached results
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -228,20 +228,25 @@ class Proxy {
 	 * @param string $method method name
 	 * @param array $arguments non asociative array of method argument values
 	 * @param string $invalidationPolicy  Invalidator::POLICY_INSTANT_REBUILD | ...
+	 * @param integer $expirationTime  cache expiration time in ms
+	 * @param integer $expirationTimeFast  fast cache expiration time in ms
 	 *
 	 * @return mixed
 	 */
-	public static function call($classOrObject, $method, $arguments = array(), $invalidationPolicy=null)
+	public static function call($classOrObject, $method, $arguments = array(), $invalidationPolicy=null, $expirationTime=null, $expirationTimeFast=null)
 	{
 		if (\Foomo\AutoLoader::getClassMapAvailable()) {
 			//get a resource without value property. resource includes invalidation policy from annotation
 			//or default value Invalidator::POLICY_INSTANT_REBUILD
 			$resource = self::getEmptyResource($classOrObject, $method, $arguments);
 			if (!is_null($resource)) {
-				//if supplied invalidation policy then override value from annotation
-				if (isset($invalidationPolicy)) {
-					$resource->invalidationPolicy = $invalidationPolicy;
-				}
+				# if supplied invalidation policy then override value from annotation
+				if (isset($invalidationPolicy)) $resource->invalidationPolicy = $invalidationPolicy;
+				# if supplied expiration time then override value from annotation
+				if (isset($expirationTime)) $resource->expirationTime = $expirationTime;
+				# if supplied expiration time fast then override value from annotation
+				if (isset($expirationTimeFast)) $resource->expirationTimeFast = $expirationTimeFast;
+
 				$cachedResult = Manager::load($resource);
 				if ($cachedResult) {
 					return $cachedResult->value;

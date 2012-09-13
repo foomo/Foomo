@@ -21,7 +21,7 @@ namespace Foomo;
 
 /**
  * cli calls made less painful
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -83,13 +83,13 @@ class CliCall
 	public $envVars = array();
 	/**
 	 * callback functions when streaming std err
-	 * 
+	 *
 	 * @var function
 	 */
 	private $stdErrStreamCallback = array();
 	/**
 	 * callback functions when streaming std out
-	 * 
+	 *
 	 * @var function
 	 */
 	private $stdOutStreamCallback = array();
@@ -117,7 +117,7 @@ class CliCall
 	//---------------------------------------------------------------------------------------------
 	/**
 	 * magic method to handle timeReal, timeSys, timeUser deprecation
-	 * 
+	 *
 	 * @param string $name
 	 * @return mixed
 	 * @internal
@@ -156,23 +156,24 @@ class CliCall
 	}
 	/**
 	 * render the command string
-	 * 
+	 *
 	 * @return string
 	 */
-	private function renderCommand()
+	public function renderCommand()
 	{
 		$cmd = $this->cmd;
+		$noescape = array('<', '>', '|');
 		foreach ($this->arguments as $arg) {
-			$cmd .= ' ' . escapeshellarg($arg);
+			$cmd .= ' ' . ((\in_array($arg, $noescape)) ? $arg : escapeshellarg($arg));
 		}
 		return $cmd;
 	}
 	/**
 	 * if you expect a lot of output define callback handlers $this->stdOut will
 	 * not be used
-	 *  
+	 *
 	 * @param array $callbackFunctions
-	 * 
+	 *
 	 * @return Foomo\CliCall
 	 */
 	public function setStdOutStreamCallback($callbackFunction)
@@ -183,9 +184,9 @@ class CliCall
 	/**
 	 * if you expect a lot of output define callback handlers $this->stdErr will
 	 * not be used
-	 *  
+	 *
 	 * @param function $callbackFunction
-	 * 
+	 *
 	 * @return Foomo\CliCall
 	 */
 	public function setStdErrStreamCallback($callbackFunction)
@@ -195,7 +196,7 @@ class CliCall
 	}
 	/**
 	 * execute the command line call
-	 * 
+	 *
 	 * @return Foomo\CliCall
 	 */
 	public function execute()
@@ -278,18 +279,18 @@ class CliCall
 		$this->report = \Foomo\Module::getView('Foomo\\CliCall', 'cliCallReport', $this)->render();
 	}
 
-	
+
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * create a cli call
-	 * 
+	 *
 	 * @param string $cmd name or abolute path of the command, if the program file does not exist, we will call which to find it
 	 * @param array $arguments array of arguments
 	 * @param array $envVars array('varName' => value, ...)
-	 * 
+	 *
 	 * @return Foomo\CliCall
 	 */
 	public static function create()
@@ -304,5 +305,5 @@ class CliCall
 	{
 		return (isset($argArray[$index]))?$argArray[$index]:$default;
 	}
-	
+
 }
