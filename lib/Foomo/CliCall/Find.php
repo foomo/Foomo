@@ -197,7 +197,7 @@ class Find extends \Foomo\CliCall
 	 */
 	public function execute()
 	{
-		parent::execute();
+		return parent::execute();
 	}
 
 	//---------------------------------------------------------------------------------------------
