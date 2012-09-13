@@ -87,9 +87,8 @@ class RebuildJob extends \Foomo\Jobs\AbstractJob
 		return $this;
 	}
 
-	
 	public function run()
-	{ 
+	{
 		if (isset($this->invalidationData['resource'])) {
 			$resource = $this->invalidationData['resource'];
 			\Foomo\Cache\Manager::invalidate($resource, true, Invalidator::POLICY_INSTANT_REBUILD);

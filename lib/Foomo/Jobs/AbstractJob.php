@@ -27,6 +27,12 @@ namespace Foomo\Jobs;
 abstract class AbstractJob
 {
 
+	const ARG_TYPE_DAY_OF_MONTH = 'ARG_TYPE_DAY_OF_MONTH';
+	const ARG_TYPE_MINUTE = 'ARG_TYPE_MINUTE';
+	const ARG_TYPE_HOUR = 'ARG_TYPE_HOUR';
+	const ARG_TYPE_DAY_OF_WEEK = 'ARG_TYPE_DAY_OF_WEEK';
+	const ARG_TYPE_MONTH = 'ARG_TYPE_DAY_OF_WEEK';
+
 	/**
 	 * max execution time
 	 * 
@@ -197,9 +203,12 @@ abstract class AbstractJob
 	 * @param string $rule see the unix crontab docs
 	 * 
 	 * @return \Foomo\Jobs\AbstractJob
+	 * 
+	 * @throws \InvalidArgumentException
 	 */
 	public function executionRule($rule)
 	{
+		self::validateExecutionRule($rule);
 		$this->executionRule = $rule;
 		return $this;
 	}
@@ -212,61 +221,6 @@ abstract class AbstractJob
 	public function setDescription($description)
 	{
 		$this->description = $description;
-		return $this;
-	}
-
-	/**
-	 * set the crontab style execution rule for daily execution
-	 * @param string $executionRule
-	 * @return \Foomo\SimpleData\MongoDB\BackupJob
-	 */
-	public function doDaily()
-	{
-		$this->executionRule = '0 0 * * *';
-		return $this;
-	}
-
-	/**
-	 * set the crontab style execution rule for hourly execution
-	 * @param string $executionRule
-	 * @return \Foomo\SimpleData\MongoDB\BackupJob
-	 */
-	public function doHourly()
-	{
-		$this->executionRule = '0 * * * *';
-		return $this;
-	}
-
-	/**
-	 * set the crontab style execution rule for weekly execution
-	 * @param string $executionRule
-	 * @return \Foomo\SimpleData\MongoDB\BackupJob
-	 */
-	public function doWeekly()
-	{
-		$this->executionRule = ' 	0 0 * * 0';
-		return $this;
-	}
-
-	/**
-	 * set the crontab style execution rule for monthly execution
-	 * @param string $executionRule
-	 * @return \Foomo\SimpleData\MongoDB\BackupJob
-	 */
-	public function doMonthly()
-	{
-		$this->executionRule = '0 0 1 * *';
-		return $this;
-	}
-
-	/**
-	 * set the crontab style execution rule for yearly execution
-	 * @param string $executionRule
-	 * @return \Foomo\SimpleData\MongoDB\BackupJob
-	 */
-	public function doYearly()
-	{
-		$this->executionRule = '0 0 1 1 *';
 		return $this;
 	}
 
@@ -285,4 +239,78 @@ abstract class AbstractJob
 	 * do your thing here
 	 */
 	abstract public function run();
+
+	protected static function validateExecutionRule($rule)
+	{
+		$args = array();
+		foreach (explode(' ', $rule) as $arg)
+		{
+			if (($arg != '' && $arg != ' ') || $arg == '*') {
+				$args[] = $arg;
+			}
+		}
+		if (count($args) != 5) {
+			throw new \InvalidArgumentException('execution rule does not contain 5 parameters');
+		}
+
+		self::validateArgument($args[0], self::ARG_TYPE_MINUTE);
+		self::validateArgument($args[1], self::ARG_TYPE_HOUR);
+		self::validateArgument($args[2], self::ARG_TYPE_DAY_OF_MONTH);
+		self::validateArgument($args[3], self::ARG_TYPE_MONTH);
+		self::validateArgument($args[4], self::ARG_TYPE_DAY_OF_WEEK);
+
+		return true;
+	}
+
+	/**
+	 * 
+	 * @param mixed $arg
+	 * @param string $argType one of self::ART_TYPE_...
+	 * @return boolean
+	 * @throws @throws \IllegalArgumentException
+	 */
+	protected static function validateArgument($arg, $argType)
+	{
+		if (strpos($arg,',') !== false) {
+			foreach (explode(',', $arg) as $argItem) {
+				self::validateArgument($argItem, $argType);
+			} 
+			return true;
+		}
+		
+		
+		if ($arg == '*') {
+			return true;
+		}
+		switch ($argType) {
+			case self::ARG_TYPE_DAY_OF_MONTH:
+				if ($arg < 1 || $arg > 31) {
+					throw new \InvalidArgumentException('invalid day of month: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_MINUTE:
+				if ($arg < 0 || $arg > 59) {
+					throw new \InvalidArgumentException('invalid minute: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_HOUR:
+				if ($arg < 0 || $arg > 23) {
+					throw new \InvalidArgumentException('invalid hour: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_DAY_OF_WEEK:
+				if ($arg < 0 || $arg > 6) {
+					throw new \InvalidArgumentException('invalid day of week: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_MONTH:
+				if ($arg < 1 || $arg > 12) {
+					throw new \InvalidArgumentException('invalid month: ' . $arg);
+				}
+				break;
+			default:
+		}
+		return true;
+	}
+
 }
