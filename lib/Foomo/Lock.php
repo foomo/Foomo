@@ -7,6 +7,8 @@ namespace Foomo;
  */
 class Lock {
 
+	//this allows us to have lock() to be interpreted as a function in php 5.3.2 and not a constructor
+	private function __construct() {}
 	public static $lockHandles = array();
 
 	/**

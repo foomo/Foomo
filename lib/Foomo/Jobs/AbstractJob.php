@@ -18,7 +18,7 @@
  */
 
 namespace Foomo\Jobs;
- 
+
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
@@ -26,40 +26,57 @@ namespace Foomo\Jobs;
  */
 abstract class AbstractJob
 {
+
+	const ARG_TYPE_DAY_OF_MONTH = 'ARG_TYPE_DAY_OF_MONTH';
+	const ARG_TYPE_MINUTE = 'ARG_TYPE_MINUTE';
+	const ARG_TYPE_HOUR = 'ARG_TYPE_HOUR';
+	const ARG_TYPE_DAY_OF_WEEK = 'ARG_TYPE_DAY_OF_WEEK';
+	const ARG_TYPE_MONTH = 'ARG_TYPE_DAY_OF_WEEK';
+
 	/**
 	 * max execution time
 	 * 
 	 * @var integer
 	 */
 	protected $maxExecutionTime;
+
 	/**
 	 * memory limit
 	 * 
 	 * @var integer
 	 */
 	protected $memoryLimit;
+
 	/**
 	 * lock
 	 * 
 	 * @var boolean
 	 */
 	protected $lock = true;
+
+	/**
+	 * description
+	 * @var string 
+	 */
+	protected $description = '';
+
 	/**
 	 * cron rule
 	 * 
 	 * @var string
 	 */
 	protected $executionRule;
-	
-	public function __construct() 
+
+	public function __construct()
 	{
-		if(empty($this->maxExecutionTime)) {
+		if (empty($this->maxExecutionTime)) {
 			$this->maxExecutionTime = ini_get('max_execution_time');
 		}
-		if(empty($this->memoryLimit)) {
+		if (empty($this->memoryLimit)) {
 			$this->memoryLimit = ini_get('memory_limit');
 		}
 	}
+
 	/**
 	 * my id - override this, if this algorythm does not work for you
 	 * 
@@ -69,6 +86,7 @@ abstract class AbstractJob
 	{
 		return sha1(serialize($this));
 	}
+
 	/**
 	 * you can execute me with that
 	 * 
@@ -90,6 +108,7 @@ abstract class AbstractJob
 	{
 		return __CLASS__;
 	}
+
 	/**
 	 * describe what this job does
 	 * 
@@ -97,8 +116,9 @@ abstract class AbstractJob
 	 */
 	public function getDescription()
 	{
-		return '';
+		return $this->description;
 	}
+
 	/**
 	 * max execution time
 	 * 
@@ -108,6 +128,7 @@ abstract class AbstractJob
 	{
 		return $this->maxExecutionTime;
 	}
+
 	/**
 	 * ini style memory limit
 	 * 
@@ -117,6 +138,7 @@ abstract class AbstractJob
 	{
 		return $this->memoryLimit;
 	}
+
 	/**
 	 * lock or not
 	 * 
@@ -126,6 +148,7 @@ abstract class AbstractJob
 	{
 		return $this->lock;
 	}
+
 	/**
 	 * 
 	 * @return string
@@ -134,6 +157,7 @@ abstract class AbstractJob
 	{
 		return $this->executionRule;
 	}
+
 	/**
 	 * max execution time
 	 * 
@@ -146,6 +170,7 @@ abstract class AbstractJob
 		$this->maxExecutionTime = $value;
 		return $this;
 	}
+
 	/**
 	 * set ini style memory limit
 	 * 
@@ -158,6 +183,7 @@ abstract class AbstractJob
 		$this->memoryLimit = $value;
 		return $this;
 	}
+
 	/**
 	 * lock or not
 	 * 
@@ -170,18 +196,34 @@ abstract class AbstractJob
 		$this->lock = $value;
 		return $this;
 	}
+
 	/**
 	 * the crontab * thingie
 	 * 
 	 * @param string $rule see the unix crontab docs
 	 * 
 	 * @return \Foomo\Jobs\AbstractJob
+	 * 
+	 * @throws \InvalidArgumentException
 	 */
 	public function executionRule($rule)
 	{
+		self::validateExecutionRule($rule);
 		$this->executionRule = $rule;
 		return $this;
 	}
+
+	/**
+	 * set description
+	 * @param string $description
+	 * @return \Foomo\Jobs\AbstractJob
+	 */
+	public function setDescription($description)
+	{
+		$this->description = $description;
+		return $this;
+	}
+
 	/**
 	 * create a job
 	 * 
@@ -192,8 +234,83 @@ abstract class AbstractJob
 		$className = get_called_class();
 		return new $className;
 	}
+
 	/**
 	 * do your thing here
 	 */
 	abstract public function run();
+
+	protected static function validateExecutionRule($rule)
+	{
+		$args = array();
+		foreach (explode(' ', $rule) as $arg)
+		{
+			if (($arg != '' && $arg != ' ') || $arg == '*') {
+				$args[] = $arg;
+			}
+		}
+		if (count($args) != 5) {
+			throw new \InvalidArgumentException('execution rule does not contain 5 parameters');
+		}
+
+		self::validateArgument($args[0], self::ARG_TYPE_MINUTE);
+		self::validateArgument($args[1], self::ARG_TYPE_HOUR);
+		self::validateArgument($args[2], self::ARG_TYPE_DAY_OF_MONTH);
+		self::validateArgument($args[3], self::ARG_TYPE_MONTH);
+		self::validateArgument($args[4], self::ARG_TYPE_DAY_OF_WEEK);
+
+		return true;
+	}
+
+	/**
+	 * 
+	 * @param mixed $arg
+	 * @param string $argType one of self::ART_TYPE_...
+	 * @return boolean
+	 * @throws @throws \IllegalArgumentException
+	 */
+	protected static function validateArgument($arg, $argType)
+	{
+		if (strpos($arg,',') !== false) {
+			foreach (explode(',', $arg) as $argItem) {
+				self::validateArgument($argItem, $argType);
+			} 
+			return true;
+		}
+		
+		
+		if ($arg == '*') {
+			return true;
+		}
+		switch ($argType) {
+			case self::ARG_TYPE_DAY_OF_MONTH:
+				if ($arg < 1 || $arg > 31) {
+					throw new \InvalidArgumentException('invalid day of month: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_MINUTE:
+				if ($arg < 0 || $arg > 59) {
+					throw new \InvalidArgumentException('invalid minute: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_HOUR:
+				if ($arg < 0 || $arg > 23) {
+					throw new \InvalidArgumentException('invalid hour: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_DAY_OF_WEEK:
+				if ($arg < 0 || $arg > 6) {
+					throw new \InvalidArgumentException('invalid day of week: ' . $arg);
+				}
+				break;
+			case self::ARG_TYPE_MONTH:
+				if ($arg < 1 || $arg > 12) {
+					throw new \InvalidArgumentException('invalid month: ' . $arg);
+				}
+				break;
+			default:
+		}
+		return true;
+	}
+
 }
