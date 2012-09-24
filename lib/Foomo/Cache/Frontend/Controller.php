@@ -248,11 +248,12 @@ class Controller {
 	public function actionSetUpOne($resourceName, $sure = 'false')
 	{
 		$this->model->currentResourceName = $resourceName;
-		if ($sure == 'true') {
+		if ($sure == true) {
 			\Foomo\MVC::abort();
 			header('Content-Type: text/plain');
 			\Foomo\Cache\Manager::getFastPersistor()->reset();
 			\Foomo\Cache\Manager::getQueryablePersistor()->reset($resourceName, true, true);
+			echo 'cache setup complete';
 			exit;
 		}
 	}
