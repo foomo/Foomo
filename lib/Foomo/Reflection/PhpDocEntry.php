@@ -28,7 +28,10 @@ namespace Foomo\Reflection;
  * @todo make more generic and support annotations
  */
 class PhpDocEntry {
-
+	/**
+	 * @var string
+	 */
+	public $namespace;
 	/**
 	 * @var Foomo\Reflection\PhpDocArg
 	 */
@@ -86,8 +89,9 @@ class PhpDocEntry {
 	 */
 	public $see;
 
-	public function __construct($docString = null)
+	public function __construct($docString = null, $namespace = '')
 	{
+		$this->namespace = $namespace;
 		if (!is_null($docString)) {
 			// do not use a PHP_EOL delimiter here, because it will break your system on windows with unix sources
 			$lines = explode(chr(10), str_replace(array(chr(9), chr(13)), array(' ', ''), $docString));
@@ -108,7 +112,7 @@ class PhpDocEntry {
 									$write = false;
 								}
 								$name = $cleanLineParts[2];
-								$type = $cleanLineParts[1];
+								$type = $this->resolveType($cleanLineParts[1]);
 								$comment = $this->readLineComment($line);
 								array_push($this->properties, new PhpDocProperty(str_replace('$', '', $name), $type, $comment, $read, $write));
 							}
@@ -117,12 +121,11 @@ class PhpDocEntry {
 							// inline comments
 							if (count($cleanLineParts) == 3) {
 								// inline doc comment
-								//trigger_error('broken ' . var_export($cleanLineParts, true));
 								$varName = substr($cleanLineParts[1], 1);
-								$this->var = new PhpDocArg($varName, $cleanLineParts[2], 'see class docs ' . $cleanLineParts[2]);
+								$this->var = new PhpDocArg($varName, $this->resolveType($cleanLineParts[2]), 'see class docs ' . $this->resolveType($cleanLineParts[2]));
 							} else {
 								$myPropName = substr($cleanLineParts[0], 1);
-								$this->$myPropName = new PhpDocArg('', $cleanLineParts[1], $this->readLineComment($line));
+								$this->$myPropName = new PhpDocArg('', $this->resolveType($cleanLineParts[1]), $this->readLineComment($line));
 							}
 							break;
 						case'@throws':
@@ -130,7 +133,7 @@ class PhpDocEntry {
 						case'@serviceMessage':
 							if (isset($cleanLineParts[1])) {
 								$myPropName = substr($cleanLineParts[0], 1);
-								$docArg = new PhpDocArg('', $cleanLineParts[1], $this->readLineComment($line));
+								$docArg = new PhpDocArg('', $this->resolveType($cleanLineParts[1]), $this->readLineComment($line));
 								if (is_array($this->$myPropName)) {
 									array_push($this->$myPropName, $docArg);
 								} else {
@@ -140,7 +143,7 @@ class PhpDocEntry {
 							break;
 						case'@param':
 							if (isset($cleanLineParts[2])) {
-								array_push($this->parameters, new PhpDocArg(substr($cleanLineParts[2], 1), $cleanLineParts[1], $this->readLineComment($line)));
+								array_push($this->parameters, new PhpDocArg(substr($cleanLineParts[2], 1), $this->resolveType($cleanLineParts[1]), $this->readLineComment($line)));
 							}
 							break;
 						case'@desc':
@@ -178,7 +181,32 @@ class PhpDocEntry {
 			$this->comment = trim(trim($this->comment, PHP_EOL));
 		}
 	}
-
+	/**
+	 * @internal
+	 * @param string $type
+	 * @return string
+	 */
+	public function resolveType($type)
+	{
+		$type = trim($type);
+		$typeIsArray = substr($type, -2) == '[]';
+		if(in_array( ($typeIsArray?substr($type,0,-2):$type), array('bool', 'boolean', 'string', 'int', 'integer', 'float', 'double', 'resource', 'mixed', 'array', 'hash'))) {
+			return $type;
+		} else {
+			$type = $typeIsArray?substr($type, 0, -2):$type;
+			if(substr($type,0,1) == '\\') {
+				$absolute = true;
+				$type = substr($type, 1);
+			} else {
+				$absolute = false;
+			}
+			if(!$absolute && class_exists($this->namespace . '\\' . $type)) {
+				$type = (!empty($this->namespace)?$this->namespace . '\\':'') . $type;
+			}
+			return $typeIsArray?$type.'[]':$type;
+		}
+	}
+	
 	private function cleanLine($line)
 	{
 		$lineParts = explode(' ', $line);

@@ -47,7 +47,6 @@ class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 	public function testParameters()
 	{
 		$docEntry = $this->getTestMethodDocEntry();
-
 		$argBar = $this->getArg('bar', $docEntry);
 		$argFooBar = $this->getArg('fooBar', $docEntry);
 
@@ -88,6 +87,15 @@ class PhpDocEntryTest extends \PHPUnit_Framework_TestCase {
 		$docEntry = new PhpDocEntry($refl->getDocComment());
 		$this->assertEquals($docEntry->comment, 'foo prop');
 		$this->assertEquals($docEntry->var->type, self::MOCK_CLASS_NAME);
+	}
+	public function testResolveType()
+	{
+		$entry = new PhpDocEntry(null, __NAMESPACE__);
+		$this->assertEquals(__NAMESPACE__ . '\\PhpDocEntryTest', $entry->resolveType(__CLASS__), __NAMESPACE__ . '\\PhpDocEntryTest');
+		$this->assertEquals(__NAMESPACE__ . '\\PhpDocEntryTest[]', $res = $entry->resolveType(__CLASS__ .'[]'), __NAMESPACE__ . '\\PhpDocEntryTest[] != ' . $res);
+		$this->assertEquals('Exception', $entry->resolveType('\\Exception'), 'Exception');
+		$this->assertEquals('Exception[]', $entry->resolveType('\\Exception[]'), 'Exception[]');
+		$this->assertEquals('Foomo\\Reflection\\MockClass',	$entry->resolveType('Foomo\\Reflection\\MockClass'), 'Foomo\\Reflection\\MockClass');
 	}
 	/**
 	 * @param type $name
