@@ -144,7 +144,7 @@ class Config
 		if(!isset(self::$confCache[$cacheKey])) {
 			self::$confCache[$cacheKey] = \Foomo\Cache\Proxy::call(
 				__CLASS__,
-				'cachedGetConf', 
+				'cachedGetConf',
 				array($module, $name, $domain)
 			);
 		}
@@ -171,9 +171,9 @@ class Config
 	}
 	/**
 	 * get configs by their name
-	 * 
+	 *
 	 * @param string $name
-	 * 
+	 *
 	 * @return Foomo\Config\AbstractConfig[]
 	 */
 	public static function getConfsByName($name)
@@ -302,6 +302,30 @@ class Config
 		return self::$currentMode;
 	}
 
+	/**
+	 * @return boolean
+	 */
+	public static function isTestMode()
+	{
+		return (self::getMode() == self::MODE_TEST);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public static function isDevelopmentMode()
+	{
+		return (self::getMode() == self::MODE_DEVELOPMENT);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public static function isProductionMode()
+	{
+		return (self::getMode() == self::MODE_PRODUCTION);
+	}
+	
 	/**
 	 * get the directory where all the configs go to - this is rails inspired
 	 *
@@ -435,11 +459,11 @@ class Config
 	//---------------------------------------------------------------------------------------------
 	/**
 	 * get configs by their name in all modules / domains
-	 * 
+	 *
 	 * @Foomo\Cache\CacheResourceDescription
-	 * 
+	 *
 	 * @param string $name name of the DomainConfig
-	 * 
+	 *
 	 * @return Foomo\Config\AbstractConfig[]
 	 */
 	public static function cachedGetConfsByName($name)

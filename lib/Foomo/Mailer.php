@@ -21,7 +21,7 @@ namespace Foomo;
 
 /**
  * a simple mail interface
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -35,12 +35,33 @@ class Mailer {
 	 * @var Foomo\Config\Smtp
 	 */
 	protected $config;
+	/**
+	 * @var string
+	 */
 	public static $lastSubject;
+	/**
+	 * @var string
+	 */
 	public static $lastHeaders;
+	/**
+	 * @var string
+	 */
 	public static $lastTo;
+	/**
+	 * @var string
+	 */
 	public static $lastPlain;
+	/**
+	 * @var string
+	 */
 	public static $lastHtml;
+	/**
+	 * @var boolean
+	 */
 	public static $lastSuccess;
+	/**
+	 * @var boolean
+	 */
 	public static $logLast = false;
 	/**
 	 * if you do not want to have mails going out set it to false
@@ -48,15 +69,27 @@ class Mailer {
 	 * @var boolean
 	 */
 	public static $enabled = true;
+	/**
+	 * @var array
+	 */
 	public $attachments = array();
+	/**
+	 * @var array
+	 */
 	public $htmlImages = array();
-	private $mailer;
 	/**
 	 * contains the last pear error
 	 *
 	 * @var string
 	 */
 	private $lastError = '';
+	private $mailer;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
+
 	public function setSmtpConfig(Config\Smtp $config)
 	{
 		$this->config = $config;
