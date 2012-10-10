@@ -129,10 +129,11 @@ class Mailer {
 	 * @param array $headers
 	 * @param Mailer\Attachment[] $attachments will only work with html and plaintext
 	 * @param Mailer\HTMLImage[] $htmlImages will only work with html and plaintext
+	 * @param string $charset content encoding
 	 *
 	 * @return boolean
 	 */
-	public function sendMail($to, $subject, $plaintext = '', $html = '', $headers = array(), $attachments = array(), $htmlImages = array())
+	public function sendMail($to, $subject, $plaintext = '', $html = '', $headers = array(), $attachments = array(), $htmlImages = array(), $charset='utf-8')
 	{
 
 		include_once('Mail.php');
@@ -183,11 +184,12 @@ class Mailer {
 			  $param["text_charset"] - The character set to use for the plain text part of the email. Default is "iso-8859-1".
 			  $param["html_charset"]
 			 */
+			
 			$body = $mime->get(
 							array(
-								'head_charset' => 'utf-8',
-								'text_charset' => 'utf-8',
-								'html_charset' => 'utf-8'
+								'head_charset' => $charset,
+								'text_charset' => $charset,
+								'html_charset' => $charset
 							)
 			);
 			$hdrs = $mime->headers($hdrs);
@@ -199,7 +201,7 @@ class Mailer {
 				$body = $html;
 			}
 			if (!isset($headers['Content-Type'])) {
-				$headers['Content-Type'] = 'text/plain; charset=utf-8;';
+				$headers['Content-Type'] = 'text/plain; charset=' . $charset . ';';
 			}
 		}
 
