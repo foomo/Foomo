@@ -132,7 +132,9 @@ class Lock {
 		} else {
 			//check if somebody else has it
 			$canGetLock = self::lock($lockName, $blocking = false);
-			self::release($lockName);
+			if($canGetLock) {
+				self::release($lockName);
+			}
 
 			if ($canGetLock) {
 				return false;
