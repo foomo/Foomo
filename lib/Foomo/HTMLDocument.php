@@ -46,6 +46,7 @@ class HTMLDocument {
 	private $htmlOpeningTag = '<html>';
 	private $metaData = array();
 	private $styleSheetData = array();
+	private $iECompatibilityMode;
 	/**
 	 * Should not be accesses directly use the methods instead
 	 *
@@ -119,7 +120,18 @@ class HTMLDocument {
 		$this->document['body']['marginHeight'] = '';
 		$this->document['body']['onLoad'] = '';
 	}
-
+	
+	const IE_COMPATIBILITY_MODE_IE7 = 'IE=7';
+	const IE_COMPATIBILITY_MODE_IE7_EMULATE = 'EmulateIE7';
+	const IE_COMPATIBILITY_MODE_IE8 = 'IE=8';
+	const IE_COMPATIBILITY_MODE_IE8_EMULATE = 'EmulateIE8';
+	const IE_COMPATIBILITY_MODE_EDGE = 'edge';
+	
+	public function setIECompatibilityMode($mode)
+	{
+		$this->iECompatibilityMode = $mode;
+	}
+	
 	/**
 	 * set the docType (if you know what yut are doing)
 	 *
@@ -448,6 +460,9 @@ class HTMLDocument {
 			$output .= $this->htmlOpeningTag . PHP_EOL;
 		}
 		$output .= '<head>' . PHP_EOL;
+		if(!empty($this->iECompatibilityMode)) {
+			$output .= '<meta http-equiv="X-UA-Compatible" content="'. $this->iECompatibilityMode .'"/>' . PHP_EOL;
+		}
 		foreach ($this->document as $docPartName => $docPartArray) {
 			switch ($docPartName) {
 				case'header':
