@@ -35,7 +35,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
 		$sessionGCFound = false;
 		$fileGCFound = false;
 		foreach($jobs as $module => $jobs) {
-			$this->assertTrue(in_array($module, $enabledModules));
+			$this->assertTrue(in_array($module, $enabledModules), 'could not find module ' . $module . ' in ' . implode(', ', $enabledModules));
 			foreach($jobs as $job) {
 				$this->assertInstanceOf(__NAMESPACE__ . '\\AbstractJob', $job);
 				if($module == \Foomo\Module::NAME && $sessionEnabled && $job instanceof \Foomo\Session\GCJob) {

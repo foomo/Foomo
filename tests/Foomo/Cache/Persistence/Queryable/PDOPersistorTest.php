@@ -147,8 +147,11 @@ class PDOPersistorTest extends AbstractTest {
 		$this->assertEquals(4, count($iterator));
 
 	}
-
+	/**
+	 * @expectedException PHPUnit_Framework_Error_Notice
+	 */
 	public function testNoticeMeFunction() {
+		\PHPUnit_Framework_Error_Notice::$enabled = true;
 		$obj = new \Foomo\Cache\MockObjects\SampleResources;
 		\Foomo\Cache\Proxy::call($obj, 'noticeMEEEEEEE', array(1, 'loc', 'temp', (double) 100));
 	}
