@@ -89,8 +89,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		'status' => 'TINYINT',
 		'type_object' => 'CHAR(32)',
 		'type_array' => 'CHAR(32)',
-		'type_integer' => 'INT',
-		'type_long' => 'INT',
+		'type_integer' => 'BIGINT',
+		'type_long' => 'BIGINT',
 		'type_bool' => 'BOOL',
 		'type_double' => 'DOUBLE',
 		'type_float' => 'FLOAT',
@@ -644,8 +644,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 */
 	private function getAvailableTables() {
 		try {
-			$statement = "SHOW TABLES;";
-			$statement = $this->dbh->query($statement);
+			$statement = $this->dbh->query("SHOW TABLES;");
 			$availableTables = array();
 			while ($row = $statement->fetch(PDO::FETCH_NUM)) {
 				//var_dump($row[0]);
@@ -872,9 +871,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
 			} else if (\is_bool($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_BOOL);
-			} else if (\is_float($propertyValue)) {
-				$statement->bindParam($propertyName, $propertyName);
 			} else if (\is_double($propertyValue)) {
+				// covers float too
 				$statement->bindParam($propertyName, $propertyValue);
 			} else if (\is_int($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_INT);
