@@ -68,7 +68,7 @@ class CacheResourceReflectionParameter {
 	 */
 	private static function getParamType($paramName, \ReflectionMethod $methodRefl)
 	{
-		$phpDoc = new \Foomo\Reflection\PhpDocEntry($methodRefl->getDocComment());
+		$phpDoc = new \Foomo\Reflection\PhpDocEntry($methodRefl->getDocComment(), $methodRefl->getDeclaringClass()->getNamespaceName());
 		$propertyDef = '';
 		foreach ($methodRefl->getParameters() as $paramRefl) {
 			/* @var $paramRefl \ReflectionParameter */

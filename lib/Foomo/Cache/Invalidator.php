@@ -74,6 +74,7 @@ class Invalidator {
 			}
 
 			$dependentResources = Manager::query($dependentResourceName, $expr);
+
 			foreach ($dependentResources as $dependentResource) {
 				//deal with root resource invalidation, skip if not to be invalidated
 				if (!$invalidateRoot) {

@@ -291,18 +291,17 @@ class View extends \Foomo\View
 	/**
 	 * translate string
 	 *
-	 * @param string $msgId
-	 * @param string $msgPluralId
+	 * @param mixed $msgId string or hash array(msgId => count, msgId => count)
 	 * @param integer $count
 	 * @return string translated string
 	 */
-	public function _($msgId, $msgPluralId = null, $count = null)
+	public function _($msgId, $count = null)
 	{
 		if (!$this->translation) {
 			$appClassName = get_class($this->app);
 			$this->translation = new \Foomo\Translation(MVC::getLocaleRoots($appClassName), self::getNamespace($appClassName), $this->localeChain);
 		}
-		return $this->translation->_($msgId, $msgPluralId, $count);
+		return $this->translation->_($msgId, $count);
 	}
 
 	/**

@@ -49,7 +49,9 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase {
 		\Foomo\Cache\Manager::initialize($queryablePersistor, null);
 
 		//invalidate fast cache
-		$fastPersistor->reset();
+		if($fastPersistor) {
+			$fastPersistor->reset();
+		}
 		//invalidate queryable cache
 		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->noticeMEEEEEEE', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
 		\Foomo\Cache\Manager::invalidateWithQuery('Foomo\Cache\MockObjects\SampleResources->iamAmAmixedMethod', null, true, \Foomo\Cache\Invalidator::POLICY_DELETE);
