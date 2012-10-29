@@ -30,7 +30,6 @@ class PDOExpressionCompiler {
 
 	public static function buildSQLQuery(\Foomo\Cache\Persistence\Expr $expr, &$parameterStack, $tableName, $paramTypes)
 	{
-
 		$callStack = $expr->value;
 		$sql = "SELECT * FROM " . $tableName;
 		$method = $callStack[0];
@@ -54,7 +53,6 @@ class PDOExpressionCompiler {
 						$mtd = $parameter->value[0];
 						$params = $parameter->value[1];
 					} else {
-
 						$mtd = $parameter[0];
 						$params = $parameter[1];
 					}
