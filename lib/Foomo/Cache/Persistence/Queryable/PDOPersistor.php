@@ -987,28 +987,35 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	public function getExpressionInterpretation($resourceName, $expression) {
 		$tableName = self::tableNameFromResourceName($resourceName);
 		$parameterStack = array();
+		
+		$parameterTypes = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
+		//if we could not find the types any search will result empty, hence return empty iterator
+		if (\is_null($parameterTypes)) {
+			trigger_error('parameterTypes were null', E_USER_ERROR);
+		} else {
 
-		$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName);
-//		if ($limit != 0)
-//			$sql .= ' LIMIT ' . $limit;
-//		if ($offset != 0)
-//			$sql .= ' OFFSET ' . $offset;
-		$sql .= ";";
+			$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName, $parameterTypes);
+//			if ($limit != 0)
+//				$sql .= ' LIMIT ' . $limit;
+//			if ($offset != 0)
+//				$sql .= ' OFFSET ' . $offset;
+			$sql .= ";";
 
-//change the ? with data from parameterStack
-		$explodedSQL = \explode('?', $sql);
-		$sql = '';
-		$i = -1;
-		foreach ($explodedSQL as $part) {
-			$i++;
-			if (isset($parameterStack[$i][1])) {
-				$sql .= ' ' . \trim($part) . ' ' . \trim($parameterStack[$i][1]);
-			} else {
-				$sql .= \trim($part);
+			//change the ? with data from parameterStack
+			$explodedSQL = \explode('?', $sql);
+			$sql = '';
+			$i = -1;
+			foreach ($explodedSQL as $part) {
+				$i++;
+				if (isset($parameterStack[$i][1])) {
+					$sql .= ' ' . \trim($part) . ' ' . \trim($parameterStack[$i][1]);
+				} else {
+					$sql .= \trim($part);
+				}
 			}
+			$sql = \trim($sql);
+			return \trim($sql);
 		}
-		$sql = \trim($sql);
-		return \trim($sql);
 	}
 
 	/**
