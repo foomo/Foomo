@@ -76,6 +76,7 @@ class MVC
 	 */
 	public static function run($app, $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
 	{
+        //Timer::start(__METHOD__);
         self::$aborted = false;
 		// set up the application
 
@@ -110,6 +111,7 @@ class MVC
 			trigger_error($exception->getMessage());
 			$template = self::getExceptionTemplate(get_class($app));
 		}
+        $ret = null;
         if(!self::$aborted) {
             $view = new MVCView($app, $handler, $template, $exception);
             $app->view = $view;
@@ -124,9 +126,7 @@ class MVC
                     self::$caughtViews[$viewPath] = array('view' => 'empty', 'partials' => array());
                 }
             }
-
             $rendering = $view->render();
-
             if (self::$catchingViews) {
                 self::$caughtViews[$viewPath]['view'] = $rendering;
             }
@@ -149,11 +149,11 @@ class MVC
                 $ret = $rendering;
             }
             Logger::transactionComplete($transActionName);
-            return $ret;
         } else {
             Logger::transactionComplete($transActionName, 'mvc aborted');
         }
-
+        //Timer::stop(__METHOD__);
+        return $ret;
 	}
 
 	private static function getViewCatchingPath()
@@ -381,7 +381,7 @@ class MVC
 	/**
 	 * get the current handler from the stack
 	 *
-	 * @return Foomo\MVC\URLHandler
+	 * @return \Foomo\MVC\URLHandler
 	 */
 	public static function getCurrentURLHandler()
 	{

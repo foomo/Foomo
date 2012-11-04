@@ -20,6 +20,7 @@
 namespace Foomo\MVC;
 
 use Foomo\MVC;
+use Foomo\Timer;
 
 /**
  * handle urls for MVC
@@ -171,6 +172,7 @@ class URLHandler {
 
 	public function getCallData(AbstractApp $app, $uri = null)
 	{
+        // Timer::start(__METHOD__);
 		if(is_null($uri)) {
 			$uri = $_SERVER['REQUEST_URI'];
 		}
@@ -180,7 +182,9 @@ class URLHandler {
 		$controller = $app->controller;
 		$alternativeSource = $_REQUEST;
 		// load information about the
+
 		$controllerCache = $this->loadClass($controller);
+
 		$URI = substr($uri, strlen($this->baseURL) + 1);
 		$parts = explode('/', $URI);
 		$cleanParts = array();
@@ -194,6 +198,7 @@ class URLHandler {
 
 		$action = 'actionDefault';
 		$parms = array();
+
 		if (isset($cleanParts[0]) && ($cleanParts[0] == $className || $cleanParts[0] === $id)) {
 			$this->path .= '/' . $id;
 			if (count($cleanParts) > 1) {
@@ -249,12 +254,14 @@ class URLHandler {
 				}
 			}
 		}
+
 		$ret = array(
 			'instance' => self::$instanceCounter[$this->controllerClassName],
 			'instanceName' => $this->getControllerId(),
 			'action' => $action,
 			'parms' => $parms
 		);
+        // Timer::stop(__METHOD__);
 		return $ret;
 	}
 

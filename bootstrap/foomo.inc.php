@@ -43,8 +43,9 @@ if(isset($_SERVER['FOOMO_MAINTENANCE']) && (!isset($_SERVER['FOOMO_USER_AGENT'])
 define('Foomo\\ROOT', realpath(dirname(__DIR__)));
 
 include_once(ROOT . '/lib/Foomo/Timer.php');
-Timer::start('bootstrap');
+
 Timer::addMarker('lets go');
+Timer::start('foomo bootstrap');
 
 include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
 
@@ -151,5 +152,5 @@ try {
 		Setup::generateShell();
 	}
 }
-Timer::stop('bootstrap');
+Timer::stop('foomo bootstrap');
 Timer::addMarker('done in ' . (basename(__FILE__)));
