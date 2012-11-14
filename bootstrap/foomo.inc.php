@@ -45,6 +45,7 @@ define('Foomo\\ROOT', realpath(dirname(__DIR__)));
 include_once(ROOT . '/lib/Foomo/Timer.php');
 
 Timer::addMarker('lets go');
+Timer::start('foomo bootstrap');
 
 include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
 
@@ -151,5 +152,5 @@ try {
 		Setup::generateShell();
 	}
 }
-
+Timer::stop('foomo bootstrap');
 Timer::addMarker('done in ' . (basename(__FILE__)));

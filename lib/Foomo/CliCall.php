@@ -137,7 +137,7 @@ class CliCall
 	}
 	/**
 	 * @param array $arguments
-	 * @return Foomo\CliCall
+	 * @return \Foomo\CliCall
 	 */
 	public function addEnvVars(array $envVars)
 	{
@@ -147,7 +147,7 @@ class CliCall
 
 	/**
 	 * @param array $arguments
-	 * @return Foomo\CliCall
+	 * @return \Foomo\CliCall
 	 */
 	public function addArguments(array $arguments)
 	{
@@ -174,7 +174,7 @@ class CliCall
 	 *
 	 * @param array $callbackFunctions
 	 *
-	 * @return Foomo\CliCall
+	 * @return \Foomo\CliCall
 	 */
 	public function setStdOutStreamCallback($callbackFunction)
 	{
@@ -187,7 +187,7 @@ class CliCall
 	 *
 	 * @param function $callbackFunction
 	 *
-	 * @return Foomo\CliCall
+	 * @return \Foomo\CliCall
 	 */
 	public function setStdErrStreamCallback($callbackFunction)
 	{
@@ -197,7 +197,7 @@ class CliCall
 	/**
 	 * execute the command line call
 	 *
-	 * @return Foomo\CliCall
+	 * @return \Foomo\CliCall
 	 */
 	public function execute()
 	{
@@ -291,7 +291,7 @@ class CliCall
 	 * @param array $arguments array of arguments
 	 * @param array $envVars array('varName' => value, ...)
 	 *
-	 * @return Foomo\CliCall
+	 * @return \Foomo\CliCall
 	 */
 	public static function create()
 	{

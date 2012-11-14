@@ -89,8 +89,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		'status' => 'TINYINT',
 		'type_object' => 'CHAR(32)',
 		'type_array' => 'CHAR(32)',
-		'type_integer' => 'INT',
-		'type_long' => 'INT',
+		'type_integer' => 'BIGINT',
+		'type_long' => 'BIGINT',
 		'type_bool' => 'BOOL',
 		'type_double' => 'DOUBLE',
 		'type_float' => 'FLOAT',
@@ -644,8 +644,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 */
 	private function getAvailableTables() {
 		try {
-			$statement = "SHOW TABLES;";
-			$statement = $this->dbh->query($statement);
+			$statement = $this->dbh->query("SHOW TABLES;");
 			$availableTables = array();
 			while ($row = $statement->fetch(PDO::FETCH_NUM)) {
 				//var_dump($row[0]);
@@ -872,9 +871,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
 			} else if (\is_bool($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_BOOL);
-			} else if (\is_float($propertyValue)) {
-				$statement->bindParam($propertyName, $propertyName);
 			} else if (\is_double($propertyValue)) {
+				// covers float too
 				$statement->bindParam($propertyName, $propertyValue);
 			} else if (\is_int($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_INT);
@@ -989,28 +987,35 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	public function getExpressionInterpretation($resourceName, $expression) {
 		$tableName = self::tableNameFromResourceName($resourceName);
 		$parameterStack = array();
+		
+		$parameterTypes = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
+		//if we could not find the types any search will result empty, hence return empty iterator
+		if (\is_null($parameterTypes)) {
+			trigger_error('parameterTypes were null', E_USER_ERROR);
+		} else {
 
-		$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName);
-//		if ($limit != 0)
-//			$sql .= ' LIMIT ' . $limit;
-//		if ($offset != 0)
-//			$sql .= ' OFFSET ' . $offset;
-		$sql .= ";";
+			$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName, $parameterTypes);
+//			if ($limit != 0)
+//				$sql .= ' LIMIT ' . $limit;
+//			if ($offset != 0)
+//				$sql .= ' OFFSET ' . $offset;
+			$sql .= ";";
 
-//change the ? with data from parameterStack
-		$explodedSQL = \explode('?', $sql);
-		$sql = '';
-		$i = -1;
-		foreach ($explodedSQL as $part) {
-			$i++;
-			if (isset($parameterStack[$i][1])) {
-				$sql .= ' ' . \trim($part) . ' ' . \trim($parameterStack[$i][1]);
-			} else {
-				$sql .= \trim($part);
+			//change the ? with data from parameterStack
+			$explodedSQL = \explode('?', $sql);
+			$sql = '';
+			$i = -1;
+			foreach ($explodedSQL as $part) {
+				$i++;
+				if (isset($parameterStack[$i][1])) {
+					$sql .= ' ' . \trim($part) . ' ' . \trim($parameterStack[$i][1]);
+				} else {
+					$sql .= \trim($part);
+				}
 			}
+			$sql = \trim($sql);
+			return \trim($sql);
 		}
-		$sql = \trim($sql);
-		return \trim($sql);
 	}
 
 	/**
