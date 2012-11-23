@@ -225,16 +225,12 @@ class Manager
 		$classFileName = AutoLoader::getClassFileName($className);
 		if ($classFileName) {
 			$enabledModules = self::getEnabledModules();
-			//Timer::addMarker('got enabled modules');
 			foreach ($enabledModules as $enabledModuleName) {
-				$moduleLibPath = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $enabledModuleName . DIRECTORY_SEPARATOR . 'lib';
-				if (strpos($classFileName, $moduleLibPath) === 0) {
-					return $enabledModuleName;
+				foreach(self::getModuleLibFolders($enabledModuleName) as $moduleLibPath) {
+					if (strpos($classFileName, $moduleLibPath) === 0) {
+						return $enabledModuleName;
+					}
 				}
-			}
-			$coreLibPath = \Foomo\ROOT . DIRECTORY_SEPARATOR . 'lib';
-			if (strpos($classFileName, $coreLibPath) === 0) {
-				return \Foomo\Module::NAME;
 			}
 		} else {
 			trigger_error('the class is not in the scope of the autoloader ' . $className . ' can not ', E_USER_WARNING);

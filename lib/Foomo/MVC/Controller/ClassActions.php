@@ -17,41 +17,28 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Reflection;
+namespace Foomo\MVC\Controller;
 
 /**
- * object representation of a parm doc comment
+ * class actions
+ *
+ * @internal
  * 
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class PhpDocArg {
-
-	/**
-	 * @var string
-	 */
-	public $name;
-	/**
-	 * @var string
-	 */
-	public $type;
-	/**
-	 * @var string
-	 */
-	public $comment;
-	public function __construct($name, $type, $comment = '')
-	{
-		$this->name = $name;
-		$this->type = $type;
-		$this->comment = $comment;
-	}
-    public function isArrayOf()
-    {
-        return strpos($this->type, '[]') !== false;
-    }
-    public function getPlainType()
-    {
-        return str_replace('[]', '', $this->type);
-    }
+class ClassActions {
+    /**
+     * @var string
+     */
+    public $file;
+    /**
+     * @var integer
+     */
+    public $mTime;
+    /**
+     * @var Action[]
+     */
+    public $actions = array();
 }

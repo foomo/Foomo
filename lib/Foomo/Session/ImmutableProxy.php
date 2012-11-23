@@ -48,7 +48,7 @@ class ImmutableProxy
 
 	public function __set($name, $value)
 	{
-		throw new \Exception('you have to lock the session, before you write to it');
+		throw new \LogicException('you have to lock the session, before you write to it');
 	}
 
 	public function __get($name)

@@ -61,8 +61,8 @@ class Template {
 	 * render the template => apply the data
 	 *
 	 * @param mixed $model
-	 * @param Foomo\View $view
-	 * @param Exception $exception
+	 * @param \Foomo\View $view
+	 * @param \Exception $exception
 	 * @param array $variables
 	 *
 	 * @return string

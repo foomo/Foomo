@@ -28,35 +28,62 @@ use ReflectionMethod,
  * @author jan <jan@bestbytes.de>
  */
 class ActionReader {
-
 	/**
 	 * read the actions on a given class
 	 *
 	 * @param mixed $class name or instance
 	 *
-	 * @return Foomo\MVC\Controller\Action[]
+	 * @return \Foomo\MVC\Controller\Action[]
 	 */
 	public static function read($class)
 	{
-		$reflection = new ReflectionClass($class);
-		$methods = $reflection->getMethods();
-		$frameActions = array();
-		foreach ($methods as $method) {
-			/* @var $method ReflectionMethod */
-			$substr = substr($method->getName(), 0, strlen('action'));
-			if ($method->isPublic() && substr($method->getName(), 0, strlen('action')) == 'action') {
-				$frameActions[strtolower(substr($method->getName(), strlen('action')))] = self::readMethod($method);
-			}
-		}
-		return $frameActions;
+        //$classActions = self::cachedGetClassActions($class);
+        $classActions = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassActions', array($class));
+        if($classActions->mTime < filemtime($classActions->file)) {
+            // cache is invalid
+            \Foomo\Cache\Manager::invalidateWithQuery(
+                __CLASS__ . '::cachedGetClassActions',
+                \Foomo\Cache\Persistence\Expr::propEq('class', $class),
+                true,
+                \Foomo\Cache\Invalidator::POLICY_DELETE
+            );
+            $classActions = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassActions', array($class));
+        }
+        return $classActions->actions;
 	}
+
+    /**
+     * @Foomo\Cache\CacheResourceDescription
+     *
+     * @param string $class
+     *
+     * @return ClassActions
+     */
+    public static function cachedGetClassActions($class)
+    {
+        $classActions = new ClassActions();
+        $classActions->file = \Foomo\AutoLoader::getClassFileName($class);
+        $classActions->mTime = filemtime($classActions->file);
+        $reflection = new ReflectionClass($class);
+        $methods = $reflection->getMethods();
+        $frameActions = array();
+        foreach ($methods as $method) {
+            /* @var $method ReflectionMethod */
+            $substr = substr($method->getName(), 0, strlen('action'));
+            if ($method->isPublic() && substr($method->getName(), 0, strlen('action')) == 'action') {
+                $frameActions[strtolower(substr($method->getName(), strlen('action')))] = self::readMethod($method);
+            }
+        }
+        $classActions->actions = $frameActions;
+        return $classActions;
+    }
 
 	private static function readMethod(ReflectionMethod $method)
 	{
 		$parms = $method->getParameters();
 		$parameters = array();
 		foreach ($parms as $parm) {
-			/* @var $parm ReflectionParameter */
+			/* @var $parm \ReflectionParameter */
 			$newParm = self::extractParameter($parm->getName(), $method->getDocComment());
 			//die('a');
 			if (is_object($parm->getClass())) {

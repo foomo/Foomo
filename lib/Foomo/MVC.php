@@ -40,6 +40,7 @@ use ReflectionClass;
 class MVC
 {
 	private static $level = 0;
+    private static $aborted = false;
 	public static $handlers = array();
 	private static $pathArray = array();
 	/**
@@ -75,6 +76,8 @@ class MVC
 	 */
 	public static function run($app, $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
 	{
+        //Timer::start(__METHOD__);
+        self::$aborted = false;
 		// set up the application
 
 		if (is_string($app)) {
@@ -108,45 +111,49 @@ class MVC
 			trigger_error($exception->getMessage());
 			$template = self::getExceptionTemplate(get_class($app));
 		}
-		$view = new MVCView($app, $handler, $template, $exception);
-		$app->view = $view;
-		MVCView::$viewStack[] = $view;
-		// catching views and partials
-		$viewPath = self::getViewCatchingPath();
-		$cameInCatching = self::$catchingViews;
+        $ret = null;
+        if(!self::$aborted) {
+            $view = new MVCView($app, $handler, $template, $exception);
+            $app->view = $view;
+            MVCView::$viewStack[] = $view;
+            // catching views and partials
+            $viewPath = self::getViewCatchingPath();
+            $cameInCatching = self::$catchingViews;
 
-		if (is_array(self::$catchViews) && (count(self::$catchViews) == 0 || in_array($viewPath, self::$catchViews))) {
-			self::$catchingViews = true;
-			if (!isset(self::$caughtViews[$viewPath])) {
-				self::$caughtViews[$viewPath] = array('view' => 'empty', 'partials' => array());
-			}
-		}
+            if (is_array(self::$catchViews) && (count(self::$catchViews) == 0 || in_array($viewPath, self::$catchViews))) {
+                self::$catchingViews = true;
+                if (!isset(self::$caughtViews[$viewPath])) {
+                    self::$caughtViews[$viewPath] = array('view' => 'empty', 'partials' => array());
+                }
+            }
+            $rendering = $view->render();
+            if (self::$catchingViews) {
+                self::$caughtViews[$viewPath]['view'] = $rendering;
+            }
 
-		$rendering = $view->render();
+            if (!$cameInCatching) {
+                self::$catchingViews = false;
+            }
+            array_pop(MVCView::$viewStack);
+            array_pop(self::$pathArray);
 
-		if (self::$catchingViews) {
-			self::$caughtViews[$viewPath]['view'] = $rendering;
-		}
+            $app->view = null;
 
-		if (!$cameInCatching) {
-			self::$catchingViews = false;
-		}
-		array_pop(MVCView::$viewStack);
-		array_pop(self::$pathArray);
-
-		$app->view = null;
-
-		if (self::$level == 1 && !$forceNoHTMLDocument) {
-			$doc = HTMLDocument::getInstance();
-			$doc->addBody($rendering);
-			Timer::addMarker(__CLASS__ . ' is done');
-			$ret = $doc;
-		} else {
-			self::$level--;
-			$ret = $rendering;
-		}
-		Logger::transactionComplete($transActionName);
-		return $ret;
+            if (self::$level == 1 && !$forceNoHTMLDocument) {
+                $doc = HTMLDocument::getInstance();
+                $doc->addBody($rendering);
+                Timer::addMarker(__CLASS__ . ' is done');
+                $ret = $doc;
+            } else {
+                self::$level--;
+                $ret = $rendering;
+            }
+            Logger::transactionComplete($transActionName);
+        } else {
+            Logger::transactionComplete($transActionName, 'mvc aborted');
+        }
+        //Timer::stop(__METHOD__);
+        return $ret;
 	}
 
 	private static function getViewCatchingPath()
@@ -207,6 +214,7 @@ class MVC
 
 	public static function abort()
 	{
+        self::$aborted = true;
 		while (ob_get_level() > 0) {
 			ob_end_clean();
 		}
@@ -373,7 +381,7 @@ class MVC
 	/**
 	 * get the current handler from the stack
 	 *
-	 * @return Foomo\MVC\URLHandler
+	 * @return \Foomo\MVC\URLHandler
 	 */
 	public static function getCurrentURLHandler()
 	{

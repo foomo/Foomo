@@ -44,7 +44,7 @@ abstract class AbstractBaseTest extends Persistence\Queryable\AbstractTest {
 				\ob_end_clean();
 				$this->setupWasSuccessful = true;
 			} else {
-				$this->markTestSkipped('configuration ' . \Foomo\Cache\Test\DomainConfig::NAME . ' for module ' . \Foomo\Module::NAME . ' seems invalid - I could not get proper persistor from it');
+				$this->markTestSkipped('configuration ' . \Foomo\Cache\Test\DomainConfig::NAME . ' for module ' . \Foomo\Module::NAME . ' seems invalid - I want a pdo and a memcached persistor');
 				$this->setupWasSuccessful = false;
 			}
 		} else {

@@ -41,22 +41,18 @@ class JobList  // removed so that it is hidden implements \Foomo\Jobs\JobListInt
 
 		return array(
 			\Foomo\Cache\RebuildJob::create()
-					->doDaily()
 					->setDescription('rebuild test cache - resource')
 					//->invalidateCachedProxyCall($className, 'getHoroscopeData', array(0, 'myLocation'))
 					->invalidateResource($resource),
 		
 			\Foomo\Cache\RebuildJob::create()
-					->doDaily()
 					->setDescription('rebuild test cache - proxy call')
 					->invalidateCachedProxyCall($className, 'getHoroscopeData', array(0, 'myLocation')),
 			
 			\Foomo\Cache\RebuildJob::create()
-					->doDaily()
 					->setDescription('rebuild test cache - query - null')
 					->invalidateWithQuery($resource->name, null),
 			\Foomo\Cache\RebuildJob::create()
-					->doDaily()
 					->setDescription('rebuild test cache - query')
 					->invalidateWithQuery($resource->name, \Foomo\Cache\Persistence\Expr::idEq($resource->id))
 		);
