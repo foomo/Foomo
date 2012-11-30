@@ -77,7 +77,7 @@ class HTMLDocument {
 	/**
 	 * singleton
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public static function getInstance()
 	{
@@ -137,7 +137,7 @@ class HTMLDocument {
 	 *
 	 * @param string $docType doc type
 	 * 
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setDocType($docType)
 	{
@@ -160,7 +160,7 @@ class HTMLDocument {
 	 *
 	 * @param string $htmlOpeningTag html opening tag
 	 * 
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setHTMLOpeningTag($htmlOpeningTag)
 	{
@@ -183,7 +183,7 @@ class HTMLDocument {
 	 *
 	 * @param integer $indentToInc
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function incIndent($indentToInc)
 	{
@@ -196,7 +196,7 @@ class HTMLDocument {
 	 *
 	 * @param integer $indentToInc
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function decIndent($indentToDec)
 	{
@@ -238,7 +238,7 @@ class HTMLDocument {
 	 *
 	 * @param string $javascript
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addOnLoad($javascript)
 	{
@@ -249,7 +249,7 @@ class HTMLDocument {
 	/**
 	 * reset the onload attribute of the body element
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function resetOnload()
 	{
@@ -263,7 +263,7 @@ class HTMLDocument {
 	 * @param string $attributeName
 	 * @param string $attributeValue
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setBodyAttribute($attributeName, $attributeValue)
 	{
@@ -276,7 +276,7 @@ class HTMLDocument {
 	 *
 	 * @param string $attributeName
 	 * @param string $attributeValue
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function appendToBodyAttribute($attributeName, $attributeValue)
 	{
@@ -294,7 +294,7 @@ class HTMLDocument {
 	 * @param string $HTML arbitrary HTML - we are NOT validating what you add
 	 * @see Foomo\HTMLDocument::indentBlock()
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addBody($HTML)
 	{
@@ -307,7 +307,7 @@ class HTMLDocument {
 	 *
 	 * @param string $HTML
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addHead($HTML)
 	{
@@ -321,7 +321,7 @@ class HTMLDocument {
 	 * @see Foomo\HTMLDocument::addJavascripts()
 	 * @param string $javascript
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addJavascript($javascript)
 	{
@@ -336,7 +336,7 @@ class HTMLDocument {
 	 * @see Foomo\HTMLDocument::addJavascript()
 	 * @param array $jsLinks
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addJavascripts($jsLinks)
 	{
@@ -353,7 +353,7 @@ class HTMLDocument {
 	 *
 	 * @param integer $time in seconds
 	 * @param string $location the location the browser should go to
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setRefresh($time, $location)
 	{
@@ -366,7 +366,7 @@ class HTMLDocument {
 	 *
 	 * @param string $title
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setTitle($title)
 	{
@@ -400,7 +400,7 @@ class HTMLDocument {
 	 *
 	 * @param string $url
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setBaseUrl($url)
 	{
@@ -526,7 +526,7 @@ class HTMLDocument {
 	/**
 	 * send http headers
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function sendStaticHeaders()
 	{
@@ -565,7 +565,7 @@ class HTMLDocument {
 	 * @example $doc->addMeta(array('keywords' => 'super, great, wonderful', 'description' => 'this is a wonderful page'));
 	 * @param array $meta arra('nameOfMetaEntry' => 'valueOfMetaEntry')
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addMeta($meta)
 	{
@@ -579,7 +579,7 @@ class HTMLDocument {
 	 * @see Foomo\HTMLDocument::addStylesheets()
 	 * @param string $styleString CSS Style definition
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addStylesheet($styleString)
 	{
@@ -594,7 +594,7 @@ class HTMLDocument {
 	 * @example <code>$bert->HTMLDocument->addStylesheets(array('my.css', 'path/to/my/other.css'))</code>
 	 * @param array $styleString CSS Style definition
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addStylesheets($stylesheets)
 	{
@@ -607,7 +607,7 @@ class HTMLDocument {
 	 *
 	 * @param string $html
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addFrameset($html)
 	{
@@ -623,7 +623,7 @@ class HTMLDocument {
 	/**
 	 * @param string $newPragma
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setPragma($newPragma)
 	{
@@ -633,7 +633,7 @@ class HTMLDocument {
 	/**
 	 * @param string $newEtag
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setEtag($newEtag)
 	{
@@ -643,7 +643,7 @@ class HTMLDocument {
 	/**
 	 * @param string $expiryDate
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setExpires($expiryDate)
 	{
@@ -662,7 +662,7 @@ class HTMLDocument {
 	}
 	/**
 	 * @param string $cacheControl
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setCacheControl($cacheControl)
 	{
@@ -673,7 +673,7 @@ class HTMLDocument {
 	 *
 	 * @param integer $lastModified unix timestamp of last mod
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setLastModified($lastModified)
 	{
@@ -703,7 +703,7 @@ class HTMLDocument {
 	 *
 	 * @param string $pathToFavIcon /path/to/your/favicon.gif or .ico
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setFavIcon($pathToFavIcon)
 	{
@@ -715,7 +715,7 @@ class HTMLDocument {
 	 * Add a W3C HTML Validation Link to your page at the position of the current cursor
 	 * just a nice gadget for development
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addW3CHTMLValidationLink()
 	{
@@ -744,7 +744,7 @@ class HTMLDocument {
 	 * @param string $name
 	 * @param string $filename
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function addDynCssSheet($name, $filename)
 	{
@@ -765,7 +765,7 @@ class HTMLDocument {
 	 * @param string $name name of the value
 	 * @param string $value value itself
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setDynCssSheetValue($dynSheetName, $name, $value)
 	{
@@ -776,7 +776,7 @@ class HTMLDocument {
 	/**
 	 * @param string $url
 	 *
-	 * @return Foomo\HTMLDocument
+	 * @return \Foomo\HTMLDocument
 	 */
 	public function setCanonicalLink($url)
 	{
