@@ -79,6 +79,29 @@ class Lock {
 		$info['lock_age'] = ($lockFileContents['timestamp'] !== false && $info['is_locked'] === true) ? time() - intval($lockFileContents['timestamp']) : false;
 		return $info;
 	}
+	
+	/**
+	 * check if locked
+	 * @param string $lockName
+	 * @return boolean
+	 */
+	public static function isLocked($lockName) {
+		if (self::isLockedByCaller($lockName) === true) {
+			return true;
+		} else {
+			//check if somebody else has it
+			$canGetLock = self::lock($lockName, $blocking = false);
+			if($canGetLock) {
+				self::release($lockName);
+			}
+
+			if ($canGetLock) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
 
 	private static function getLockFileContents($lockName) {
 		$file = self::getLockContentsFile($lockName);
@@ -126,23 +149,7 @@ class Lock {
 		return isset(self::$lockHandles[$lockName]);
 	}
 
-	private static function isLocked($lockName) {
-		if (self::isLockedByCaller($lockName) === true) {
-			return true;
-		} else {
-			//check if somebody else has it
-			$canGetLock = self::lock($lockName, $blocking = false);
-			if($canGetLock) {
-				self::release($lockName);
-			}
-
-			if ($canGetLock) {
-				return false;
-			} else {
-				return true;
-			}
-		}
-	}
+	
 
 	private static function insertLockData($lockContentsFile, $lockData = null) {
 		$data = array(
