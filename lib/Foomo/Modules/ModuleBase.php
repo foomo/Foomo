@@ -81,7 +81,7 @@ abstract class ModuleBase
 	 * @param string $template relative path from /path/to/your/module/views
 	 * @param mixed $model whatever your model may be
 	 *
-	 * @return Foomo\View
+	 * @return \Foomo\View
 	 */
 	public static function getView($app, $template, $model = null)
 	{
@@ -114,7 +114,7 @@ abstract class ModuleBase
 	 * @param mixed $app instance or class name
 	 * @param type $localeChain
 	 *
-	 * @return Foomo\Translation
+	 * @return \Foomo\Translation
 	 */
 	public static function getTranslation($app, $localeChain = null)
 	{
@@ -308,7 +308,7 @@ abstract class ModuleBase
 	}
 
 	/**
-	 * @param Foomo\Config\AbstractConfig $conf
+	 * @param \Foomo\Config\AbstractConfig $conf
 	 * @param string $domain
 	 * @return boolean
 	 */

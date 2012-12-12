@@ -34,7 +34,7 @@ class View
 	/**
 	 * current exception
 	 *
-	 * @var Exception
+	 * @var \Exception
 	 */
 	protected $exception;
 	/**
