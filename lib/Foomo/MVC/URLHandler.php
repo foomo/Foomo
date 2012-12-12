@@ -246,9 +246,11 @@ class URLHandler {
 								}
 							}
 						}
-
+						while($i < count($cleanParts)) {
+							$parms[] = $cleanParts[$i];
+							$i ++;
+						}
 						$action = $controllerAction->actionName;
-
 						break;
 					}
 				}
