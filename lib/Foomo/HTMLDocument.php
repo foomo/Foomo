@@ -349,6 +349,38 @@ class HTMLDocument {
 	}
 
 	/**
+	 * @param $jsLink
+	 * @param $position int position where to add this script (0 will be the first script to load)
+	 * @return \Foomo\HTMLDocument
+	 */
+	public function addJavascriptFileWithPriority($jsLink, $position)
+	{
+		$temp = $this->javascripts;
+		if (($pos = array_search($jsLink, $this->javascripts)) !== FALSE) {
+			unset($temp[$pos]);
+		}
+
+		if($position >= count($temp)) {
+			$temp[] = $jsLink;
+			$this->javascripts = $temp;
+		} else {
+			$new = array();
+			$i = 0;
+			foreach($temp as $item) {
+				if($i == $position) {
+					$new[] = $jsLink;
+					$i++;
+				}
+				$new[] = $item;
+				$i++;
+			}
+			$this->javascripts = $new;
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Set a meta refresh for the document - maybe for a Javascript free slideshow?
 	 *
 	 * @param integer $time in seconds
