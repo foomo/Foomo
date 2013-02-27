@@ -20,7 +20,7 @@
 namespace Foomo\MVC\Controller;
 
 /**
- * class describing a reflectoed method on a controller or class in general
+ * class describing a reflected method on a controller or class in general
  *
  * @internal
  * @link www.foomo.org
@@ -38,6 +38,10 @@ class AbstractAction {
 	 * @var mixed
 	 */
 	protected $model;
+	/**
+	 * @var mixed
+	 */
+	protected $controller;
 	public function __construct(AbstractApp $app)
 	{
 		$this->app = $app;
@@ -49,5 +53,9 @@ class AbstractAction {
 		$parts = explode('\\', get_called_class());
 		return lcfirst(array_pop($parts));
 	}
+
+	/**
+	 * override this one
+	 */
 	public function run() {}
 }
