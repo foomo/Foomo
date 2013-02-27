@@ -19,6 +19,7 @@
 
 namespace Foomo\MVC\Controller;
 
+use Foomo\AutoLoader;
 use ReflectionMethod,
 	ReflectionClass;
 
@@ -37,9 +38,9 @@ class ActionReader {
 	 */
 	public static function read($class)
 	{
-        //$classActions = self::cachedGetClassActions($class);
+		/* @var $classActions ClassActions */
         $classActions = \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassActions', array($class));
-        if($classActions->mTime < filemtime($classActions->file)) {
+        if(!$classActions->isValid()) {
             // cache is invalid
             \Foomo\Cache\Manager::invalidateWithQuery(
                 __CLASS__ . '::cachedGetClassActions',
@@ -53,7 +54,7 @@ class ActionReader {
 	}
 
     /**
-     * @Foomo\Cache\CacheResourceDescription
+     * @Foomo\Cache\CacheResourceDescription(dependencies="Foomo\AutoLoader::cachedGetClassMap")
      *
      * @param string $class
      *
@@ -62,22 +63,50 @@ class ActionReader {
     public static function cachedGetClassActions($class)
     {
         $classActions = new ClassActions();
-        $classActions->file = \Foomo\AutoLoader::getClassFileName($class);
-        $classActions->mTime = filemtime($classActions->file);
+		$classActions->addFile($controllerClassFilename = AutoLoader::getClassFileName($class));
+        $classActions->controllerDir =  dirname($controllerClassFilename);
         $reflection = new ReflectionClass($class);
         $methods = $reflection->getMethods();
         $frameActions = array();
+		$actionOffset = strlen('action');
         foreach ($methods as $method) {
             /* @var $method ReflectionMethod */
-            $substr = substr($method->getName(), 0, strlen('action'));
-            if ($method->isPublic() && substr($method->getName(), 0, strlen('action')) == 'action') {
-                $frameActions[strtolower(substr($method->getName(), strlen('action')))] = self::readMethod($method);
+            $substr = substr($method->getName(), 0, $actionOffset);
+            if ($method->isPublic() && substr($method->getName(), 0, $actionOffset) == 'action') {
+                $frameActions[strtolower(substr($method->getName(), $actionOffset))] = self::readMethod($method);
             }
         }
+		foreach(self::searchControllerActionClasses($class) as $controllerClass) {
+			$classActions->addFile(AutoLoader::getClassFileName($controllerClass));
+			$classRefl = new ReflectionClass($controllerClass);
+			$actionNameParts = explode('\\', $classRefl->getName());
+			$actionName = substr(end($actionNameParts), $actionOffset);
+			$runRefl = new ReflectionMethod($controllerClass, 'run');
+			$method = self::readMethod($runRefl);
+			$method->actionName = 'action' . $actionName;
+			$method->actionNameShort = lcfirst($actionName);
+			$frameActions[strtolower($actionName)] = $method;
+		}
         $classActions->actions = $frameActions;
         return $classActions;
     }
-
+	public static function searchControllerActionClasses($class)
+	{
+		$actionNamespace = substr($class, 0, strlen($class) - strpos(strrev($class), '\\') - 1) . '\\Controller';
+		$classMatchComparisonBase = $actionNamespace . '\\Action';
+		$expectedDepth = count(explode('\\', $actionNamespace)) + 1;
+		$controllerClasses = array();
+		foreach(AutoLoader::getClassMap() as $className => $filename) {
+			$classParts = explode('\\', $className);
+			if(count($classParts) == $expectedDepth && strpos($className, $classMatchComparisonBase) === 0) {
+				$classRefl = new ReflectionClass($className);
+				if($classRefl->isSubclassOf('Foomo\\MVC\\Controller\\AbstractAction') && !$classRefl->isAbstract()) {
+					$controllerClasses[] = $className;
+				}
+			}
+		}
+		return $controllerClasses;
+	}
 	private static function readMethod(ReflectionMethod $method)
 	{
 		$parms = $method->getParameters();

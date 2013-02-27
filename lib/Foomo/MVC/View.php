@@ -99,9 +99,9 @@ class View extends \Foomo\View
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param Foomo\MVC\AbstractApp $app
-	 * @param Foomo\MVC\URLHandler $handler
-	 * @param Foomo\Template $template
+	 * @param \Foomo\MVC\AbstractApp $app
+	 * @param \Foomo\MVC\URLHandler $handler
+	 * @param \Foomo\Template $template
 	 * @param \Exception $exception
 	 */
 	public function __construct(AbstractApp $app, URLHandler $handler, Template $template, \Exception $exception=null)

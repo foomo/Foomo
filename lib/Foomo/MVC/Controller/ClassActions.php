@@ -28,17 +28,56 @@ namespace Foomo\MVC\Controller;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
+use Foomo\Config;
+
 class ClassActions {
     /**
      * @var string
      */
-    public $file;
-    /**
-     * @var integer
-     */
-    public $mTime;
+    public $files = array();
     /**
      * @var Action[]
      */
     public $actions = array();
+	/**
+	 * @var string
+	 */
+	public $controllerDir;
+
+	/**
+	 * @return bool
+	 */
+	public function isValid()
+	{
+		if(Config::getMode() == Config::MODE_PRODUCTION) {
+			return true;
+		} else {
+			$knownFiles = array();
+			foreach($this->files as $file => $mTime) {
+				if(!file_exists($file) || filemtime($file) != $mTime) {
+					return false;
+				} else {
+					$knownFiles[] = $file;
+				}
+			}
+			$countFoundActions = 0;
+			if(is_dir($this->controllerDir)) {
+				$dirIterator = new \DirectoryIterator($this->controllerDir);
+				foreach($dirIterator as $fileInfo) {
+					$countFoundActions ++;
+					/* @var $fileInfo \SplFileInfo */
+					if($fileInfo->isFile() && substr($fileInfo->getFilename(),0 , -4) == '.php' && substr($fileInfo->getFilename(), 0, 6) == 'Action') {
+						if(!in_array($knownFiles, $fileInfo->getPathname())) {
+							return false;
+						}
+					}
+				}
+			}
+			return $countFoundActions == count($this->files) - 1;
+		}
+	}
+	public function addFile($filename)
+	{
+		$this->files[$filename] = filemtime($filename);
+	}
 }

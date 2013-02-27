@@ -27,51 +27,27 @@ namespace Foomo\MVC\Controller;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class Action {
+use Foomo\MVC\AbstractApp;
 
+class AbstractAction {
 	/**
-	 * @var string
+	 * @var AbstractApp
 	 */
-	public $controllerName;
+	protected $app;
 	/**
-	 * @var string
+	 * @var mixed
 	 */
-	public $actionName;
-	/**
-	 * @var string
-	 */
-	public $actionNameShort;
-	/**
-	 * @var ActionParameter[]
-	 */
-	public $parameters = array();
-	/**
-	 * @param string $controllerName
-	 * @param atring $actionName
-	 * @param  ActionParameter[] $parameters
-	 */
-	public $optionalParameterCount;
-	public function __construct($controllerName, $actionName, $parameters)
+	protected $model;
+	public function __construct(AbstractApp $app)
 	{
-		$this->controllerName = $controllerName;
-		$this->actionName = $actionName;
-		$this->parameters = $parameters;
-		if (strpos($actionName, 'action') === 0) {
-			$cutName = substr($actionName, strlen('action'));
-		} else {
-			$cutName = $actionName;
-		}
-		$this->actionNameShort = strtolower(substr($cutName, 0, 1)) . substr($cutName, 1);
-		$this->optionalParameterCount = 0;
-		foreach ($this->parameters as $parm) {
-			/* @var $parm ActionParameter */
-			if ($parm->optional) {
-				$this->optionalParameterCount++;
-			}
-		}
+		$this->app = $app;
+		$this->model = $this->app->model;
+		$this->controller = $this->app->controller;
 	}
-	public function isMagic()
+	public function getActionName()
 	{
-		return substr($this->actionName, 6, 2) == '__';
+		$parts = explode('\\', get_called_class());
+		return lcfirst(array_pop($parts));
 	}
+	public function run() {}
 }
