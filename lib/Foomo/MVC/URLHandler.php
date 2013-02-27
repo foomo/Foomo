@@ -297,7 +297,11 @@ class URLHandler {
 		$i = 0;
 		foreach ($controllerAction->parameters as $parameter) {
 			/* @var $parameter Controller\ActionParameter */
-			$parameters[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
+			if(isset($cleanParts[$i])) {
+				$parameters[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
+			} else {
+				break;
+			}
 			$i ++;
 		}
 		return $parameters;
