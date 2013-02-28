@@ -140,6 +140,9 @@ class MVC
 		$exception = null;
 		try {
 			$handler->control($app);
+			if($app->controller->model != $app->model) {
+				$app->model = $app->controller->model;
+			}
 		} catch (\Exception $exception) {
 			// trigger_error($exception->getMessage());
 		}
