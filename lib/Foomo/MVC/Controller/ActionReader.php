@@ -99,9 +99,13 @@ class ActionReader {
 		foreach(AutoLoader::getClassMap() as $className => $filename) {
 			$classParts = explode('\\', $className);
 			if(count($classParts) == $expectedDepth && strpos($className, $classMatchComparisonBase) === 0) {
-				$classRefl = new ReflectionClass($className);
-				if($classRefl->isSubclassOf('Foomo\\MVC\\Controller\\AbstractAction') && !$classRefl->isAbstract()) {
-					$controllerClasses[] = $className;
+				try {
+					$classRefl = new ReflectionClass($className);
+					if($classRefl->isSubclassOf('Foomo\\MVC\\Controller\\AbstractAction') && !$classRefl->isAbstract()) {
+						$controllerClasses[] = $className;
+					}
+				} catch(\ReflectionException $e) {
+					trigger_error('there are action classes missing - you have to reset the autoloader', E_WARNING);
 				}
 			}
 		}
