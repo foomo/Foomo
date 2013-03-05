@@ -53,9 +53,4 @@ class AbstractAction {
 		$parts = explode('\\', get_called_class());
 		return lcfirst(array_pop($parts));
 	}
-
-	/**
-	 * override this one
-	 */
-	public function run() {}
 }
