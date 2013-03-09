@@ -38,9 +38,9 @@ class Expr {
 	/**
 	 * groups supplied expressions with logical AND operator
 	 *
-	 * @param Foomo\Cache\Persistence\Expr $expr1, $expr2, .. arbitrary length sequence of expressions to logically and
+	 * @param \Foomo\Cache\Persistence\Expr $expr1, $expr2, .. arbitrary length sequence of expressions to logically and
 	 *
-	 * @return Foomo\Cache\Persistence\Expr the expression containing logically ANDed grouped expression
+	 * @return \Foomo\Cache\Persistence\Expr the expression containing logically ANDed grouped expression
 	 */
 	public static function groupAnd()
 	{
@@ -51,9 +51,9 @@ class Expr {
 	/**
 	 * groups supplied expressions with logical OR operator
 	 *
-	 * @param Foomo\Cache\Persistence\Expr $expr1, $expr2, .. arbitrary length sequence of expressions to logically or
+	 * @param \Foomo\Cache\Persistence\Expr $expr1, $expr2, .. arbitrary length sequence of expressions to logically or
 	 *
-	 * @return Foomo\Cache\Persistence\Expr the expression containing logically ORed grouped expression
+	 * @return \Foomo\Cache\Persistence\Expr the expression containing logically ORed grouped expression
 	 */
 	public static function groupOr()
 	{
@@ -66,9 +66,9 @@ class Expr {
 	 *
 	 * @param string $id
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function idEq($id)
 	{
@@ -83,9 +83,9 @@ class Expr {
 	 *
 	 * @param string $id
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function idNe($id)
 	{
@@ -101,7 +101,7 @@ class Expr {
 	 * @param string $propertyName
 	 * @param mixed $paramValue
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function propEq($paramName, $paramValue)
 	{
@@ -115,7 +115,7 @@ class Expr {
 	 * @param string $propertyName
 	 * @param mixed $paramValue
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function propNe($paramName, $paramValue)
 	{
@@ -128,7 +128,7 @@ class Expr {
 	 *
 	 * @param array $properties assoc array propName => propValue
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function propsEq($properties)
 	{
@@ -142,7 +142,7 @@ class Expr {
 	/**
 	 * status is valid expression
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function statusValid()
 	{
@@ -153,7 +153,7 @@ class Expr {
 	/**
 	 * status is invalid expression
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function statusInvalid()
 	{
@@ -167,7 +167,7 @@ class Expr {
 	 * @param string $cache 'fast' to check the expiration in fast cache,
 	 * default is 'queryable' cache
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function isExpired($cache = 'queryable')
 	{
@@ -181,7 +181,7 @@ class Expr {
 	 * @param string $cache 'fast' to check the expiration in fast cache,
 	 * default is 'queryable' cache
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 */
 	public static function isNotExpired($cache = 'queryable')
 	{
@@ -194,9 +194,9 @@ class Expr {
 	 *
 	 * @param integer $timestamp
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function createdBefore($timestamp)
 	{
@@ -212,9 +212,9 @@ class Expr {
 	 *
 	 * @param integer $timestamp
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function createdAfter($timestamp)
 	{
@@ -231,9 +231,9 @@ class Expr {
 	 *
 	 * @param string $cache 'fast' to check fast cache, default is 'queryable' cache
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function hitsMoreThan($hits, $cache = 'queryable')
 	{
@@ -250,9 +250,9 @@ class Expr {
 	 *
 	 * @param string $cache 'fast' to check fast cache, default is 'queryable' cache
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function hitsLessThan($hits, $cache = 'queryable')
 	{
@@ -269,9 +269,9 @@ class Expr {
 	 *
 	 * @param string $cache 'fast' to check fast cache, default is 'queryable' cache
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function expirationAfter($expirationTime, $cache = 'queryable')
 	{
@@ -287,9 +287,9 @@ class Expr {
 	 * @param integer $expirationTime timestamp
 	 * @param string $cache 'fast' to check fast cache, default is 'queryable' cache
 	 *
-	 * @return Foomo\Cache\Persistence\Expr
+	 * @return \Foomo\Cache\Persistence\Expr
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function expirationBefore($expirationTime, $cache = 'queryable')
 	{
