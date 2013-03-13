@@ -240,6 +240,7 @@ class URLHandler {
 			if(self::$exposeClassId) {
 				$this->path .= '/' . urlencode($classId);
 			}
+
 			if(count($cleanParts) > 1) {
 				foreach ($this->loadClass($app->controller) as $controllerAction) {
 					/* @var $controllerAction Controller\Action */
@@ -252,22 +253,25 @@ class URLHandler {
 						$rawParameters = array_slice($cleanParts, 2);
 						self::padParameters($controllerAction, $rawParameters, $alternativeSource);
 						// does the parameter count match?
-						if(self::$strictParameterHandling && (count($rawParameters) < count($controllerAction->parameters) - $controllerAction->optionalParameterCount)) {
+						$parameterCount = count($controllerAction->parameters);
+						if(self::$strictParameterHandling && (count($rawParameters) < $parameterCount - $controllerAction->optionalParameterCount)) {
 							// if the action was right, but the parameters were not,
 							// => a 404
+
 							break;
 						}
 						// sanitize input
 						$parameters = self::sanitizeInput($controllerAction, $rawParameters);
-						$this->path .= '/' . $controllerAction->actionNameShort . self::renderPathParameters($rawParameters);
+
+						$this->path .= '/' . $controllerAction->actionNameShort . self::renderPathParameters($rawParameters, $parameterCount);
 						$action = $controllerAction->actionName;
 						$class = $controllerAction->controllerName;
+
 						break;
 					}
 				}
 			}
 		}
-
 		if(empty($action)) {
 			$action = $this->get404Action($app);
 			// @todo what is with the path
@@ -330,13 +334,18 @@ class URLHandler {
 
 	/**
 	 * @param array $cleanParts
+	 * @param integer $parameterCount
 	 *
 	 * @return string
 	 */
-	protected static function renderPathParameters(array $cleanParts)
+	protected static function renderPathParameters(array $cleanParts, $parameterCount)
 	{
 		$parameters = '';
+		$i = 0;
 		foreach ($cleanParts as $parameter) {
+			if($i == $parameterCount) {
+				break;
+			}
 			/* @var $parameter Controller\ActionParameter */
 			switch (true) {
 				case is_scalar($parameter):
@@ -350,6 +359,7 @@ class URLHandler {
 				default:
 					trigger_error('how should I press that to a path');
 			}
+			$i++;
 		}
 		return $parameters;
 
