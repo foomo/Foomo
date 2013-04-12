@@ -289,7 +289,8 @@ class CliCall
 	 *
 	 * @param string $cmd name or abolute path of the command, if the program file does not exist, we will call which to find it
 	 * @param array $arguments array of arguments
-	 * @param array $envVars array('varName' => value, ...)
+	 * @param array $envVars array('varName' => value, ...), if you set this parameter, then this will be used as
+	 *       environment for the spawned process and no value will be taken from the php process environment (e.g. PATH)
 	 *
 	 * @return \Foomo\CliCall
 	 */
@@ -298,7 +299,7 @@ class CliCall
 		$args = func_get_args();
 		$cmd = $args[0];
 		$arguments = self::extractOptionalArg($args, 1, array());
-		$envVars = self::extractOptionalArg($args, 2, array());
+		$envVars = self::extractOptionalArg($args, 2, null);
 		return new self($cmd, $arguments, $envVars);
 	}
 	protected static function extractOptionalArg($argArray, $index, $default)
