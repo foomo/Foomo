@@ -208,6 +208,10 @@ class URLHandler {
 		if(is_null($uri)) {
 			$uri = $_SERVER['REQUEST_URI'];
 		}
+		$queryPos = strpos($uri, '?');
+		if($queryPos !== false) {
+			$uri = substr($uri, 0, $queryPos);
+		}
 		if(!isset($this->baseURL)) {
 			$this->baseURL = MVC::getBaseUrl();
 		}
