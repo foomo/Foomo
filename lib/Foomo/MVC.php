@@ -40,6 +40,7 @@ use ReflectionClass;
 class MVC
 {
 	private static $level = 0;
+    private static $aborted = false;
 	public static $handlers = array();
 	private static $pathArray = array();
 	/**
@@ -64,6 +65,20 @@ class MVC
 	public static $catchingViews = false;
 
 	/**
+	 * hide whatever php from the path
+	 * @var bool
+	 */
+	protected static $hideScript = false;
+	/**
+	 * @param bool $hide
+	 */
+	public static function hideScript($hide)
+	{
+		self::$hideScript = (bool) $hide;
+	}
+
+
+	/**
 	 * run an MVC application
 	 *
 	 * @param mixed $app name or application instance
@@ -73,21 +88,18 @@ class MVC
 	 * 
 	 * @return string
 	 */
-	public static function run($app, $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
+	public static function run($app, $baseURL = null, $forceBaseURL = false, $forceNoHTMLDocument = false)
 	{
+        //Timer::start(__METHOD__);
+        self::$aborted = false;
 		// set up the application
 
 		if (is_string($app)) {
 			$app = new $app;
 		}
 
-		self::$level++;
-
-
 		// set up the url handler and pass it the application id (still can be ovewwritten by the controller id)
-
-
-		$handler = new URLHandler($app, self::getBaseUrl($baseURL, $forceBaseURL));
+		$handler = self::prepare($app, $baseURL, $forceBaseURL);
 
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
 
@@ -99,14 +111,51 @@ class MVC
 
 		self::$handlers[$handlerKey] = $handler;
 
+		$exception = self::execute($app, $handler);
 
+        $ret = null;
+        if(!self::$aborted) {
+			$ret = self::render($app, $handler, $exception, $forceNoHTMLDocument);
+            Logger::transactionComplete($transActionName);
+        } else {
+            Logger::transactionComplete($transActionName, 'mvc aborted');
+        }
+        //Timer::stop(__METHOD__);
+        return $ret;
+	}
+
+	public static function prepare($app, $baseURL=null, $forceBaseURL=false, $urlHandlerClass = 'Foomo\\MVC\\URLHandler')
+	{
+		// set up the url handler and pass it the application id (still can be ovewwritten by the controller id)
+		$handler = new $urlHandlerClass($app, self::getBaseUrl($baseURL, $forceBaseURL));
+		self::$pathArray[] = $handler->getControllerId();
+		// we need those to redirect stuff
+		$handlerKey = '/' . implode('/', self::$pathArray);
+		self::$handlers[$handlerKey] = $handler;
+		return $handler;
+	}
+
+	public static function execute($app, $handler)
+	{
+		$exception = null;
 		try {
 			$handler->control($app);
-			$template = self::getViewTemplate(get_class($app), $handler->lastAction);
-			$exception = null;
+			if($app->controller->model != $app->model) {
+				$app->model = $app->controller->model;
+			}
 		} catch (\Exception $exception) {
-			trigger_error($exception->getMessage());
+			// trigger_error($exception->getMessage());
+		}
+		return $exception;
+	}
+
+	public static function render($app, $handler, $exception, $forceNoHTMLDocument = false)
+	{
+		self::$level++;
+		if(!is_null($exception)) {
 			$template = self::getExceptionTemplate(get_class($app));
+		} else {
+			$template = self::getViewTemplate(get_class($app), $handler->lastAction);
 		}
 		$view = new MVCView($app, $handler, $template, $exception);
 		$app->view = $view;
@@ -121,9 +170,7 @@ class MVC
 				self::$caughtViews[$viewPath] = array('view' => 'empty', 'partials' => array());
 			}
 		}
-
 		$rendering = $view->render();
-
 		if (self::$catchingViews) {
 			self::$caughtViews[$viewPath]['view'] = $rendering;
 		}
@@ -145,8 +192,19 @@ class MVC
 			self::$level--;
 			$ret = $rendering;
 		}
-		Logger::transactionComplete($transActionName);
 		return $ret;
+	}
+	public static function runAction($app, $action, $parameters = array(), $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
+	{
+		try {
+			$action = 'action' . ucfirst($action);
+			call_user_func_array(array($app->controller, $action), $parameters);
+			$template = self::getViewTemplate(get_class($app), $action);
+			$exception = null;
+		} catch (\Exception $exception) {
+			trigger_error($exception->getMessage());
+			$template = self::getExceptionTemplate(get_class($app));
+		}
 	}
 
 	private static function getViewCatchingPath()
@@ -199,14 +257,24 @@ class MVC
 			return $baseURL;
 		} else if (count(MVCView::$viewStack) > 0) {
 			return MVCView::$viewStack[count(MVCView::$viewStack) - 1]->path;
-		} else if (!$baseURL) {
-			$baseURL = $_SERVER['SCRIPT_NAME'];
+		} else if (is_null($baseURL)) {
+			if(strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0 || !self::$hideScript) {
+				return $_SERVER['SCRIPT_NAME'];
+			} else if(strpos($_SERVER['REQUEST_URI'], dirname($_SERVER['SCRIPT_NAME'])) === 0 && self::$hideScript) {
+				return dirname($_SERVER['SCRIPT_NAME']);
+			} else {
+				return '';
+			}
+		} else if(!is_null($baseURL)) {
+			return $baseURL;
+		} else {
+			return '';
 		}
-		return $baseURL;
 	}
 
 	public static function abort()
 	{
+        self::$aborted = true;
 		while (ob_get_level() > 0) {
 			ob_end_clean();
 		}
@@ -373,7 +441,7 @@ class MVC
 	/**
 	 * get the current handler from the stack
 	 *
-	 * @return Foomo\MVC\URLHandler
+	 * @return \Foomo\MVC\URLHandler
 	 */
 	public static function getCurrentURLHandler()
 	{

@@ -18,7 +18,7 @@
  */
 
 namespace Foomo;
- 
+  
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt

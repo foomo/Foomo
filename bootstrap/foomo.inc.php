@@ -19,7 +19,7 @@
 
 /**
  * foomo bootstrap - this is not a config file ;)
- * 
+ *
  * DO NOT EDIT IT !!!
  *
  */
@@ -45,6 +45,7 @@ define('Foomo\\ROOT', realpath(dirname(__DIR__)));
 include_once(ROOT . '/lib/Foomo/Timer.php');
 
 Timer::addMarker('lets go');
+Timer::start('foomo bootstrap');
 
 include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
 
@@ -52,7 +53,7 @@ include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
 include_once(ROOT . '/lib/Foomo/AutoLoader.php');
 include_once(ROOT . '/lib/Foomo/Log/Logger.php');
 include_once(ROOT . '/lib/Foomo/Utils.php');
-include_once(ROOT . '/lib/Foomo/Reflection/addendum-0.4.0/annotations.php');
+if (!class_exists('Annotation')) include_once(ROOT . '/lib/Foomo/Reflection/addendum-0.4.0/annotations.php');
 include_once(ROOT . '/lib/Foomo/Config/AbstractConfig.php');
 include_once(ROOT . '/lib/Foomo/Core/DomainConfig.php');
 include_once(ROOT . '/lib/Foomo/Config.php');
@@ -98,7 +99,7 @@ try {
 	Config::init();
 	//bootstrap the Foomo\Cache\Manager
 	Cache\Manager::bootstrap();
-	
+
 	// start the configuration
 	Timer::addMarker('cache is set up');
 	if (
@@ -109,7 +110,7 @@ try {
 			)
 	) {
 		define('Foomo\\ROOT_HTTP', dirname($_SERVER['PHP_SELF']));
-		
+
 		Setup::checkCoreConfigResources();
 		Setup::generateShell();
 		trigger_error('entering setup / hickup');
@@ -130,7 +131,7 @@ try {
 } catch(Exception $e) {
 	$setupScript = realpath(\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . \Module::NAME . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'setup.php');
 	if(realpath($_SERVER['SCRIPT_FILENAME']) != $setupScript) {
-		
+
 		$setupLink = '/r/setup.php';
 		$hiccupLink = '/r/hiccup.php';
 
@@ -151,5 +152,5 @@ try {
 		Setup::generateShell();
 	}
 }
-
+Timer::stop('foomo bootstrap');
 Timer::addMarker('done in ' . (basename(__FILE__)));

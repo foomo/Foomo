@@ -107,7 +107,8 @@ class FileGCTest extends \PHPUnit_Framework_TestCase
 	public function testNonRecursive()
 	{
 		sleep(2);
-		$gc = $this->getGC()->maxAge(1)->recursive(false)->run();
+		clearstatcache();
+		$this->getGC()->maxAge(1)->recursive(false)->run();
 		$structure = $this->getTestStructure();
 		foreach($structure['files'] as $name) {
 			$this->assertFileNotExists($this->getTestRootDir() . DIRECTORY_SEPARATOR . $structure['name'] . DIRECTORY_SEPARATOR . $name);

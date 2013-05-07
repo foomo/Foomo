@@ -216,7 +216,7 @@ class Fs extends \Foomo\Modules\Resource
 	/**
 	 * @param string $type
 	 * @param string $fileName
-	 * @return Foomo\Modules\Resource\Fs
+	 * @return \Foomo\Modules\Resource\Fs
 	 */
 	public static function getAbsoluteResource($type, $fileName)
 	{
@@ -230,7 +230,7 @@ class Fs extends \Foomo\Modules\Resource
 	 * @param string $relFilename relative filename
 	 * @param string $module name of the module
 	 * 
-	 * @return Foomo\Modules\Resource\Fs
+	 * @return \Foomo\Modules\Resource\Fs
 	 */
 	public static function getVarResource($type, $relFilename, $module = 'Foomo')
 	{
@@ -243,7 +243,7 @@ class Fs extends \Foomo\Modules\Resource
 	 * @param string $relFilename relative filename
 	 * @param string $module name of the module
 	 * 
-	 * @return Foomo\Modules\Resource\Fs
+	 * @return \Foomo\Modules\Resource\Fs
 	 */
 	public static function getTempResource($type, $relFilename, $module = 'Foomo')
 	{
@@ -259,7 +259,7 @@ class Fs extends \Foomo\Modules\Resource
 	 * @param string $module name of the module
 	 * @param string $relFileName
 	 *
-	 * @return Foomo\Modules\Resource\Fs
+	 * @return \Foomo\Modules\Resource\Fs
 	 */
 	public static function getModuleHtdocsVarResource($type, $module, $relFileName)
 	{
@@ -273,7 +273,7 @@ class Fs extends \Foomo\Modules\Resource
 	 * @param string $relFilename relative filename
 	 * @param string $module name of the module
 	 *
-	 * @return Foomo\Modules\Resource\Fs
+	 * @return \Foomo\Modules\Resource\Fs
 	 */
 	public static function getLogResource($type, $relFilename, $module = 'Foomo') // $module = \Foomo\Module::NAME
 	{
@@ -286,7 +286,7 @@ class Fs extends \Foomo\Modules\Resource
 	 * @param string $type one of self::TYPE_...
 	 * @param string $relFilename relative filename
 	 *
-	 * @return Foomo\Modules\Resource\Fs
+	 * @return \Foomo\Modules\Resource\Fs
 	 */
 	public static function getCacheResource($type, $relFilename)
 	{

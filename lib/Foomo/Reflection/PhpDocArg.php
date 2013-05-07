@@ -46,5 +46,12 @@ class PhpDocArg {
 		$this->type = $type;
 		$this->comment = $comment;
 	}
-
+    public function isArrayOf()
+    {
+        return strpos($this->type, '[]') !== false;
+    }
+    public function getPlainType()
+    {
+        return str_replace('[]', '', $this->type);
+    }
 }

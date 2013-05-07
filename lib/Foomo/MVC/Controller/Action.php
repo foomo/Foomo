@@ -21,7 +21,8 @@ namespace Foomo\MVC\Controller;
 
 /**
  * class describing a reflectoed method on a controller or class in general
- * 
+ *
+ * @internal
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -63,11 +64,14 @@ class Action {
 		$this->actionNameShort = strtolower(substr($cutName, 0, 1)) . substr($cutName, 1);
 		$this->optionalParameterCount = 0;
 		foreach ($this->parameters as $parm) {
-			/* @var $parm Foomo\MVC\Controller\ActionParameter */
+			/* @var $parm ActionParameter */
 			if ($parm->optional) {
 				$this->optionalParameterCount++;
 			}
 		}
 	}
-
+	public function isMagic()
+	{
+		return substr($this->actionName, 6, 2) == '__';
+	}
 }

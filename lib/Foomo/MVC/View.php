@@ -99,9 +99,9 @@ class View extends \Foomo\View
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param Foomo\MVC\AbstractApp $app
-	 * @param Foomo\MVC\URLHandler $handler
-	 * @param Foomo\Template $template
+	 * @param \Foomo\MVC\AbstractApp $app
+	 * @param \Foomo\MVC\URLHandler $handler
+	 * @param \Foomo\Template $template
 	 * @param \Exception $exception
 	 */
 	public function __construct(AbstractApp $app, URLHandler $handler, Template $template, \Exception $exception=null)
@@ -153,12 +153,7 @@ class View extends \Foomo\View
 	public function link($linkText, $methodName='default', array $parameters=array(), array $attributes=array())
 	{
 		$attributes = array_merge(array('target' => '_self'), $attributes);
-		$methodMatch = ($this->currentAction == $methodName || $this->currentAction == 'action' . ucfirst($methodName));
 		$ret = '<a';
-		if ($methodMatch && $this->parameterMatch($parameters, $this->currentParameters)) {
-			// @todo what fckin*** attribute is it
-			// $ret .= ' active';
-		}
 		$ret .= ' href="' . \htmlspecialchars($this->url($methodName, $parameters)) . '"';
 		foreach ($attributes as $name => $value) $ret .= ' ' . $name . '="' . \htmlspecialchars($value) . '"';
 		$ret .= '>' . $this->escape($linkText) . '</a>';

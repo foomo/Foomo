@@ -33,7 +33,7 @@ class PhpDocEntry {
 	 */
 	public $namespace;
 	/**
-	 * @var Foomo\Reflection\PhpDocArg
+	 * @var \Foomo\Reflection\PhpDocArg
 	 */
 	public $var;
 	/**
@@ -41,19 +41,19 @@ class PhpDocEntry {
 	 */
 	public $properties = array();
 	/**
-	 * @var Foomo\Reflection\PhpDocArg[]
+	 * @var \Foomo\Reflection\PhpDocArg[]
 	 */
 	public $parameters = array();
 	/**
-	 * @var Foomo\Reflection\PhpDocArg
+	 * @var \Foomo\Reflection\PhpDocArg
 	 */
 	public $return;
 	/**
-	 * @var Foomo\Reflection\PhpDocArg[]
+	 * @var \Foomo\Reflection\PhpDocArg[]
 	 */
 	public $throws = array();
 	/**
-	 * @var Foomo\Reflection\PhpDocArg[]
+	 * @var \Foomo\Reflection\PhpDocArg[]
 	 */
 	public $serviceMessage = array();
 	/**

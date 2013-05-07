@@ -208,10 +208,12 @@ class Find extends \Foomo\CliCall
 	 * create a call
 	 *
 	 * @param string $sources
+	 *
 	 * @return \Foomo\CliCall\Find
 	 */
-	public static function create($sources)
+	public static function create()
 	{
+		$sources = func_get_arg(0);
 		return new self($sources);
 	}
 }
