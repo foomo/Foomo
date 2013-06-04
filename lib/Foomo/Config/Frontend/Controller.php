@@ -113,7 +113,7 @@ class Controller {
 		$conf = $this->getConfClassInst($domain);
 		$conf->setValue(Yaml::parse($yaml));
 		Config::setConf($conf, $module, $subDomain, $yaml);
-		MVC::redirect('showConf', array($module, $domain, $subDomain));
+		MVC::redirect('showConf', array($module, $domain, $subDomain, 'config set'));
 	}
 
 	private function getConfClassInst($domain)
