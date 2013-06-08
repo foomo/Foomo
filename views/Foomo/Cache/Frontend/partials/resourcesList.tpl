@@ -1,4 +1,3 @@
-
 <?
 	foreach ($resources as $resource):
 		 $valid = ($resource->status == \Foomo\Cache\CacheResource::STATUS_VALID) || ($resource->expirationTime < \time());
@@ -93,7 +92,7 @@
 					
 					<h2>Value</h2>
 					<div class="greyBox">
-					<?= var_dump($resource->value) ?>
+					<?= htmlspecialchars(var_export($resource->value, true), ENT_QUOTES) ?>
 					</div>
 					
 				</div>

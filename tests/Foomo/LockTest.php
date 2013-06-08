@@ -38,7 +38,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 	public function testGetLock() {
 		$lockName1 = 'testLock1';
 		$lockName2 = 'testLock2';
-		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = true);
+		$lockObtained = \Foomo\Lock::lockResource($lockName1, $blocking = true);
 		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
 
 		//issue another process
@@ -46,7 +46,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertFalse($sucess != 'false', 'should not be able to obtain second lock');
 
-		$lockReleased = \Foomo\Lock::release($lockName1);
+		$lockReleased = \Foomo\Lock::releaseResource($lockName1);
 		$this->assertTrue($lockReleased);
 
 		// after the release it should work
@@ -57,7 +57,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 
 	public function testLockAge() {
 		$lockName1 = 'testLock1';
-		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = false);
+		$lockObtained = \Foomo\Lock::lockResource($lockName1, $blocking = false);
 		sleep(3);
 		$lockInfo = \Foomo\Lock::getLockInfo($lockName1);
 		$this->assertEquals(3, $lockInfo['lock_age']);
@@ -66,7 +66,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 	public function testGetInfo() {
 		//get a lock from this process
 		$lockName1 = 'testLock1';
-		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = true);
+		$lockObtained = \Foomo\Lock::lockResource($lockName1, $blocking = true);
 		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
 		$info = \Foomo\Lock::getLockInfo($lockName1);
 		$this->assertTrue($info['is_locked'], 'should be locked after lock call');
@@ -74,7 +74,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 		$this->assertLessThanOrEqual(5, $info['lock_age']);
 
 		//release and lock from another process
-		\Foomo\Lock::release($lockName1);
+		\Foomo\Lock::releaseResource($lockName1);
 		
 		//start second process but do not wait for return!
 		

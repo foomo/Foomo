@@ -260,8 +260,8 @@ class MVC
 		} else if (is_null($baseURL)) {
 			if(strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0 || !self::$hideScript) {
 				return $_SERVER['SCRIPT_NAME'];
-			} else if(strpos($_SERVER['REQUEST_URI'], dirname($_SERVER['SCRIPT_NAME'])) === 0 && self::$hideScript) {
-				return dirname($_SERVER['SCRIPT_NAME']);
+//			} else if(strpos($_SERVER['REQUEST_URI'], dirname($_SERVER['SCRIPT_NAME'])) === 0 && self::$hideScript) {
+//				return dirname($_SERVER['SCRIPT_NAME']);
 			} else {
 				return '';
 			}
