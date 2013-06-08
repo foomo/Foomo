@@ -53,7 +53,7 @@ class Reader implements \Iterator {
 	/**
 	 * current entry
 	 *
-	 * @return Foomo\Log\Entry
+	 * @return \Foomo\Log\Entry
 	 */
 	public function current()
 	{
@@ -113,7 +113,6 @@ class Reader implements \Iterator {
 	 */
 	private function extractLogEntryFromLine($line)
 	{
-		$rawLine = $line;
 		$line = trim($line);
 		if (substr($line, -1) == self::HTTP_EMPTY) {
 			// is there one
@@ -128,7 +127,11 @@ class Reader implements \Iterator {
 			}
 			$rawEntry = \base64_decode($rawEntry);
 			if(function_exists('gzinflate')) {
-				$rawEntry = gzinflate($rawEntry);
+				try {
+					$rawEntry = gzinflate($rawEntry);
+				} catch(\Exception $e) {
+					$rawEntry = '';
+				}
 			}
 			$entry = \unserialize($rawEntry);
 			if ($entry !== false && is_object($entry) && $entry instanceof Entry) {

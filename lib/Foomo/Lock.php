@@ -7,6 +7,8 @@ namespace Foomo;
  */
 class Lock {
 
+	//this allows us to have lock() to be interpreted as a function in php 5.3.2 and not a constructor
+	private function __construct() {}
 	public static $lockHandles = array();
 
 	/**
@@ -16,7 +18,7 @@ class Lock {
 	 * $param object $lockData whatever payload you might want to serialize into the lock file for latter use
 	 * @return boolean 
 	 */
-	public static function lockResource($lockName, $blocking = true, $lockData = null) {
+	public static function lock($lockName, $blocking = true, $lockData = null) {
 		$lockFileHandle = self::getLockHandle($lockName);
 		if (!$lockFileHandle) {
 			return false;
@@ -41,7 +43,7 @@ class Lock {
 	 * release. end the synchronization block
 	 * @param type $lockName 
 	 */
-	public static function releaseResource($lockName) {
+	public static function release($lockName) {
 		$lockFileHandle = false;
 		if (isset(self::$lockHandles[$lockName])) {
 			$lockFileHandle = self::$lockHandles[$lockName];
@@ -76,6 +78,29 @@ class Lock {
 		$info['lockData'] = $lockFileContents['lockData'];
 		$info['lock_age'] = ($lockFileContents['timestamp'] !== false && $info['is_locked'] === true) ? time() - intval($lockFileContents['timestamp']) : false;
 		return $info;
+	}
+	
+	/**
+	 * check if locked
+	 * @param string $lockName
+	 * @return boolean
+	 */
+	public static function isLocked($lockName) {
+		if (self::isLockedByCaller($lockName) === true) {
+			return true;
+		} else {
+			//check if somebody else has it
+			$canGetLock = self::lock($lockName, $blocking = false);
+			if($canGetLock) {
+				self::release($lockName);
+			}
+
+			if ($canGetLock) {
+				return false;
+			} else {
+				return true;
+			}
+		}
 	}
 
 	private static function getLockFileContents($lockName) {
@@ -124,21 +149,7 @@ class Lock {
 		return isset(self::$lockHandles[$lockName]);
 	}
 
-	private static function isLocked($lockName) {
-		if (self::isLockedByCaller($lockName) === true) {
-			return true;
-		} else {
-			//check if somebody else has it
-			$canGetLock = self::lockResource($lockName, $blocking = false);
-			self::releaseResource($lockName);
-
-			if ($canGetLock) {
-				return false;
-			} else {
-				return true;
-			}
-		}
-	}
+	
 
 	private static function insertLockData($lockContentsFile, $lockData = null) {
 		$data = array(

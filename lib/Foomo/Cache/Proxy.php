@@ -142,11 +142,7 @@ class Proxy {
 								\trigger_error(__CLASS__ . __METHOD__ . ": argument " . $paramRefl->name . " of " . $resource->sourceClass . "/" . $resource->sourceMethod . " MUST NOT BE array! " . $paramRefl->type . " expected");
 							}
 						} else if (\is_double($arguments[$argCounter])) {
-							if ($paramRefl->type != 'double') {
-								\trigger_error(__CLASS__ . __METHOD__ . ": argument " . $paramRefl->name . " of " . $resource->sourceClass . "/" . $resource->sourceMethod . " MUST NOT BE double! " . $paramRefl->type . " expected");
-							}
-						} else if (\is_float($arguments[$argCounter])) {
-							if ($paramRefl->type != 'float') {
+							if (!in_array($paramRefl->type, array('float', 'double'))) {
 								\trigger_error(__CLASS__ . __METHOD__ . ": argument " . $paramRefl->name . " of " . $resource->sourceClass . "/" . $resource->sourceMethod . " MUST NOT BE double! " . $paramRefl->type . " expected");
 							}
 						} else if (\is_long($arguments[$argCounter])) {
@@ -165,7 +161,6 @@ class Proxy {
 						}
 					}
 					$resource->properties[$paramRefl->name] = $arguments[$argCounter];
-
 				}
                 $resource->propertyTypes[$paramRefl->name] = $paramRefl->type;
 				$argCounter++;

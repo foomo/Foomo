@@ -56,8 +56,9 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 		if ($statement) {
 			$this->count = $statement->rowCount();
 			$this->currentRow = $this->pdoStatement->fetch(\PDO::FETCH_ASSOC, 0);
-			if ($this->currentRow)
+			if ($this->currentRow) {
 				$this->currentResource = PDOPersistor::rowToCacheResource($this->currentRow, $this->resourceName);
+			}
 			$this->cursor = 0;
 		} else {
 			$this->count = 0;
@@ -73,10 +74,8 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	public function current()
 	{
 		if ($this->pdoStatement && $this->count != 0) {
-
 			return $this->currentResource;
 		} else {
-
 			throw new \Exception('Accessing the value of an EmptyIterator');
 		}
 	}
@@ -85,20 +84,22 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	{
 		if ($this->pdoStatement && $this->count != 0) {
 			$this->currentRow = $this->pdoStatement->fetch(\PDO::FETCH_ASSOC);
-			if ($this->currentRow
-			)
+			if ($this->currentRow === false) {
+				$this->currentResource = null;
+			} else {
 				$this->currentResource = PDOPersistor::rowToCacheResource($this->currentRow, $this->resourceName);
-
+			}
 			$this->cursor++;
 		}
 	}
 
 	public function key()
 	{
-		if ($this->pdoStatement && $this->count != 0)
+		if ($this->pdoStatement && $this->count != 0) {
 			return $this->cursor;
-		else
+		} else {
 			throw new \Exception('Accessing the value of an EmptyIterator');
+		}
 	}
 
 	public function valid()

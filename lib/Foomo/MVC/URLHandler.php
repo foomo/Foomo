@@ -20,6 +20,7 @@
 namespace Foomo\MVC;
 
 use Foomo\MVC;
+use Foomo\Timer;
 
 /**
  * handle urls for MVC
@@ -35,7 +36,17 @@ class URLHandler {
 	 * @var array
 	 */
 	public static $rawCurrentCallData;
-
+	/**
+	 * expose the class id in the url
+	 *
+	 * @var bool
+	 */
+	protected static $exposeClassId = true;
+	/**
+	 * if set to true missing parameters will not be padded - you will get a 404
+	 * @var bool
+	 */
+	protected static $strictParameterHandling = false;
 	/**
 	 * @var array
 	 */
@@ -97,14 +108,40 @@ class URLHandler {
 		} else {
 			self::$instanceCounter[$this->controllerClassName]++;
 		}
-		//var_dump(self::$instanceCounter);
 	}
 
 	public static function resetInstanceCounter()
 	{
 		self::$instanceCounter = array();
 	}
+	/**
+	 * be strict about parameters or not
+	 *
+	 * @param bool $strict
+	 */
+	public static function strictParameterHandling($strict)
+	{
+		self::$strictParameterHandling = (bool) $strict;
+	}
+	/**
+	 * show the class id in urls
+	 *
+	 * @param bool $expose
+	 */
+	public static function exposeClassId($expose)
+	{
+		self::$exposeClassId = (bool) $expose;
+	}
 
+	/**
+	 * actions for the controller
+	 *
+	 * @param string $class
+	 *
+	 * @return Controller\Action[]
+	 *
+	 * @throws \InvalidArgumentException
+	 */
 	private function loadClass($class)
 	{
 		if (is_string($class)) {
@@ -133,8 +170,6 @@ class URLHandler {
 
 	/**
 	 * get the controller id
-	 *
-	 * @param string $className
 	 *
 	 * @return string get the instance name of my controller instance
 	 */
@@ -168,106 +203,218 @@ class URLHandler {
 		$handler = new self($app, $baseURL);
 		return $handler->getCallData($app, $uri);
 	}
-
-	public function getCallData(AbstractApp $app, $uri = null)
+	protected function getCallPath($uri = null)
 	{
 		if(is_null($uri)) {
 			$uri = $_SERVER['REQUEST_URI'];
 		}
-		if (!isset($this->baseURL)) {
+		if(!isset($this->baseURL)) {
 			$this->baseURL = MVC::getBaseUrl();
 		}
-		$controller = $app->controller;
-		$alternativeSource = $_REQUEST;
-		// load information about the
-		$controllerCache = $this->loadClass($controller);
-		$URI = substr($uri, strlen($this->baseURL) + 1);
-		$parts = explode('/', $URI);
-		$cleanParts = array();
-		foreach ($parts as $part) {
-			array_push($cleanParts, urldecode($part));
+		return substr($uri, strlen($this->baseURL) + 1);
+	}
+	public function getCallData(AbstractApp $app, $uri = null, array $alternativeSource = null)
+	{
+		if(is_null($alternativeSource)) {
+			$alternativeSource = $_REQUEST;
+		}
+
+		$cleanParts = self::urlDecodePath($this->getCallPath($uri));
+
+		$className = get_class($app->controller);
+		$this->path = $this->baseURL;
+
+		$action = '';
+		$parameters = array();
+		$classId = $this->getControllerId($className);
+
+		if(self::$exposeClassId) {
+			$classMatch = isset($cleanParts[0]) && ($cleanParts[0] == $className || $cleanParts[0] === $classId);
+		} else {
+			$classMatch = true;
+			$cleanParts = array_merge(array($classId), $cleanParts);
 		}
 		self::$rawCurrentCallData = $cleanParts;
-		$className = get_class($controller);
-		$this->path = $this->baseURL;
-		$id = $this->getControllerId(get_class($controller));
-
-		$action = 'actionDefault';
-		$parms = array();
-		if (isset($cleanParts[0]) && ($cleanParts[0] == $className || $cleanParts[0] === $id)) {
-			$this->path .= '/' . $id;
-			if (count($cleanParts) > 1) {
-				foreach ($controllerCache as $actionId => $controllerAction) {
+		$class = get_class($app->controller);
+;		if(self::$exposeClassId && $classMatch || !self::$exposeClassId) {
+			if(self::$exposeClassId) {
+				$this->path .= '/' . urlencode($classId);
+			}
+			if(count($cleanParts) > 1) {
+				foreach ($this->loadClass($app->controller) as $controllerAction) {
 					/* @var $controllerAction Controller\Action */
-					if ($this->isThisAction($cleanParts[1], $controllerAction)) {//strtolower($action->actionName) == strtolower($cleanParts[1]) || strtolower($actionId) == strtolower($cleanParts[1])) {
+					if(substr($cleanParts[1], 0, 2) == '__' || substr($cleanParts[1], 0, 8) == 'action__') {
+						// we are skipping magic stuff like 404s
+						continue;
+					}
+					if ($this->isThisAction($cleanParts[1], $controllerAction)) {
 						// readArgs
-						// try to pad
-						$this->path .= '/' . $cleanParts[1];
-						if (count($cleanParts) - 2 < count($controllerAction->parameters)) {
-							$parameterDiff = count($controllerAction->parameters) - (count($cleanParts) - 2);
-							$keys = array_keys($controllerAction->parameters);
-							for ($iParm = count($controllerAction->parameters) - $parameterDiff; $iParm < count($controllerAction->parameters); $iParm++) {
-								if (isset($alternativeSource[$keys[$iParm]])) {
-									array_push($cleanParts, $alternativeSource[$keys[$iParm]]);
-								} else {
-									array_push($cleanParts, null);
-								}
-							}
+						$rawParameters = array_slice($cleanParts, 2);
+						self::padParameters($controllerAction, $rawParameters, $alternativeSource);
+						// does the parameter count match?
+						if(self::$strictParameterHandling && (count($rawParameters) < count($controllerAction->parameters) - $controllerAction->optionalParameterCount)) {
+							// if the action was right, but the parameters were not,
+							// => a 404
+							break;
 						}
-						$parms = array();
-						$inputParmCount = count($cleanParts) - 2;
-						if ($inputParmCount >= $controllerAction->optionalParameterCount) {
-							$i = 1;
-							foreach ($controllerAction->parameters as $parameter) {
-								/* @var $parameter Controller\ActionParameter */
-								$i++;
-								if (!isset($cleanParts[$i])) {
-									$parms[] = null;
-									// break;
-								} else {
-									$parms[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
-									switch (true) {
-										case is_scalar($cleanParts[$i]):
-											$this->path .= '/' . urlencode($cleanParts[$i]);
-											break;
-										case is_array($cleanParts[$i]):
-										case is_object($cleanParts[$i]):
-											$this->path .= '/' . urlencode(serialize($cleanParts[$i]));
-											trigger_error('i will not be able to understand what i am doing here ;) ' . $this->path, E_USER_WARNING);
-											break;
-										default:
-											trigger_error('how should I press that to a url');
-									}
-								}
-							}
-						}
-
+						// sanitize input
+						$parameters = self::sanitizeInput($controllerAction, $rawParameters);
+						$this->path .= '/' . $controllerAction->actionNameShort . self::renderPathParameters($rawParameters);
 						$action = $controllerAction->actionName;
-
+						$class = $controllerAction->controllerName;
 						break;
 					}
 				}
 			}
 		}
+
+		if(empty($action)) {
+			$action = $this->get404Action($app);
+			// @todo what is with the path
+		}
+
 		$ret = array(
 			'instance' => self::$instanceCounter[$this->controllerClassName],
 			'instanceName' => $this->getControllerId(),
+			'class' => $class,
 			'action' => $action,
-			'parms' => $parms
+			'parms' => $parameters
 		);
 		return $ret;
 	}
+	private static function urlDecodePath($path)
+	{
+		$cleanParts = array();
+		$parts = explode('/', $path);
+		foreach ($parts as $part) {
+			array_push($cleanParts, urldecode($part));
+		}
+		return $cleanParts;
+	}
+	protected static function sanitizeInput(MVC\Controller\Action $controllerAction, &$cleanParts)
+	{
+		$parameters = array();
+		$i = 0;
+		foreach ($controllerAction->parameters as $parameter) {
+			/* @var $parameter Controller\ActionParameter */
+			if(isset($cleanParts[$i])) {
+				$parameters[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
+			} else {
+				break;
+			}
+			$i ++;
+		}
+		return $parameters;
 
+	}
+
+	/**
+	 * try to pad parameters from the alternative source
+	 *
+	 * @param Controller\Action $controllerAction
+	 * @param array $parameters
+	 * @param array $alternativeSource
+	 */
+	protected static function padParameters(MVC\Controller\Action $controllerAction, array &$parameters, array &$alternativeSource)
+	{
+		$parameterDiff = count($controllerAction->parameters) - count($parameters);
+		$keys = array_keys($controllerAction->parameters);
+		for ($iParm = count($controllerAction->parameters) - $parameterDiff; $iParm < count($controllerAction->parameters); $iParm++) {
+			if (isset($alternativeSource[$keys[$iParm]])) {
+				array_push($parameters, $alternativeSource[$keys[$iParm]]);
+			} else {
+				return;
+			}
+		}
+	}
+
+	/**
+	 * @param array $cleanParts
+	 *
+	 * @return string
+	 */
+	protected static function renderPathParameters(array $cleanParts)
+	{
+		$parameters = '';
+		foreach ($cleanParts as $parameter) {
+			/* @var $parameter Controller\ActionParameter */
+			switch (true) {
+				case is_scalar($parameter):
+					$parameters .= '/' . urlencode($parameter);
+					break;
+				case is_array($parameter):
+				case is_object($parameter):
+					$parameters .= '/' . urlencode(serialize($parameter));
+					trigger_error('i will not be able to understand what i am doing here ;) ', E_USER_WARNING);
+					break;
+				default:
+					trigger_error('how should I press that to a path');
+			}
+		}
+		return $parameters;
+
+	}
+	protected function get404Action($app)
+	{
+		$action404 = 'action__notFound';
+		if(is_callable(array($app->controller, $action404))) {
+			return $action404;
+		} else {
+			return 'actionDefault';
+		}
+	}
+
+	/**
+	 * is there an alternative one
+	 *
+	 * @param string $class
+	 * @param string $method
+	 *
+	 * @return Controller\Action
+	 */
+	protected function getAlternativeHandler($class, $method)
+	{
+		static $alternatives;
+		if(is_null($alternatives)) {
+			$alternatives = array();
+		}
+		$key = $class . $method;
+		if(!array_key_exists($key, $alternatives)) {
+			$alternatives[$key] = null;
+			foreach($this->loadClass($class) as $action) {
+				if($action->controllerName != $class && in_array($method, array($action->actionName, $action->actionNameShort))) {
+					$alternatives[$key] = $action;
+					break;
+				}
+			}
+		}
+		return $alternatives[$key];
+	}
+
+	protected function getAppControllerWithCallData(AbstractApp $app, $callData)
+	{
+		if(get_class($app->controller) == $callData['class']) {
+			return $app->controller;
+		} else {
+			$controllerClass = $callData['class'];
+			return new $controllerClass($app);
+		}
+	}
 	public function control(AbstractApp $app)
 	{
 		$callData = $this->getCallData($app);
-
-		if ($callData) {
-			$method = array($app->controller, $callData['action']);
+		if($callData) {
+			$appController = $this->getAppControllerWithCallData($app, $callData);
+			if($appController != $app->controller && $appController instanceof MVC\Controller\AbstractAction) {
+				$methodName = 'run';
+			} else {
+				$methodName = $callData['action'];
+			}
+			$method = array($appController, $methodName);
 			$this->lastAction = $callData['action'];
 			$this->lastParameters = $callData['parms'];
-			if (!is_callable($method)) {
-				if ($callData['action'] != 'actionDefault') {
+			if(!is_callable($method)) {
+				if($callData['action'] != 'actionDefault') {
 					trigger_error('can not call ' . $callData['action'], E_USER_WARNING);
 				}
 				return null;
@@ -317,29 +464,20 @@ class URLHandler {
 			// experimental deeplink
 			$ret = $this->baseURL . $methodName;
 		} else {
-			$classCache = $this->loadClass($className);
 			// strip "action" from the method name
 			if (strpos($methodName, 'action') === 0) {
 				$methodName = strtolower(substr($methodName, 6, 1)) . substr($methodName, 7);
 			}
-			// check if there is a short name on the controller
-			if (class_exists($className)) {
-				$className = $this->getControllerId($className);
-			}
+			// start with base
+			$ret = $this->baseURL;
 			// concatenate with the instance information
-			/*
-			  if(self::$instanceCounter[$this->controllerClassName] > 0) {
-			  $instanceSuffix = '-' . self::$instanceCounter[$this->controllerClassName];
-			  } else {
-			  $instanceSuffix = '';
-			  }
-			  $instanceSuffix = '';
-			  $classIdentifier = $className . $instanceSuffix;
-			 */
+			if(self::$exposeClassId) {
+				$ret .= '/' . urlencode($this->getControllerId());
+			}
 			// add the (stripped) method name
-			$ret = $this->baseURL . '/' . urlencode($classIdentifier = $this->getControllerId()) . '/' . urlencode($methodName);
-			// append paramters
+			 $ret .= '/' . urlencode($methodName);
 		}
+		// append paramters
 		foreach ($parameters as $parameter) {
 			$ret .= '/' . urlencode($parameter);
 		}
@@ -369,7 +507,7 @@ class URLHandler {
 		$ret = __CLASS__ . ' status ' . PHP_EOL;
 		$ret .= '  loaded classes' . PHP_EOL;
 		foreach ($this->cache as $className => $actions) {
-			/* @var $action RController\Action */
+			/* @var $action Controller\Action */
 			$ret .= '    ' . $className . PHP_EOL;
 			foreach ($actions as $actionId => $action) {
 				$ret .= '      ' . $actionId . ' => ' . $action->actionName . '(';

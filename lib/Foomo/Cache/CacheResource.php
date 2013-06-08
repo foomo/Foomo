@@ -155,7 +155,7 @@ class CacheResource {
 		$ret = array();
 		$methodRefl = new \ReflectionMethod($this->sourceClass, $this->sourceMethod);
 		/* @var $paramRefl \ReflectionParameter */
-		$phpDoc = new \Foomo\Reflection\PhpDocEntry($methodRefl->getDocComment());
+		$phpDoc = new \Foomo\Reflection\PhpDocEntry($methodRefl->getDocComment(), $methodRefl->getDeclaringClass()->getNamespaceName());
 		foreach ($methodRefl->getParameters() as $paramRefl) {
 			$propertyDef = new CacheResourcePropertyDefinition($paramRefl, $phpDoc);
 			$ret[$propertyDef->name] = $propertyDef;

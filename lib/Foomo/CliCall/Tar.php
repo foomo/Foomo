@@ -139,8 +139,8 @@ class Tar extends \Foomo\CliCall
 	 */
 	public function addDirectoryFiles($exclude=array('.', '..'))
 	{
-		if (is_null($this->dirname)) trigger_error('You need to call moveIntoDirectory() first', \E_USER_ERROR);
-		return $this->addArguments(\array_values(\array_diff(\scandir($this->dirname), $exclude)));
+		if (is_null($this->directory)) trigger_error('You need to call directory($directory) first', \E_USER_ERROR);
+		return $this->addArguments(\array_values(\array_diff(\scandir($this->directory), $exclude)));
 	}
 
 	//---------------------------------------------------------------------------------------------

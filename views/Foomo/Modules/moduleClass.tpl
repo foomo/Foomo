@@ -59,7 +59,7 @@ class Module extends \Foomo\Modules\ModuleBase
 	/**
 	 * get all the module resources
 	 *
-	 * @return Foomo\Modules\Resource[]
+	 * @return \Foomo\Modules\Resource[]
 	 */
 	public static function getResources()
 	{

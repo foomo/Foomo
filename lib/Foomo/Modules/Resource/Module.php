@@ -63,7 +63,7 @@ class Module extends \Foomo\Modules\Resource
 			if($this->resourceValid()) {
 				return 'Module ' . $this->name . ' is available in required version ' . $this->version;
 			} else {
-				return 'Module ' . $this->name . ' has to be version >= ' . $this->version .' but is only ' . \Foomo\Modules\Manager::getModuleVersion($this->name);
+				return 'Module ' . $this->name . ' has to be version >= ' . $this->version .'. Version ' . \Foomo\Modules\Manager::getModuleVersion($this->name) . ' is available and needs to be installed.';
 			}
 		} else {
 			return 'Module ' . $this->name . ' is not available';

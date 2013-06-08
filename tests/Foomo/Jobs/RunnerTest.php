@@ -21,6 +21,67 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status);
 	}
+	
+	public function testExecutionRuleValidation() {
+		$executionSecret = Utils::getExecutionSecret();
+		
+		try{
+			Mock\SleeperJob::create()->executionRule('* * * * *');
+		} catch (\Exception $e) {
+			
+		}
+		
+		try{
+			Mock\SleeperJob::create()->executionRule('61 * * * *');
+			$this->assertTrue('false', 'wrong param should have been detected');
+		} catch (\Exception $e) {
+			
+			$this->assertTrue($e instanceof \InvalidArgumentException, 'wrong type of exception');
+		}
+		
+		try{
+			Mock\SleeperJob::create()->executionRule('59,62 * * * *');
+			$this->assertTrue('false', 'wrong param should have been detected');
+		} catch (\Exception $e) {
+			
+			$this->assertTrue($e instanceof \InvalidArgumentException, 'wrong type of exception');
+		}
+
+		
+		try{
+			Mock\SleeperJob::create()->executionRule('* 25 * * *');
+			$this->assertTrue('false', 'wrong param should have been detected');
+		} catch (\Exception $e) {
+			
+			$this->assertTrue($e instanceof \InvalidArgumentException, 'wrong type of exception');
+		}
+
+
+		try{
+			Mock\SleeperJob::create()->executionRule('* * 32 * *');
+			$this->assertTrue('false', 'wrong param should have been detected');
+		} catch (\Exception $e) {
+			
+			$this->assertTrue($e instanceof \InvalidArgumentException, 'wrong type of exception');
+		}
+		
+		try{
+			Mock\SleeperJob::create()->executionRule('* * * 13 *');
+			$this->assertTrue('false', 'wrong param should have been detected');
+		} catch (\Exception $e) {
+			
+			$this->assertTrue($e instanceof \InvalidArgumentException, 'wrong type of exception');
+		}
+
+		try{
+			Mock\SleeperJob::create()->executionRule('* * * * 7');
+			$this->assertTrue('false', 'wrong param should have been detected');
+		} catch (\Exception $e) {
+			
+			$this->assertTrue($e instanceof \InvalidArgumentException, 'wrong type of exception');
+		}
+		
+	}
 
 	public function testSleeperJob() {
 		self::callAsync('SleeperJob');
@@ -69,6 +130,7 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertNotEquals(getmypid(), $status->pid, 'pid should differ');
 		$this->assertFalse($status->isLocked, 'should not be locked');
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now');
+		$this->assertEquals(JobStatus::ERROR_DIED, $status->errorCode);
 		
 	}
 	

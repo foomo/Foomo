@@ -1,0 +1,10 @@
+If you want to have fine grained control vor you urls, then use a router:
+
+<geshi type="php" file="<?= __DIR__ . DIRECTORY_SEPARATOR . 'examples' . DIRECTORY_SEPARATOR . 'router.php' ?>">
+</geshi>
+
+A router especially makes sense in combination with MVC:
+
+<geshi type="php" file="<?= __DIR__ . DIRECTORY_SEPARATOR . 'examples' . DIRECTORY_SEPARATOR . 'router-mvc.php' ?>">
+</geshi>
+

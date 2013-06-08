@@ -32,7 +32,7 @@ class ImmutableProxyTest extends \PHPUnit_Framework_TestCase {
 		}
 	}
 	/**
-	 * @expectedException Exception
+	 * @expectedException \LogicException
 	 */
 	public function testWriteAccessFail()
 	{
@@ -46,9 +46,11 @@ class ImmutableProxyTest extends \PHPUnit_Framework_TestCase {
 		$immutableProxy = new ImmutableProxy($mock);
 		$this->assertEquals($mock->foo, $immutableProxy->foo);
 	}
+	/**
+	 * @expectedException \PHPUnit_Framework_Error_Notice
+	 */
 	public function testWrongReadAccess()
 	{
-		\PHPUnit_Framework_Error_Notice::$enabled = false;
 		$mock = new TestMockClass;
 		$immutableProxy = new ImmutableProxy($mock);
 		$this->assertEquals(null, $immutableProxy->bar);

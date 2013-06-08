@@ -60,7 +60,6 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 		$lockObtained = \Foomo\Lock::lockResource($lockName1, $blocking = false);
 		sleep(3);
 		$lockInfo = \Foomo\Lock::getLockInfo($lockName1);
-		var_dump($lockInfo);
 		$this->assertEquals(3, $lockInfo['lock_age']);
 	}
 
@@ -70,7 +69,6 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 		$lockObtained = \Foomo\Lock::lockResource($lockName1, $blocking = true);
 		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
 		$info = \Foomo\Lock::getLockInfo($lockName1);
-		var_dump($info);
 		$this->assertTrue($info['is_locked'], 'should be locked after lock call');
 		$this->assertTrue($info['caller_is_owner'], 'should owned by us');
 		$this->assertLessThanOrEqual(5, $info['lock_age']);
@@ -83,7 +81,6 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 		self::callAsync(\Foomo\Utils::getServerUrl() . '/foomo/lock.php?lockName='.$lockName1.'&sleep=5');
 		sleep(1);
 		$info1 = \Foomo\Lock::getLockInfo($lockName1);
-		var_dump($info1);
 		$this->assertTrue($info1['is_locked'], 'should be locked after lock call');
 		$this->assertFalse($info1['caller_is_owner'], 'we should not be owning it');
 		

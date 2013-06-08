@@ -124,10 +124,11 @@ class GD
 	 * @param integer $height
 	 * @param integer $targetWidth
 	 * @param integer $targetHeight 
-	 * 
+	 *
+     * @internal
 	 * @return array('width' => int, 'height' => int)
 	 */
-	private static function computeResampledSize($width, $height, $targetWidth = null, $targetHeight = null)
+	public static function computeResampledSize($width, $height, $targetWidth = null, $targetHeight = null)
 	{
 		if($targetHeight === 0 || $targetWidth === 0) {
 			trigger_error('must not resample to size 0', E_USER_ERROR);
