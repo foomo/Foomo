@@ -308,7 +308,7 @@ class URLHandler {
 			if(isset($cleanParts[$i])) {
 				$parameters[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
 			} else {
-				break;
+				$parameters[] = null;
 			}
 			$i ++;
 		}
@@ -330,8 +330,8 @@ class URLHandler {
 		for ($iParm = count($controllerAction->parameters) - $parameterDiff; $iParm < count($controllerAction->parameters); $iParm++) {
 			if (isset($alternativeSource[$keys[$iParm]])) {
 				array_push($parameters, $alternativeSource[$keys[$iParm]]);
-			} else {
-				return;
+			} else if(!self::$strictParameterHandling) {
+				array_push($parameters, null);
 			}
 		}
 	}
