@@ -125,8 +125,9 @@ class ActionReader {
 			if ($parm->getClass()) {
 				$newParm->type = $parm->getClass()->getName();
 			}
-			if ($parm->isOptional()) {
-				$newParm->optional = true;
+			$newParm->optional = $parm->isOptional();
+			if($newParm->optional) {
+				$newParm->defaultValue = $parm->getDefaultValue();
 			}
 			$parameters[$parm->getName()] = $newParm;
 		}

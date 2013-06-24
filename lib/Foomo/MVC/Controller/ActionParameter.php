@@ -35,16 +35,21 @@ class ActionParameter {
 	 */
 	public $optional = false;
 	/**
+	 * mixed
+	 */
+	public $defaultValue;
+	/**
 	 * @var string
 	 */
 	public $name;
 	private $value;
-	public function __construct($value = null, $name = null, $type = 'string', $optional = false)
+	public function __construct($value = null, $name = null, $type = 'string', $optional = false, $defaultValue = null)
 	{
 		$this->name = $name;
 		$this->value = $value;
 		$this->type = $type;
 		$this->optional = $optional;
+		$this->defaultValue = $defaultValue;
 	}
 
 	public function setValue($newValue)
