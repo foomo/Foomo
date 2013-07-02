@@ -13,13 +13,7 @@
 	if(in_array($module, $enabledModules)) {
 		$moduleEnabled = 'enabled';
 	}
-	$depsOk = true;
-	foreach(Manager::getRequiredModuleResources($module) as $reqiredModuleResource) {
-		if(!$reqiredModuleResource->resourceValid()) {
-			$depsOk = false;
-			break;
-		}
-	}
+	$depsOk = Manager::moduleCanBeEnabled($module);
 	$hintClass = $modStat==Manager::MODULE_STATUS_OK?'valid':'invalid';
 	$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($module);
 	$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($module);

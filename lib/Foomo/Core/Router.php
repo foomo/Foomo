@@ -68,11 +68,38 @@ class Router extends R {
 		$this->out('/help - this page', 1);
 		$this->out('/resetAutoLoader - reset the class auto loader', 1);
 		$this->out('/make/:targets - make something like /make/clean,all', 1);
+		$this->out('/listModules - list modules', 1);
+		$this->out('/enableModule/:module - enable a module (and all its dependencies)', 1);
+		$this->out('/disableModule/:module - disable a module', 1);
 	}
 	public function resetAutoLoader()
 	{
 		$this->out('resetting the auto loader');
 		$this->out(strip_tags(AutoLoader::resetCache()));
+	}
+	public function enableModule($name)
+	{
+		$this->out('enabling module ' . $name);
+		Manager::enableModule($name);
+		$this->listModules();
+	}
+	public function disableModule($name)
+	{
+		$this->out('disabling module ' . $name);
+		Manager::disableModule($name);
+		$this->listModules();
+	}
+	public function listModules()
+	{
+		$this->out('enabled modules:');
+		foreach(Manager::getEnabledModules() as $enabledModule) {
+			$this->out($enabledModule, 1);
+		}
+		$this->out('available modules:');
+		foreach(Manager::getAvailableModules() as $availableModule) {
+			$this->out($availableModule, 1);
+		}
+
 	}
 	private static function getBaseURL()
 	{
@@ -85,6 +112,9 @@ class Router extends R {
 		$coreRouter->addRoutes(array(
 			'/make/:targets' => 'make',
 			'/help' => 'help',
+			'/enableModule/:name' => 'enableModule',
+			'/disableModule/:name' => 'disableModule',
+			'/listModules' => 'listModules',
 			'/resetAutoLoader' => 'resetAutoLoader',
 			'*' => 'help'
 		));

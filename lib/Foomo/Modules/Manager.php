@@ -20,6 +20,7 @@
 namespace Foomo\Modules;
 
 use DirectoryIterator;
+use Foomo\MVC;
 use Foomo\Timer;
 use Foomo\Cache\Proxy as CacheProxy;
 use Foomo\Cache\Manager as CacheManager;
@@ -69,6 +70,22 @@ class Manager
 			}
 		}
 	}
+
+	/**
+	 * @internal
+	 * @param string $module
+	 * @return bool
+	 */
+	public static function moduleCanBeEnabled($module)
+	{
+		$availableModules = self::getAvailableModules();
+		foreach(self::getRequiredModulesRecursively($module) as $depModule) {
+			if(!in_array($depModule, $availableModules)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	/**
 	 * get all available modules
 	 * every folder in modules will be interpreted as a module definition
@@ -110,15 +127,15 @@ class Manager
 	public static function checkModuleConfig()
 	{
 		while (true) {
-			$enabledModules = self::getEnabledModules();
 			$done = true;
 			foreach (self::getEnabledModules() as $enabledModuleName) {
 				$deps = self::getRequiredModuleResources($enabledModuleName);
 				foreach ($deps as $depResource) {
+					/* @var $depResource \Foomo\Modules\Resource\Module */
 					if (!$depResource->resourceValid()) {
 						$done = false;
 						self::setModuleEnabled($enabledModuleName, false, false, false);
-						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $dep, E_USER_WARNING);
+						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $depResource->name, E_USER_WARNING);
 						break;
 					}
 				}
@@ -370,6 +387,32 @@ class Manager
 		}
 		return $ret;
 	}
+	private static function getRequiredModulesRecursively($module)
+	{
+		return self::flattenModuleDepencyTree(self::getRequiredModuleTree($module));
+	}
+	private static function flattenModuleDepencyTree($tree, &$flatList = array())
+	{
+		foreach($tree as $module => $depsOrModule) {
+			if(is_array($depsOrModule)) {
+				self::flattenModuleDepencyTree($depsOrModule, $flatList);
+			} else {
+				if(!in_array($depsOrModule, $flatList)) {
+					$flatList[] = $depsOrModule;
+				}
+			}
+		}
+		return $flatList;
+	}
+	private static function getRequiredModuleTree($module, &$tree = array())
+	{
+		$tree[$module] = self::getRequiredModules($module);
+		foreach($tree[$module] as $depModule) {
+			$tree[$module][$depModule] = array();
+			self::getRequiredModuleTree($depModule, $tree[$module][$depModule]);
+		}
+		return $tree;
+	}
 
 	/**
 	 * get the module status
@@ -594,8 +637,7 @@ class Manager
 			}
 		}
 		$lastModule = null;
-		$currentModule = $enabledModules[0];
-		// as long as we have havent ordered all modules
+		// as long as we have haven´t ordered all modules
 		$lastOrdered = array();
 		while (count($enabledModules) > count($ordered)) {
 			if($lastOrdered == $ordered) {
@@ -638,8 +680,12 @@ class Manager
 		self::checkModuleAvailabilty($module);
 		$currentConf = self::loadModuleConfiguration();
 		if ($enabled) {
-			if (!in_array($module, $currentConf->enabledModules)) {
-				$currentConf->enabledModules[] = $module;
+			$recursiveDeps = self::getRequiredModulesRecursively($module);
+			$recursiveDeps[] = $module;
+			foreach($recursiveDeps as $module) {
+				if (!in_array($module, $currentConf->enabledModules)) {
+					$currentConf->enabledModules[] = $module;
+				}
 			}
 		} else {
 			if (in_array($module, $currentConf->enabledModules)) {
