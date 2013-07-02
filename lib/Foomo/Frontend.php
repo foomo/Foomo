@@ -38,19 +38,24 @@ class Frontend extends \Foomo\MVC\AbstractApp
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
-
-	/**
-	 * @param string $title
-	 */
-	public static function setUpToolbox($title='foomo toolbox', $authDomain = BasicAuth::DEFAULT_AUTH_DOMAIN, $realm = self::BASIC_AUTH_REALM)
+	public static function auth($authDomain = BasicAuth::DEFAULT_AUTH_DOMAIN, $realm = self::BASIC_AUTH_REALM)
 	{
 		if(!file_exists(BasicAuth::getAuthFilename($authDomain))) {
 			if(!headers_sent()) header('Content-Type: text/plain');
 			die('auth file does not exist - you might want to run setup.php');
 		}
-		
 		BasicAuth::auth($realm, $authDomain);
-		
+	}
+
+	/**
+	 * happy html bottstrapping
+	 * @param string $title
+	 * @param string $authDomain
+	 * @param string $realm
+	 */
+	public static function setUpToolbox($title='foomo toolbox', $authDomain = BasicAuth::DEFAULT_AUTH_DOMAIN, $realm = self::BASIC_AUTH_REALM)
+	{
+		self::auth($authDomain, $realm);
 		$doc = HTMLDocument::getInstance()->setTitle($title);
 
 		if(defined('Foomo\\ROOT_HTTP')) {

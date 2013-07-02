@@ -1,0 +1,93 @@
+<?php
+
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+namespace Foomo\Core;
+
+use Foomo\AutoLoader;
+use Foomo\Modules\Manager;
+use Foomo\Router as R;
+
+/**
+ * frontend for foomo
+ * 
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
+class Router extends R {
+	private function out($msg, $indent = 0)
+	{
+		echo str_repeat('	', $indent) . $msg . PHP_EOL;
+	}
+	public function make($targets)
+	{
+		$targets = explode(',', $targets);
+		if(empty($targets)) {
+			die('no targets given');
+		}
+		$i = 0;
+		foreach($targets as $target) {
+			if($i > 0) {
+				$this->out('-----------------------------------------------------');
+			}
+			$this->out('making ' . $target);
+			$this->out('-----------------------------------------------------');
+			$results = Manager::make(trim($target));
+			$indent = 0;
+			foreach($results as $result) {
+				$this->out($result->moduleName . ($result->wasSuccessful()?' SUCCESS: ':' FAILURE'), $indent);
+				foreach($result->entries as $entry) {
+					$this->out(
+						$entry->level . ': ' . $entry->message,
+						$indent + 1
+					);
+				}
+			}
+			$i ++;
+		}
+	}
+	public function help()
+	{
+		$this->out('this is foomos core rest interface - usage:');
+		$this->out('/help - this page', 1);
+		$this->out('/resetAutoLoader - reset the class auto loader', 1);
+		$this->out('/make/:targets - make something like /make/clean,all', 1);
+	}
+	public function resetAutoLoader()
+	{
+		$this->out('resetting the auto loader');
+		$this->out(strip_tags(AutoLoader::resetCache()));
+	}
+	private static function getBaseURL()
+	{
+		return \Foomo\ROOT_HTTP . '/core.php';
+	}
+	public static function run()
+	{
+		header('Content-Type: text/plain;charset=utf-8;');
+		$coreRouter = new Router;
+		$coreRouter->addRoutes(array(
+			'/make/:targets' => 'make',
+			'/help' => 'help',
+			'/resetAutoLoader' => 'resetAutoLoader',
+			'*' => 'help'
+		));
+		echo $coreRouter->execute();
+	}
+}

@@ -160,6 +160,7 @@ class Manager
 	 * enable a module
 	 *
 	 * @param string $module
+	 * @param bool $updateClassCache
 	 * @return boolean
 	 */
 	public static function enableModule($module, $updateClassCache = false)
@@ -168,9 +169,10 @@ class Manager
 	}
 
 	/**
-	 * disbale a module
+	 * disable a module
 	 *
 	 * @param string $module
+	 * @param bool $updateClassCache
 	 * @return boolean
 	 */
 	public static function disableModule($module, $updateClassCache = false)
@@ -336,7 +338,7 @@ class Manager
 
 	/**
 	 * @param string $module
-	 * @return Foomo\Module
+	 * @return \Foomo\Module
 	 */
 	public static function getRequiredModuleResources($module)
 	{
@@ -357,7 +359,7 @@ class Manager
 
 	/**
 	 * get a list a list of modules, a module depends upon to run
-	 *
+	 * @param string $module name of the module
 	 * @return string[]
 	 */
 	public static function getRequiredModules($module)
@@ -426,7 +428,7 @@ class Manager
 
 	/**
 	 * @param string $module
-	 * @return Foomo\Module\Resource[]
+	 * @return \Foomo\Modules\Resource[]
 	 */
 	public static function getModuleResources($module)
 	{
@@ -551,6 +553,7 @@ class Manager
 
 	/**
 	 * @param string $className
+	 *
 	 * @return string
 	 */
 	public static function getModuleByClassName($className)
@@ -570,7 +573,9 @@ class Manager
 	 * Get modules in an order, that ensures accident free initialization - i.e. no dependencies are neglected
 	 *
 	 * @internal
+	 *
 	 * @Foomo\Cache\CacheResourceDescription
+	 *
 	 * @return string[]
 	 */
 	public static function cachedGetEnabledModulesOrderedByDependency()
@@ -624,8 +629,9 @@ class Manager
 	 * do it, do it now
 	 *
 	 * @param string $module
-	 * @param boolean $enabled
-	 * @return boolean
+	 * @param bool $enabled
+	 * @param bool $checkConfig
+	 * @param bool $updateClassCache
 	 */
 	private static function setModuleEnabled($module, $enabled, $checkConfig = true, $updateClassCache = true)
 	{
@@ -675,7 +681,7 @@ class Manager
 	/**
 	 * loads the current configuration
 	 *
-	 * @return Foomo\Core\DomainConfig
+	 * @return \Foomo\Core\DomainConfig
 	 */
 	private static function loadModuleConfiguration()
 	{
@@ -690,7 +696,9 @@ class Manager
 	/**
 	 * saves the current configuration
 	 *
-	 * @return boolean
+	 * @param DomainConfig $conf
+	 *
+	 * @return bool
 	 */
 	private static function saveModuleConfiguration(DomainConfig $conf)
 	{
@@ -761,5 +769,23 @@ class Manager
 	{
 		if ($forceUpdate) CacheManager::reset(__CLASS__.'::cachedGetEnabledModulesOrderedByDependency', false);
 		return CacheProxy::call(__CLASS__, 'cachedGetEnabledModulesOrderedByDependency');
+	}
+
+	/**
+	 * make sth.
+	 *
+	 * @param string $target
+	 *
+	 * @return MakeResult[]
+	 */
+	public static function make($target)
+	{
+		$results = array();
+		foreach(self::getEnabledModulesOrderedByDependency() as $enabledModule) {
+			$result = new MakeResult($enabledModule);
+			call_user_func_array(array(self::getModuleClassByName($enabledModule), 'make'), array($target, $result));
+			$results[] = $result;
+		}
+		return $results;
 	}
 }
