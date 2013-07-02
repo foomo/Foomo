@@ -18,6 +18,8 @@
  */
 
 namespace Foomo;
+use Foomo\Cache\Invalidator;
+use Foomo\Modules\MakeResult;
 
 /**
  * foomo core module
@@ -110,4 +112,16 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 
 		);
 	}
+	public static function make($target, MakeResult $result)
+	{
+		switch($target) {
+			case 'clean':
+				$result->addEntry('removing translation caches');
+				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cachedGetLocaleTable', null, true, Invalidator::POLICY_DELETE);
+				break;
+			default:
+				parent::make($target, $result);
+		}
+	}
+
 }
