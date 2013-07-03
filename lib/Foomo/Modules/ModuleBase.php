@@ -340,4 +340,8 @@ abstract class ModuleBase
 	{
 		return (!$name = constant(get_called_class() . '::NAME')) ? str_replace('\\', '.', get_called_class()) : $name;
 	}
+	public static function make($target, MakeResult $result)
+	{
+		$result->addEntry('nothing to make here for target ' . $target);
+	}
 }

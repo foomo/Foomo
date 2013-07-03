@@ -20,6 +20,7 @@
 namespace Foomo\Modules;
 
 use DirectoryIterator;
+use Foomo\MVC;
 use Foomo\Timer;
 use Foomo\Cache\Proxy as CacheProxy;
 use Foomo\Cache\Manager as CacheManager;
@@ -69,6 +70,22 @@ class Manager
 			}
 		}
 	}
+
+	/**
+	 * @internal
+	 * @param string $module
+	 * @return bool
+	 */
+	public static function moduleCanBeEnabled($module)
+	{
+		$availableModules = self::getAvailableModules();
+		foreach(self::getRequiredModulesRecursively($module) as $depModule) {
+			if(!in_array($depModule, $availableModules)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	/**
 	 * get all available modules
 	 * every folder in modules will be interpreted as a module definition
@@ -110,15 +127,15 @@ class Manager
 	public static function checkModuleConfig()
 	{
 		while (true) {
-			$enabledModules = self::getEnabledModules();
 			$done = true;
 			foreach (self::getEnabledModules() as $enabledModuleName) {
 				$deps = self::getRequiredModuleResources($enabledModuleName);
 				foreach ($deps as $depResource) {
+					/* @var $depResource \Foomo\Modules\Resource\Module */
 					if (!$depResource->resourceValid()) {
 						$done = false;
 						self::setModuleEnabled($enabledModuleName, false, false, false);
-						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $dep, E_USER_WARNING);
+						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $depResource->name, E_USER_WARNING);
 						break;
 					}
 				}
@@ -160,6 +177,7 @@ class Manager
 	 * enable a module
 	 *
 	 * @param string $module
+	 * @param bool $updateClassCache
 	 * @return boolean
 	 */
 	public static function enableModule($module, $updateClassCache = false)
@@ -168,9 +186,10 @@ class Manager
 	}
 
 	/**
-	 * disbale a module
+	 * disable a module
 	 *
 	 * @param string $module
+	 * @param bool $updateClassCache
 	 * @return boolean
 	 */
 	public static function disableModule($module, $updateClassCache = false)
@@ -336,7 +355,7 @@ class Manager
 
 	/**
 	 * @param string $module
-	 * @return Foomo\Module
+	 * @return \Foomo\Module
 	 */
 	public static function getRequiredModuleResources($module)
 	{
@@ -357,7 +376,7 @@ class Manager
 
 	/**
 	 * get a list a list of modules, a module depends upon to run
-	 *
+	 * @param string $module name of the module
 	 * @return string[]
 	 */
 	public static function getRequiredModules($module)
@@ -367,6 +386,32 @@ class Manager
 			$ret[] = $moduleResource->name;// . ' => ' . $moduleResource->version;
 		}
 		return $ret;
+	}
+	private static function getRequiredModulesRecursively($module)
+	{
+		return self::flattenModuleDepencyTree(self::getRequiredModuleTree($module));
+	}
+	private static function flattenModuleDepencyTree($tree, &$flatList = array())
+	{
+		foreach($tree as $module => $depsOrModule) {
+			if(is_array($depsOrModule)) {
+				self::flattenModuleDepencyTree($depsOrModule, $flatList);
+			} else {
+				if(!in_array($depsOrModule, $flatList)) {
+					$flatList[] = $depsOrModule;
+				}
+			}
+		}
+		return $flatList;
+	}
+	private static function getRequiredModuleTree($module, &$tree = array())
+	{
+		$tree[$module] = self::getRequiredModules($module);
+		foreach($tree[$module] as $depModule) {
+			$tree[$module][$depModule] = array();
+			self::getRequiredModuleTree($depModule, $tree[$module][$depModule]);
+		}
+		return $tree;
 	}
 
 	/**
@@ -426,7 +471,7 @@ class Manager
 
 	/**
 	 * @param string $module
-	 * @return Foomo\Module\Resource[]
+	 * @return \Foomo\Modules\Resource[]
 	 */
 	public static function getModuleResources($module)
 	{
@@ -551,6 +596,7 @@ class Manager
 
 	/**
 	 * @param string $className
+	 *
 	 * @return string
 	 */
 	public static function getModuleByClassName($className)
@@ -570,7 +616,9 @@ class Manager
 	 * Get modules in an order, that ensures accident free initialization - i.e. no dependencies are neglected
 	 *
 	 * @internal
+	 *
 	 * @Foomo\Cache\CacheResourceDescription
+	 *
 	 * @return string[]
 	 */
 	public static function cachedGetEnabledModulesOrderedByDependency()
@@ -589,8 +637,7 @@ class Manager
 			}
 		}
 		$lastModule = null;
-		$currentModule = $enabledModules[0];
-		// as long as we have havent ordered all modules
+		// as long as we have haven´t ordered all modules
 		$lastOrdered = array();
 		while (count($enabledModules) > count($ordered)) {
 			if($lastOrdered == $ordered) {
@@ -624,16 +671,21 @@ class Manager
 	 * do it, do it now
 	 *
 	 * @param string $module
-	 * @param boolean $enabled
-	 * @return boolean
+	 * @param bool $enabled
+	 * @param bool $checkConfig
+	 * @param bool $updateClassCache
 	 */
 	private static function setModuleEnabled($module, $enabled, $checkConfig = true, $updateClassCache = true)
 	{
 		self::checkModuleAvailabilty($module);
 		$currentConf = self::loadModuleConfiguration();
 		if ($enabled) {
-			if (!in_array($module, $currentConf->enabledModules)) {
-				$currentConf->enabledModules[] = $module;
+			$recursiveDeps = self::getRequiredModulesRecursively($module);
+			$recursiveDeps[] = $module;
+			foreach($recursiveDeps as $module) {
+				if (!in_array($module, $currentConf->enabledModules)) {
+					$currentConf->enabledModules[] = $module;
+				}
 			}
 		} else {
 			if (in_array($module, $currentConf->enabledModules)) {
@@ -675,7 +727,7 @@ class Manager
 	/**
 	 * loads the current configuration
 	 *
-	 * @return Foomo\Core\DomainConfig
+	 * @return \Foomo\Core\DomainConfig
 	 */
 	private static function loadModuleConfiguration()
 	{
@@ -690,7 +742,9 @@ class Manager
 	/**
 	 * saves the current configuration
 	 *
-	 * @return boolean
+	 * @param DomainConfig $conf
+	 *
+	 * @return bool
 	 */
 	private static function saveModuleConfiguration(DomainConfig $conf)
 	{
@@ -761,5 +815,23 @@ class Manager
 	{
 		if ($forceUpdate) CacheManager::reset(__CLASS__.'::cachedGetEnabledModulesOrderedByDependency', false);
 		return CacheProxy::call(__CLASS__, 'cachedGetEnabledModulesOrderedByDependency');
+	}
+
+	/**
+	 * make sth.
+	 *
+	 * @param string $target
+	 *
+	 * @return MakeResult[]
+	 */
+	public static function make($target)
+	{
+		$results = array();
+		foreach(self::getEnabledModulesOrderedByDependency() as $enabledModule) {
+			$result = new MakeResult($enabledModule);
+			call_user_func_array(array(self::getModuleClassByName($enabledModule), 'make'), array($target, $result));
+			$results[] = $result;
+		}
+		return $results;
 	}
 }

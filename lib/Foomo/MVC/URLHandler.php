@@ -208,6 +208,10 @@ class URLHandler {
 		if(is_null($uri)) {
 			$uri = $_SERVER['REQUEST_URI'];
 		}
+		$queryPos = strpos($uri, '?');
+		if($queryPos !== false) {
+			$uri = substr($uri, 0, $queryPos);
+		}
 		if(!isset($this->baseURL)) {
 			$this->baseURL = MVC::getBaseUrl();
 		}
@@ -236,10 +240,11 @@ class URLHandler {
 		}
 		self::$rawCurrentCallData = $cleanParts;
 		$class = get_class($app->controller);
-;		if(self::$exposeClassId && $classMatch || !self::$exposeClassId) {
+		if(self::$exposeClassId && $classMatch || !self::$exposeClassId) {
 			if(self::$exposeClassId) {
 				$this->path .= '/' . urlencode($classId);
 			}
+
 			if(count($cleanParts) > 1) {
 				foreach ($this->loadClass($app->controller) as $controllerAction) {
 					/* @var $controllerAction Controller\Action */
@@ -252,22 +257,25 @@ class URLHandler {
 						$rawParameters = array_slice($cleanParts, 2);
 						self::padParameters($controllerAction, $rawParameters, $alternativeSource);
 						// does the parameter count match?
-						if(self::$strictParameterHandling && (count($rawParameters) < count($controllerAction->parameters) - $controllerAction->optionalParameterCount)) {
+						$parameterCount = count($controllerAction->parameters);
+						if(self::$strictParameterHandling && (count($rawParameters) < $parameterCount - $controllerAction->optionalParameterCount)) {
 							// if the action was right, but the parameters were not,
 							// => a 404
+
 							break;
 						}
 						// sanitize input
 						$parameters = self::sanitizeInput($controllerAction, $rawParameters);
-						$this->path .= '/' . $controllerAction->actionNameShort . self::renderPathParameters($rawParameters);
+
+						$this->path .= '/' . $controllerAction->actionNameShort . self::renderPathParameters($rawParameters, $parameterCount);
 						$action = $controllerAction->actionName;
 						$class = $controllerAction->controllerName;
+
 						break;
 					}
 				}
 			}
 		}
-
 		if(empty($action)) {
 			$action = $this->get404Action($app);
 			// @todo what is with the path
@@ -299,8 +307,8 @@ class URLHandler {
 			/* @var $parameter Controller\ActionParameter */
 			if(isset($cleanParts[$i])) {
 				$parameters[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
-			} else {
-				break;
+			} else if($parameter->optional) {
+				$parameters[] = $parameter->defaultValue;
 			}
 			$i ++;
 		}
@@ -322,24 +330,29 @@ class URLHandler {
 		for ($iParm = count($controllerAction->parameters) - $parameterDiff; $iParm < count($controllerAction->parameters); $iParm++) {
 			if (isset($alternativeSource[$keys[$iParm]])) {
 				array_push($parameters, $alternativeSource[$keys[$iParm]]);
-			} else {
-				return;
+			} else if(!self::$strictParameterHandling) {
+				array_push($parameters, null);
 			}
 		}
 	}
 
 	/**
 	 * @param array $cleanParts
+	 * @param integer $parameterCount
 	 *
 	 * @return string
 	 */
-	protected static function renderPathParameters(array $cleanParts)
+	protected static function renderPathParameters(array $cleanParts, $parameterCount)
 	{
 		$parameters = '';
+		$i = 0;
 		foreach ($cleanParts as $parameter) {
+			if($i == $parameterCount) {
+				break;
+			}
 			/* @var $parameter Controller\ActionParameter */
 			switch (true) {
-				case is_scalar($parameter):
+				case is_scalar($parameter) || is_null($parameter):
 					$parameters .= '/' . urlencode($parameter);
 					break;
 				case is_array($parameter):
@@ -348,8 +361,9 @@ class URLHandler {
 					trigger_error('i will not be able to understand what i am doing here ;) ', E_USER_WARNING);
 					break;
 				default:
-					trigger_error('how should I press that to a path');
+					trigger_error('how should I press that to a path ' . var_export($parameter, true));
 			}
+			$i++;
 		}
 		return $parameters;
 

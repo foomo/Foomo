@@ -235,7 +235,7 @@ class PhpTimer {
 	private function updateTotalTime()
 	{
 		$startTime = $this->points[0][0];
-		$stopTime = $this->points[count($this->points) - 1][0];
+		$stopTime = microtime(true);//$this->points[count($this->points) - 1][0];
 		if ($this->useBcMath)
 			$tot = bcsub($stopTime, $startTime, 6);
 		else

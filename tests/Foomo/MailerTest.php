@@ -29,7 +29,7 @@ class MailerTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * my mailer
 	 *
-	 * @var Foomo\Mailer;
+	 * @var \Foomo\Mailer;
 	 */
 	protected $mailer;
 	private $mailEnabled;

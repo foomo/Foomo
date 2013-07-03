@@ -17,49 +17,47 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\MVC\Controller;
+namespace Foomo\Modules;
 
 /**
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class ActionParameter {
-
+class MakeResult
+{
 	/**
 	 * @var string
 	 */
-	public $type = 'string';
+	public $moduleName;
 	/**
-	 * @var boolean
+	 * @var MakeResult\Entry[]
 	 */
-	public $optional = false;
-	/**
-	 * mixed
-	 */
-	public $defaultValue;
-	/**
-	 * @var string
-	 */
-	public $name;
-	private $value;
-	public function __construct($value = null, $name = null, $type = 'string', $optional = false, $defaultValue = null)
+	public $entries = array();
+	public function addEntry($message, $level = MakeResult\Entry::LEVEL_NOTICE, $success = true)
 	{
-		$this->name = $name;
-		$this->value = $value;
-		$this->type = $type;
-		$this->optional = $optional;
-		$this->defaultValue = $defaultValue;
+		$entry = new MakeResult\Entry();
+		$entry->success = $success;
+		$entry->message = $message;
+		$entry->level = $level;
+		$this->entries[] = $entry;
+	}
+	public function __construct($moduleName)
+	{
+		$this->moduleName = $moduleName;
 	}
 
-	public function setValue($newValue)
+	/**
+	 * @return bool
+	 */
+	public function wasSuccessful()
 	{
-		$this->value = $newValue;
+		foreach($this->entries as $entry) {
+			if(!$entry->success) {
+				return false;
+			}
+		}
+		return true;
 	}
-
-	public function getValue()
-	{
-		return $this->value;
-	}
-
 }

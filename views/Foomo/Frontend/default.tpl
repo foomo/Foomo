@@ -46,11 +46,19 @@
 
 			<h2>Shortcuts</h2>
 
+
 			<div class="greyBox">
 				<div class="innerBox" style="margin: 5px 5px 5px 10px;">
-					<b><?= $view->link('Reset the autoloader', 'resetAutoloader', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></b>
+					<b>Core actions</b>
+					<ul>
+						<li><?= $view->link('Reset the autoloader', 'resetAutoloader', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></li>
+						<li><?= $view->link('Rebuild aka make clean,all', 'rebuild', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></li>
+						<li><?= $view->link('Help', 'coreHelp', array(), array('title' => 'when you write new classes you need to reset the autoloader in order to use them')); ?></li>
+					</ul>
+					<p>HINT: You might want to use curl!</p>
 				</div>
 			</div>
+
 
 			<? if ($model->classMap): ?>
 			<div class="whiteBox">

@@ -17,49 +17,29 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\MVC\Controller;
+namespace Foomo\Modules\MakeResult;
 
 /**
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class ActionParameter {
-
+class Entry
+{
+	const LEVEL_NOTICE = 'notice';
+	const LEVEL_WARNING = 'warning';
+	const LEVEL_ERROR = 'error';
 	/**
 	 * @var string
 	 */
-	public $type = 'string';
+	public $level;
+	/**
+	 * @var string
+	 */
+	public $message;
 	/**
 	 * @var boolean
 	 */
-	public $optional = false;
-	/**
-	 * mixed
-	 */
-	public $defaultValue;
-	/**
-	 * @var string
-	 */
-	public $name;
-	private $value;
-	public function __construct($value = null, $name = null, $type = 'string', $optional = false, $defaultValue = null)
-	{
-		$this->name = $name;
-		$this->value = $value;
-		$this->type = $type;
-		$this->optional = $optional;
-		$this->defaultValue = $defaultValue;
-	}
-
-	public function setValue($newValue)
-	{
-		$this->value = $newValue;
-	}
-
-	public function getValue()
-	{
-		return $this->value;
-	}
-
+	public $success;
 }
