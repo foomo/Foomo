@@ -32,7 +32,7 @@ class Controller
 	/**
 	 * my model
 	 *
-	 * @var <?= $model->namespace ?>\Model
+	 * @var Model
 	 */
 	public $model;
 	public function actionDefault() {}
