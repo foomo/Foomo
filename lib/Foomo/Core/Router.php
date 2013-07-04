@@ -92,12 +92,15 @@ class Router extends R {
 	public function listModules()
 	{
 		$this->out('enabled modules:');
-		foreach(Manager::getEnabledModules() as $enabledModule) {
+		$enabledModules = Manager::getEnabledModules();
+		foreach($enabledModules as $enabledModule) {
 			$this->out($enabledModule, 1);
 		}
 		$this->out('available modules:');
 		foreach(Manager::getAvailableModules() as $availableModule) {
-			$this->out($availableModule, 1);
+			if(!in_array($availableModule, $enabledModules)) {
+				$this->out($availableModule, 1);
+			}
 		}
 
 	}
