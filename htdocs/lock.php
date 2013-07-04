@@ -1,1 +1,0 @@
-/var/www/foomo/modules/Foomo/tests/Foomo/lock.php
