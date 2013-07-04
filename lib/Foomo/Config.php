@@ -19,6 +19,7 @@
 
 namespace Foomo;
 
+use Foomo\Modules\Manager;
 use ReflectionClass;
 use Foomo\Config\AbstractConfig;
 use InvalidArgumentException;
@@ -106,7 +107,8 @@ class Config
 
 	/**
 	 * @param string $name
-	 * @return string
+	 * @return null|string
+	 * @throws \InvalidArgumentException
 	 */
 	public static function getDomainConfigClassName($name)
 	{
@@ -136,7 +138,7 @@ class Config
 	 * @param string $name the domain of configuration like db, mail, YOU name it
 	 * @param string $domain you need multiple for a domain in a module - here you are
 	 *
-	 * @return Foomo\Config\AbstractConfig
+	 * @return \Foomo\Config\AbstractConfig
 	 */
 	public static function getConf($module, $name, $domain='')
 	{
@@ -156,7 +158,7 @@ class Config
 	 *
 	 * @param string $name the domain of configuration like db, mail, YOU name it
 	 * @param string $domain you need multiple for a domain in a module - here you are
-	 * @return Foomo\Config\AbstractConfig[]
+	 * @return \Foomo\Config\AbstractConfig[]
 	 */
 	public static function getConfs($name, $domain='')
 	{
@@ -174,7 +176,7 @@ class Config
 	 *
 	 * @param string $name
 	 *
-	 * @return Foomo\Config\AbstractConfig[]
+	 * @return \Foomo\Config\AbstractConfig[]
 	 */
 	public static function getConfsByName($name)
 	{
@@ -211,14 +213,17 @@ class Config
 	/**
 	 * set a conf
 	 *
-	 * @param AbstractConfig $conf the conf itself
+	 * @param AbstractConfig $conf
 	 * @param string $module name of the module
 	 * @param string $domain use this if you have several of a kind
-	 * @return boolean
+	 * @param string $originalYaml
+	 *
+	 * @return bool
 	 */
 	public static function setConf(AbstractConfig $conf, $module, $domain = '', $originalYaml = '')
 	{
 		$confFile = self::getConfFileNameByConf($conf, $module, $domain);
+		$oldConfObject = self::getConf($module, $conf->getName(), $domain);
 		// make a backup of the current conf
 		if (\file_exists($confFile)) {
 			$oldConf = \file_get_contents($confFile);
@@ -239,6 +244,15 @@ class Config
 		if (file_put_contents($confFile, $originalYaml ? $originalYaml : \Foomo\Yaml::dump($conf->getValue()))) {
 			$conf->saved();
 			self::resetCache();
+			Manager::runModuleHook(
+				'postConfigUpdate',
+				array(
+					$oldConfObject,
+					self::getConf($module, $conf->getName(), $domain),
+					$module,
+					$domain
+				)
+			);
 			return true;
 		} else {
 			return false;
@@ -344,7 +358,7 @@ class Config
 	 * @param string $module
 	 * @return string
 	 */
-	public static function getModuleDir($module='')
+	public static function getModuleDir($module = '')
 	{
 		$ret = \Foomo\CORE_CONFIG_DIR_MODULES;
 		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
@@ -357,7 +371,7 @@ class Config
 	 *
 	 * @return string
 	 */
-	public static function getVarDir($module='')
+	public static function getVarDir($module = '')
 	{
 		$ret = \Foomo\CORE_CONFIG_DIR_VAR . DIRECTORY_SEPARATOR . self::$currentMode;
 		if ($module != '') $ret .= DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;
@@ -428,6 +442,30 @@ class Config
 	}
 
 	/**
+	 * get a directory in the dynamic htdocs
+	 *
+	 * @param string $module
+	 * @return string
+	 */
+	public static function getHtdocsBuildPath($module)
+	{
+		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module . '-' .Module::getDomainConfig()->buildNumber;
+	}
+
+	/**
+	 * get a directory in the dynamic htdocs
+	 *
+	 * @param string $module
+	 * @return string
+	 */
+	public static function getHtdocsVarBuildPath($module='')
+	{
+		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
+		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		return $ret . '-' .Module::getDomainConfig()->buildNumber;
+	}
+
+	/**
 	 * get your log directory
 	 *
 	 * @param string $module
@@ -464,7 +502,7 @@ class Config
 	 *
 	 * @param string $name name of the DomainConfig
 	 *
-	 * @return Foomo\Config\AbstractConfig[]
+	 * @return \Foomo\Config\AbstractConfig[]
 	 */
 	public static function cachedGetConfsByName($name)
 	{
@@ -488,7 +526,7 @@ class Config
 	 * @param string $module
 	 * @param string $name
 	 * @param string $domain
-	 * @return Foomo\Config\AbstractConfig $domain
+	 * @return \Foomo\Config\AbstractConfig $domain
 	 */
 	public static function cachedGetConf($module, $name, $domain)
 	{

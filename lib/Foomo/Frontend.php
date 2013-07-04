@@ -69,14 +69,14 @@ class Frontend extends \Foomo\MVC\AbstractApp
 			}
 			$doc
 				->addStylesheets(array(
-					\Foomo\ROOT_HTTP . '/css/fonts.css',
-                    \Foomo\ROOT_HTTP . '/css/reset.css',
-					\Foomo\ROOT_HTTP . '/css/app.css',
-					\Foomo\ROOT_HTTP . '/css/module.css'
+					\Foomo\Module::getHtdocsBuildPath('css/fonts.css'),
+					\Foomo\Module::getHtdocsBuildPath('css/reset.css'),
+					\Foomo\Module::getHtdocsBuildPath('css/app.css'),
+					\Foomo\Module::getHtdocsBuildPath('css/module.css')
 				))
 				->addJavascripts(array(
 					\Foomo\ROOT_HTTP . '/js/jquery-1.6.1.min.js',
-					\Foomo\ROOT_HTTP . '/js/modules.js'
+					\Foomo\Module::getHtdocsBuildPath('js/modules.js')
 				))
 			;
 		}

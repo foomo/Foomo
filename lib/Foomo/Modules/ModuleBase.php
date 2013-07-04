@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Modules;
+use Foomo\Config\AbstractConfig;
 
 /**
  * base class if you want to build your own module
@@ -193,10 +194,44 @@ abstract class ModuleBase
 	public static function getHtdocsVarPath($relPath='')
 	{
 		$ret = \Foomo\Config::getHtdocsVarPath(self::getModuleName());
-		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
+		if ($relPath != '') $ret .= '/' . $relPath;
 		return $ret;
 	}
 
+	/**
+	 * @param string $relPath append optional additional relative path
+	 * @return string
+	 */
+	public static function getHtdocsPath($relPath='')
+	{
+		$ret = \Foomo\Config::getHtdocsPath(self::getModuleName());
+		if ($relPath != '') $ret .= '/' . $relPath;
+		return $ret;
+	}
+
+	/**
+	 * includes your build version => happy cache busting
+	 * @param string $relPath append optional additional relative path
+	 * @return string
+	 */
+	public static function getHtdocsVarBuildPath($relPath='')
+	{
+		$ret = \Foomo\Config::getHtdocsVarBuildPath(self::getModuleName());
+		if ($relPath != '') $ret .= '/' . $relPath;
+		return $ret;
+	}
+
+	/**
+	 * includes your build version => happy cache busting
+	 * @param string $relPath append optional additional relative path
+	 * @return string
+	 */
+	public static function getHtdocsBuildPath($relPath='')
+	{
+		$ret = \Foomo\Config::getHtdocsBuildPath(self::getModuleName());
+		if ($relPath != '') $ret .= '/' . $relPath;
+		return $ret;
+	}
 	/**
 	 * @param string $relPath append optional additional relative path
 	 * @return string
@@ -287,20 +322,13 @@ abstract class ModuleBase
 		return $ret;
 	}
 
-	/**
-	 * @param string $relPath append optional additional relative path
-	 * @return string
-	 */
-	public static function getHtdocsPath($relPath='')
-	{
-		$ret = \Foomo\Config::getHtdocsPath(self::getModuleName());
-		if ($relPath != '') $ret .= DIRECTORY_SEPARATOR . $relPath;
-		return $ret;
-	}
+
 
 	/**
 	 * @param string $name
 	 * @param string $domain
+	 *
+	 * @return \Foomo\Config\AbstractConfig
 	 */
 	public static function getConfig($name, $domain='')
 	{
@@ -329,6 +357,20 @@ abstract class ModuleBase
 		return \Foomo\Config::confExists(self::getModuleName(), $name, $domain);
 	}
 
+	public static function make($target, MakeResult $result)
+	{
+		$result->addEntry('nothing to make here for target ' . $target);
+	}
+
+	/**
+	 * called after the update of a config
+	 *
+	 * @param AbstractConfig $oldConfig
+	 * @param AbstractConfig $newConfig
+	 * @param string $module
+	 * @param string $domain
+	 */
+	public static function hookPostConfigUpdate($oldConfig, $newConfig, $module, $domain) {}
 	//---------------------------------------------------------------------------------------------
 	// ~ Protected static methods
 	//---------------------------------------------------------------------------------------------
@@ -340,8 +382,5 @@ abstract class ModuleBase
 	{
 		return (!$name = constant(get_called_class() . '::NAME')) ? str_replace('\\', '.', get_called_class()) : $name;
 	}
-	public static function make($target, MakeResult $result)
-	{
-		$result->addEntry('nothing to make here for target ' . $target);
-	}
+
 }

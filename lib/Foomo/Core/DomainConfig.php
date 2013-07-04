@@ -42,6 +42,11 @@ class DomainConfig extends AbstractConfig {
 	 * @var string
 	 */
 	public $rootHttp = '/foomo';
+	/**
+	 *
+	 * @var int
+	 */
+	public $buildNumber = 1;
 	public function __construct($createDefault = false)
 	{
 		if ($createDefault) {

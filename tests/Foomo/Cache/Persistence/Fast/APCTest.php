@@ -34,8 +34,10 @@ class APCTest extends \PHPUnit_Framework_TestCase {
 	private $className;
 	private $object;
 	private $apcPersistor;
-
 	public function testAPCBug() {
+		if(!function_exists('apc_store')) {
+			$this->markTestSkipped('no apc');
+		}
 		$key = '_____________APC__________BUG_____ID';
 		$var = 'test';
 		$ttl = 0;

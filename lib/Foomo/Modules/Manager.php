@@ -526,27 +526,46 @@ class Manager
 	 */
 	public static function updateSymlinksForHtdocs()
 	{
-		$symlinkBaseFolder = Config::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'modules';
-		$existing = array();
-		$iterator = new DirectoryIterator($symlinkBaseFolder);
-		$enabledModules = self::getEnabledModules();
-		foreach ($iterator as $file) {
-			/* @var $file \SplFileInfo */
-			// cleanup
-			if (is_link($file->getPathname()) && !in_array($file->getBasename(), $enabledModules)) {
-				\unlink($file->getPathname());
-			}
-		}
-		foreach ($enabledModules as $enabled) {
-			if (!in_array($enabled, $existing)) {
-				$symlinkFilename = $symlinkBaseFolder . \DIRECTORY_SEPARATOR . $enabled;
-				$targetFilename = \Foomo\CORE_CONFIG_DIR_MODULES . \DIRECTORY_SEPARATOR . $enabled . \DIRECTORY_SEPARATOR . 'htdocs';
-				if (!\file_exists($symlinkFilename) && is_dir($targetFilename)) {
-					\symlink($targetFilename, $symlinkFilename);
+		$baseDir = Config::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs';
+		// clean away all symlinks
+		$symlinkBaseFolderModules = $baseDir . DIRECTORY_SEPARATOR . 'modules';
+		$symlinkBaseFolderModulesVar = $baseDir . DIRECTORY_SEPARATOR . 'modulesVar';
+		foreach(array($symlinkBaseFolderModules,  $symlinkBaseFolderModulesVar) as $baseFolder) {
+			foreach (new DirectoryIterator($baseFolder) as $file) {
+				/* @var $file \SplFileInfo */
+				// cleanup
+				if (is_link($file->getPathname())) {
+					\unlink($file->getPathname());
 				}
 			}
 		}
+		$buildNumber = \Foomo\Module::getDomainConfig()->buildNumber;
+		foreach (self::getEnabledModules() as $enabled) {
+			// symlinks for htdocs
+			//   where to link to
+			$targetFilename = \Foomo\CORE_CONFIG_DIR_MODULES . \DIRECTORY_SEPARATOR . $enabled . \DIRECTORY_SEPARATOR . 'htdocs';
+			$symlinkFilenames = array();
+			//   not versioned
+			$symlinkFilenames[] = $symlinkBaseFolderModules . \DIRECTORY_SEPARATOR . $enabled;
+			//   versioned
+			$symlinkFilenames[] = $symlinkFilenames[0] . '-' . $buildNumber;
+			foreach($symlinkFilenames as $symlinkFilename) {
+				self::symlinkModuleFolderIfExists($targetFilename, $symlinkFilename);
+			}
+			// symlinks for htdocs var
+			$targetFilename = Config::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'modulesVar' . DIRECTORY_SEPARATOR . $enabled;
+			$symlinkFilename = $targetFilename . '-' . $buildNumber;
+			self::symlinkModuleFolderIfExists($targetFilename, $symlinkFilename);
+		}
 		return true;
+	}
+	private static function symlinkModuleFolderIfExists($targetFilename, $symlinkFilename)
+	{
+		if(file_exists($targetFilename) && is_dir($targetFilename) && !file_exists($symlinkFilename)) {
+			if(!symlink($targetFilename, $symlinkFilename)) {
+				trigger_error('could not create symlink ' . $targetFilename . ' => ' . $symlinkFilename, E_USER_ERROR);
+			}
+		}
 	}
 
 	/**
@@ -833,5 +852,20 @@ class Manager
 			$results[] = $result;
 		}
 		return $results;
+	}
+
+	/**
+	 * call a hook on all modules
+	 *
+	 * @param string $hook
+	 * @param array $args
+	 *
+	 * @internal
+	 */
+	public static function runModuleHook($hook, $args)
+	{
+		foreach(self::getEnabledModules() as $module) {
+			call_user_func_array(array(self::getModuleClassByName($module), 'hook' . ucfirst($hook)), $args);
+		}
 	}
 }
