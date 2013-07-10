@@ -34,7 +34,7 @@ abstract class ModuleBase
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
 
-	const VERSION = '0.2.0';
+	const VERSION = '0.3.0';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
@@ -75,6 +75,13 @@ abstract class ModuleBase
 		return get_called_class() . ' is a foomo module without a description';
 	}
 
+	/**
+	 * @return string
+	 */
+	public static function getVersion()
+	{
+		return constant(get_called_class() . '::VERSION');
+	}
 	/**
 	 * get a view for an app
 	 *
