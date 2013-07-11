@@ -383,10 +383,12 @@ class Manager
 	{
 		$ret = array();
 		foreach(self::getRequiredModuleResources($module) as $moduleResource) {
-			$ret[] = $moduleResource->name;// . ' => ' . $moduleResource->version;
+			$ret[] = $moduleResource->name;
 		}
 		return $ret;
 	}
+
+
 	private static function getRequiredModulesRecursively($module)
 	{
 		return self::flattenModuleDepencyTree(self::getRequiredModuleTree($module));
@@ -397,19 +399,33 @@ class Manager
 			if(is_array($depsOrModule)) {
 				self::flattenModuleDepencyTree($depsOrModule, $flatList);
 			} else {
-				if(!in_array($depsOrModule, $flatList)) {
-					$flatList[] = $depsOrModule;
+				if(!in_array($depsOrModule->name, $flatList)) {
+					$flatList[] = $depsOrModule->name;
 				}
 			}
 		}
 		return $flatList;
 	}
-	private static function getRequiredModuleTree($module, &$tree = array())
+
+	/**
+	 * @param $module
+	 * @param array $tree
+	 * @return array
+	 * @internal
+	 */
+	public static function getRequiredModuleTree($module, &$tree = array(), $coveredInThisTree = array())
 	{
-		$tree[$module] = self::getRequiredModules($module);
-		foreach($tree[$module] as $depModule) {
-			$tree[$module][$depModule] = array();
-			self::getRequiredModuleTree($depModule, $tree[$module][$depModule]);
+		foreach(self::getRequiredModuleResources($module) as $depModuleResource) {
+			/* @var $depModuleResource \Foomo\Modules\Resource\Module */
+			if(!in_array($depModuleResource->name, $coveredInThisTree)) {
+				$coveredInThisTree[] = $depModuleResource->name;
+				$tree[] = $depModuleResource;
+				$tree[$depModuleResource->name] = array();
+				self::getRequiredModuleTree($depModuleResource->name, $tree[$depModuleResource->name], $coveredInThisTree);
+				if(empty($tree[$depModuleResource->name])) {
+					unset($tree[$depModuleResource->name]);
+				}
+			}
 		}
 		return $tree;
 	}

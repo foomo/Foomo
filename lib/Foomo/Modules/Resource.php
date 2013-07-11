@@ -33,7 +33,7 @@ abstract class Resource {
 	 * @internal
 	 * @var boolean
 	 */
-	public $isRequired = false;
+	public $isRequired = true;
 	/**
 	 * chaining config
 	 * @todo discuss this
