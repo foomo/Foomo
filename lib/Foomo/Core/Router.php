@@ -80,7 +80,9 @@ class Router extends R {
 	}
 	public function enableModule($name)
 	{
-		$this->out('enabling module ' . $name);
+		if(!$this->isJSONRequest()) {
+			$this->out('enabling module ' . $name);
+		}
 		Manager::enableModule($name);
 		$this->listModules();
 	}
