@@ -260,7 +260,7 @@ class Manager
 				}
 			}
 		} else {
-			trigger_error('the class is not in the scope of the autoloader ' . $className . ' can not ', E_USER_WARNING);
+			trigger_error('the class is not in the scope of the autoloader ' . $className, E_USER_WARNING);
 		}
 	}
 
