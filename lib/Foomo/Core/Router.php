@@ -71,6 +71,7 @@ class Router extends R {
 		$this->out('/listModules - list modules', 1);
 		$this->out('/enableModule/:module - enable a module (and all its dependencies)', 1);
 		$this->out('/disableModule/:module - disable a module', 1);
+		$this->out('/disableAllModules - disable all modules (except Foomo)', 1);
 	}
 	public function resetAutoLoader()
 	{
@@ -89,7 +90,34 @@ class Router extends R {
 		Manager::disableModule($name);
 		$this->listModules();
 	}
+	public function disableAllModules()
+	{
+		Manager::disableAllModules();
+		$this->listModules();
+	}
 	public function listModules()
+	{
+		if($this->isJSONRequest()) {
+			$this->listModulesMachine();
+		} else {
+			$this->listModulesHuman();
+		}
+	}
+	private function replyToMachine($data)
+	{
+		header('Content-Type: application/json');
+		if(defined('JSON_PRETTY_PRINT')) {
+			echo json_encode($data, JSON_PRETTY_PRINT);
+		} else {
+			echo json_encode($data);
+		}
+	}
+	private function isJSONRequest()
+	{
+		$headers = getallheaders();
+		return isset($headers['Accept']) && strpos($headers['Accept'], 'application/json') !== false;
+	}
+	private function listModulesHuman()
 	{
 		$this->out('enabled modules:');
 		$enabledModules = Manager::getEnabledModules();
@@ -102,7 +130,13 @@ class Router extends R {
 				$this->out($availableModule, 1);
 			}
 		}
-
+	}
+	private function listModulesMachine()
+	{
+		$this->replyToMachine(array(
+			'enabledModules' => Manager::getEnabledModules(),
+			'availableModules' => Manager::getAvailableModules()
+		));
 	}
 	private static function getBaseURL()
 	{
@@ -117,6 +151,7 @@ class Router extends R {
 			'/help' => 'help',
 			'/enableModule/:name' => 'enableModule',
 			'/disableModule/:name' => 'disableModule',
+			'/disableAllModules' => 'disableAllModules',
 			'/listModules' => 'listModules',
 			'/resetAutoLoader' => 'resetAutoLoader',
 			'*' => 'help'

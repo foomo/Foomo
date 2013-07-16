@@ -134,7 +134,7 @@ class Manager
 					/* @var $depResource \Foomo\Modules\Resource\Module */
 					if (!$depResource->resourceValid()) {
 						$done = false;
-						self::setModuleEnabled($enabledModuleName, false, false, false);
+						self::setModuleEnabled($enabledModuleName, false, false);
 						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $depResource->name, E_USER_WARNING);
 						break;
 					}
@@ -182,9 +182,17 @@ class Manager
 	 */
 	public static function enableModule($module, $updateClassCache = false)
 	{
-		return self::setModuleEnabled($module, true, true, $updateClassCache);
+		return self::setModuleEnabled($module, true, $updateClassCache);
 	}
 
+	/**
+	 * disable all except mama
+	 * @internal
+	 */
+	public static function disableAllModules()
+	{
+		return self::setEnabledModules(array(\Foomo\Module::NAME), true);
+	}
 	/**
 	 * disable a module
 	 *
@@ -194,7 +202,7 @@ class Manager
 	 */
 	public static function disableModule($module, $updateClassCache = false)
 	{
-		return self::setModuleEnabled($module, false, true, $updateClassCache);
+		return self::setModuleEnabled($module, false, $updateClassCache);
 	}
 
 	/**
@@ -707,10 +715,9 @@ class Manager
 	 *
 	 * @param string $module
 	 * @param bool $enabled
-	 * @param bool $checkConfig
 	 * @param bool $updateClassCache
 	 */
-	private static function setModuleEnabled($module, $enabled, $checkConfig = true, $updateClassCache = true)
+	private static function setModuleEnabled($module, $enabled, $updateClassCache = true)
 	{
 		self::checkModuleAvailabilty($module);
 		$currentConf = self::loadModuleConfiguration();
@@ -740,6 +747,11 @@ class Manager
 				$availableAndEnabled[] = $enabledModule;
 			}
 		}
+		self::setEnabledModules($availableAndEnabled, $updateClassCache);
+	}
+	private static function setEnabledModules(array $availableAndEnabled, $updateClassCache)
+	{
+		$currentConf = self::loadModuleConfiguration();
 		$currentConf->enabledModules = $availableAndEnabled;
 		self::saveModuleConfiguration($currentConf);
 		self::checkModuleConfig();
