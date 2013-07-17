@@ -100,7 +100,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		'type_mixed' => 'CHAR(32)'
 	);
 
-	public function __construct($persistorConfig, $createIfNotExists = false)
+	public function __construct($persistorConfig, $createIfNotExists = true)
 	{
 		$this->parseConfig($persistorConfig, $this->type, $this->serverName, $this->port, $this->databaseName, $this->username, $this->password);
 		//create if not exist an connect
@@ -120,7 +120,6 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			//
 			// insert or update
 			$statement = null;
-			$this->dbh->
 			$this->dbh->beginTransaction();
 			if (!$this->recordExists($resource)) {
 				$statement = $this->getInsertStatement($resource);

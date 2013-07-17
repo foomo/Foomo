@@ -128,6 +128,9 @@ class Logger {
 	public function getVarAsString($var)
 	{
 		switch (true) {
+			case is_array($var):
+				$ret = 'Array(' . count($var) . ')';
+				break;
 			case is_null($var):
 				$ret = 'null';
 				break;

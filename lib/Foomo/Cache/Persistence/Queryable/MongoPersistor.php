@@ -75,11 +75,12 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		//map config to persistor internal variables
 		$conf = $this->parseMongoConfig($persistorConfig);
 		//unique connection identifier in case we will have several installations using the same mongo
+		/*
 		if ($conf['persistent'])
 			$this->mongoConnectionOptions['persist'] = \Foomo\ROOT;
 		if ($conf['replicaSet'])
 			$this->mongoConnectionOptions['replicaSet'] = true;
-
+		*/
 		$this->databaseName = $conf['database'];
 		$this->serverName = $conf['host'];
 		$this->port = $conf['port'];
@@ -163,6 +164,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		} catch (\Exception $e) {
 			$this->mongo = null;
 			// if we can not connect die here!
+
 			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_ERROR);
 		}
 	}
