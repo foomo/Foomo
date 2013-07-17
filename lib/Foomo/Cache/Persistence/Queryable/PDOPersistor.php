@@ -135,7 +135,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			//$this->connect($this->createIfNotExists);
 			if ($this->tableExists(self::tableNameFromResourceName($resource->name)) && $this->recordExists($resource)) {
 				$dbResource = $this->load($resource);
-				trigger_error(__METHOD__ . 'race condition, when saving a resource ? $resource->debugCreationTime:' . $resource->debugCreationTime . ' $dbResource->debugCreationTime:' . $dbResource->debugCreationTime, E_USER_WARNING);
+				trigger_error(__METHOD__ . 'race condition, when saving a resource ? $resource->name: ' . $resource->name . ', $resource->debugCreationTime:' . $resource->debugCreationTime . ' $dbResource->debugCreationTime:' . $dbResource->debugCreationTime, E_USER_WARNING);
 				if ($dbResource->debugCreationTime > $resource->debugCreationTime) {
 					\trigger_error(' a never resource is in the db', \E_USER_WARNING);
 				}
