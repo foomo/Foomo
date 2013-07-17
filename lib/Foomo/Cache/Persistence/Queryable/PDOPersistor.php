@@ -19,6 +19,7 @@
 
 namespace Foomo\Cache\Persistence\Queryable;
 
+use Foomo\Timer;
 use \PDO;
 
 /**
@@ -96,17 +97,19 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		'type_float' => 'FLOAT',
 		'type_string' => 'CHAR(32)', //' VARCHAR(' . self::MAX_VARCHAR_SIZE . ')'
 		'creationtime' => 'INT',
-		'type_mixed' => 'CHAR(32)');
+		'type_mixed' => 'CHAR(32)'
+	);
 
-	public function __construct($persistorConfig, $createIfNotExists = false) {
+	public function __construct($persistorConfig, $createIfNotExists = false)
+	{
 		$this->parseConfig($persistorConfig, $this->type, $this->serverName, $this->port, $this->databaseName, $this->username, $this->password);
 		//create if not exist an connect
 		$this->createIfNotExists = $createIfNotExists;
 		$this->connect($createIfNotExists);
 	}
 
-	public function save(\Foomo\Cache\CacheResource $resource) {
-		$success = false;
+	public function save(\Foomo\Cache\CacheResource $resource)
+	{
 		try {
 			//	    WILL NOT CHECK IF TABLE EXISTS TO SPEED UP THINGS. FALLBACK AFTER EXCEPTION HANDLING
 			//		Note: this can somehow cause PDO exception interference
@@ -117,6 +120,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			//
 			// insert or update
 			$statement = null;
+			$this->dbh->
 			$this->dbh->beginTransaction();
 			if (!$this->recordExists($resource)) {
 				$statement = $this->getInsertStatement($resource);
@@ -125,22 +129,19 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			}
 			$statement->execute();
 			$this->dbh->commit();
-			$success = true;
 			return true;
 		} catch (\Exception $e) {
+			//trigger_error('an error occured, when saving a resource: ' . $e->getMessage());
 			$this->dbh->rollBack();
 			// try resolving it first by creating a table. If exception is propagated from here onwards- we have a problem with doctrine
 			// hence contain it here
-			//$this->dbh = null;
-			//$this->connect($this->createIfNotExists);
 			if ($this->tableExists(self::tableNameFromResourceName($resource->name)) && $this->recordExists($resource)) {
 				$dbResource = $this->load($resource);
-				trigger_error(__METHOD__ . 'race condition, when saving a resource ? $resource->name: ' . $resource->name . ', $resource->debugCreationTime:' . $resource->debugCreationTime . ' $dbResource->debugCreationTime:' . $dbResource->debugCreationTime, E_USER_WARNING);
-				if ($dbResource->debugCreationTime > $resource->debugCreationTime) {
-					\trigger_error(' a never resource is in the db', \E_USER_WARNING);
+				//trigger_error(__METHOD__ . ' race condition, when saving a resource ? $resource->name: ' . $resource->name . ', $resource->debugCreationTime:' . $resource->debugCreationTime . ' $dbResource->debugCreationTime:' . $dbResource->debugCreationTime, E_USER_WARNING);
+				if ($dbResource->debugCreationTime < $resource->debugCreationTime) {
+					\trigger_error('$dbResource->debugCreationTime < $resource->debugCreationTime', E_USER_WARNING);
 				}
-				trigger_error(__METHOD__ . ' failed in a transaction ' . $e->getMessage(), \E_USER_WARNING);
-				return false;
+				return true;
 			} else {
 				//trigger_error(__METHOD__ . ' failed to save. is the resource table not there yet?' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 				if (!$this->tableExists(self::tableNameFromResourceName($resource->name))) {
@@ -151,9 +152,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 					$this->createTableForResource($resource);
 					//call save again after table was created.
 					return $this->save($resource);
-					return true;
 				} else {
-					\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
+					\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), E_USER_WARNING);
 					return false;
 				}
 			}
@@ -163,10 +163,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	/**
 	 * load it from the db
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 * @param boolean $countHits
 	 *
-	 * @return Foomo\Cache\CacheResource
+	 * @return \Foomo\Cache\CacheResource
 	 */
 	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
 		try {
@@ -183,7 +183,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$object = self::rowToCacheResource($row, $resource->name);
 			if ($countHits) {
 				$object->hits++;
+				Timer::start('cache hit counting');
 				$this->writeBackNumberOfHits($object);
+				Timer::start('cache hit counting');
 			}
 			return $object;
 		} catch (\Exception $e) {
@@ -203,7 +205,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$statement->execute();
 			return true;
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 			return false;
 		}
 	}
@@ -212,10 +214,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * clear all. if resource name provided drops resource table, else remove recreates entire db
 	 *
 	 * @param string $resourceName, if null all will be deleted.
-	 *
-	 * @param $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
-	 *
-	 *
+	 * @param bool $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
 	 */
 	public function reset($resourceName = null, $recreateStructures = true) {
 		try {
@@ -239,41 +238,25 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 						echo 'Recreating structure for ' . $availableResource . PHP_EOL;
 						$this->createTableForResourceName($availableResource);
 						echo '.................. done.' . PHP_EOL;
-						@\ob_flush();
-						\flush();
+						@ob_flush();
+						flush();
 					}
 				}
 			}
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 		}
 	}
-
-	/**
-	 * recreates the table for storing the resource
-	 *
-	 * @param string $resourceName
-	 */
-//	public function setUp($resourceName) {
-//		try {
-//			echo 'Creating structure for ' . $resourceName . \PHP_EOL;
-//			$this->dropTable($this->tableNameFromResourceName($resourceName));
-//			$this->createTableForResource(\Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName));
-//			echo '      Done.' . \PHP_EOL;
-//		} catch (\Exception $e) {
-//			\trigger_error(__CLASS__ . __METHOD__ . ' : ' . $e->getMessage());
-//		}
-//	}
 
 	private function createTableForResourceName($resourceName) {
 		$emptyResource = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName);
 		$this->createTableForResource($emptyResource);
 	}
-
 	/**
 	 * returns an array of resource ids of all resources
 	 *
 	 * @param string $resourceName if null list all, else only resources matching name
+	 * @return array
 	 */
 	public function getListOfCachedResources($resourceName = null) {
 		try {
@@ -290,11 +273,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 					return $this->getIdsFromAllTables();
 				} catch (\Exception $e) {
 					return array();
-					\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 				}
 			}
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 			return array();
 		}
 	}
@@ -334,34 +316,33 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * finds all resources matching expression
 	 *
 	 * @param string $resourceName
-	 *
 	 * @param \Foomo\Cache\Persistence\Expr $expr
-	 *
 	 * @param integer $limit
-	 *
 	 * @param integer $offset
 	 *
 	 * @return PDOPersistorIterator
 	 */
-	public function query($resourceName, $expr, $limit, $offset) {
+	public function query($resourceName, $expr, $limit = 0, $offset = 0) {
 		$tableName = self::tableNameFromResourceName($resourceName);
-
 		//handle case where table was created but settup not called (no table yet)
 		if (!$this->tableExists($tableName)) {
 			//hence no entries
 			return $iterator = new PDOPersistorIterator(null, $resourceName);
-		} else { //regulat query
+		} else {
+			//regular query
 			$parameterTypes = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
 			//if we could not find the types any search will result empty, hence return empty iterator
-			if (\is_null($parameterTypes)) {
+			if (is_null($parameterTypes)) {
 				trigger_error('parameterTypes were null', E_USER_ERROR);
 			} else {
 				$parameterStack = array();
 				$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expr, $parameterStack, $tableName, $parameterTypes);
-				if ($limit != 0)
+				if ($limit != 0) {
 					$sql .= ' LIMIT ' . $limit;
-				if ($offset != 0)
+				}
+				if ($offset != 0) {
 					$sql .= ' OFFSET ' . $offset;
+				}
 				$sql .= ";";
 
 				$cursor = 0;
@@ -380,14 +361,15 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	/**
 	 * connect to db. attempt to create if not exists. sets the $dbh property
 	 * connections are persistent to speed up things: PDO::ATTR_PERSISTENT => true
+	 *
 	 * @param bool $createIfNotExists
 	 * @param integer $attempt if we can not connect we call ourselves another time, attempt is increased by 1.
+	 *
 	 * @return boolean
 	 */
-	protected function connect($createIfNotExists = true, $attempt = 0) {
-
+	protected function connect($createIfNotExists = true, $attempt = 0)
+	{
 		$max_retries = 10;
-
 		try {
 			// $dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName . ":" . $this->port;
 			// by schmidk
@@ -399,12 +381,17 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			if ($createIfNotExists) {
 				$this->createDatabaseIfNotExists($this->databaseName);
 			}
-			$this->dbh = @new \PDO($dsn, $this->username, $this->password, array(
-						PDO::ATTR_PERSISTENT => true,
-						PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-					));
-			if ($attempt > 0)
-				\trigger_error(__METHOD__ . ' PDO connected at attempt: ' . $attempt);
+			$this->dbh = @new \PDO(
+				$dsn,
+				$this->username,
+				$this->password, array(
+					PDO::ATTR_PERSISTENT => true,
+					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+				)
+			);
+			if ($attempt > 0) {
+				trigger_error(__METHOD__ . ' PDO connected at attempt: ' . $attempt);
+			}
 			$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 			$db_info = $this->dbh->getAttribute(PDO::ATTR_SERVER_INFO); //  erkennung von toten persistenten verbindungen ...
@@ -412,22 +399,23 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			if ($db_info == "MySQL server has gone away") {
 				$this->dbh = null;
 				$this->dbh = @new \PDO($dsn, $this->username, $this->password);
-				\trigger_error(__METHOD__ . ' using a non-persistent PDO connection');
+				trigger_error(__METHOD__ . ' using a non-persistent PDO connection');
 			}
 			//$this->dbh->exec('set character set utf8;');
 			return true;
 		} catch (\Exception $e) {
 			$this->dbh = null;
 			if ($attempt >= $max_retries) {
-				\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage() . ' after trying ' . $max_retries . ' times.');
+				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage() . ' after trying ' . $max_retries . ' times.');
 				return false;
 			}
 			//we create the dB if not there and try connecting again
-			if ($attempt == 0)
+			if ($attempt == 0) {
 				$this->createDatabaseIfNotExists($this->databaseName);
+			}
 			// sleep if not first retry
 			if ($attempt > 1) {
-				\usleep($attempt * 100000);
+				usleep($attempt * 100000);
 			}
 			return $this->connect($this->createIfNotExists, $attempt + 1);
 		}
@@ -435,10 +423,14 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 * create db if not there
+	 *
 	 * uses mysql api as PDO does not allow to create db before establishing connection with mysql
+	 *
 	 * @param string $databaseName
 	 */
-	protected function createDatabaseIfNotExists($databaseName) {
+	protected function createDatabaseIfNotExists($databaseName)
+	{
+		// @todo who says it is mysql
 		try {
 			mysql_connect($this->serverName . ":" . $this->port, $this->username, $this->password);
 			$databaseName = \mysql_real_escape_string($databaseName);
@@ -446,27 +438,28 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			if (mysql_query($query)) {
 				mysql_select_db($databaseName);
 			} else {
-				\trigger_error(__CLASS__ . __METHOD__ . ' : ' . mysql_error());
+				trigger_error(__CLASS__ . __METHOD__ . ' : ' . mysql_error());
 			}
-			\mysql_close();
+			mysql_close();
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 		}
 	}
 
-	protected function dropDatabase($databaseName) {
+	protected function dropDatabase($databaseName)
+	{
 		try {
 			mysql_connect($this->serverName . ":" . $this->port, $this->username, $this->password);
-			$databaseName = \mysql_real_escape_string($databaseName);
+			$databaseName = mysql_real_escape_string($databaseName);
 			$query = "DROP DATABASE " . $databaseName . ";";
 			if (mysql_query($query)) {
-				//\mysql_select_db($databaseName);
+				//mysql_select_db($databaseName);
 			} else {
-				\trigger_error(__CLASS__ . __METHOD__ . ' : ' . mysql_error());
+				trigger_error(__CLASS__ . __METHOD__ . ' : ' . mysql_error());
 			}
-			\mysql_close();
+			mysql_close();
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 		}
 	}
 
@@ -474,19 +467,20 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * Create a table to store resource with parameters
 	 * @throws Exception if could not create table
 	 */
-	protected function createTableForResource(\Foomo\Cache\CacheResource $resource) {
-
+	protected function createTableForResource(\Foomo\Cache\CacheResource $resource)
+	{
 		$tableName = self::tableNameFromResourceName($resource->name);
-
 		try {
-			$statement = 'CREATE TABLE IF NOT EXISTS ' . $tableName .
+			$statement =
+					'CREATE TABLE IF NOT EXISTS ' . $tableName .
 					' (id ' . self::$typeMapping['id'] . ' NOT NULL UNIQUE, resource ' . self::$typeMapping['resource'] .
 					', status ' . self::$typeMapping['status'] .
 					', creationtime ' . self::$typeMapping['creationtime'] .
 					', expirationtime ' . self::$typeMapping['expirationtime'] .
 					', expirationtimefast ' . self::$typeMapping['expirationtimefast'] .
 					', hits ' . self::$typeMapping['hits'] .
-					', UNIQUE (id)) ENGINE = InnoDB, DEFAULT CHARACTER SET utf8, DEFAULT COLLATE utf8_general_ci;'; //MYISAM
+					', UNIQUE (id)) ENGINE = InnoDB, DEFAULT CHARACTER SET utf8, DEFAULT COLLATE utf8_general_ci;'
+			; //MYISAM ?!
 
 			$this->dbh->exec($statement);
 
@@ -494,32 +488,27 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$this->dbh->exec("ALTER TABLE " . $tableName . " ADD INDEX(id);");
 
 			//add the columns for the properties
-			/* @var $propertyDefintion \Foomo\Cache\CacheResourcePropertyDefinition */
-			foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefintion) {
+			/* @var $propertyDefinition \Foomo\Cache\CacheResourcePropertyDefinition */
+			foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefinition) {
 				$columnName = $this->paramNameToColName($parameterName);
 				$query = 'ALTER TABLE ' . $tableName . ' ADD ' . $columnName . ' ';
-				$typeMappingName = 'type_' . $propertyDefintion->type;
+				$typeMappingName = 'type_' . $propertyDefinition->type;
 
 				if (isset(self::$typeMapping[$typeMappingName])) {
 					$query .= self::$typeMapping[$typeMappingName];
 				} else {
-					if ($propertyDefintion->typeIsArray()) {
+					if ($propertyDefinition->typeIsArray()) {
 						$query .= self::$typeMapping['type_array'];
 					} else {
 						$query .= self::$typeMapping['type_object'];
 					}
 				}
-
-				//$query .= " ADD INDEX " . $columnName . "_index (" . $columnName .");";
 				$this->dbh->exec($query);
-
-				//add index on property column
-				//$this->dbh->exec("ALTER TABLE " . $tableName . " ADD INDEX(".$columnName.");");
 			}
 			//if successful add table to existing tables
 			$this->storeResourceName($resource->name);
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . ' : ' . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . ' : ' . $e->getMessage());
 			$this->dropTable($tableName);
 			throw $e;
 		}
@@ -528,88 +517,73 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	/**
 	 * creates a table to store resource names if conversion of
 	 *
-	 * tablenames to resource names is required
+	 * table names to resource names is required
 	 */
-	private function createResourceNamesTableIfNotThere() {
+	private function createResourceNamesTableIfNotThere()
+	{
 		try {
 			$tableName = PDOPersistor::RESOURCE_NAMES_TABLE;
 			$statement = "CREATE TABLE IF NOT EXISTS " . $tableName . " (tableName VARCHAR(64) NOT NULL UNIQUE, resourceName VARCHAR(1024), UNIQUE(tableName)) ENGINE = MYISAM;";
 			$this->dbh->exec($statement);
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 		}
 	}
 
-	private function storeResourceName($resourceName) {
+	private function storeResourceName($resourceName)
+	{
 		$tableName = self::tableNameFromResourceName($resourceName);
-
-		if ($this->isTableNameStored($tableName))
+		if ($this->isTableNameStored($tableName)) {
 			return;
-
-		$table = PDOPersistor::RESOURCE_NAMES_TABLE;
-		try {
-			$statement = "INSERT INTO " . $table . " VALUES (:tableName, :resourceName);";
-
-			$statement = $this->dbh->prepare($statement);
-			$statement->bindParam(':tableName', $tableName);
-			$statement->bindParam(':resourceName', $resourceName);
-			$statement->execute();
-		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+		} else {
+			$table = PDOPersistor::RESOURCE_NAMES_TABLE;
 			try {
-				$this->createResourceNamesTableIfNotThere();
-				$this->storeResourceName($resourceName);
-			} catch (\Exception $e1) {
-				\trigger_error(__CLASS__ . __METHOD__ . $e1->getMessage());
+				$statement = "INSERT INTO " . $table . " VALUES (:tableName, :resourceName);";
+				$statement = $this->dbh->prepare($statement);
+				$statement->bindParam(':tableName', $tableName);
+				$statement->bindParam(':resourceName', $resourceName);
+				$statement->execute();
+			} catch (\Exception $e) {
+				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+				try {
+					$this->createResourceNamesTableIfNotThere();
+					$this->storeResourceName($resourceName);
+				} catch (\Exception $e1) {
+					trigger_error(__CLASS__ . __METHOD__ . $e1->getMessage());
+				}
 			}
 		}
 	}
 
-	private function isTableNameStored($tableName) {
+	private function isTableNameStored($tableName)
+	{
 		$table = PDOPersistor::RESOURCE_NAMES_TABLE;
 		try {
 			$statement = "SELECT * FROM " . $table . " WHERE tableName = :tableName;";
-
 			$statement = $this->dbh->prepare($statement);
 			$statement->bindParam(':tableName', $tableName);
 			$statement->execute();
 			$res = $statement->fetchAll();
-			if (count($res) > 0)
+			if (count($res) > 0) {
 				return true;
-			else
+			} else {
 				return false;
+			}
 		} catch (\Exception $e) {
 			return false;
 		}
 	}
 
-	private static function getResourceNameFromStored($tableName) {
+	private function deleteResourceNameFromStored($resourceName)
+	{
 		try {
-			$resourceTable = PDOPersistor::RESOURCE_NAMES_TABLE;
-			$statement = "SELECT resourceName FROM " . $resourceTable . " WHERE tableName = :tableName;";
-			$statement = $this->dbh->prepare($statement);
-			$statement->bindParam(':tableName', $tableName);
-			$result = $this->dbh->query($statement);
-			if ($result->rowCount() == 0)
-				return null;
-			else
-				return $result[0];
-		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
-			return null;
-		}
-	}
-
-	private function deleteResourceNameFromStored($resourceName) {
-		try {
-			//$tableName = self::tableNameFromResourceName($resourceName);
 			$resourceTable = PDOPersistor::RESOURCE_NAMES_TABLE;
 			$statement = "DELETE FROM " . $resourceTable . " WHERE tableName = :resourceName;";
 			$statement = $this->dbh->prepare($statement);
 			$statement->bindParam(':resourceName', $resourceName);
 			$statement->execute();
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_WARNING);
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_WARNING);
 		}
 	}
 
@@ -618,7 +592,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 *
 	 * @return array of resource names
 	 */
-	public function getCachedResourceNames() {
+	public function getCachedResourceNames()
+	{
 		$statement = "SELECT resourceName FROM " . self::RESOURCE_NAMES_TABLE . ";";
 		$statement = $this->dbh->prepare($statement);
 		$statement->execute();
@@ -631,9 +606,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 *
 	 * @param string $resourceName
 	 *
-	 * @return <type>
+	 * @return PDOPersistorIterator
 	 */
-	public function getAllCachedResources($resourceName) {
+	public function getAllCachedResources($resourceName)
+	{
 		$expr = \Foomo\Cache\Persistence\Expr::idNe('we want all - this is not an id');
 		$resourceIterator = $this->query($resourceName, $expr);
 		return $resourceIterator;
@@ -642,68 +618,62 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	/**
 	 * cache the table names of existing tables
 	 */
-	private function getAvailableTables() {
+	private function getAvailableTables()
+	{
 		try {
 			$statement = $this->dbh->query("SHOW TABLES;");
 			$availableTables = array();
 			while ($row = $statement->fetch(PDO::FETCH_NUM)) {
-				//var_dump($row[0]);
 				$availableTables[] = $row[0];
 			}
 			return $availableTables;
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 			return array();
 		}
 	}
 
-	public static function paramNameToColName($paramName) {
+	public static function paramNameToColName($paramName)
+	{
 		return 'param_' . $paramName;
 	}
 
-	private function colNameToParameterName($colName) {
-		return \substr($colName, 6);
-	}
-
-	public static function tableNameFromResourceName($resourceName) {
-		$resourceName = \str_replace("\\", "$", $resourceName);
-		if (\strpos($resourceName, "->"))
-			$index = \stripos($resourceName, "->") + 2;
+	public static function tableNameFromResourceName($resourceName)
+	{
+		$resourceName = str_replace("\\", "$", $resourceName);
+		if (strpos($resourceName, "->"))
+			$index = stripos($resourceName, "->") + 2;
 		else
-			$index = \stripos($resourceName, "::") + 2;
-		if ($index < 0)
+			$index = stripos($resourceName, "::") + 2;
+		if ($index < 0) {
 			$index = 0;
-		$name = \substr($resourceName, $index);
-		$len = \strlen($name);
-		if ($len > 32) {
-			$name = \substr($name, $len - 32);
 		}
-		$name .= \md5($resourceName);
+		$name = substr($resourceName, $index);
+		$len = strlen($name);
+		if ($len > 32) {
+			$name = substr($name, $len - 32);
+		}
+		$name .= md5($resourceName);
 		return $name;
 	}
 
-	public static function resourceNameFromTableName($tableName) {
-		return self::getResourceNameFromStored($tableName);
-	}
-
-	protected function dropTable($tableName) {
-		if ($this->tableExists($tableName) === false)
-			return;
-
-		try {
-			// drop the resource table
-			$statement = "DROP TABLE " . $tableName . ";";
-			$statement = $this->dbh->prepare($statement);
-			$statement->execute();
-			// drop the reference
-
-			$resourceNamesTable = self::RESOURCE_NAMES_TABLE;
-			$statement = "DELETE FROM " . $resourceNamesTable . " where tableName = :table;";
-			$statement = $this->dbh->prepare($statement);
-			$statement->bindParam(':table', $tableName);
-			$statement->execute();
-		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+	protected function dropTable($tableName)
+	{
+		if ($this->tableExists($tableName)) {
+			try {
+				// drop the resource table
+				$statement = "DROP TABLE " . $tableName . ";";
+				$statement = $this->dbh->prepare($statement);
+				$statement->execute();
+				// drop the reference
+				$resourceNamesTable = self::RESOURCE_NAMES_TABLE;
+				$statement = "DELETE FROM " . $resourceNamesTable . " where tableName = :table;";
+				$statement = $this->dbh->prepare($statement);
+				$statement->bindParam(':table', $tableName);
+				$statement->execute();
+			} catch (\Exception $e) {
+				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			}
 		}
 	}
 
@@ -719,12 +689,14 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	}
 
 	/**
-	 * 	Check if record with resource exists
+	 * Check if record with resource exists
+	 *
 	 * @param \Foomo\Cache\CacheResource $resource
-	 * @return <type>
-	 * @throws \Exception (PDOException) if tabel not exists or other error
+	 *
+	 * @return bool
 	 */
-	protected function recordExists(\Foomo\Cache\CacheResource $resource) {
+	protected function recordExists(\Foomo\Cache\CacheResource $resource)
+	{
 		try {
 			$id = $resource->id;
 			$tableName = self::tableNameFromResourceName($resource->name);
@@ -733,10 +705,11 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$statement->bindParam(':id', $id, PDO::PARAM_STR);
 			$statement->execute();
 			$row = $statement->fetch();
-			if ($row)
+			if ($row) {
 				return true;
-			else
+			} else {
 				return false;
+			}
 		} catch (\Exception $e) {
 			// @todo: disabled this as this always comes after autoloader reset
 			#\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
@@ -745,7 +718,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	}
 
 	/**
-	 * compute a fingerpring of an object. for object that implement __toString returns md5 of its return value
+	 * compute a fingerprint of an object. for object that implement __toString returns md5 of its return value
 	 *
 	 * otherwise returns md5 of serialized object, which may be  slower for large objects
 	 *
@@ -753,17 +726,18 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 *
 	 * @return string
 	 */
-	private static function getObjectFingerprint($object) {
+	private static function getObjectFingerprint($object)
+	{
 		switch (true) {
 			case is_object($object):
-				if (\method_exists($object, '__toString')) {
+				if (method_exists($object, '__toString')) {
 					$ret = $object->__toString();
 				} else {
-					$ret = \serialize($object);
+					$ret = serialize($object);
 				}
 				break;
 			case is_array($object):
-				$ret = \serialize($object);
+				$ret = serialize($object);
 				break;
 			case is_string($object):
 				$ret = $object;
@@ -772,29 +746,29 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				$ret = '';
 				break;
 			default:
-				trigger_error('that was unexpected ' . \var_export($object, true), \E_USER_ERROR);
+				trigger_error('that was unexpected ' . var_export($object, true), \E_USER_ERROR);
 		}
-		if (\strlen($ret) > 32) {
-			return \md5($ret);
+		if (strlen($ret) > 32) {
+			return md5($ret);
 		} else {
 			return $ret;
 		}
 	}
 
-	protected function getInsertStatement(\Foomo\Cache\CacheResource $resource) {
+	protected function getInsertStatement(\Foomo\Cache\CacheResource $resource)
+	{
 		// put properties into string
 		$tableName = self::tableNameFromResourceName($resource->name);
-		$statement = "INSERT INTO " .
-				$tableName .
-				" VALUES (:id, :resource, :status, :creationTime, :expirationTime, :expirationTimeFast, :hits";
-
+		$statement =
+			"INSERT INTO " .
+			$tableName .
+			" VALUES (:id, :resource, :status, :creationTime, :expirationTime, :expirationTimeFast, :hits"
+		;
 		$propertyNames = \array_keys($resource->properties);
-
 		foreach ($propertyNames as $pName) {
 			$pName = self::paramNameToColname($pName);
 			$statement .= ", :" . $pName;
 		}
-
 		$statement .= ");";
 		$statement = $this->dbh->prepare($statement);
 		//set parameters
@@ -810,7 +784,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $statement;
 	}
 
-	protected function getUpdateStatement(\Foomo\Cache\CacheResource $resource) {
+	protected function getUpdateStatement(\Foomo\Cache\CacheResource $resource)
+	{
 		// put properties into string
 		$tableName = self::tableNameFromResourceName($resource->name);
 		$statement = "UPDATE " . $tableName .
@@ -822,7 +797,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				"hits = :hits";
 
 		// add the properties
-		$propertyNames = \array_keys($resource->properties);
+		$propertyNames = array_keys($resource->properties);
 		foreach ($propertyNames as $propertyName) {
 			$propertyName = self::paramNameToColname($propertyName);
 			$statement .= ', ' . $propertyName . ' =:' . $propertyName;
@@ -833,7 +808,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		//set parameters
 
 		$statement->bindParam(':id', $resource->id, PDO::PARAM_STR);
-		$serializedResource = \serialize($resource);
+		$serializedResource = serialize($resource);
 		$statement->bindParam(':resource', $serializedResource, PDO::PARAM_LOB);
 		$statement->bindParam(':status', $resource->status, PDO::PARAM_INT);
 		$statement->bindParam(':creationTime', $resource->creationTime, PDO::PARAM_INT);
@@ -845,7 +820,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $statement;
 	}
 
-	private function bindPropertiesOnStatement($statement, $resource) {
+	private function bindPropertiesOnStatement($statement, $resource)
+	{
 		foreach ($resource->properties as $propertyName => $propertyValue) {
 			$isMixed = false;
 			if ($resource->propertyTypes[$propertyName] == 'mixed') {
@@ -855,37 +831,39 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
-	private function bindParameterForProperty($statement, $propertyName, $propertyValue, $isMixed) {
-
+	private function bindParameterForProperty($statement, $propertyName, $propertyValue, $isMixed)
+	{
 		if ($isMixed === true) {
 			//handle it as an object
 			$propertyValue = $this->getObjectFingerprint($propertyValue);
 			$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
 		} else {
 			//$propertyName = self::paramNameToColname($propertyName);
-			if (\is_object($propertyValue)) {
+			if (is_object($propertyValue)) {
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
-			} else if (\is_array($propertyValue)) {
+			} else if (is_array($propertyValue)) {
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
-			} else if (\is_bool($propertyValue)) {
+			} else if (is_bool($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_BOOL);
-			} else if (\is_double($propertyValue)) {
+			} else if (is_double($propertyValue)) {
 				// covers float too
 				$statement->bindParam($propertyName, $propertyValue);
-			} else if (\is_int($propertyValue)) {
+			} else if (is_int($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_INT);
-			} else if (\is_long($propertyValue)) {
+			} else if (is_long($propertyValue)) {
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_INT);
-			} else if (\is_string($propertyValue)) {
+			} else if (is_string($propertyValue)) {
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
 			} else if (!isset($propertyValue)) {
 				//null treated as object or string
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
-			} else {//default is object
+			} else {
+				//default is object
+				// @todo why is is_object handled then ...
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
 				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
 			}
@@ -893,44 +871,49 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $statement;
 	}
 
-	public static function getStorablePropertyRepresentation($propertyValue, $isMixed = false) {
+	public static function getStorablePropertyRepresentation($propertyValue, $isMixed = false)
+	{
 		if ($isMixed) {
 			return self::getObjectFingerprint($propertyValue);
 		} else {
-			if (\is_object($propertyValue)) {
+			if (is_object($propertyValue)) {
 				return self::getObjectFingerprint($propertyValue);
-			} else if (\is_array($propertyValue)) {
+			} else if (is_array($propertyValue)) {
 				return self::getObjectFingerprint($propertyValue);
-			} else if (\is_bool($propertyValue)) {
+			} else if (is_bool($propertyValue)) {
 				return $propertyValue;
-			} else if (\is_float($propertyValue)) {
+			} else if (is_float($propertyValue)) {
 				return $propertyValue;
-			} else if (\is_double($propertyValue)) {
+			} else if (is_double($propertyValue)) {
 				return $propertyValue;
-			} else if (\is_int($propertyValue)) {
+			} else if (is_int($propertyValue)) {
 				return $propertyValue;
-			} else if (\is_long($propertyValue)) {
+			} else if (is_long($propertyValue)) {
 				return $propertyValue;
-			} else if (\is_string($propertyValue)) {
+			} else if (is_string($propertyValue)) {
 				return self::getObjectFingerprint($propertyValue);
 			} else if (!isset($propertyValue)) {
 				//null treated as object or string
 				return self::getObjectFingerprint($propertyValue);
-			} else {//default is object
+			} else {
+				//default is object
+				// @todo why is is_object handled then ...
 				return self::getObjectFingerprint($propertyValue);
 			}
 		}
 	}
-
 	/**
 	 * format properties as part of SQL query
-	 * @param array $parameters
+	 *
+	 * @param array $properties
+	 *
+	 * @return string
 	 */
-	public static function getPropertiesQueryString($properties) {
+	public static function getPropertiesQueryString($properties)
+	{
 		$str = "";
 		foreach ($properties as $n => $v) {
 			$n = self::paramNameToColName($n);
-
 			if ($str == "") {
 				$str .= $n . ' = :' . $n;
 			} else {
@@ -940,18 +923,20 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $str;
 	}
 
-	public static function rowToCacheResource($row, $resourceName) {
+	public static function rowToCacheResource($row, $resourceName)
+	{
 		try {
-			$resource = \unserialize($row['resource']);
+			$resource = unserialize($row['resource']);
 			$resource->hits = $row['hits'];
 			return $resource;
 		} catch (\Exception $e) {
-			trigger_error(__CLASS__ . __METHOD__ . " : " . "Could not unserialize resource");
+			trigger_error(__CLASS__ . __METHOD__ . " : " . "Could not unserialize resource " . $resourceName);
 			throw new \Exception('could not unserialize resource');
 		}
 	}
 
-	private function writeBackNumberOfHits($resource) {
+	private function writeBackNumberOfHits($resource)
+	{
 		try {
 			$tableName = self::tableNameFromResourceName($resource->name);
 			$statement = "UPDATE " . $tableName . " SET hits = :hits WHERE id = :id;";
@@ -966,55 +951,48 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 * get a db connection
-	 *
-	 * @return \Doctrine\DBAL\Connection
 	 */
-	private function parseConfig($configStr, &$type, &$serverName, &$port, &$dbName, &$username, &$password) {
-//parse the data
-		$parsed = \parse_url($configStr);
+	private function parseConfig($configStr, &$type, &$serverName, &$port, &$dbName, &$username, &$password)
+	{
+		//parse the data
+		$parsed = parse_url($configStr);
 		$type = $parsed['scheme'];
-		if ($parsed['scheme'] != 'mysql')
+		if ($parsed['scheme'] != 'mysql') {
 			throw new \Exception('Specified database type ' . $type . ' not supported.');
+		}
 		$username = isset($parsed['user']) ? $parsed['user'] : '';
 		$password = isset($parsed['pass']) ? $parsed['pass'] : '';
 		$port = isset($parsed['port']) ? $parsed['port'] : '3306';
-		$dbName = \substr($parsed['path'], 1);
-
-
+		$dbName = substr($parsed['path'], 1);
 		$serverName = $parsed['host'];
 	}
 
-	public function getExpressionInterpretation($resourceName, $expression) {
+	public function getExpressionInterpretation($resourceName, $expression)
+	{
 		$tableName = self::tableNameFromResourceName($resourceName);
 		$parameterStack = array();
 		
 		$parameterTypes = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
 		//if we could not find the types any search will result empty, hence return empty iterator
-		if (\is_null($parameterTypes)) {
+		if (is_null($parameterTypes)) {
 			trigger_error('parameterTypes were null', E_USER_ERROR);
 		} else {
-
 			$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName, $parameterTypes);
-//			if ($limit != 0)
-//				$sql .= ' LIMIT ' . $limit;
-//			if ($offset != 0)
-//				$sql .= ' OFFSET ' . $offset;
 			$sql .= ";";
 
 			//change the ? with data from parameterStack
-			$explodedSQL = \explode('?', $sql);
+			$explodedSQL = explode('?', $sql);
 			$sql = '';
 			$i = -1;
 			foreach ($explodedSQL as $part) {
 				$i++;
 				if (isset($parameterStack[$i][1])) {
-					$sql .= ' ' . \trim($part) . ' ' . \trim($parameterStack[$i][1]);
+					$sql .= ' ' . trim($part) . ' ' . trim($parameterStack[$i][1]);
 				} else {
-					$sql .= \trim($part);
+					$sql .= trim($part);
 				}
 			}
-			$sql = \trim($sql);
-			return \trim($sql);
+			return trim($sql);
 		}
 	}
 
@@ -1025,7 +1003,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 *
 	 * @return bool
 	 */
-	public function storageStructureExists($resourceName) {
+	public function storageStructureExists($resourceName)
+	{
 		$tableName = $this->tableNameFromResourceName($resourceName);
 		return $this->tableExists($tableName);
 	}
@@ -1039,7 +1018,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 *
 	 * @return boolean true if valid
 	 */
-	public function validateStorageStructure($resourceName, $verbose = false) {
+	public function validateStorageStructure($resourceName, $verbose = false)
+	{
 		$tableName = self::tableNameFromResourceName($resourceName);
 		if (!$this->tableExists($tableName)) {
 			if ($verbose === true)
@@ -1061,16 +1041,16 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 		// first through the property definitions
 		foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefintion) {
-			$annotationParameter = \strtolower($parameterName);
+			$annotationParameter = strtolower($parameterName);
 			$typeMappingName = 'type_' . $propertyDefintion->type;
 
 			if (isset(self::$typeMapping[$typeMappingName])) {
-				$annotationParameterType = \strtoupper(self::$typeMapping[$typeMappingName]);
+				$annotationParameterType = strtoupper(self::$typeMapping[$typeMappingName]);
 			} else {
 				if ($propertyDefintion->typeIsArray()) {
-					$annotationParameterType = \strtoupper(self::$typeMapping['type_array']);
+					$annotationParameterType = strtoupper(self::$typeMapping['type_array']);
 				} else {
-					$annotationParameterType = \strtoupper(self::$typeMapping['type_object']);
+					$annotationParameterType = strtoupper(self::$typeMapping['type_object']);
 				}
 			}
 
@@ -1082,12 +1062,12 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 			if ($dbColumnType == $annotationParameterType) {
 				if ($verbose)
-					echo 'Comparing annotation of param ' . $annotationParameter . '  type ' . $propertyDefintion->type . '/ to be mapped into ' . $annotationParameterType . ' is mapped correctly to ' . $dbColumnType . \PHP_EOL;
-			}else {
+					echo 'Comparing annotation of param ' . $annotationParameter . '  type ' . $propertyDefintion->type . '/ to be mapped into ' . $annotationParameterType . ' is mapped correctly to ' . $dbColumnType . PHP_EOL;
+			} else {
 				if ($verbose) {
-					echo '------------------------------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
-					echo 'Comparing annotation of param ' . $annotationParameter . '  type ' . $propertyDefintion->type . '/ to be mapped into ' . $annotationParameterType . ' is INCORRECTLY MAPPED to ' . $dbColumnType . \PHP_EOL;
-					echo '------------------------------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
+					echo '------------------------------------------------------------------------------------------------------------------------------------------------------' . PHP_EOL;
+					echo 'Comparing annotation of param ' . $annotationParameter . '  type ' . $propertyDefintion->type . '/ to be mapped into ' . $annotationParameterType . ' is INCORRECTLY MAPPED to ' . $dbColumnType . PHP_EOL;
+					echo '------------------------------------------------------------------------------------------------------------------------------------------------------' . PHP_EOL;
 				}
 				$ret = false;
 			}
@@ -1096,22 +1076,21 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 		// second another round through all the existing db columns
 		if ($verbose) {
-			echo \PHP_EOL;
-			echo 'For all storage fields (columns) .... check if their type matches annotation ....' . \PHP_EOL;
-			echo \PHP_EOL;
+			echo PHP_EOL;
+			echo 'For all storage fields (columns) .... check if their type matches annotation ....' . PHP_EOL;
+			echo PHP_EOL;
 		}
 
 		foreach ($tableInformation as $column) {
 
-			$type = self::removeTypeBraces(\strtoupper($column['Type']));
-			$name = \strtolower($column['Field']);
+			$type = self::removeTypeBraces(strtoupper($column['Type']));
+			$name = strtolower($column['Field']);
 			$column['Field'] = $name;
 			$column['Type'] = $type;
 			$annotatedTypeMapped = $this->getDBColumnTypeFromAnnotationMapped($name, $resource);
 			$annotatedType = $this->getDBColumnTypeFromAnnotation($name, $resource);
 
-			$mismatch = true;
-			if (\strtoupper($column['Type']) != $annotatedTypeMapped) {
+			if (strtoupper($column['Type']) != $annotatedTypeMapped) {
 				$mismatch = true;
 				$ret = false;
 			} else {
@@ -1119,54 +1098,52 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			}
 
 			if ($mismatch && $verbose) {
-				echo '' . \PHP_EOL;
-				echo '-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
+				echo '' . PHP_EOL;
+				echo '-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------' . PHP_EOL;
 			}
 
 			if ($verbose) {
-				echo ' -> Column ' . $column['Field'] . ' has type ' . $type . '/ Annotation type  ' . '(' . $annotatedType . ')' . ' is mapped to ' . $annotatedTypeMapped . \PHP_EOL;
+				echo ' -> Column ' . $column['Field'] . ' has type ' . $type . '/ Annotation type  ' . '(' . $annotatedType . ')' . ' is mapped to ' . $annotatedTypeMapped . PHP_EOL;
 			}
-			if (!$mismatch) {
-				if ($verbose)
-					echo '................. OK' . \PHP_EOL;
+			if (!$mismatch && $verbose) {
+					echo '................. OK' . PHP_EOL;
 			}
-			if ($mismatch === true && $verbose) {
-				echo '------------------------------------> STORAGE STRUCTURE TYPE NOT UPTODATE. CACHE STRUCTURE INCONSISTENCY. PLEASE SETUP CACHE RESOURCE FOR RESOURCE: ' . $resourceName . \PHP_EOL;
-				echo '' . \PHP_EOL;
+			if ($mismatch && $verbose) {
+				echo '------------------------------------> STORAGE STRUCTURE TYPE NOT UPTODATE. CACHE STRUCTURE INCONSISTENCY. PLEASE SETUP CACHE RESOURCE FOR RESOURCE: ' . $resourceName . PHP_EOL;
+				echo '' . PHP_EOL;
 			}
-
 			if ($mismatch && $verbose) {
 				echo '-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------' . \PHP_EOL;
 			}
 		}
 		return $ret;
 	}
-
 	/**
 	 * tells what type the annotation expects the db colum to be, i.e. what the annotation maps to
 	 *
-	 * @param string $propName db column name
+	 * @param $columnName
+	 * @param $resource
+	 * @return string
 	 *
 	 * @return string type of column param_xxxxx
 	 */
-	private function getDBColumnTypeFromAnnotationMapped($columnName, $resource) {
-		if (\array_key_exists($columnName, self::$typeMapping)) {
+	private function getDBColumnTypeFromAnnotationMapped($columnName, $resource)
+	{
+		if (array_key_exists($columnName, self::$typeMapping)) {
 			return self::removeTypeBraces(self::$typeMapping[$columnName]);
 		} else {
-
-			/* @var $propertyDefintion \Foomo\Cache\CacheResourcePropertyDefinition */
-			foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefintion) {
-
-				$parameterName = \strtolower($parameterName);
+			/* @var $propertyDefinition \Foomo\Cache\CacheResourcePropertyDefinition */
+			foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefinition) {
+				$parameterName = strtolower($parameterName);
 				$decoratedName = $this->paramNameToColName($parameterName);
 
 				if ($columnName == $decoratedName) {
-					$typeMappingName = 'type_' . $propertyDefintion->type;
+					$typeMappingName = 'type_' . $propertyDefinition->type;
 
 					if (isset(self::$typeMapping[$typeMappingName])) {
 						return self::removeTypeBraces(self::$typeMapping[$typeMappingName]);
 					} else {
-						if ($propertyDefintion->typeIsArray()) {
+						if ($propertyDefinition->typeIsArray()) {
 							return self::removeTypeBraces(self::$typeMapping['type_array']);
 						} else {
 							return self::removeTypeBraces(self::$typeMapping['type_object']);
@@ -1178,83 +1155,82 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	}
 
 	/**
-	 * tells what type the annotation expects the db colum to be. Annotation not mapped to db type!
+	 * tells what type the annotation expects the db column to be. Annotation not mapped to db type!
 	 *
-	 * @param string $propName db column name
+	 * @param string $columnName
+	 * @param $resource
 	 *
-	 * @return string type of column param_xxxxx
+	 * @return string|null type of column param_xxxxx
 	 */
-	private function getDBColumnTypeFromAnnotation($columnName, $resource) {
+	private function getDBColumnTypeFromAnnotation($columnName, $resource)
+	{
 		switch ($columnName) {
 			case 'id':
 				return 'string';
-				break;
 			case 'hits':
 				return 'integer';
-				break;
 			case 'status':
 				return 'integer';
-				break;
 			case 'creationtime':
 				return 'integer';
-				break;
 			case 'expirationtime':
 				return 'integer';
-				break;
 			case 'expirationtimefast':
 				return 'integer';
-				break;
 			case 'resource':
 				return '\Foomo\Cache\CacheResource';
-				break;
 			default:
+				/* @var $propertyDefinition \Foomo\Cache\CacheResourcePropertyDefinition */
+				foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefinition) {
 
-				/* @var $propertyDefintion \Foomo\Cache\CacheResourcePropertyDefinition */
-				foreach ($resource->getPropertyDefinitions() as $parameterName => $propertyDefintion) {
-
-					$parameterName = \strtolower($parameterName);
+					$parameterName = strtolower($parameterName);
 					$decoratedName = $this->paramNameToColName($parameterName);
 
 					if ($columnName == $decoratedName) {
-						return $propertyDefintion->type;
+						return $propertyDefinition->type;
 					}
 				}
 				break;
 		}
+		return null;
 	}
 
-	private static function removeTypeBraces($type) {
-		$pos = \strpos($type, '(');
+	private static function removeTypeBraces($type)
+	{
+		$pos = strpos($type, '(');
 		if ($pos !== false) {
-			return \substr($type, 0, $pos);
+			return substr($type, 0, $pos);
 		} else {
 			return $type;
 		}
 	}
 
-	private function getDBColumnType($columnName, $tableName) {
+	private function getDBColumnType($columnName, $tableName)
+	{
 		$tableInformation = $this->retrieveTableInformation($tableName);
 		foreach ($tableInformation as $column) {
 
-			$type = self::removeTypeBraces(\strtoupper($column['Type']));
-			$name = \strtolower($column['Field']);
+			$type = self::removeTypeBraces(strtoupper($column['Type']));
+			$name = strtolower($column['Field']);
 
 			if ($name == $columnName) {
 				return $type;
 			}
-		}return null;
+		}
+		return null;
 	}
 
-	private function retrieveTableInformation($table) {
+	private function retrieveTableInformation($table)
+	{
 		// code is currently specific to mysql....
 		$sql = 'SHOW columns from ' . $table . ';';
 		$statement = $this->dbh->query($sql);
 		$results = array();
 
 		foreach ($statement as $row) {
-			$type = \strtoupper($row['Type']);
+			$type = strtoupper($row['Type']);
 			$row['Type'] = $type;
-			$name = \strtolower($row['Field']);
+			$name = strtolower($row['Field']);
 			$row['Field'] = $name;
 			$results[] = $row;
 		}

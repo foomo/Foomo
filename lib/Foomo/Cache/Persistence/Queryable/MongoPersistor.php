@@ -163,25 +163,24 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		} catch (\Exception $e) {
 			$this->mongo = null;
 			// if we can not connect die here!
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_ERROR);
+			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_ERROR);
 		}
 	}
 
 	/**
 	 * save into mongo
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
 	 * @return boolean
 	 */
 	public function save(\Foomo\Cache\CacheResource $resource)
 	{
 		try {
-			$document = \get_object_vars($resource);
-			$document['value'] = \serialize($resource->value);
+			$document = get_object_vars($resource);
+			$document['value'] = serialize($resource->value);
 			$document['queriableProperties'] = $this->preparePropertiesForQueryOperations($resource);
 			$collection = $this->getMongoCollection($document);
-
 			//need to lock here********** Mongo has no atomic locking...
 			$loaded = $this->loadDocumentByResourceId($document);
 			if (isset($loaded)) {
@@ -203,16 +202,12 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			//could we call save again from here to update if insert failed due to a race condition?
 			//try atomic update if fails try
 			$collection->update(array('id' => $resource->id), array('$set' => $document));
-			\trigger_error(__METHOD__ . ' Possibly run into a race condition as mongo does not lock...updated existing field with an atomic update');
-			\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
+			trigger_error(__METHOD__ . ' Possibly run into a race condition as mongo does not lock...updated existing field with an atomic update');
+			trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
 			return false;
 		}
 	}
 
-	/**
-	 *
-	 * @param string $id the resource id. not a mongo doc id!
-	 */
 	private function loadDocumentByResourceId($document)
 	{
 		$collection = $this->getMongoCollection($document);
@@ -234,21 +229,21 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public static function getQueryableRepresentation($propertyValue)
 	{
 
-		if (\is_object($propertyValue)) {
+		if (is_object($propertyValue)) {
 			return self::getObjectFingerprint($propertyValue);
-		} else if (\is_array($propertyValue)) {
+		} else if (is_array($propertyValue)) {
 			return self::getObjectFingerprint($propertyValue);
-		} else if (\is_bool($propertyValue)) {
+		} else if (is_bool($propertyValue)) {
 			return $propertyValue;
-		} else if (\is_float($propertyValue)) {
+		} else if (is_float($propertyValue)) {
 			return $propertyValue;
-		} else if (\is_double($propertyValue)) {
+		} else if (is_double($propertyValue)) {
 			return $propertyValue;
-		} else if (\is_int($propertyValue)) {
+		} else if (is_int($propertyValue)) {
 			return $propertyValue;
-		} else if (\is_long($propertyValue)) {
+		} else if (is_long($propertyValue)) {
 			return $propertyValue;
-		} else if (\is_string($propertyValue)) {
+		} else if (is_string($propertyValue)) {
 			return self::getObjectFingerprint($propertyValue);
 		} else if (!isset($propertyValue)) {
 			//null treated as object or string
@@ -271,14 +266,14 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	{
 		switch (true) {
 			case is_object($object):
-				if (\method_exists($object, '__toString')) {
+				if (method_exists($object, '__toString')) {
 					$ret = $object->__toString();
 				} else {
-					$ret = \serialize($object);
+					$ret = serialize($object);
 				}
 				break;
 			case is_array($object):
-				$ret = \serialize($object);
+				$ret = serialize($object);
 				break;
 			case is_string($object):
 				$ret = $object;
@@ -287,10 +282,10 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 				$ret = '';
 				break;
 			default:
-				trigger_error('that was unexpected ' . \var_export($object, true), \E_USER_ERROR);
+				trigger_error('that was unexpected ' . var_export($object, true), \E_USER_ERROR);
 		}
-		if (\strlen($ret) > 32) {
-			return \md5($ret);
+		if (strlen($ret) > 32) {
+			return md5($ret);
 		} else {
 			return $ret;
 		}
@@ -311,10 +306,10 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	/**
 	 * load it from mongo
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 * @param boolean $countHits
 	 *
-	 * @return Foomo\Cache\CacheResource
+	 * @return \Foomo\Cache\CacheResource
 	 */
 	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false)
 	{
@@ -377,10 +372,8 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	 * clear all. if resource name provided drops resource table, else remove recreates entire db
 	 *
 	 * @param string $resourceName, if null all will be deleted.
-	 *
-	 * @param $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
-	 *
-	 *
+	 * @param bool $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
+	 * @param bool $verbose
 	 */
 	public function reset($resourceName = null, $recreateStructures = true, $verbose = false)
 	{
@@ -406,9 +399,8 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 	private function removeCollection($collection, $recreateStructures, $verbose)
 	{
-		$collectionName = $collection->getName();
 		if ($verbose) {
-			echo "... removing collection $collection" . \PHP_EOL;
+			echo '... removing collection ' . $collection->getName() . \PHP_EOL;
 		}
 		$collection->drop();
 		if ($verbose) {
@@ -426,11 +418,8 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	 * finds all resources matching expression
 	 *
 	 * @param string $resourceName
-	 *
 	 * @param \Foomo\Cache\Persistence\Expr $expr
-	 *
 	 * @param integer $limit
-	 *
 	 * @param integer $offset
 	 *
 	 * @return MongoPersistorIterator
@@ -556,7 +545,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 
 		foreach ($resource->getPropertyDefinitions() as $propName => $propertyDefinition) {
-			$resType = $propertyDefintion->type;
+			$resType = $propertyDefinition->type;
 			if (isset($loadedResource->propertyTypes[$propName])) {
 				$loadedType = $loadedResource->propertyTypes[$propName];
 
