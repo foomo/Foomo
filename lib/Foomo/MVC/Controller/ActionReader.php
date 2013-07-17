@@ -71,7 +71,6 @@ class ActionReader {
 		$actionOffset = strlen('action');
         foreach ($methods as $method) {
             /* @var $method ReflectionMethod */
-            $substr = substr($method->getName(), 0, $actionOffset);
             if ($method->isPublic() && substr($method->getName(), 0, $actionOffset) == 'action') {
                 $frameActions[strtolower(substr($method->getName(), $actionOffset))] = self::readMethod($method);
             }
