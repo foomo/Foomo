@@ -4,6 +4,10 @@ namespace Foomo;
 
 /**
  * generic process locking based on file system locks
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author bostjan <bostjan@bestbytes.de>
  */
 class Lock {
 
@@ -41,7 +45,10 @@ class Lock {
 
 	/**
 	 * release. end the synchronization block
-	 * @param type $lockName 
+	 *
+	 * @param string $lockName
+	 *
+	 * @return bool
 	 */
 	public static function release($lockName) {
 		$lockFileHandle = false;
@@ -52,12 +59,11 @@ class Lock {
 			//trigger_error('could not find a lock handle for lock ' . $lockName);
 			return false;
 		} else {
-			flock($lockFileHandle, LOCK_UN); // release the lock
+			// release the lock
+			flock($lockFileHandle, LOCK_UN);
 			fclose($lockFileHandle);
-		unlink(self::getLockFile($lockName));
-		//unlink(self::getLockContentsFile($lockName));
+			unlink(self::getLockFile($lockName));
 			unset(self::$lockHandles[$lockName]);
-			
 			return true;
 		}
 	}
@@ -65,19 +71,36 @@ class Lock {
 	/**
 	 * get lock info
 	 * @param string $lockName
+	 * @deprecated use getLockInfoObject instead
 	 * @return array hash with the following keys: lock_file, lock_age, caller_is_owner, is_locked
 	 */
 	public static function getLockInfo($lockName) {
-		$info = array();
-		$info['lock_file'] = self::getLockFile($lockName);
-		$info['caller_is_owner'] = self::isLockedByCaller($lockName);
-		$info['is_locked'] = self::isLocked($lockName);
+		$infoObj = self::getLockInfoObject($lockName);
+		return array(
+			'lock_file' => $infoObj->file,
+			'caller_is_owner' => $infoObj->lockedByCaller,
+			'is_locked' => $infoObj->locked,
+			'pid' => $infoObj->pid,
+			'lockData' => $infoObj->data,
+			'lock_age' => $infoObj->age
+		);
+	}
 
+	/**
+	 * @param string $lockName
+	 * @return Lock\Info
+	 */
+	public static function getLockInfoObject($lockName)
+	{
+		$ret = new Lock\Info;
+		$ret->file = self::getLockFile($lockName);
+		$ret->lockedByCaller = self::isLockedByCaller($lockName);
+		$ret->locked = self::isLocked($lockName);
 		$lockFileContents = self::getLockFileContents($lockName);
-		$info['pid'] = $lockFileContents['pid'];
-		$info['lockData'] = $lockFileContents['lockData'];
-		$info['lock_age'] = ($lockFileContents['timestamp'] !== false && $info['is_locked'] === true) ? time() - intval($lockFileContents['timestamp']) : false;
-		return $info;
+		$ret->pid = $lockFileContents['pid'];
+		$ret->data = $lockFileContents['lockData'];
+		$ret->age = ($lockFileContents['timestamp'] !== false && $ret->locked) ? time() - intval($lockFileContents['timestamp']) : false;
+		return $ret;
 	}
 	
 	/**
