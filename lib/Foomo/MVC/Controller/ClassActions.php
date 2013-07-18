@@ -64,11 +64,12 @@ class ClassActions {
 			if(is_dir($this->controllerDir)) {
 				$dirIterator = new \DirectoryIterator($this->controllerDir);
 				foreach($dirIterator as $fileInfo) {
-					$countFoundActions ++;
 					/* @var $fileInfo \SplFileInfo */
 					if($fileInfo->isFile() && substr($fileInfo->getFilename(),0 , -4) == '.php' && substr($fileInfo->getFilename(), 0, 6) == 'Action') {
 						if(!in_array($knownFiles, $fileInfo->getPathname())) {
 							return false;
+						} else {
+							$countFoundActions ++;
 						}
 					}
 				}

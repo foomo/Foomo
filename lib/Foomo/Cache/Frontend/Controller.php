@@ -54,7 +54,7 @@ class Controller {
 		\Foomo\MVC::redirect('showCachedItems',array($resourceName));
 	}
 
-	public function actionRefreshDependencyModelAll($resourceName)
+	public function actionRefreshDependencyModelAll()
 	{
 		\Foomo\Cache\DependencyModel::getInstance()->getDirectory(true);
 	}
@@ -81,7 +81,7 @@ class Controller {
 		exit;
 	}
 
-	public function actionCheckDialog($operation, $passThroughData)
+	public function actionCheckDialog($operation)
 	{
 		if (is_array($operation)) {
 			$this->model->currentOperation = $operation[0];
