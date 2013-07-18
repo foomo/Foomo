@@ -105,7 +105,7 @@ class CliCall
 	 * @param array $arguments array of arguments
 	 * @param array $envVars array('varName' => value, ...)
 	 */
-	public function __construct($cmd, $arguments=array(), $envVars=array())
+	public function __construct($cmd, $arguments=array(), $envVars = null)
 	{
 		$this->cmd = $this->resolveCommand($cmd);
 		$this->arguments = $arguments;
