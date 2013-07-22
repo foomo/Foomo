@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Frontend;
+use Foomo\MVC;
 
 /**
  * @link www.foomo.org
@@ -82,12 +83,25 @@ class Controller
 	{
 		$this->model->showInfo($type, $block);
 	}
-
+	public function actionCoreHelp()
+	{
+		$this->runCoreAction('help');
+	}
 	/**
 	 *
 	 */
 	public function actionResetAutoloader()
 	{
-		$this->model->classMap = \Foomo\Autoloader::resetCache();
+		$this->runCoreAction('resetAutoLoader');
+	}
+	public function actionRebuild()
+	{
+		$this->runCoreAction('make/clean,all');
+	}
+	private function runCoreAction($action)
+	{
+		MVC::abort();
+		header('Location: ' . \Foomo\ROOT_HTTP . '/core.php/' . $action);
+		exit;
 	}
 }

@@ -17,42 +17,41 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Cache\Persistence\Fast;
+namespace Foomo\Lock;
 
-use Foomo\Cache\Manager;
 
 /**
+ * a lock info object
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class APCTest extends \PHPUnit_Framework_TestCase {
+class Info
+{
+	/**
+	 * @var string
+	 */
+	public $file;
+	/**
+	 * @var bool
+	 */
+	public $lockedByCaller;
+	/**
+	 * @var bool
+	 */
+	public $locked;
+	/**
+	 * @var mixed
+	 */
+	public $data;
+	/**
+	 * @var integer
+	 */
+	public $age;
+	/**
+	 * @var integer
+	 */
+	public $pid;
 
-	private $resource;
-	private $arguments;
-	private $method;
-	private $className;
-	private $object;
-	private $apcPersistor;
-	public function testAPCBug() {
-		if(!function_exists('apc_store')) {
-			$this->markTestSkipped('no apc');
-		}
-		$key = '_____________APC__________BUG_____ID';
-		$var = 'test';
-		$ttl = 0;
-		for($i = 0;$i < 10;$i++) {
-			$success = \apc_store($key, $var, $ttl);
-			if($i > 0) {
-				$this->assertFalse($success, 'remove the hack from the apc perisitor save, method ... they seem to have fixed it');
-			}
-		}
-		for($i = 0;$i < 10;$i++) {
-			\apc_store($key . '-hack', $var, $ttl);
-			$success = \apc_store($key, $var, $ttl);
-			if($i > 0) {
-				$this->assertTrue($success, 'hack in apc perssistor seems to be broken');
-			}
-		}
-	}
 }

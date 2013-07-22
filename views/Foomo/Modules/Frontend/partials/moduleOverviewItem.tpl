@@ -1,37 +1,47 @@
 <?
 
-	use Foomo\Modules\Manager;
+use Foomo\Modules\Manager;
 
-	$enabledModules = Manager::getEnabledModules();
+$enabledModules = Manager::getEnabledModules();
 
 
-	$moduleEnabled = 'disabled';
-	// the local vars here need to be renamed ...
-	$modStat = Manager::getModuleStatus($module);
-	$modResources = Manager::getModuleResources($module);
-	$resourceCount = count($modResources);
-	if(in_array($module, $enabledModules)) {
-		$moduleEnabled = 'enabled';
-	}
-	$depsOk = true;
-	foreach(Manager::getRequiredModuleResources($module) as $reqiredModuleResource) {
-		if(!$reqiredModuleResource->resourceValid()) {
-			$depsOk = false;
-			break;
+$moduleEnabled = 'disabled';
+// the local vars here need to be renamed ...
+$modStat = Manager::getModuleStatus($module);
+$modResources = Manager::getModuleResources($module);
+$resourceCount = count($modResources);
+if(in_array($module, $enabledModules)) {
+	$moduleEnabled = 'enabled';
+}
+$depsOk = Manager::moduleCanBeEnabled($module);
+$hintClass = $modStat==Manager::MODULE_STATUS_OK?'valid':'invalid';
+$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($module);
+$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($module);
+
+
+$treePrinter = function(\Foomo\MVC\View $view, $deps, $treePrinter) {
+	$printModuleVersionName = function($module) use($view) {
+		echo $view->escape($module->name . ' - ' . $module->version . ' (' . call_user_func_array(array(\Foomo\Modules\Manager::getModuleClassByName($module->name), 'getVersion'), array()) . ')');
+	};
+	$currentModule = null;
+	foreach($deps as $key => $value) {
+		if(is_object($value)) {
+			$currentModule = $value;
+			if(!isset($deps[$currentModule->name])) {
+				echo '<li>';
+				echo $printModuleVersionName($value);
+				echo '</li>';
+			}
+		} else if(is_array($value)) {
+			echo '<li>';
+			echo $printModuleVersionName($currentModule);
+			echo '<ul>';
+			$treePrinter($view, $value, $treePrinter);
+			echo '</ul>';
+			echo '</li>';
 		}
 	}
-	$hintClass = $modStat==Manager::MODULE_STATUS_OK?'valid':'invalid';
-	$hasFrontEnd = Foomo\Modules\Manager::moduleHasFrontend($module);
-	$hasMVCFrontEnd = Foomo\Modules\Manager::moduleHasMVCFrontend($module);
-
-	/*
-				<? if($module == \Foomo\Module::NAME): ?>
-					<span title="well you do not want to fiddle around with the core ;)">none</span>
-				<? elseif($moduleEnabled != 'enabled' && !$depsOk): ?>
-					<span title="enable dependencies first">none</span>
-				<? else ?>
-	 */
-
+}
 
 ?>
 <div class="toggleBox">
@@ -82,8 +92,13 @@
 
 			<div class="halfBox">
 				<? if( Manager::getRequiredModules($module) ): ?>
-				<b>Dependencies:</b><br>
-				<?= implode(', ', Manager::getRequiredModules($module)); ?>
+				<b>Module Dependencies:</b><br>
+				<?// implode(', ', Manager::getRequiredModules($module)); ?>
+					<?
+						$tree = \Foomo\Modules\Manager::getRequiredModuleTree($module);
+						//echo '<pre>' . $view->escape(json_encode($tree, JSON_PRETTY_PRINT)) . '</pre>';
+						$treePrinter($view, $tree, $treePrinter);
+					?>
 				<? endif; ?>
 			</div>
 		</div>

@@ -240,7 +240,7 @@ class URLHandler {
 		}
 		self::$rawCurrentCallData = $cleanParts;
 		$class = get_class($app->controller);
-;		if(self::$exposeClassId && $classMatch || !self::$exposeClassId) {
+		if(self::$exposeClassId && $classMatch || !self::$exposeClassId) {
 			if(self::$exposeClassId) {
 				$this->path .= '/' . urlencode($classId);
 			}
@@ -307,8 +307,8 @@ class URLHandler {
 			/* @var $parameter Controller\ActionParameter */
 			if(isset($cleanParts[$i])) {
 				$parameters[] = self::castParameterToSanitized($parameter, $cleanParts[$i]);
-			} else {
-				break;
+			} else if($parameter->optional) {
+				$parameters[] = $parameter->defaultValue;
 			}
 			$i ++;
 		}
@@ -330,8 +330,8 @@ class URLHandler {
 		for ($iParm = count($controllerAction->parameters) - $parameterDiff; $iParm < count($controllerAction->parameters); $iParm++) {
 			if (isset($alternativeSource[$keys[$iParm]])) {
 				array_push($parameters, $alternativeSource[$keys[$iParm]]);
-			} else {
-				return;
+			} else if(!self::$strictParameterHandling) {
+				array_push($parameters, null);
 			}
 		}
 	}
@@ -352,7 +352,7 @@ class URLHandler {
 			}
 			/* @var $parameter Controller\ActionParameter */
 			switch (true) {
-				case is_scalar($parameter):
+				case is_scalar($parameter) || is_null($parameter):
 					$parameters .= '/' . urlencode($parameter);
 					break;
 				case is_array($parameter):
@@ -361,7 +361,7 @@ class URLHandler {
 					trigger_error('i will not be able to understand what i am doing here ;) ', E_USER_WARNING);
 					break;
 				default:
-					trigger_error('how should I press that to a path');
+					trigger_error('how should I press that to a path ' . var_export($parameter, true));
 			}
 			$i++;
 		}

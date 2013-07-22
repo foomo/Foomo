@@ -37,7 +37,6 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetLock() {
 		$lockName1 = 'testLock1';
-		$lockName2 = 'testLock2';
 		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = true);
 		$this->assertTrue($lockObtained, 'should be able to obtain first lock');
 
@@ -57,7 +56,7 @@ class LockTest extends \PHPUnit_Framework_TestCase {
 
 	public function testLockAge() {
 		$lockName1 = 'testLock1';
-		$lockObtained = \Foomo\Lock::lock($lockName1, $blocking = false);
+		\Foomo\Lock::lock($lockName1, $blocking = false);
 		sleep(3);
 		$lockInfo = \Foomo\Lock::getLockInfo($lockName1);
 		$this->assertEquals(3, $lockInfo['lock_age']);

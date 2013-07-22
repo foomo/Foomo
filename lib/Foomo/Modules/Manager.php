@@ -20,6 +20,7 @@
 namespace Foomo\Modules;
 
 use DirectoryIterator;
+use Foomo\MVC;
 use Foomo\Timer;
 use Foomo\Cache\Proxy as CacheProxy;
 use Foomo\Cache\Manager as CacheManager;
@@ -48,6 +49,8 @@ class Manager
 	const MODULE_STATUS_RESOURCES_INVALID			= 'MODULE_STATUS_RESOURCES_INVALID';
 	const MODULE_STATUS_REQUIRED_MODULES_MISSING	= 'MODULE_STATUS_REQUIRED_MODULES_MISSING';
 
+	const MAKE_LOCK_NAME                            = 'foomoMakeLock';
+
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
@@ -68,6 +71,22 @@ class Manager
 				}
 			}
 		}
+	}
+
+	/**
+	 * @internal
+	 * @param string $module
+	 * @return bool
+	 */
+	public static function moduleCanBeEnabled($module)
+	{
+		$availableModules = self::getAvailableModules();
+		foreach(self::getRequiredModulesRecursively($module) as $depModule) {
+			if(!in_array($depModule, $availableModules)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	/**
 	 * get all available modules
@@ -110,15 +129,15 @@ class Manager
 	public static function checkModuleConfig()
 	{
 		while (true) {
-			$enabledModules = self::getEnabledModules();
 			$done = true;
 			foreach (self::getEnabledModules() as $enabledModuleName) {
 				$deps = self::getRequiredModuleResources($enabledModuleName);
 				foreach ($deps as $depResource) {
+					/* @var $depResource \Foomo\Modules\Resource\Module */
 					if (!$depResource->resourceValid()) {
 						$done = false;
-						self::setModuleEnabled($enabledModuleName, false, false, false);
-						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $dep, E_USER_WARNING);
+						self::setModuleEnabled($enabledModuleName, false, false);
+						trigger_error('disabling module to prevent invalid module configuration for ' . $enabledModuleName . ' with required module ' . $depResource->name, E_USER_WARNING);
 						break;
 					}
 				}
@@ -160,22 +179,32 @@ class Manager
 	 * enable a module
 	 *
 	 * @param string $module
+	 * @param bool $updateClassCache
 	 * @return boolean
 	 */
 	public static function enableModule($module, $updateClassCache = false)
 	{
-		return self::setModuleEnabled($module, true, true, $updateClassCache);
+		return self::setModuleEnabled($module, true, $updateClassCache);
 	}
 
 	/**
-	 * disbale a module
+	 * disable all except mama
+	 * @internal
+	 */
+	public static function disableAllModules()
+	{
+		return self::setEnabledModules(array(\Foomo\Module::NAME), true);
+	}
+	/**
+	 * disable a module
 	 *
 	 * @param string $module
+	 * @param bool $updateClassCache
 	 * @return boolean
 	 */
 	public static function disableModule($module, $updateClassCache = false)
 	{
-		return self::setModuleEnabled($module, false, true, $updateClassCache);
+		return self::setModuleEnabled($module, false, $updateClassCache);
 	}
 
 	/**
@@ -233,7 +262,7 @@ class Manager
 				}
 			}
 		} else {
-			trigger_error('the class is not in the scope of the autoloader ' . $className . ' can not ', E_USER_WARNING);
+			trigger_error('the class is not in the scope of the autoloader ' . $className, E_USER_WARNING);
 		}
 	}
 
@@ -336,7 +365,7 @@ class Manager
 
 	/**
 	 * @param string $module
-	 * @return Foomo\Module
+	 * @return \Foomo\Module
 	 */
 	public static function getRequiredModuleResources($module)
 	{
@@ -357,16 +386,58 @@ class Manager
 
 	/**
 	 * get a list a list of modules, a module depends upon to run
-	 *
+	 * @param string $module name of the module
 	 * @return string[]
 	 */
 	public static function getRequiredModules($module)
 	{
 		$ret = array();
 		foreach(self::getRequiredModuleResources($module) as $moduleResource) {
-			$ret[] = $moduleResource->name;// . ' => ' . $moduleResource->version;
+			$ret[] = $moduleResource->name;
 		}
 		return $ret;
+	}
+
+
+	private static function getRequiredModulesRecursively($module)
+	{
+		return self::flattenModuleDepencyTree(self::getRequiredModuleTree($module));
+	}
+	private static function flattenModuleDepencyTree($tree, &$flatList = array())
+	{
+		foreach($tree as $module => $depsOrModule) {
+			if(is_array($depsOrModule)) {
+				self::flattenModuleDepencyTree($depsOrModule, $flatList);
+			} else {
+				if(!in_array($depsOrModule->name, $flatList)) {
+					$flatList[] = $depsOrModule->name;
+				}
+			}
+		}
+		return $flatList;
+	}
+
+	/**
+	 * @param $module
+	 * @param array $tree
+	 * @return array
+	 * @internal
+	 */
+	public static function getRequiredModuleTree($module, &$tree = array(), $coveredInThisTree = array())
+	{
+		foreach(self::getRequiredModuleResources($module) as $depModuleResource) {
+			/* @var $depModuleResource \Foomo\Modules\Resource\Module */
+			if(!in_array($depModuleResource->name, $coveredInThisTree)) {
+				$coveredInThisTree[] = $depModuleResource->name;
+				$tree[] = $depModuleResource;
+				$tree[$depModuleResource->name] = array();
+				self::getRequiredModuleTree($depModuleResource->name, $tree[$depModuleResource->name], $coveredInThisTree);
+				if(empty($tree[$depModuleResource->name])) {
+					unset($tree[$depModuleResource->name]);
+				}
+			}
+		}
+		return $tree;
 	}
 
 	/**
@@ -426,7 +497,7 @@ class Manager
 
 	/**
 	 * @param string $module
-	 * @return Foomo\Module\Resource[]
+	 * @return \Foomo\Modules\Resource[]
 	 */
 	public static function getModuleResources($module)
 	{
@@ -481,27 +552,46 @@ class Manager
 	 */
 	public static function updateSymlinksForHtdocs()
 	{
-		$symlinkBaseFolder = Config::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'modules';
-		$existing = array();
-		$iterator = new DirectoryIterator($symlinkBaseFolder);
-		$enabledModules = self::getEnabledModules();
-		foreach ($iterator as $file) {
-			/* @var $file \SplFileInfo */
-			// cleanup
-			if (is_link($file->getPathname()) && !in_array($file->getBasename(), $enabledModules)) {
-				\unlink($file->getPathname());
-			}
-		}
-		foreach ($enabledModules as $enabled) {
-			if (!in_array($enabled, $existing)) {
-				$symlinkFilename = $symlinkBaseFolder . \DIRECTORY_SEPARATOR . $enabled;
-				$targetFilename = \Foomo\CORE_CONFIG_DIR_MODULES . \DIRECTORY_SEPARATOR . $enabled . \DIRECTORY_SEPARATOR . 'htdocs';
-				if (!\file_exists($symlinkFilename) && is_dir($targetFilename)) {
-					\symlink($targetFilename, $symlinkFilename);
+		$baseDir = Config::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs';
+		// clean away all symlinks
+		$symlinkBaseFolderModules = $baseDir . DIRECTORY_SEPARATOR . 'modules';
+		$symlinkBaseFolderModulesVar = $baseDir . DIRECTORY_SEPARATOR . 'modulesVar';
+		foreach(array($symlinkBaseFolderModules,  $symlinkBaseFolderModulesVar) as $baseFolder) {
+			foreach (new DirectoryIterator($baseFolder) as $file) {
+				/* @var $file \SplFileInfo */
+				// cleanup
+				if (is_link($file->getPathname())) {
+					\unlink($file->getPathname());
 				}
 			}
 		}
+		$buildNumber = \Foomo\Module::getDomainConfig()->buildNumber;
+		foreach (self::getEnabledModules() as $enabled) {
+			// symlinks for htdocs
+			//   where to link to
+			$targetFilename = \Foomo\CORE_CONFIG_DIR_MODULES . \DIRECTORY_SEPARATOR . $enabled . \DIRECTORY_SEPARATOR . 'htdocs';
+			$symlinkFilenames = array();
+			//   not versioned
+			$symlinkFilenames[] = $symlinkBaseFolderModules . \DIRECTORY_SEPARATOR . $enabled;
+			//   versioned
+			$symlinkFilenames[] = $symlinkFilenames[0] . '-' . $buildNumber;
+			foreach($symlinkFilenames as $symlinkFilename) {
+				self::symlinkModuleFolderIfExists($targetFilename, $symlinkFilename);
+			}
+			// symlinks for htdocs var
+			$targetFilename = Config::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'modulesVar' . DIRECTORY_SEPARATOR . $enabled;
+			$symlinkFilename = $targetFilename . '-' . $buildNumber;
+			self::symlinkModuleFolderIfExists($targetFilename, $symlinkFilename);
+		}
 		return true;
+	}
+	private static function symlinkModuleFolderIfExists($targetFilename, $symlinkFilename)
+	{
+		if(file_exists($targetFilename) && is_dir($targetFilename) && !file_exists($symlinkFilename)) {
+			if(!symlink($targetFilename, $symlinkFilename)) {
+				trigger_error('could not create symlink ' . $targetFilename . ' => ' . $symlinkFilename, E_USER_ERROR);
+			}
+		}
 	}
 
 	/**
@@ -551,6 +641,7 @@ class Manager
 
 	/**
 	 * @param string $className
+	 *
 	 * @return string
 	 */
 	public static function getModuleByClassName($className)
@@ -570,7 +661,9 @@ class Manager
 	 * Get modules in an order, that ensures accident free initialization - i.e. no dependencies are neglected
 	 *
 	 * @internal
+	 *
 	 * @Foomo\Cache\CacheResourceDescription
+	 *
 	 * @return string[]
 	 */
 	public static function cachedGetEnabledModulesOrderedByDependency()
@@ -589,8 +682,7 @@ class Manager
 			}
 		}
 		$lastModule = null;
-		$currentModule = $enabledModules[0];
-		// as long as we have havent ordered all modules
+		// as long as we have haven´t ordered all modules
 		$lastOrdered = array();
 		while (count($enabledModules) > count($ordered)) {
 			if($lastOrdered == $ordered) {
@@ -624,16 +716,20 @@ class Manager
 	 * do it, do it now
 	 *
 	 * @param string $module
-	 * @param boolean $enabled
-	 * @return boolean
+	 * @param bool $enabled
+	 * @param bool $updateClassCache
 	 */
-	private static function setModuleEnabled($module, $enabled, $checkConfig = true, $updateClassCache = true)
+	private static function setModuleEnabled($module, $enabled, $updateClassCache = true)
 	{
 		self::checkModuleAvailabilty($module);
 		$currentConf = self::loadModuleConfiguration();
 		if ($enabled) {
-			if (!in_array($module, $currentConf->enabledModules)) {
-				$currentConf->enabledModules[] = $module;
+			$recursiveDeps = self::getRequiredModulesRecursively($module);
+			$recursiveDeps[] = $module;
+			foreach($recursiveDeps as $module) {
+				if (!in_array($module, $currentConf->enabledModules)) {
+					$currentConf->enabledModules[] = $module;
+				}
 			}
 		} else {
 			if (in_array($module, $currentConf->enabledModules)) {
@@ -653,6 +749,11 @@ class Manager
 				$availableAndEnabled[] = $enabledModule;
 			}
 		}
+		self::setEnabledModules($availableAndEnabled, $updateClassCache);
+	}
+	private static function setEnabledModules(array $availableAndEnabled, $updateClassCache)
+	{
+		$currentConf = self::loadModuleConfiguration();
 		$currentConf->enabledModules = $availableAndEnabled;
 		self::saveModuleConfiguration($currentConf);
 		self::checkModuleConfig();
@@ -675,7 +776,7 @@ class Manager
 	/**
 	 * loads the current configuration
 	 *
-	 * @return Foomo\Core\DomainConfig
+	 * @return \Foomo\Core\DomainConfig
 	 */
 	private static function loadModuleConfiguration()
 	{
@@ -690,7 +791,9 @@ class Manager
 	/**
 	 * saves the current configuration
 	 *
-	 * @return boolean
+	 * @param DomainConfig $conf
+	 *
+	 * @return bool
 	 */
 	private static function saveModuleConfiguration(DomainConfig $conf)
 	{
@@ -761,5 +864,48 @@ class Manager
 	{
 		if ($forceUpdate) CacheManager::reset(__CLASS__.'::cachedGetEnabledModulesOrderedByDependency', false);
 		return CacheProxy::call(__CLASS__, 'cachedGetEnabledModulesOrderedByDependency');
+	}
+
+	/**
+	 * make sth.
+	 *
+	 * @param string[] $targets
+	 *
+	 * @return array target => MakeResult[], target => MakeResult[], ...
+	 */
+	public static function make($targets)
+	{
+		\Foomo\Lock::lock(self::MAKE_LOCK_NAME, true);
+		$targetResults = array();
+		foreach($targets as $target) {
+			$results = array();
+			foreach(self::getEnabledModulesOrderedByDependency() as $enabledModule) {
+				$result = new MakeResult($enabledModule);
+				call_user_func_array(array(self::getModuleClassByName($enabledModule), 'make'), array($target, $result));
+				$results[] = $result;
+			}
+			$targetResults[$target] = $results;
+		}
+		\Foomo\Lock::release(self::MAKE_LOCK_NAME);
+		return $targetResults;
+	}
+	public static function makeIsRunning()
+	{
+		return \Foomo\Lock::isLocked(self::MAKE_LOCK_NAME);
+	}
+
+	/**
+	 * call a hook on all modules
+	 *
+	 * @param string $hook
+	 * @param array $args
+	 *
+	 * @internal
+	 */
+	public static function runModuleHook($hook, $args)
+	{
+		foreach(self::getEnabledModules() as $module) {
+			call_user_func_array(array(self::getModuleClassByName($module), 'hook' . ucfirst($hook)), $args);
+		}
 	}
 }

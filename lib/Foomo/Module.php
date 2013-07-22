@@ -18,6 +18,10 @@
  */
 
 namespace Foomo;
+use Foomo\Cache\Invalidator;
+use Foomo\Config\AbstractConfig;
+use Foomo\Modules\MakeResult;
+use Foomo\Modules\Manager;
 
 /**
  * foomo core module
@@ -33,7 +37,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
-	const VERSION = '0.3.0';
+	const VERSION = '0.3.1';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -51,6 +55,15 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 		));
 	}
 
+	/**
+	 * my domain config
+	 *
+	 * @return Core\DomainConfig
+	 */
+	public static function getDomainConfig()
+	{
+		return self::getConfig(Core\DomainConfig::NAME);
+	}
 	/**
 	 * @return string
 	 */
@@ -109,5 +122,32 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.Foomo', 'MVC Scaffolder', self::NAME, 'Foomo.MVC')
 
 		);
+	}
+	public static function make($target, MakeResult $result)
+	{
+		switch($target) {
+			case 'clean':
+				$result->addEntry('removing translation caches');
+				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cachedGetLocaleTable', null, true, Invalidator::POLICY_DELETE);
+				break;
+			case 'all':
+				$config = clone self::getDomainConfig();
+				$buildNumber = $config->buildNumber;
+				$result->addEntry('bumping the build version from ' . $buildNumber . ' to ' . ($buildNumber + 1));
+				$config->buildNumber ++;
+				Config::setConf($config, self::NAME);
+				break;
+			default:
+				parent::make($target, $result);
+		}
+	}
+	public static function hookPostConfigUpdate($oldConfig, $newConfig, $module, $domain)
+	{
+		if($newConfig->getName() == Core\DomainConfig::NAME) {
+			if(!$oldConfig || $oldConfig && $oldConfig->buildNumber != $newConfig->buildNumber) {
+				// Module Manager update versioned crap
+				Manager::updateSymlinksForHtdocs();
+			}
+		}
 	}
 }

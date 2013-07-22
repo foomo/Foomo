@@ -28,30 +28,29 @@ use Foomo\Cache\Persistence\Expr;
  */
 class Manager {
 	const CONF_SEPARATOR= '::';
-
 	/**
 	 * fast persistence
 	 *
-	 * @var Foomo\Cache\Persistence\FastPersistorInterface
+	 * @var \Foomo\Cache\Persistence\FastPersistorInterface
 	 */
 	private static $fastPersistor;
 	/**
 	 * queryable persistence
 	 *
-	 * @var Foomo\Cache\Persistence\QueryablePersistorInterface
+	 * @var \Foomo\Cache\Persistence\QueryablePersistorInterface
 	 */
 	private static $queryablePersistor;
 	/**
 	 * depending objects invalidator
-	 * @var Foomo\Cache\Invalidator
+	 * @var \Foomo\Cache\Invalidator
 	 */
 	private static $invalidator;
 
 	/**
 	 * (re)initialize method caching
 	 *
-	 * @param Foomo\Cache\Persistence\FastPersistorInterface $fastPersistor
-	 * @param Foomo\Cache\Persistence\QueryablePersistorInterface $queryablePersistor
+	 * @param \Foomo\Cache\Persistence\FastPersistorInterface $fastPersistor
+	 * @param \Foomo\Cache\Persistence\QueryablePersistorInterface $queryablePersistor
 	 */
 	public static function initialize(Persistence\QueryablePersistorInterface $queryablePersistor, Persistence\FastPersistorInterface $fastPersistor = null)
 	{
@@ -118,7 +117,7 @@ class Manager {
 	}
 
 	/**
-	 * @return Foomo\Cache\Persistence\FastPersistorInterface
+	 * @return \Foomo\Cache\Persistence\FastPersistorInterface
 	 */
 	public static function getFastPersistor()
 	{
@@ -126,7 +125,7 @@ class Manager {
 	}
 
 	/**
-	 * @return Foomo\Cache\Persistence\QueryablePersistorInterface
+	 * @return \Foomo\Cache\Persistence\QueryablePersistorInterface
 	 */
 	public static function getQueryablePersistor()
 	{
@@ -140,7 +139,7 @@ class Manager {
 	 *
 	 * @param boolean $countHits
 	 *
-	 * @return Foomo\Cache\CacheResource
+	 * @return \Foomo\Cache\CacheResource
 	 */
 	public static function load(CacheResource $resource, $countHits = false)
 	{
@@ -235,7 +234,7 @@ class Manager {
 	/**
 	 * Check if resource is in the fast cache
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 */
 	public static function isResourceInFastCache($resource)
 	{
@@ -255,11 +254,11 @@ class Manager {
 	 * finds all resources matching expression
 	 *
 	 * @param string $resourceName
-	 * @param Foomo\Cache\Persistence\Expr $expr
+	 * @param \Foomo\Cache\Persistence\Expr $expr
 	 * @param integer $limit
 	 * @param integer $offset
 	 *
-	 * @return Foomo\Cache\CacheResourceIterator
+	 * @return \Foomo\Cache\CacheResourceIterator
 	 */
 	public static function query($resourceName, Expr $expr = null, $limit = 0, $offset = 0)
 	{
@@ -272,12 +271,17 @@ class Manager {
 
 	/**
 	 * invalidates resources in cache that depend on resource argument. root resource itself is not invalidated
-	 * @param CacheResource $resource, contains invalidationPolicy
+	 *
+	 * @param CacheResource $resource
+	 * @param bool $invalidateRoot
+	 * @param null $invalidationPolicy
+	 * @param bool $verbose
 	 */
 	public static function invalidate(CacheResource $resource, $invalidateRoot = false, $invalidationPolicy = null, $verbose = false)
 	{
-		if ($invalidationPolicy != null)
+		if ($invalidationPolicy != null) {
 			$resource->invalidationPolicy = $invalidationPolicy;
+		}
 		self::$invalidator->invalidate($resource, $invalidateRoot, $verbose);
 	}
 
