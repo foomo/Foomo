@@ -49,6 +49,8 @@ class Manager
 	const MODULE_STATUS_RESOURCES_INVALID			= 'MODULE_STATUS_RESOURCES_INVALID';
 	const MODULE_STATUS_REQUIRED_MODULES_MISSING	= 'MODULE_STATUS_REQUIRED_MODULES_MISSING';
 
+	const MAKE_LOCK_NAME                            = 'foomoMakeLock';
+
 	//---------------------------------------------------------------------------------------------
 	// ~ Public static methods
 	//---------------------------------------------------------------------------------------------
@@ -867,19 +869,29 @@ class Manager
 	/**
 	 * make sth.
 	 *
-	 * @param string $target
+	 * @param string[] $targets
 	 *
 	 * @return MakeResult[]
 	 */
-	public static function make($target)
+	public static function make($targets)
 	{
-		$results = array();
-		foreach(self::getEnabledModulesOrderedByDependency() as $enabledModule) {
-			$result = new MakeResult($enabledModule);
-			call_user_func_array(array(self::getModuleClassByName($enabledModule), 'make'), array($target, $result));
-			$results[] = $result;
+		\Foomo\Lock::lock(self::MAKE_LOCK_NAME, true);
+		$targetResults = array();
+		foreach($targets as $target) {
+			$results = array();
+			foreach(self::getEnabledModulesOrderedByDependency() as $enabledModule) {
+				$result = new MakeResult($enabledModule);
+				call_user_func_array(array(self::getModuleClassByName($enabledModule), 'make'), array($target, $result));
+				$results[] = $result;
+			}
+			$targetResults[$target] = $results;
 		}
-		return $results;
+		\Foomo\Lock::release(self::MAKE_LOCK_NAME);
+		return $targetResults;
+	}
+	public static function makeIsRunning()
+	{
+		return \Foomo\Lock::isLocked(self::MAKE_LOCK_NAME);
 	}
 
 	/**

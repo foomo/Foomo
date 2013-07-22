@@ -42,13 +42,18 @@ class Router extends R {
 			die('no targets given');
 		}
 		$i = 0;
+		$cleanTargets = array();
 		foreach($targets as $target) {
+			$cleanTargets[] = trim($target);
+		}
+		$targetResults = Manager::make($targets);
+		foreach($targetResults as $target => $results) {
 			if($i > 0) {
 				$this->out('-----------------------------------------------------');
 			}
 			$this->out('making ' . $target);
 			$this->out('-----------------------------------------------------');
-			$results = Manager::make(trim($target));
+
 			$indent = 0;
 			foreach($results as $result) {
 				$this->out($result->moduleName . ($result->wasSuccessful()?' SUCCESS: ':' FAILURE'), $indent);
