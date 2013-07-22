@@ -871,7 +871,7 @@ class Manager
 	 *
 	 * @param string[] $targets
 	 *
-	 * @return MakeResult[]
+	 * @return array target => MakeResult[], target => MakeResult[], ...
 	 */
 	public static function make($targets)
 	{
