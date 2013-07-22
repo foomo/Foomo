@@ -21,7 +21,7 @@ namespace Foomo\Cache\Persistence\Queryable;
 
 /**
  * compiles a mongo conditions array from a generic expression \Foomo\Cache\Persistence\Expr
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
@@ -169,6 +169,7 @@ class MongoExpressionCompiler {
 				$substatement = 'this.creationTime < ' . $timestamp;
 				break;
 			case 'Foomo\Cache\Persistence\Expr::createdAfter':
+				$timestamp = $parameters[0];
 				$substatement = 'this.creationTime > ' . $timestamp;
 				break;
 			case 'Foomo\Cache\Persistence\Expr::idEq':

@@ -20,161 +20,90 @@
 namespace Foomo\Cache\Persistence\Queryable;
 
 /**
- * A Mongo db peristor implementation.
- * 
+ * A Mongo db persistor implementation.
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
- * @author jan <jan@bestbytes.de>
+ * @author bostjanm <bostjan.marusic@bestbytes.de>
  */
-class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterface {
+class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterface
+{
 	/**
 	 * name of the collection that stores  resource names (  since in some cases the resource name can not be
 	 * deducted from the table name due to the 64 chars limitation in mySQL)
 	 */
 	const RESOURCE_NAMES_COLLECTION = 'CACHED_RESOURCE_NAMES';
-
 	/**
 	 * mongo database handle
-	 * @var \Mongo
+	 * @var \MongoClient
 	 */
-	public $mongo;
-	public $serverName = 'localhost';
-	/**
-	 * user name to access db server
-	 *
-	 * @var string
-	 */
-	public $username = '';
-	/**
-	 * password to access db server
-	 *
-	 * @var string
-	 */
-	public $password = '';
-
-	/*
-	 * port to access db server
-	 *
-	 * @var string
-	 */
-	public $port = 27017;
+	protected $mongoClient;
 	/**
 	 *
 	 * @var string db name
 	 */
-	public $databaseName = 'foomoQueryableCache';
-	public $databaseUrl = 'mongodb://localhost';
-	public $mongoConnectionOptions = array();
+	protected $database = 'foomoCachePersistor';
+	/**
+	 * host url (urls, comma separated)
+	 *
+	 * @var string
+	 */
+	protected $host = 'mongodb://localhost/';
 
 	/**
 	 *
-	 * @param string $persistorConfig  mongo persistor config line
+	 * @param string $persistorConfig mongo persistor config line
 	 */
 	public function __construct($persistorConfig)
 	{
-		//map config to persistor internal variables
-		$conf = $this->parseMongoConfig($persistorConfig);
-		//unique connection identifier in case we will have several installations using the same mongo
-		if ($conf['persistent'])
-			$this->mongoConnectionOptions['persist'] = \Foomo\ROOT;
-		if ($conf['replicaSet'])
-			$this->mongoConnectionOptions['replicaSet'] = true;
-
-		$this->databaseName = $conf['database'];
-		$this->serverName = $conf['host'];
-		$this->port = $conf['port'];
-		$this->username = $conf['userName'];
-		$this->password = $conf['password'];
-
-		$this->databaseUrl = 'mongodb://';
-		if (strlen($this->username > 0)) {
-		//var_dump($this->username);
-			$this->databaseUrl .= $this->username . ':' . $this->password . '@';
-		}
-		$this->databaseUrl .= $this->serverName;
-		if (isset($this->port)) {
-			$this->databaseUrl .= ':' . $this->port;
-		}
-		if (isset($this->databaseName)) {
-			$this->databaseUrl .= '/' . $this->databaseName;
-		}
-		$this->connect();
+		$this->parseConfig($persistorConfig);
+		$this->connect($persistorConfig);
 	}
 
-	private function parseMongoConfig($config)
-	{
-		$serverConf = array();
-		$serverConf['host'] = '127.0.0.1';
-		$serverConf['port'] = 27017;
-		$serverConf['persistent'] = true;
-		$serverConf['replicaSet'] = true;
-		$serverConf['database'] = 'foomoQueryableCache';
-		$serverConf['userName'] = '';
-		$serverConf['password'] = '';
-		if (\strpos($config, '=')) {
-			$properties = \explode(',', $config);
-			foreach ($properties as $property) {
-				$pair = \explode('=', $property);
-				$name = \trim($pair[0]);
-				$value = \trim($pair[1]);
-				switch ($name) {
-					case 'host':
-						$serverConf[$name] = $value;
-						break;
-					case 'port':
-						$serverConf[$name] = (int) $value;
-						break;
-					case 'persistent':
-						if ($value == 'true')
-							$serverConf[$name] = true;
-						else
-							$serverConf[$name] = false;
-						break;
-					case 'replicaSet':
-						if ($value == 'true')
-							$serverConf[$name] = true;
-						else
-							$serverConf[$name] = false;
-						break;
-					case 'database':
-						$serverConf[$name] = (string) $value;
-						break;
-					case 'userName':
-						$serverConf[$name] = (string) $value;
-						break;
-					case 'password':
-						$serverConf[$name] = (string) $value;
-				}
+	private function parseConfig($persistorConfig) {
+		$confArray = explode(';', $persistorConfig);
+		foreach ($confArray as $confPart) {
+			$confPart = trim($confPart);
+			if (strpos($confPart,'mogodb://') !== false ) {
+				$this->host = $confPart;
+			} else if (strpos($confPart,'database=') !== false) {
+				$this->database = str_replace('database=','',$confPart);
 			}
 		}
-		return $serverConf;
 	}
 
 	/**
-	 * connect to db.
-	 *
+	 * create client connection
+	 * @param string $persistorConfig
 	 * @return boolean
 	 */
-	protected function connect()
+	protected function connect($persistorConfig)
 	{
 		try {
-			$this->mongo = new \Mongo($this->databaseUrl, $this->mongoConnectionOptions);
+			$this->mongoClient = new \MongoClient($this->host);
 			return true;
 		} catch (\Exception $e) {
-			$this->mongo = null;
+			$this->mongoClient = null;
 			// if we can not connect die here!
 			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_ERROR);
 		}
 	}
 
 	/**
-	 * save into mongo
-	 *
-	 * @param Foomo\Cache\CacheResource $resource
-	 *
-	 * @return boolean
+	 * get resource name for collection
+	 * @param string $collectionName
+	 * @return string
 	 */
-	public function save(\Foomo\Cache\CacheResource $resource)
+	public static function resourceNameFromCollectionName($collectionName)
+	{
+		$collectionName = \str_replace("___", "::", $collectionName);
+		$collectionName = \str_replace("__", "->", $collectionName);
+		$collectionName = \str_replace("_", "\\", $collectionName);
+		return $collectionName;
+	}
+
+
+	public function save1(\Foomo\Cache\CacheResource $resource)
 	{
 		try {
 			$document = \get_object_vars($resource);
@@ -182,8 +111,10 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			$document['queriableProperties'] = $this->preparePropertiesForQueryOperations($resource);
 			$collection = $this->getMongoCollection($document);
 
-			//need to lock here********** Mongo has no atomic locking...
+			//need to lock here ********** Mongo has no atomic locking...
 			$loaded = $this->loadDocumentByResourceId($document);
+
+
 			if (isset($loaded)) {
 				//update
 				foreach ($document as $key => $value) {
@@ -195,10 +126,14 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 				//index creation
 				$collection->ensureIndex(array("id" => 1), array("unique" => 1, "dropDups" => 1));
 				//insert
-				$collection->insert($document);
+				$success = $collection->insert($document);
+				if (!$success) {
+					throw new \Exception('could not insert document');
+				}
 				//need to unlock here ***********
 				return true;
 			}
+
 		} catch (\Exception $e) {
 			//could we call save again from here to update if insert failed due to a race condition?
 			//try atomic update if fails try
@@ -210,16 +145,31 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	}
 
 	/**
+	 * save into mongo
 	 *
-	 * @param string $id the resource id. not a mongo doc id!
+	 * @param \Foomo\Cache\CacheResource $resource
+	 *
+	 * @return boolean
 	 */
-	private function loadDocumentByResourceId($document)
+	public function save(\Foomo\Cache\CacheResource $resource)
 	{
-		$collection = $this->getMongoCollection($document);
-		$loaded = $collection->findOne(array('id' => $document['id']));
-		unset($loaded['queriableProperties']);
-		return $loaded;
+		try {
+
+			$document = \get_object_vars($resource);
+			$document['value'] = \serialize($resource->value);
+			$document['queriableProperties'] = $this->preparePropertiesForQueryOperations($resource);
+			$collection = $this->getMongoCollection($document);
+			$collection->ensureIndex(array("id" => 1), array("unique" => 1, "dropDups" => 1));
+
+			// since mongo has no locking we use an atomic upsert operation
+
+			return $collection->update(array('id' => $document['id']), array('$set' => $document), array('upsert' => true));
+		} catch (\Exception $e) {
+			\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
+			return false;
+		}
 	}
+
 
 	private function preparePropertiesForQueryOperations(\Foomo\Cache\CacheResource $resource)
 	{
@@ -233,7 +183,6 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 	public static function getQueryableRepresentation($propertyValue)
 	{
-
 		if (\is_object($propertyValue)) {
 			return self::getObjectFingerprint($propertyValue);
 		} else if (\is_array($propertyValue)) {
@@ -253,7 +202,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		} else if (!isset($propertyValue)) {
 			//null treated as object or string
 			return self::getObjectFingerprint($propertyValue);
-		} else {//default is object
+		} else { //default is object
 			return self::getObjectFingerprint($propertyValue);
 		}
 	}
@@ -298,20 +247,49 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 	/**
 	 * gets a mongo collection, i.e. mongo/db/collection object
+	 * creates an id unique index when collelction first created
 	 *
 	 * @param array $document
+	 * @return \MongoCollection
 	 */
 	private function getMongoCollection($document)
 	{
-		$db = $this->databaseName;
+		$db = $this->database;
 		$collection = $this->collectionNameFromResourceName($document['name']);
-		return $this->mongo->$db->$collection;
+		return $this->mongoClient->$db->$collection;
+	}
+
+	/**
+	 * map resource name to a valid mongo collection name
+	 *
+	 * @param string $resourceName cache resource name
+	 *
+	 * @return string
+	 */
+	public static function collectionNameFromResourceName($resourceName)
+	{
+		$resourceName = \str_replace("\\", "_", $resourceName);
+		$resourceName = \str_replace("->", "__", $resourceName);
+		$resourceName = \str_replace("::", "___", $resourceName);
+		return $resourceName;
+	}
+
+	/**
+	 *
+	 * @param string $id the resource id. not a mongo doc id!
+	 */
+	private function loadDocumentByResourceId($document)
+	{
+		$collection = $this->getMongoCollection($document);
+		$loaded = $collection->findOne(array('id' => $document['id']));
+		unset($loaded['queriableProperties']);
+		return $loaded;
 	}
 
 	/**
 	 * load it from mongo
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 * @param boolean $countHits
 	 *
 	 * @return Foomo\Cache\CacheResource
@@ -338,23 +316,6 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		}
 	}
 
-	public function delete(\Foomo\Cache\CacheResource $resource)
-	{
-		try {
-			$document = \get_object_vars($resource);
-			$loaded = $this->loadDocumentByResourceId($document);
-			if (isset($loaded)) {
-				$collection = $this->getMongoCollection($loaded);
-				return $collection->remove(array('id' => $resource->id));
-			} else {
-				return true;
-			}
-		} catch (\Exception $e) {
-			\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
-			return false;
-		}
-	}
-
 	public static function mapDocumentToResource($document)
 	{
 		$ret = new \Foomo\Cache\CacheResource();
@@ -373,26 +334,45 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		return $ret;
 	}
 
+	public function delete(\Foomo\Cache\CacheResource $resource)
+	{
+		try {
+			$document = \get_object_vars($resource);
+			$loaded = $this->loadDocumentByResourceId($document);
+			if (isset($loaded)) {
+				$collection = $this->getMongoCollection($loaded);
+				return $collection->remove(array('id' => $resource->id));
+			} else {
+				return true;
+			}
+		} catch (\Exception $e) {
+			\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
+			return false;
+		}
+	}
+
+//
+
 	/**
 	 * clear all. if resource name provided drops resource table, else remove recreates entire db
 	 *
 	 * @param string $resourceName, if null all will be deleted.
 	 *
-	 * @param $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
+	 * @param bool $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
 	 *
-	 *
+	 * @param bool $verbose
 	 */
 	public function reset($resourceName = null, $recreateStructures = true, $verbose = false)
 	{
 		try {
-			$db = $this->mongo->selectDB($this->databaseName);
+			$db = $this->mongoClient->selectDB($this->database);
 
 			if (isset($resourceName)) {
 				$collectionName = $this->collectionNameFromResourceName($resourceName);
 				$collection = $db->selectCollection($collectionName);
 				$this->removeCollection($collection, $recreateStructures, $verbose);
 			} else {
-				$db = $this->mongo->selectDB($this->databaseName);
+				$db = $this->mongoClient->selectDB($this->database);
 				$list = $db->listCollections();
 				foreach ($list as $collection) {
 
@@ -438,39 +418,17 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public function query($resourceName, $expr, $limit, $offset)
 	{
 		$collectionName = self::collectionNameFromResourceName($resourceName);
-		$db = $this->databaseName;
-		$collection = $this->mongo->$db->$collectionName;
+		$db = $this->database;
+		$collection = $this->mongoClient->$db->$collectionName;
 		$condition = \Foomo\Cache\Persistence\Queryable\MongoExpressionCompiler::buildMongoQuery($expr);
+
+		//var_dump($condition,$collection->getName()); exit;
 		$cursor = $collection->find($condition);
 		if ($limit != 0)
 			$cursor->limit($limit);
 		if ($offset != 0)
 			$cursor->skip($offset);
 		return new \Foomo\Cache\Persistence\Queryable\MongoPersistorIterator($cursor, $resourceName);
-	}
-
-//
-	/**
-	 * map resource name to a valid mongo collection name
-	 *
-	 * @param string $resourceName cache resource name
-	 *
-	 * @return string
-	 */
-	public static function collectionNameFromResourceName($resourceName)
-	{
-		$resourceName = \str_replace("\\", "_", $resourceName);
-		$resourceName = \str_replace("->", "__", $resourceName);
-		$resourceName = \str_replace("::", "___", $resourceName);
-		return $resourceName;
-	}
-
-	public static function resourceNameFromCollectionName($collectionName)
-	{
-		$collectionName = \str_replace("___", "::", $collectionName);
-		$collectionName = \str_replace("__", "->", $collectionName);
-		$collectionName = \str_replace("_", "\\", $collectionName);
-		return $collectionName;
 	}
 
 	/**
@@ -487,26 +445,6 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	{
 		$condition = MongoExpressionCompiler::buildMongoQuery($expression);
 		return $condition['$where'];
-	}
-
-	/**
-	 * check if storage structure (table) exists for resource
-	 *
-	 * @param string $resourceName
-	 *
-	 * @return bool
-	 */
-	public function storageStructureExists($resourceName)
-	{
-		$collectionName = $this->collectionNameFromResourceName($resourceName);
-		$db = $this->databaseName;
-		$collection = $this->mongo->$db->$collectionName;
-		$validation = $collection->validate();
-		if ($validation && $validation['ok'] == 1) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	/**
@@ -532,9 +470,8 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		}
 
 
-
-		$db = $this->databaseName;
-		$collection = $this->mongo->$db->$collectionName;
+		$db = $this->database;
+		$collection = $this->mongoClient->$db->$collectionName;
 		$loadedDocument = $collection->findOne();
 		$loadedResource = self::mapDocumentToResource($loadedDocument);
 
@@ -556,7 +493,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 
 		foreach ($resource->getPropertyDefinitions() as $propName => $propertyDefinition) {
-			$resType = $propertyDefintion->type;
+			$resType = $propertyDefinition->type;
 			if (isset($loadedResource->propertyTypes[$propName])) {
 				$loadedType = $loadedResource->propertyTypes[$propName];
 
@@ -577,6 +514,26 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			}
 		}
 		return $ret;
+	}
+
+	/**
+	 * check if storage structure (table) exists for resource
+	 *
+	 * @param string $resourceName
+	 *
+	 * @return bool
+	 */
+	public function storageStructureExists($resourceName)
+	{
+		$collectionName = $this->collectionNameFromResourceName($resourceName);
+		$db = $this->database;
+		$collection = $this->mongoClient->$db->$collectionName;
+		$validation = $collection->validate();
+		if ($validation && $validation['ok'] == 1) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
