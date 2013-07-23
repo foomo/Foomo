@@ -11,18 +11,21 @@ namespace Foomo;
  */
 class Lock {
 
+	private static $lockHandles = array();
+
 	//this allows us to have lock() to be interpreted as a function in php 5.3.2 and not a constructor
 	private function __construct() {}
-	public static $lockHandles = array();
-
 	/**
 	 * lock. start the synchronization block
+	 *
 	 * @param string $lockName
 	 * @param boolean $blocking
-	 * $param object $lockData whatever payload you might want to serialize into the lock file for latter use
+	 * @param object $lockData whatever payload you might want to serialize into the lock file for latter use
+	 *
 	 * @return boolean 
 	 */
-	public static function lock($lockName, $blocking = true, $lockData = null) {
+	public static function lock($lockName, $blocking = true, $lockData = null)
+	{
 		$lockFileHandle = self::getLockHandle($lockName);
 		if (!$lockFileHandle) {
 			return false;
@@ -50,7 +53,8 @@ class Lock {
 	 *
 	 * @return bool
 	 */
-	public static function release($lockName) {
+	public static function release($lockName)
+	{
 		$lockFileHandle = false;
 		if (isset(self::$lockHandles[$lockName])) {
 			$lockFileHandle = self::$lockHandles[$lockName];
@@ -62,7 +66,11 @@ class Lock {
 			// release the lock
 			flock($lockFileHandle, LOCK_UN);
 			fclose($lockFileHandle);
-			unlink(self::getLockFile($lockName));
+			$lockFile = self::getLockFile($lockName);
+			if(file_exists($lockFile)) {
+				// when locking non without a block sbdy. else might have removed it already
+				unlink($lockFile);
+			}
 			unset(self::$lockHandles[$lockName]);
 			return true;
 		}
@@ -74,7 +82,8 @@ class Lock {
 	 * @deprecated use getLockInfoObject instead
 	 * @return array hash with the following keys: lock_file, lock_age, caller_is_owner, is_locked
 	 */
-	public static function getLockInfo($lockName) {
+	public static function getLockInfo($lockName)
+	{
 		$infoObj = self::getLockInfoObject($lockName);
 		return array(
 			'lock_file' => $infoObj->file,
@@ -105,28 +114,35 @@ class Lock {
 	
 	/**
 	 * check if locked
+	 *
 	 * @param string $lockName
+	 *
 	 * @return boolean
 	 */
-	public static function isLocked($lockName) {
-		if (self::isLockedByCaller($lockName) === true) {
-			return true;
-		} else {
-			//check if somebody else has it
-			$canGetLock = self::lock($lockName, $blocking = false);
-			if($canGetLock) {
-				self::release($lockName);
-			}
-
-			if ($canGetLock) {
-				return false;
-			} else {
+	public static function isLocked($lockName)
+	{
+		if(file_exists(self::getLockFile($lockName))) {
+			if (self::isLockedByCaller($lockName) === true) {
 				return true;
+			} else {
+				//check if somebody else has it
+				$canGetLock = self::lock($lockName, $blocking = false);
+				if($canGetLock) {
+					self::release($lockName);
+				}
+				if ($canGetLock) {
+					return false;
+				} else {
+					return true;
+				}
 			}
+		} else {
+			return false;
 		}
 	}
 
-	private static function getLockFileContents($lockName) {
+	private static function getLockFileContents($lockName)
+	{
 		$file = self::getLockContentsFile($lockName);
 		if (!file_exists($file)) {
 			throw new \Exception('file does not exist');
@@ -147,34 +163,37 @@ class Lock {
 	/**
 	 * get file handle for lockName
 	 * @param  string $lockName
-	 * @return file handle 
+	 *
+	 * @return resource file handle
 	 */
-	private static function getLockHandle($lockName) {
+	private static function getLockHandle($lockName)
+	{
 		$lockFile = self::getLockFile($lockName);
 		$lockFileHandle = fopen($lockFile, "w+");
 		return $lockFileHandle;
 	}
 
-	private static function getLockFile($lockName) {
+	private static function getLockFile($lockName)
+	{
 		$baseDir = \Foomo\Config::getVarDir(\Foomo\Module::NAME);
 		$lockFile = $baseDir . DIRECTORY_SEPARATOR . '.' . $lockName . '.lock';
 		return $lockFile;
 	}
 	
-	private static function getLockContentsFile($lockName) {
+	private static function getLockContentsFile($lockName)
+	{
 		$baseDir = \Foomo\Config::getVarDir(\Foomo\Module::NAME);
 		$lockFile = $baseDir . DIRECTORY_SEPARATOR . '.' . $lockName . '.data';
 		return $lockFile;
 	}
 
-
-	private static function isLockedByCaller($lockName) {
+	private static function isLockedByCaller($lockName)
+	{
 		return isset(self::$lockHandles[$lockName]);
 	}
 
-	
-
-	private static function insertLockData($lockContentsFile, $lockData = null) {
+	private static function insertLockData($lockContentsFile, $lockData = null)
+	{
 		$data = array(
 			'pid' => getmypid(),
 			'timestamp' => time(),
