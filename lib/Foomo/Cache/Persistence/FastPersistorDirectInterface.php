@@ -26,40 +26,17 @@ use Foomo\Cache\Resource;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-interface FastPersistorInterface {
+interface FastPersistorDirectInterface extends FastPersistorInterface {
+	/**
+	 * @param string $key
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function directSave($key, $value);
 
 	/**
-	 * get the persistor
+	 * @param string $key
+	 * @return string mixed
 	 */
-	public function __construct($config);
-
-	/*
-	 * Save a resource into cache
-	 *
-	 * @return boolean return true if succesful
-	 */
-	public function save(\Foomo\Cache\CacheResource $resource);
-	/**
-	 * Retrieve a resource from cache
-	 *
-	 * @param \Foomo\Cache\CacheResource $resource
-	 * @param bool $countHits
-	 *
-	 * @return \Foomo\Cache\CacheResource
-	 */
-	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false);
-	/**
-	 * delete a resource from cache
-	 *
-	 *
-	 * @param \Foomo\Cache\CacheResource $resource
-	 *
-	 * @return boolean true if successful
-	 */
-	public function delete(\Foomo\Cache\CacheResource $resource);
-
-	/**
-	 * remove EVERYTHING
-	 */
-	public function reset();
+	public function directLoad($key);
 }

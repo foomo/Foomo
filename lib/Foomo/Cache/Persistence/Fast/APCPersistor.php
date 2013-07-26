@@ -26,7 +26,7 @@ namespace Foomo\Cache\Persistence\Fast;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
+class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterface {
 
 	public function save(\Foomo\Cache\CacheResource $resource) {
 		static $i = 0;

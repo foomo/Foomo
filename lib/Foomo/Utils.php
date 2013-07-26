@@ -90,7 +90,7 @@ class Utils
 	 *
 	 * @return boolean
 	 */
-	public static function streamFile($filename, $downloadName = null, $mimeType = 'application/octet-stream', $toBeDownloaded = false)
+	public static function streamFile($filename, $downloadName = null, $mimeType = 'application/octet-stream', $toBeDownloaded = false, $headers = array())
 	{
 		if (!file_exists($filename)) {
 			trigger_error('can not stream file - file does not exist "' . $filename . '"', E_USER_WARNING);
@@ -98,17 +98,37 @@ class Utils
 		}
 		set_time_limit(0); // Reset time limit for big files
 		session_cache_limiter('public');
-		header('Cache-Control: cache');
-		$fSize = fileSize($filename);
-		header('Content-Length: ' . $fSize);
-
-		if (!isset($mimeType)) {
-			$mimeType = self::guessMime($filename);
+		$cleanHeaders = array();
+		foreach($headers as $key => $value) {
+			$cleanHeaders[strtolower($key)] = $value;
 		}
-		header('Content-Type: ' . $mimeType);
+		$headers = $cleanHeaders;
+		if(!isset($headers['cache-control'])) {
+			$headers['cache-control'] = 'cache';
+		}
+		if(!isset($headers['content-length'])) {
+			$headers['content-length'] = fileSize($filename);
+		}
+		if(!isset($headers['content-type'])) {
+			if (!isset($mimeType)) {
+				$mimeType = self::guessMime($filename);
+			}
+			$headers['content-type'] = $mimeType;
+		}
+
+		foreach($headers as $name => $value) {
+			/*
+			$nameParts = explode('-', $name);
+			array_walk($nameParts, function(&$value, $index) {
+				$value = ucfirst($value);
+			});
+			$name = implode('-', $nameParts);
+			*/
+			header($name . ': '. $value);
+		}
 		header('Accept-Ranges: bytes');
 
-		if (isset($downloadName) AND $toBeDownloaded === true) {
+		if (isset($downloadName) && $toBeDownloaded === true && !isset($headers['content-disposition'])) {
 			header('Content-Disposition: attachment; filename="' . addslashes($downloadName) . '"');
 		}
 		if (isset($_SERVER['HTTP_RANGE'])) {

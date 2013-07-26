@@ -29,7 +29,7 @@ namespace Foomo\Cache\Persistence\Fast;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
+class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterface {
 
 	/**
 	 * @var Memcache
