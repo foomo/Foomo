@@ -80,6 +80,23 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterfa
 	}
 
 	/**
+	 * @param string $key
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function directSave($key, $value) {
+		return $this->memcache->set($key, $value);
+	}
+
+	/**
+	 * @param string $key
+	 * @return string mixed
+	 */
+	public function directLoad($key) {
+		return $this->memcache->get($key);
+	}
+
+	/**
 	 * deletes resource from cache
 	 *
 	 * @param Foomo\Cache\CacheResource $resource

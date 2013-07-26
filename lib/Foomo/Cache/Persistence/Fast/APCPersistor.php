@@ -82,6 +82,24 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
 		}
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function directSave($key, $value) {
+		return apc_store($key, $value);
+	}
+
+	/**
+	 * @param string $key
+	 * @return string mixed
+	 */
+	public function directLoad($key) {
+		return apc_fetch($key);
+	}
+
+
 	public function delete(\Foomo\Cache\CacheResource $resource) {
 		if (!apc_fetch($this->getId($resource->id))){
 			 return true;   

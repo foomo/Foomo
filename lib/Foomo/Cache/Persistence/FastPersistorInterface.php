@@ -32,30 +32,42 @@ interface FastPersistorInterface {
 	 * get the persistor
 	 */
 	public function __construct($config);
+
 	/*
 	 * Save a resource into cache
 	 *
 	 * @return boolean return true if succesful
 	 */
-
 	public function save(\Foomo\Cache\CacheResource $resource);
-
 	/**
 	 * Retrieve a resource from cache
 	 *
-	 * @param string $id
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * @param bool $countHits
 	 *
-	 * @param boolean $countHits should monitor number of times record was loaded
-	 *
-	 * @return Foomo\Cache\Resource
+	 * @return \Foomo\Cache\CacheResource
 	 */
 	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false);
+
+
+	/**
+	 * @param string $key
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function directSave($key, $value);
+
+	/**
+	 * @param string $key
+	 * @return string mixed
+	 */
+	public function directLoad($key);
 
 	/**
 	 * delete a resource from cache
 	 *
 	 *
-	 * @param string $id
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
 	 * @return boolean true if successful
 	 */
