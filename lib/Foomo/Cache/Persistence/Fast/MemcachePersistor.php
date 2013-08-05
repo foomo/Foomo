@@ -57,23 +57,24 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	}
 
 	/**
-	 * save resource
+	 * save
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function save(\Foomo\Cache\CacheResource $resource) {
 		$id = $this->getId($resource->id);
-		return $this->memcache->set($id, $resource, ($resource->expirationTimeFast > 0 ? ($resource->expirationTimeFast - \time()) : 0));
+		return $this->memcache->set($id, $resource, 0, ($resource->expirationTimeFast > 0 ? ($resource->expirationTimeFast - \time()) : 0));
 	}
 
 	/**
-	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * load resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 * @param boolean $countHits counting hits not implemented for mrmcache persistor
-	 * @return  Foomo\Cache\CacheResource $resource
+	 * @return \Foomo\Cache\CacheResource $resource
 	 */
+
 	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
 		$id = $this->getId($resource->id);
 		return $this->memcache->get($id);
@@ -99,7 +100,7 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	/**
 	 * deletes resource from cache
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
 	 * @return boolean
 	 */

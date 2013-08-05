@@ -28,6 +28,13 @@ namespace Foomo\Cache\Persistence\Fast;
  */
 class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterface {
 
+	/**
+	 * save
+	 *
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * 
+	 * @return bool
+	 */
 	public function save(\Foomo\Cache\CacheResource $resource) {
 		static $i = 0;
 		$i ++;
@@ -70,8 +77,16 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	{
 		return \Foomo\ROOT . $id;
 	}
-	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
 
+	/**
+	 * load
+	 *
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * @param bool $countHits
+	 *
+	 * @return \Foomo\Cache\CacheResource
+	 */
+	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
 		$loadedResource = apc_fetch($this->getId($resource->id));
 		if($loadedResource) {
 			if ($countHits) {
@@ -92,7 +107,10 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	}
 
 	/**
+	 * direct load
+	 *
 	 * @param string $key
+	 *
 	 * @return string mixed
 	 */
 	public function directLoad($key) {
@@ -108,6 +126,7 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 		}
 		
 	}
+
 
 	public function __construct($config) {
 		if (!function_exists('apc_store')) {
