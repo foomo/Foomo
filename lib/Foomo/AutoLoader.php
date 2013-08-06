@@ -97,7 +97,7 @@ class AutoLoader
 	 */
 	public static function getClassesByInterface($interface)
 	{
-		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassesByInterface', array((string) $interface));
+		return Cache\Proxy::call(__CLASS__, 'cachedGetClassesByInterface', array((string) $interface));
 	}
 
 	/**
@@ -106,38 +106,39 @@ class AutoLoader
 	 */
 	public static function getClassesBySuperClass($class)
 	{
-		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetClassesBySuperClass', array((string) $class));
+		return Cache\Proxy::call(__CLASS__, 'cachedGetClassesBySuperClass', array((string) $class));
 	}
 
 	/**
 	 * singleton
 	 *
 	 * @internal
-	 * @return Foomo\AutoLoader
+	 * @return AutoLoader
 	 */
 	public static function getInstance()
 	{
 		static $inst;
-		if (!isset(self::$inst)) {
+		if (is_null($inst)) {
 			$inst = new self();
 		}
 		return $inst;
 	}
 
 	/**
-	 * get all the classes the auto oader knows of
+	 * get all the classes the auto loader knows of
 	 *
 	 * @return array a hash of class name => file name the class was defined in
 	 */
 	public static function getClassMap()
 	{
 		if (self::$classMap === null) {
-			$resource = \Foomo\Cache\EmptyResourceHack::getEmptyResource('Foomo\\AutoLoader', 'cachedGetClassMap', array(), array(), 0);
-			$cachedResource = \Foomo\Cache\Manager::load($resource);
+			$inst = self::getInstance();
+			$resource = Cache\EmptyResourceHack::getEmptyResource(__CLASS__, 'cachedGetClassMap', array(), array(), 0);
+			$cachedResource = Cache\Manager::load($resource);
 			if ($cachedResource == null) {
-				self::$classMap = self::getInstance()->buildClassMap();
+				self::$classMap = $inst->buildClassMap();
 				$resource->value = self::$classMap;
-				\Foomo\Cache\Manager::save($resource);
+				Cache\Manager::save($resource);
 			} else {
 				self::$classMap = $cachedResource->value;
 			}
@@ -149,7 +150,7 @@ class AutoLoader
 	 * get the file name for a class
 	 *
 	 * @param string $className name of the class
-	 * @return string file name
+	 * @return string|null file name
 	 */
 	public static function getClassFileName($className)
 	{
@@ -157,6 +158,8 @@ class AutoLoader
 		$classMap = self::getClassMap();
 		if (isset($classMap[$lowerClassName])) {
 			return $classMap[$lowerClassName];
+		} else {
+			return null;
 		}
 	}
 
@@ -204,7 +207,10 @@ class AutoLoader
 	 * but you can call it yourself too for example from your __autoload
 	 *
 	 * @param string $className the name of the class you need
+	 *
 	 * @return boolean
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	public static function loadClass($className)
 	{
@@ -217,12 +223,11 @@ class AutoLoader
 				throw new \InvalidArgumentException('empty classNames are not valid', 1);
 			}
 			if (!isset(self::$classMap)) {
-				$tmp = new self();
 				self::$classMap = self::getClassMap();
 			}
 			if (isset(self::$classMap[$className])) {
 				try {
-					if (false !== $ret = include_once(self::$classMap[$className])) {
+					if (false !== include_once(self::$classMap[$className])) {
 						return true;
 					} else {
 						trigger_error('could not include ' . self::$classMap[$className] . ' for declaration of ' . $className . '.', E_USER_WARNING);
@@ -259,9 +264,11 @@ class AutoLoader
 	}
 
 	/**
-	 * create the class map a hash of 'classname' => '/path/to/class/file.class.php'
+	 * create the class map a hash of 'className' => '/path/to/class/file.class.php'
 	 *
-	 * @return array
+	 * @param bool $silently
+	 *
+	 * @return array array(className => fileName, ...)
 	 */
 	public function buildClassMap($silently=false)
 	{
@@ -299,7 +306,6 @@ class AutoLoader
 		if (!$silently) {
 			trigger_error(__METHOD__ . ' putting classmap to cache with ' . count($classMap) . ' classes', E_USER_NOTICE);
 		}
-
 		return $classMap;
 	}
 
@@ -312,14 +318,16 @@ class AutoLoader
 	 */
 	public static function resetCache()
 	{
-		\Foomo\Hiccup::removeAutoloaderCache();
+		Hiccup::removeAutoloaderCache();
 		self::reset(true);
 		$ret = '<b>loaded classes from ' . implode(', ', Manager::getLibFolders()) . '</b><pre>';
 		$map = self::getClassMap();
 		$keys = array_keys($map);
 		sort($keys, SORT_STRING);
+		ini_set('html_errors', 'Off');
 		foreach ($keys as $key) {
 			try {
+				$ret .= $key;
 				$ref = new ReflectionClass($key);
 				$ret .= $ref->name . ' in ' . $map[$key] . PHP_EOL;
 			} catch (Exception $e) {
@@ -337,7 +345,8 @@ class AutoLoader
 	 * @Foomo\Cache\CacheResourceDescription()
 	 */
 	public static function cachedGetClassMap()
-	{//do nothing. not using proxy inhere
+	{
+		//do nothing. not using proxy inhere
 	}
 
 	/**
@@ -384,12 +393,12 @@ class AutoLoader
 		if(self::includeExists($classFile)) {
 			try {
 				include_once($classFile);
-				if (class_exists($className, false) || interface_exists($className, false)) {
-					return true;
+				if(function_exists('trait_exists')) {
+					return class_exists($className, false) || interface_exists($className, false) || trait_exists($className, false);
 				} else {
-					return false;
+					return class_exists($className, false) || interface_exists($className, false);
 				}
-			} catch (Execption $e) {
+			} catch (Exception $e) {
 				trigger_error('autoloading ' . $className . ' from ' . $classFile . ' caused a problem ' . $e->getMessage(), E_USER_WARNING);
 				return false;
 			}
@@ -399,13 +408,17 @@ class AutoLoader
 	}
 
 	/**
-	 * @return string
+	 * @param string $includeFile
+	 *
+	 * @return bool
 	 */
 	private static function includeExists($includeFile)
 	{
 		$fp = @fopen($includeFile, 'r', true);
 		$ret = is_resource($fp);
-		if ($ret) fclose($fp);
+		if ($ret) {
+			fclose($fp);
+		}
 		return $ret;
 	}
 
@@ -416,8 +429,8 @@ class AutoLoader
 	private static function reset($silently=false)
 	{
 		$tmp = new self();
-		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetClassesByInterface', false);
-		\Foomo\Cache\Manager::reset(__CLASS__.'::cachedGetClassesBySuperClass', false);
+		Cache\Manager::reset(__CLASS__.'::cachedGetClassesByInterface', false);
+		Cache\Manager::reset(__CLASS__.'::cachedGetClassesBySuperClass', false);
 		return self::$classMap = $tmp->buildClassMap($silently);
 	}
 
@@ -459,7 +472,12 @@ class AutoLoader
 					$iNamespace++;
 				}
 			}
-			if ($tokens[$i][0] === T_CLASS || $tokens[$i][0] === T_INTERFACE) {
+			if(defined('T_TRAIT')) {
+				$isTrait = $tokens[$i][0] === T_TRAIT;
+			} else {
+				$isTrait = false;
+			}
+			if ($tokens[$i][0] === T_CLASS || $tokens[$i][0] === T_INTERFACE || $isTrait) {
 				if (!empty($namespace)) {
 					$classNames[] = $namespace . '\\' . $tokens[$i + 2][1];
 				} else {
