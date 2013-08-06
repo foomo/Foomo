@@ -20,6 +20,7 @@
 namespace Foomo\Core;
 
 use Foomo\AutoLoader;
+use Foomo\Modules\MakeResult;
 use Foomo\Modules\Manager;
 use Foomo\Router as R;
 
@@ -54,13 +55,13 @@ class Router extends R {
 			$this->out('making ' . $target);
 			$this->out('-----------------------------------------------------');
 
-			$indent = 0;
 			foreach($results as $result) {
-				$this->out($result->moduleName . ($result->wasSuccessful()?' SUCCESS: ':' FAILURE'), $indent);
+				/* @var $result MakeResult */
+				$this->out($result->moduleName . ($result->wasSuccessful()?' SUCCESS: ':' FAILURE'), 0);
 				foreach($result->entries as $entry) {
 					$this->out(
 						$entry->level . ': ' . $entry->message,
-						$indent + 1
+						1
 					);
 				}
 			}
@@ -81,7 +82,7 @@ class Router extends R {
 	public function resetAutoLoader()
 	{
 		$this->out('resetting the auto loader');
-		$this->out(strip_tags(AutoLoader::resetCache()));
+		$this->out(\strip_tags(AutoLoader::resetCache()));
 	}
 	public function enableModule($name)
 	{
@@ -163,6 +164,6 @@ class Router extends R {
 			'/resetAutoLoader' => 'resetAutoLoader',
 			'*' => 'help'
 		));
-		echo $coreRouter->execute();
+		$coreRouter->execute();
 	}
 }

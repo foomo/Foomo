@@ -22,6 +22,7 @@ namespace Foomo\Log;
 use Foomo\Timer;
 use Foomo\Config;
 use Foomo\Module;
+use Foomo\Session;
 
 /**
  * collects data and writes logging entries
@@ -58,7 +59,7 @@ class Logger {
 	private $processingTime;
 	/**
 	 *
-	 * @var exit on an error - default is true, if you need another shutdown_func to be reached, set to false
+	 * @var bool exit on an error - default is true, if you need another shutdown_func to be reached, set to false
 	 */
 	public $autoExitOnError = true;
 	private function __construct()
@@ -82,7 +83,7 @@ class Logger {
 
 	public static function bootstrap()
 	{
-		$loggerConfig = Config::getConf(\Foomo\Module::NAME, DomainConfig::NAME);
+		$loggerConfig = Config::getConf(Module::NAME, DomainConfig::NAME);
 		if ($loggerConfig && $loggerConfig->enabled) {
 			self::enable();
 		} else {
@@ -101,7 +102,7 @@ class Logger {
 			$inst = self::getInstance();
 			if (!$inst->enabled) {
 				if (is_null($config)) {
-					$inst->config = Config::getConf(\Foomo\Module::NAME, DomainConfig::NAME);
+					$inst->config = Config::getConf(Module::NAME, DomainConfig::NAME);
 				} else {
 					$inst->config = $config;
 				}
@@ -291,13 +292,11 @@ class Logger {
 	{
 
 		$lastError = error_get_last();
-
 		if (is_array($lastError) && in_array($lastError['type'], array(E_ERROR, E_CORE_ERROR, E_PARSE))) {
 			// holy crap uncaught uncatchable fatal !!!
 			// maybe scan, if it was recorder after all ...
 			call_user_func_array(array($this, 'handleError'), $lastError);
 		}
-
 		$markers = Timer::getMarkers();
 		$stopwatchEntries = Timer::getStopwatchEntries();
 
@@ -309,7 +308,7 @@ class Logger {
 			$base64 = \base64_encode($serialized);
 		}
 		apache_setenv('FOOMO_LOG_ENTRY', $base64);
-		apache_setenv('FOOMO_SESSION_AGE', \Foomo\Session::getAge());
+		apache_setenv('FOOMO_SESSION_AGE', Session::getAge());
 	}
 
 	/**
@@ -370,10 +369,9 @@ class Logger {
 	{
 		$customLogfile = self::getInstance()->config->customLogfile;
 		if(empty($customLogfile)) {
-			return \Foomo\Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
+			return Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
 		} else {
 			return $customLogfile;
 		}
 	}
-
 }

@@ -35,9 +35,9 @@ class SampleResources {
 	 * @param double $dbl
 	 *
 	 * @return string
-
 	 */
-	public function noticeMEEEEEEE($timestamp, $location, $template, $dbl) {
+	public function noticeMEEEEEEE($timestamp, $location, $template, $dbl)
+	{
 		$data = \Foomo\Cache\Proxy::call($this, 'getHoroscopeData', array($timestamp, $location));
 		// render on template
 		return 'rending on ' . \var_export($data, true) . ' in template ' . $template;
@@ -50,13 +50,10 @@ class SampleResources {
 	 * @return string
 
 	 */
-	public function iamAmAmixedMethod($param) {
+	public function iamAmAmixedMethod($param)
+	{
 		return 'A mixed param ' . $param;
 	}
-
-
-
-
 
 	/**
 	 * a very useless, yet transparent method

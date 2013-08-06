@@ -38,7 +38,6 @@ class Path
 	 * @var array
 	 */
 	public $parameters = array();
-
 	public $optionalParameters = array();
 	private $generalParameterMatch = false;
 	private $ignoreAfterNumberOfParameters = null;
@@ -184,7 +183,6 @@ class Path
 			} else {
 				return $path;
 			}
-
 		}
 	}
 }
