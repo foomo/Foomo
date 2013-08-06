@@ -47,7 +47,7 @@ class Session
 	/**
 	 * singleton
 	 *
-	 * @var Foomo\Session
+	 * @var \Foomo\Session
 	 */
 	private static $instance;
 	/**
@@ -145,6 +145,8 @@ class Session
 	 *
 	 * @param stdClass $instance
 	 * @param string $identifier
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	public static function setClassInstance($instance, $identifier = 'defaultInstance')
 	{
@@ -330,6 +332,7 @@ class Session
 	 * paranoid session id
 	 *
 	 * @param string $salt salt it
+	 * @param integer $paranoiaLevel
 	 *
 	 * @return string
 	 */
@@ -442,7 +445,7 @@ class Session
 	{
 		$conf = self::getConf();
 		if ($conf) {
-			return self::getConf()->enabled && !self::$disabled;
+			return $conf->enabled && !self::$disabled;
 		} else {
 			return false;
 		}
