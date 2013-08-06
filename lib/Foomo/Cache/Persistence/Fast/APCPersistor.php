@@ -32,7 +32,7 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	 * save
 	 *
 	 * @param \Foomo\Cache\CacheResource $resource
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function save(\Foomo\Cache\CacheResource $resource) {
