@@ -151,6 +151,7 @@ class MVC
 
 	public static function render($app, $handler, $exception, $forceNoHTMLDocument = false)
 	{
+		Timer::start(__METHOD__);
 		self::$level++;
 		if(!is_null($exception)) {
 			$template = self::getExceptionTemplate(get_class($app));
@@ -192,6 +193,7 @@ class MVC
 			self::$level--;
 			$ret = $rendering;
 		}
+		Timer::stop(__METHOD__);
 		return $ret;
 	}
 	public static function runAction($app, $action, $parameters = array(), $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
