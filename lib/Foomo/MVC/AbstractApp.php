@@ -43,7 +43,7 @@ abstract class AbstractApp
 	/**
 	 * view
 	 *
-	 * @var Foomo\MVC\View
+	 * @var View
 	 */
 	public $view;
 
