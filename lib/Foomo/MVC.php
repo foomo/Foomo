@@ -196,17 +196,19 @@ class MVC
 		Timer::stop(__METHOD__);
 		return $ret;
 	}
-	public static function runAction($app, $action, $parameters = array(), $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
+	public static function runAction($app, $action, $parameters = array(), $baseURL = null)
 	{
 		try {
 			$action = 'action' . ucfirst($action);
 			call_user_func_array(array($app->controller, $action), $parameters);
-			$template = self::getViewTemplate(get_class($app), $action);
+			$app->model = $app->controller->model;
 			$exception = null;
 		} catch (\Exception $exception) {
 			trigger_error($exception->getMessage());
-			$template = self::getExceptionTemplate(get_class($app));
 		}
+		$handler = new URLHandler($app, $baseURL);
+		$handler->lastAction = $action;
+		return self::render($app, $handler, $exception, true);
 	}
 
 	private static function getViewCatchingPath()
