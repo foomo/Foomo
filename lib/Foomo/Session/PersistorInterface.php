@@ -45,7 +45,7 @@ interface PersistorInterface {
 	 *
 	 * @param string $sessionId
 	 *
-	 * @return Foomo\Session
+	 * @return \Foomo\Session
 	 */
 	public function load($sessionId);
 	/**
