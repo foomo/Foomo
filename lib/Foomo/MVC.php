@@ -455,12 +455,19 @@ class MVC
 	}
 
 	/**
-	 * redirect to another controller / action
+	 *
+	 * @param string $action
+	 * @param array $parameters
+	 * @param string $baseURL
 	 */
-	public static function redirect($action, $parameters = array())
+	public static function redirect($action, $parameters = array(), $baseURL = null)
 	{
 		self::abort();
-		header('Location: ' . self::getCurrentURLHandler()->renderMethodURL($action, $parameters));
+		$urlHandler = self::getCurrentURLHandler();
+		if(!is_null($baseURL)) {
+			$urlHandler->baseURL = $baseURL;
+		}
+		header('Location: ' . $urlHandler->renderMethodURL($action, $parameters));
 		exit;
 	}
 }
