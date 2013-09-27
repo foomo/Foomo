@@ -27,7 +27,7 @@ namespace Foomo\Router;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class Path
+class Path implements RouteMatcherInterface
 {
 	/**
 	 * @var string

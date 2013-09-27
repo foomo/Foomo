@@ -71,6 +71,8 @@ class PathTest extends TestCase
 
 	public function testMethodWithTwoPostfixedParms()
 	{
+		'/bar/a-BLA_WERT/b-BLUBB_WERT.txt';
+		$path = $this->getPath('/bar/a-:bla/b-:blubb:.txt');
 		$path = $this->getPath('/bar/a:bla/b:blubb:.txt');
 		$this->assertEquals($path->command, 'bar');
 		$this->assertCount(2, $path->parameters);

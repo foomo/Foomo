@@ -17,28 +17,33 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo;
+namespace Foomo\Router;
 
-use Foomo\TestRunner\Suite;
 
 /**
+ * a router
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class RouterTestSuite extends Suite {
+interface RouteMatcherInterface
+{
 	/**
-	 * get a list of class name, which will be accumulated into a test as a suite
+	 * do we match a a path
+	 *
+	 * @param string $path
+	 *
+	 * @return bool
+	 */
+	function matches($path);
+	/**
+	 * extract parameters
+	 *
+	 * @param string $path
 	 *
 	 * @return array
 	 */
-	public function foomoTestSuiteGetList()
-	{
- 		return array(
-			'Foomo\\RouterTest',
-			'Foomo\\Router\\PathTest',
-			'Foomo\\Router\\RegexTest',
-			'Foomo\\Router\\RouteTest',
-        );
-	}
+	function extractParameters($path);
+	function resolvePath($path);
 }

@@ -17,28 +17,36 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo;
+namespace Foomo\Router;
 
-use Foomo\TestRunner\Suite;
+use PHPUnit_Framework_TestCase as TestCase;
 
 /**
+ * a router
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class RouterTestSuite extends Suite {
+class RegexTest extends TestCase
+{
+	public $command;
+	public $parameters;
+
 	/**
-	 * get a list of class name, which will be accumulated into a test as a suite
-	 *
-	 * @return array
+	 * @param $regex
+	 * @return Regex
 	 */
-	public function foomoTestSuiteGetList()
+	private function getRegex($regex)
 	{
- 		return array(
-			'Foomo\\RouterTest',
-			'Foomo\\Router\\PathTest',
-			'Foomo\\Router\\RegexTest',
-			'Foomo\\Router\\RouteTest',
-        );
+		return new Regex($regex);
+	}
+
+	public function testRegex()
+	{
+		$regex = $this->getRegex('\/([a-z]{2})\/([a-z]{2})\/');
+		$path = '/de/by/blablabla';
+		$this->assertTrue($regex->matches($path));
+		$this->assertEquals(array('de', 'by'), $regex->extractParameters($path));
 	}
 }

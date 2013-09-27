@@ -38,9 +38,20 @@ class Route
 	 */
 	private $path;
 
+	/**
+	 * @var bool
+	 */
+	private $usesRegexPath;
+
 	public function __construct($path, $callback)
 	{
-		$this->path = new Path($path);
+		if(substr($path, 0, 6) == 'regex:') {
+			$this->path = new Regex(substr($path, 6));
+			$this->usesRegexPath = true;
+		} else {
+			$this->path = new Path($path);
+			$this->usesRegexPath = false;
+		}
 		$this->callback = $callback;
 	}
 	/**
@@ -65,13 +76,17 @@ class Route
 	 */
 	public function handlesMethod($className, $methodName)
 	{
-		if(is_string($this->callback[0]) && $this->callback[0] == $className || is_object($this->callback[0]) && get_class($this->callback[0]) == $className) {
-			$myMethodName = $this->getMethodReflection($this->callback)->getName();
-			$candidates = array($myMethodName, $this->path->command);
-			if(substr($myMethodName, 0, 6) == 'action') {
-				$candidates[] = lcfirst(substr($myMethodName, 6));
+		if(!$this->usesRegexPath) {
+			if(is_string($this->callback[0]) && $this->callback[0] == $className || is_object($this->callback[0]) && get_class($this->callback[0]) == $className) {
+				$myMethodName = $this->getMethodReflection($this->callback)->getName();
+				$candidates = array($myMethodName, $this->path->command);
+				if(substr($myMethodName, 0, 6) == 'action') {
+					$candidates[] = lcfirst(substr($myMethodName, 6));
+				}
+				return in_array($methodName, $candidates);
+			} else {
+				return false;
 			}
-			return in_array($methodName, $candidates);
 		} else {
 			return false;
 		}
@@ -92,22 +107,26 @@ class Route
 	 */
 	public function url($parameters = array())
 	{
-		$namedParameters = array();
-		$i = 0;
-		$optionalParameters = array();
-		foreach($this->getMethodReflection($this->callback)->getParameters() as $parameterReflection) {
-			if(isset($parameters[$i])) {
-				$value = $parameters[$i];
-			} else {
-				$value = null;
+		if($this->usesRegexPath) {
+			trigger_error('i can not render an url for a regex path', E_USER_ERROR);
+		} else {
+			$namedParameters = array();
+			$i = 0;
+			$optionalParameters = array();
+			foreach($this->getMethodReflection($this->callback)->getParameters() as $parameterReflection) {
+				if(isset($parameters[$i])) {
+					$value = $parameters[$i];
+				} else {
+					$value = null;
+				}
+				$namedParameters[$parameterReflection->getName()] = $value;
+				if($parameterReflection->isOptional()) {
+					$optionalParameters[] = $parameterReflection->getName();
+				}
+				$i ++;
 			}
-			$namedParameters[$parameterReflection->getName()] = $value;
-			if($parameterReflection->isOptional()) {
-				$optionalParameters[] = $parameterReflection->getName();
-			}
-			$i ++;
+			return $this->path->url($namedParameters, $optionalParameters);
 		}
-		return $this->path->url($namedParameters, $optionalParameters);
 	}
 
 	/**
@@ -119,7 +138,11 @@ class Route
 	 */
 	public function getParameters($path)
 	{
-		return $this->getParametersForCallBack($this->callback, $this->path->extractParameters($path));
+		if($this->usesRegexPath) {
+			return $this->path->extractParameters($path);
+		} else {
+			return $this->getParametersForCallBack($this->callback, $this->path->extractParameters($path));
+		}
 	}
 	/**
 	 *
