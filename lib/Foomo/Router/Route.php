@@ -34,25 +34,22 @@ class Route
 	 */
 	public $callback;
 	/**
-	 * @var Path
+	 * @var RouteMatcherInterface
 	 */
-	private $path;
+	private $matcher;
 
-	/**
-	 * @var bool
-	 */
-	private $usesRegexPath;
-
-	public function __construct($path, $callback)
+	public function __construct(RouteMatcherInterface $matcher, $callback)
 	{
-		if(substr($path, 0, 6) == 'regex:') {
-			$this->path = new Regex(substr($path, 6));
-			$this->usesRegexPath = true;
-		} else {
-			$this->path = new Path($path);
-			$this->usesRegexPath = false;
-		}
+		$this->matcher = $matcher;
 		$this->callback = $callback;
+	}
+	public static function createWithPath($path, $callback)
+	{
+		return new self(new Path($path), $callback);
+	}
+	public static function createWithRegexMatcher($matchingRegex, $renderingRegex, $callback)
+	{
+		return new self(new Regex($matchingRegex, $renderingRegex), $callback);
 	}
 	/**
 	 * does this route match
@@ -63,7 +60,7 @@ class Route
 	 */
 	public function matches($path)
 	{
-		return $this->path->matches($path);
+		return $this->matcher->matches($path);
 	}
 
 	/**
@@ -76,17 +73,13 @@ class Route
 	 */
 	public function handlesMethod($className, $methodName)
 	{
-		if(!$this->usesRegexPath) {
-			if(is_string($this->callback[0]) && $this->callback[0] == $className || is_object($this->callback[0]) && get_class($this->callback[0]) == $className) {
-				$myMethodName = $this->getMethodReflection($this->callback)->getName();
-				$candidates = array($myMethodName, $this->path->command);
-				if(substr($myMethodName, 0, 6) == 'action') {
-					$candidates[] = lcfirst(substr($myMethodName, 6));
-				}
-				return in_array($methodName, $candidates);
-			} else {
-				return false;
+		if(is_string($this->callback[0]) && $this->callback[0] == $className || is_object($this->callback[0]) && get_class($this->callback[0]) == $className) {
+			$myMethodName = $this->getMethodReflection($this->callback)->getName();
+			$candidates = array($myMethodName, $this->matcher->command);
+			if(substr($myMethodName, 0, 6) == 'action') {
+				$candidates[] = lcfirst(substr($myMethodName, 6));
 			}
+			return in_array($methodName, $candidates);
 		} else {
 			return false;
 		}
@@ -107,26 +100,22 @@ class Route
 	 */
 	public function url($parameters = array())
 	{
-		if($this->usesRegexPath) {
-			trigger_error('i can not render an url for a regex path', E_USER_ERROR);
-		} else {
-			$namedParameters = array();
-			$i = 0;
-			$optionalParameters = array();
-			foreach($this->getMethodReflection($this->callback)->getParameters() as $parameterReflection) {
-				if(isset($parameters[$i])) {
-					$value = $parameters[$i];
-				} else {
-					$value = null;
-				}
-				$namedParameters[$parameterReflection->getName()] = $value;
-				if($parameterReflection->isOptional()) {
-					$optionalParameters[] = $parameterReflection->getName();
-				}
-				$i ++;
+		$namedParameters = array();
+		$i = 0;
+		$optionalParameters = array();
+		foreach($this->getMethodReflection($this->callback)->getParameters() as $parameterReflection) {
+			if(isset($parameters[$i])) {
+				$value = $parameters[$i];
+			} else {
+				$value = null;
 			}
-			return $this->path->url($namedParameters, $optionalParameters);
+			$namedParameters[$parameterReflection->getName()] = $value;
+			if($parameterReflection->isOptional()) {
+				$optionalParameters[] = $parameterReflection->getName();
+			}
+			$i ++;
 		}
+		return $this->matcher->url($namedParameters, $optionalParameters);
 	}
 
 	/**
@@ -138,11 +127,10 @@ class Route
 	 */
 	public function getParameters($path)
 	{
-		if($this->usesRegexPath) {
-			return $this->path->extractParameters($path);
-		} else {
-			return $this->getParametersForCallBack($this->callback, $this->path->extractParameters($path));
-		}
+		return $this->getParametersForCallBack(
+			$this->callback,
+			$this->matcher->extractParameters($path)
+		);
 	}
 	/**
 	 *
@@ -212,6 +200,6 @@ class Route
 	}
 	public function resolvePath($path)
 	{
-		return $this->path->resolvePath($path);
+		return $this->matcher->resolvePath($path);
 	}
 }

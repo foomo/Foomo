@@ -37,20 +37,25 @@ class RegexTest extends TestCase
 	 * @param $regex
 	 * @return Regex
 	 */
-	private function getRegex($regex)
+	private function getRegex($matchingRegex, $renderRegex)
 	{
-		return new Regex($regex);
+		return new Regex($matchingRegex, $renderRegex);
 	}
 	public function testRegexParse()
 	{
-		$regex = $this->getRegex('\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\/');
+		$regex = $this->getRegex('/\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\//', '//');
 		$this->assertEquals(array('region', 'language'), $regex->parameters);
 	}
 	public function testRegexMatch()
 	{
-		$regex = $this->getRegex('\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\/');
+		$regex = $this->getRegex('/\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\//', '//');
 		$path = '/de/by/blablabla';
 		$this->assertTrue($regex->matches($path));
-		$this->assertEquals(array('de', 'by'), $regex->extractParameters($path));
+		$this->assertEquals(array('region' => 'de', 'language' => 'by'), $regex->extractParameters($path));
+	}
+	public function testRenderURL()
+	{
+		$regex = $this->getRegex('/\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\//', '/go/:region/:language');
+		$this->assertEquals('/go/de/by', $regex->url(array('region' => 'de', 'language' => 'by')));
 	}
 }

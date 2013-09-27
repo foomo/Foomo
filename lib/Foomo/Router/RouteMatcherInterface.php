@@ -46,4 +46,13 @@ interface RouteMatcherInterface
 	 */
 	function extractParameters($path);
 	function resolvePath($path);
+	/**
+	 *
+	 * @param array $namedParameters
+	 * @param array $optionalParameters
+	 *
+	 * @return string
+	 */
+	public function url(array $namedParameters = array(), array $optionalParameters = array());
+
 }

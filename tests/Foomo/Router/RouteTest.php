@@ -41,7 +41,7 @@ class RouteTest extends TestCase
 	 */
 	private function getRoute($path, $callback)
 	{
-		return new Route($path, $callback);
+		return new Route(new Path($path), $callback);
 	}
 	public function testGetParametersForCallBack()
 	{

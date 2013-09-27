@@ -30,19 +30,15 @@ namespace Foomo\Router;
 class Regex implements RouteMatcherInterface
 {
 	private $regex;
+	private $urlTemplate;
 	public $parameters = array();
-	public $optionalParameters = array();
-	public function __construct($regex)
+	public function __construct($regex, $urlTemplate)
 	{
-		$parts = explode('?P<', $regex);
-		if(count($parts) == 1) {
-			// no named parameters
-			throw new \InvalidArgumentException('you regex does not contain named parameters');
+		if (preg_match_all('/\(\?P<(\w+)>/', $regex, $matches)) {
+			$this->parameters = $matches[1];
 		}
-		foreach(array_slice($parts,1) as $part) {
-			$this->parameters[] = substr($part, 0, strpos($part, '>'));
-		}
-		$this->regex = '/' . $regex . '/';
+		$this->regex = $regex;
+		$this->urlTemplate = $urlTemplate;
 	}
 	/**
 	 * do we match a a path
@@ -67,7 +63,7 @@ class Regex implements RouteMatcherInterface
 		$parameters = array();
 		if(preg_match($this->regex, $path, $matches)) {
 			foreach($this->parameters as $parameterName) {
-				$parameters[] = $matches[$parameterName];
+				$parameters[$parameterName] = $matches[$parameterName];
 			}
 		}
 		return $parameters;
@@ -76,4 +72,17 @@ class Regex implements RouteMatcherInterface
 	{
 		return $path;
 	}
+	/**
+	 *
+	 * @param array $namedParameters
+	 * @param array $optionalParameters
+	 *
+	 * @return string
+	 */
+	public function url(array $namedParameters = array(), array $optionalParameters = array())
+	{
+		$path = new Path($this->urlTemplate);
+		return $path->url($namedParameters, $optionalParameters);
+	}
+
 }
