@@ -30,8 +30,18 @@ namespace Foomo\Router;
 class Regex implements RouteMatcherInterface
 {
 	private $regex;
+	public $parameters = array();
+	public $optionalParameters = array();
 	public function __construct($regex)
 	{
+		$parts = explode('?P<', $regex);
+		if(count($parts) == 1) {
+			// no named parameters
+			throw new \InvalidArgumentException('you regex does not contain named parameters');
+		}
+		foreach(array_slice($parts,1) as $part) {
+			$this->parameters[] = substr($part, 0, strpos($part, '>'));
+		}
 		$this->regex = '/' . $regex . '/';
 	}
 	/**
@@ -54,13 +64,13 @@ class Regex implements RouteMatcherInterface
 	 */
 	public function extractParameters($path)
 	{
-		$matches = array();
+		$parameters = array();
 		if(preg_match($this->regex, $path, $matches)) {
-			return array_slice($matches, 1);
-		} else {
-			return $matches;
+			foreach($this->parameters as $parameterName) {
+				$parameters[] = $matches[$parameterName];
+			}
 		}
-
+		return $parameters;
 	}
 	public function resolvePath($path)
 	{

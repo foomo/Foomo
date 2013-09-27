@@ -41,10 +41,14 @@ class RegexTest extends TestCase
 	{
 		return new Regex($regex);
 	}
-
-	public function testRegex()
+	public function testRegexParse()
 	{
-		$regex = $this->getRegex('\/([a-z]{2})\/([a-z]{2})\/');
+		$regex = $this->getRegex('\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\/');
+		$this->assertEquals(array('region', 'language'), $regex->parameters);
+	}
+	public function testRegexMatch()
+	{
+		$regex = $this->getRegex('\/(?P<region>[a-z]{2})\/(?P<language>[a-z]{2})\/');
 		$path = '/de/by/blablabla';
 		$this->assertTrue($regex->matches($path));
 		$this->assertEquals(array('de', 'by'), $regex->extractParameters($path));
