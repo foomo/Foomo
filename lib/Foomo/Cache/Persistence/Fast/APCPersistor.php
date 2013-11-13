@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Cache\Persistence\Fast;
+use Foomo\Config;
 
 /**
  * fast cache persistor using APC
@@ -73,9 +74,8 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 
 		return true;
 	}
-	private function getId($id)
-	{
-		return \Foomo\ROOT . $id;
+	private function getId($id) {
+		return \Foomo\ROOT . Config::getMode() . $id;
 	}
 
 	/**
