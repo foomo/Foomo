@@ -39,4 +39,11 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	 * @var string[]
 	 */
 	public $curlOptions = array();
+
+	/**
+	 * @var string
+	 */
+	public $emailTo = '';
+
+	public $emailFrom = '';
 }
