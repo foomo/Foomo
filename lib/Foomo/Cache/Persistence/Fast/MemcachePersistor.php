@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Cache\Persistence\Fast;
+use Foomo\Config;
 
 /**
  * Memcache persistor
@@ -39,7 +40,7 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	public $serverConfig;
 
 	private function getId($id) {
-		return \Foomo\ROOT . $id;
+		return \Foomo\ROOT . Config::getMode() . $id;
 	}
 
 	/**
