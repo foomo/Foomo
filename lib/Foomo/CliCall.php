@@ -207,15 +207,30 @@ class CliCall
 			1 => array('pipe', 'w'),
 			2 => array('pipe', 'w')
 		);
-		$process = proc_open($this->lastCommandExecuted = $this->renderCommand(), $descriptorSpec, $pipes, $cwd = null, $this->envVars);
+		$process = proc_open(
+			$this->lastCommandExecuted = $this->renderCommand(),
+			$descriptorSpec,
+			$pipes,
+			$cwd = null,
+			$this->envVars
+		);
+
 		if(is_resource($process)) {
 			// run
 			$running = true;
+			$sleep = false;
+			stream_set_blocking($pipes[1], 0);
+			stream_set_blocking($pipes[2], 0);
 			while($running) {
 				$status = proc_get_status($process);
 				$running = $status['running'] == true;
 				$this->handleStream($pipes[1], $this->stdOut, $this->stdOutStreamCallback);
 				$this->handleStream($pipes[2], $this->stdErr, $this->stdErrStreamCallback);
+				if(!$sleep) {
+					$sleep = true;
+				} else {
+					usleep(10000);
+				}
 			}
 			// clean up
 			proc_close($process);

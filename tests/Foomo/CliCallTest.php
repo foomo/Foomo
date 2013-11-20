@@ -143,4 +143,26 @@ class CliCallTest extends \PHPUnit_Framework_TestCase {
 		$this->assertContains('autsch', $call->stdErr);
 		$this->assertEquals(255, $call->exitStatus);
 	}
+
+	private static function getStreamer($numberOfByteToStdOut, $numberOfBytesToStdError)
+	{
+		$call = CliCall::create('php', array(__DIR__ . DIRECTORY_SEPARATOR . 'CliCall' . DIRECTORY_SEPARATOR . 'streamer.php', $numberOfByteToStdOut, $numberOfBytesToStdError));
+		return $call;
+	}
+	public function testStreams()
+	{
+		$cases = array(
+			'noStdOutBigStdErr' => array(0, $big = 512*1024),
+			'noStdErrBigStdOut' => array($big, 0),
+			'allBig' => array($big, $big)
+		);
+		ini_set('html_errors', 'Off');
+		foreach($cases as $name => $limits) {
+			$call = self::getStreamer($numStdOut = $limits[0], $numStdErr = $limits[1]);
+			$call->execute();
+			$this->assertEquals($numStdErr, strlen($call->stdErr), 'wrong stdErr for ' . $name);
+			$this->assertEquals($numStdOut, strlen($call->stdOut), 'wrong stdOut for ' . $name);
+		}
+	}
+
 }
