@@ -144,7 +144,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			} else {
 				//trigger_error(__METHOD__ . ' failed to save. is the resource table not there yet?' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 				if (!$this->tableExists(self::tableNameFromResourceName($resource->name))) {
-					/**
+					/*
 					 * if this throws an exception it will be caught at the manager level
 					 */
 					//trigger_error(__METHOD__ . ' trying to create the table. table was not there!' . $resource->name . $e->getMessage(), \E_USER_WARNING);
@@ -370,15 +370,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	{
 		$max_retries = 10;
 		try {
-			// $dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName . ":" . $this->port;
-			// by schmidk
-			// Important API change: port needs to be appended separately. See http://www.php.net/manual/en/pdo.connections.php
 			$dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName;
 			if (!empty($this->port)) {
 				$dsn .= ";port=" . $this->port;
-			}
-			if ($createIfNotExists) {
-				$this->createDatabaseIfNotExists($this->databaseName);
 			}
 			$this->dbh = @new \PDO(
 				$dsn,
@@ -392,15 +386,13 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				trigger_error(__METHOD__ . ' PDO connected at attempt: ' . $attempt);
 			}
 			$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-			$db_info = $this->dbh->getAttribute(PDO::ATTR_SERVER_INFO); //  erkennung von toten persistenten verbindungen ...
-
+			//  are we still connected ?
+			$db_info = $this->dbh->getAttribute(PDO::ATTR_SERVER_INFO);
 			if ($db_info == "MySQL server has gone away") {
 				$this->dbh = null;
 				$this->dbh = @new \PDO($dsn, $this->username, $this->password);
 				trigger_error(__METHOD__ . ' using a non-persistent PDO connection');
 			}
-			//$this->dbh->exec('set character set utf8;');
 			return true;
 		} catch (\Exception $e) {
 			$this->dbh = null;
@@ -409,7 +401,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				return false;
 			}
 			//we create the dB if not there and try connecting again
-			if ($attempt == 0) {
+			if ($attempt == 0 && $createIfNotExists) {
 				$this->createDatabaseIfNotExists($this->databaseName);
 			}
 			// sleep if not first retry
