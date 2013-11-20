@@ -39,4 +39,15 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	 * @var string[]
 	 */
 	public $curlOptions = array();
+
+	/**
+	 * jobs report recipient
+	 * @var string
+	 */
+	public $emailTo = '';
+	/**
+	 * email, from which jobs report is sent
+	 * @var string
+	 */
+	public $emailFrom = '';
 }
