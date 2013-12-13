@@ -31,7 +31,7 @@ class Controller
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @var Foomo\Info\Frontend\Model
+	 * @var \Foomo\Info\Frontend\Model
 	 */
 	public $model;
 
@@ -58,7 +58,12 @@ class Controller
 	 */
 	public function actionApc()
 	{
-		header('Location: ' . \Foomo\ROOT_HTTP . '/apece.php');
+		if(version_compare(phpversion('apc'), '4.0.0') >= 0) {
+			$script = 'apcu.php';
+		} else {
+			$script = 'apc.php';
+		}
+		header('Location: ' . \Foomo\ROOT_HTTP . '/' . $script);
 		exit;
 	}
 

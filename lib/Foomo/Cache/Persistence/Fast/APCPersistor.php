@@ -36,7 +36,8 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	 *
 	 * @return bool
 	 */
-	public function save(\Foomo\Cache\CacheResource $resource) {
+	public function save(\Foomo\Cache\CacheResource $resource)
+	{
 		static $i = 0;
 		$i ++;
 		$expiration = 0;
@@ -74,7 +75,8 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 
 		return true;
 	}
-	private function getId($id) {
+	private function getId($id)
+	{
 		return \Foomo\ROOT . Config::getMode() . $id;
 	}
 
@@ -86,7 +88,8 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	 *
 	 * @return \Foomo\Cache\CacheResource
 	 */
-	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
+	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false)
+	{
 		$loadedResource = apc_fetch($this->getId($resource->id));
 		if($loadedResource) {
 			if ($countHits) {
@@ -102,7 +105,8 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	 * @param string $value
 	 * @return boolean
 	 */
-	public function directSave($key, $value) {
+	public function directSave($key, $value)
+	{
 		return apc_store($key, $value);
 	}
 
@@ -113,12 +117,14 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	 *
 	 * @return string mixed
 	 */
-	public function directLoad($key) {
+	public function directLoad($key)
+	{
 		return apc_fetch($key);
 	}
 
 
-	public function delete(\Foomo\Cache\CacheResource $resource) {
+	public function delete(\Foomo\Cache\CacheResource $resource)
+	{
 		if (!apc_fetch($this->getId($resource->id))){
 			 return true;   
 		} else {
@@ -128,7 +134,8 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 	}
 
 
-	public function __construct($config) {
+	public function __construct($config)
+	{
 		if (!function_exists('apc_store')) {
 			throw new \Exception('can not use this cache driver without apc', 1);
 		}
@@ -136,7 +143,7 @@ class APCPersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterf
 
 	public function reset()
 	{
-		\apc_clear_cache('user');
+		\apc_clear_cache();
 	}
 
 }
