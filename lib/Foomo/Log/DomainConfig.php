@@ -63,7 +63,7 @@ class DomainConfig extends AbstractConfig {
 	 * 
 	 * @var string[]
 	 */
-	public $trackServerVars = array('HTTP_USER_AGENT', 'HTTP_ACCEPT_LANGUAGE', 'REMOTE_ADDR', 'SERVER_PROTOCOL', 'QUERY_STRING', 'SCRIPT_NAME', 'HTTPS');
+	public $trackServerVars = array('REQUEST_URI', 'HTTP_USER_AGENT', 'HTTP_ACCEPT_LANGUAGE', 'REMOTE_ADDR', 'SERVER_PROTOCOL', 'QUERY_STRING', 'SCRIPT_NAME', 'HTTPS');
 	/**
 	 * what error types to track
 	 * 
