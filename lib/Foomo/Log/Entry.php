@@ -133,6 +133,12 @@ class Entry {
 	 */
 	public $bytesIn;
 	/**
+	 * mvc path information
+	 *
+	 * @var array
+	 */
+	public $mvcPath;
+	/**
 	 * transactions, with status and runtime
 	 *
 	 * @var array
@@ -155,33 +161,53 @@ class Entry {
 	 */
 	public $connectionStatus;
 
-	public function __construct(DomainConfig $settings, array $phpErrors, array $markers, array $stopwatchEntries, $exception, array $transactions, $processingTime)
+	public function __construct()
 	{
-		$this->processingTime = $processingTime;
-		$this->logTime = \Foomo\SYSTEM_START_MICRO_TIME;
-		$this->runTime = microtime(true) - $this->logTime;
-		$this->sessionId = \Foomo\Session::getSessionIdIfEnabled();
-		$this->sessionAge = \Foomo\Session::getAge();
-		$this->id = \md5((isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli') . $this->sessionId . \Foomo\SYSTEM_START_MICRO_TIME . \uniqid());
-		$this->phpErrors = $phpErrors;
-		$this->exception = $exception;
+	}
+
+	/**
+	 * @param DomainConfig $settings
+	 * @param array $phpErrors
+	 * @param array $markers
+	 * @param array $stopwatchEntries
+	 * @param null $exception
+	 * @param array $transactions
+	 * @param int $processingTime
+	 * @param array $mvcPath
+	 * @return Entry
+	 * @internal
+	 */
+	public static function create(DomainConfig $settings = null, array $phpErrors = array(), array $markers = array(), array $stopwatchEntries = array(), $exception = null, array $transactions = array(), $processingTime = 0, array $mvcPath = array())
+	{
+		$entry = new self();
+		$entry->mvcPath = $mvcPath;
+		$entry->processingTime = $processingTime;
+		$entry->logTime = \Foomo\SYSTEM_START_MICRO_TIME;
+		$entry->runTime = microtime(true) - $entry->logTime;
+		$entry->sessionId = \Foomo\Session::getSessionIdIfEnabled();
+		$entry->sessionAge = \Foomo\Session::getAge();
+		$entry->id = \md5((isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'cli') . $entry->sessionId . \Foomo\SYSTEM_START_MICRO_TIME . \uniqid());
+		$entry->phpErrors = $phpErrors;
+		$entry->exception = $exception;
 		foreach ($settings->trackServerVars as $varName) {
 			if (isset($_SERVER[$varName])) {
-				$this->serverVars[$varName] = $_SERVER[$varName];
+				$entry->serverVars[$varName] = $_SERVER[$varName];
 			}
 		}
-		if ($settings->logGetVars) {
-			$this->getVars = $_GET;
+		$entry->markers = $markers;
+		$entry->stopwatchEntries = $stopwatchEntries;
+		$entry->peakMemoryUsage = memory_get_peak_usage();
+		$entry->scriptFilename = $_SERVER['SCRIPT_FILENAME'];
+		$entry->transactions = $transactions;
+		if($settings) {
+			if ($settings->logGetVars) {
+				$entry->getVars = $_GET;
+			}
+			if ($settings->logPostVars) {
+				$entry->postVars = $_POST;
+			}
 		}
-		if ($settings->logPostVars) {
-			$this->postVars = $_POST;
-		}
-		$this->markers = $markers;
-		$this->stopwatchEntries = $stopwatchEntries;
-		$this->peakMemoryUsage = memory_get_peak_usage();
-		$this->scriptFilename = $_SERVER['SCRIPT_FILENAME'];
-		$this->transactions = $transactions;
-		// missing connection status and shutdown
+		return $entry;
 	}
 
 	/**
@@ -191,7 +217,11 @@ class Entry {
 	 */
 	public function getConnectionSpeed()
 	{
-		return ($this->bytesIn + $this->bytesOut) / $this->runTime;
+		if($this->runTime > 0) {
+			return ($this->bytesIn + $this->bytesOut) / $this->runTime;
+		} else {
+			return 0;
+		}
 	}
 
 }
