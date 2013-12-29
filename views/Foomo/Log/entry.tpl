@@ -36,11 +36,11 @@ Session age             : <?= $entry->sessionAge ?>
 Transactions:
 
 <? foreach($entry->transactions as $transaction): ?>
-    name    : <?= $transaction['name'] . (!empty($transaction['comment'])?$transaction['comment']:'') ?>
-    status  : <?= $transaction['status'] ?>
-<? if($transaction['status'] != 'open'): ?>
-    runtime : <?= $transaction['stop'] - $transaction['start'] ?> s
-<? endif; ?>
+	name    : <?= $transaction['name'] . (!empty($transaction['comment'])?$transaction['comment']:'') ?>
+
+	status  : <?= $transaction['status'] ?>
+
+	runtime : <?= $transaction['status'] != 'open'?($transaction['stop'] - $transaction['start']):' - ' ?> s
 
 <? endforeach; ?>
 
@@ -87,6 +87,15 @@ Measured times:
 ?>
 
 <?    endforeach; ?>
+<? endforeach; ?>
+<? endif; ?>
+<? if(!empty($entry->mvcPath)): ?>
+
+
+MVC path info:
+
+<? foreach($entry->mvcPath as $pathEntry): ?>
+<?= $pathEntry['action'] ?>(<?= substr(json_encode($pathEntry['parameters']), 0, 500) ?>)
 <? endforeach; ?>
 <? endif; ?>
 

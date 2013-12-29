@@ -43,11 +43,6 @@ class Utils {
 		$this->reader = new Reader($file);
 	}
 
-	/**
-	 * print all log entries for a day
-	 *
-	 * @param string $day Y-m-d formatted day
-	 */
 	public function printEntries()
 	{
 		$i = 0;
@@ -93,11 +88,9 @@ class Utils {
 		$this->flush();
 		\Foomo\Session::saveAndRelease();
 		$i = 0;
-		$start = time();
 		if (\file_exists($filename)) {
 			$lastSize = \filesize($filename);
 			while (!connection_aborted()) {
-				//echo 'check ' . $lastSize . PHP_EOL;
 				clearstatcache();
 				$newSize = filesize($filename);
 				if ($newSize != $lastSize) {
