@@ -34,13 +34,16 @@ use ReflectionClass;
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
- * @todo add a router
- * @todo add haml lesscss support
  */
 class MVC
 {
 	private static $level = 0;
     private static $aborted = false;
+	/**
+	 * @var URLHandler[]
+	 *
+	 * @internal
+	 */
 	public static $handlers = array();
 	private static $pathArray = array();
 	/**
@@ -98,18 +101,10 @@ class MVC
 			$app = new $app;
 		}
 
-		// set up the url handler and pass it the application id (still can be ovewwritten by the controller id)
+		// set up the url handler and pass it the application id (still can be overwritten by the controller id)
 		$handler = self::prepare($app, $baseURL, $forceBaseURL);
 
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
-
-		self::$pathArray[] = $handler->getControllerId();
-
-		// we need those to redirect stuff
-
-		$handlerKey = '/' . implode('/', self::$pathArray);
-
-		self::$handlers[$handlerKey] = $handler;
 
 		$exception = self::execute($app, $handler);
 
@@ -469,5 +464,25 @@ class MVC
 		}
 		header('Location: ' . $urlHandler->renderMethodURL($action, $parameters));
 		exit;
+	}
+
+	/**
+	 * for debugging purposes only,
+	 *
+	 * it will be the deepest "path" ,that was reached so far
+	 *
+	 * @return array
+	 * @internal
+	 */
+	public static function getPathInfo()
+	{
+		$info = array();
+		foreach(self::$handlers as $handler) {
+			$info[] = array(
+				'action' => $handler->getControllerId() . '::' . $handler->lastAction,
+				'parameters' => $handler->lastParameters
+			);
+		}
+		return $info;
 	}
 }
