@@ -32,7 +32,7 @@ Environment variables to manipulate the default layout
 	# environment variables
 	SetEnv FOOMO_RUN_MODE "<runMode>"
 	SetEnv FOOMO_CACHE_FAST "memcache::host=127.0.0.1,port=11211,persistent=true,weight=1,timeout=1,retry_interval=15,status=true"
-	SetEnv FOOMO_CACHE_QUERYABLE "mongo::host=127.0.0.1, database=mySiteFoomoCacheTest"
+	SetEnv FOOMO_CACHE_QUERYABLE "mongo::mongodb://127.0.0.1:27017::database=foomoCacheTest"
 
 	# aliases
 	Alias /foomo/modules/ /var/www/mySite/var/<runMode>/htdocs/modules/

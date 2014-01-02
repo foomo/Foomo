@@ -26,7 +26,8 @@ use Foomo\Cache\Persistence\Expr;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class MongoPersistorTest extends AbstractTest {
+class MongoPersistorTest extends AbstractTest
+{
 
 	private $mongoPersistor;
 	private $resource;
@@ -37,14 +38,14 @@ class MongoPersistorTest extends AbstractTest {
 	private $config;
 
 
-	public function setUp() {
+	public function setUp()
+	{
 		$domainConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
 		if ($domainConfig && !empty($domainConfig->queryablePersistors['mongo'])) {
 			$fastPersistorConf = $domainConfig->fastPersistors['memcached'];
 			$queryablePersistorConf = $domainConfig->queryablePersistors['mongo'];
 			$fastPersistor = \Foomo\Cache\Manager::getPersistorFromConf($fastPersistorConf, false);
 			$mongoPersistor = \Foomo\Cache\Manager::getPersistorFromConf($queryablePersistorConf, true);
-
 
 			$this->className = 'Foomo\Cache\MockObjects\SampleResources';
 			$this->object = new $this->className;
@@ -59,22 +60,25 @@ class MongoPersistorTest extends AbstractTest {
 			\Foomo\Cache\Manager::initialize($this->mongoPersistor);
 		} else {
 			$this->markTestSkipped(
-					'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME .
-					' for module ' . \Foomo\Module::NAME . ' respectively the mongo config on it is empty'
+				'missing test config ' . \Foomo\Cache\Test\DomainConfig::NAME .
+				' for module ' . \Foomo\Module::NAME . ' respectively the mongo config on it is empty'
 			);
 		}
 	}
 
-	public function tearDown() {
-		//set the mamager back
+	public function tearDown()
+	{
+		//set the manager back
 		$this->restoreManagerSettings();
 	}
 
-	public function testConnect() {
-		$this->assertNotNull($this->mongoPersistor->mongo);
+	public function testConnect()
+	{
+		$this->assertNotNull($this->mongoPersistor->mongoClient);
 	}
 
-	public function testLoadSaveDelete() {
+	public function testLoadSaveDelete()
+	{
 		$this->mongoPersistor->save($this->resource);
 
 		//var_dump($this->resource);
@@ -87,22 +91,19 @@ class MongoPersistorTest extends AbstractTest {
 		$this->assertEquals(null, $loadedResource, 'Resources were not deleted after call to delete.');
 	}
 
-	public function testqueryWithExpression() {
+	public function testqueryWithExpression()
+	{
 		$this->storeTestResources();
 
 		$expr = Expr::idEq($this->resource->id);
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(1, count($iterator));
 
-
-
 		$expr = Expr::groupAnd(Expr::idEq($this->resource->id), Expr::isExpired()
 		);
 
-
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(0, count($iterator));
-
 
 		$expr = Expr::groupAnd(Expr::idEq($this->resource->id), Expr::isExpired(), Expr::statusValid()
 		);
@@ -110,36 +111,32 @@ class MongoPersistorTest extends AbstractTest {
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(0, count($iterator));
 
-
 		$expr = Expr::groupAnd(
-						Expr::isNotExpired(), Expr::statusValid()
+			Expr::isNotExpired(), Expr::statusValid()
 		);
 
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(4, count($iterator));
 
-
-
 		$expr = Expr::groupOr(
-						Expr::idNe($this->resource->id), Expr::groupAnd(
-								Expr::isNotExpired(), Expr::isExpired(), Expr::statusValid()
-						)
+			Expr::idNe($this->resource->id), Expr::groupAnd(
+				Expr::isNotExpired(), Expr::isExpired(), Expr::statusValid()
+			)
 		);
 
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(3, count($iterator));
 
-
-
 		$expr = Expr::groupAnd(
-						Expr::createdBefore(\time() + 1)
+			Expr::createdBefore(\time() + 1)
 		);
 
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
 		$this->assertEquals(4, count($iterator));
 	}
 
-	public function testPropertiesQueries() {
+	public function testPropertiesQueries()
+	{
 		$this->storeTestResources();
 		$expr = Expr::propEq('timestamp', 0);
 		$iterator = $this->mongoPersistor->query($this->resource->name, $expr, 0, 0);
@@ -159,21 +156,24 @@ class MongoPersistorTest extends AbstractTest {
 		$this->assertEquals(1, count($iterator));
 	}
 
-	public function testDelete() {
+	public function testDelete()
+	{
 		$this->storeTestResources();
 		$this->resource = \Foomo\Cache\Proxy::getEmptyResource($this->className, $this->method, $this->arguments);
 
 		$resources = \Foomo\Cache\Manager::query($this->resource->name);
 		//now delete all
 		foreach ($resources as $resource) {
+			\Foomo\Utils::appendToPhpErrorLog('---------------------- delete called for ' . $resource->id . PHP_EOL);
+
 			$this->mongoPersistor->delete($resource);
 		}
 		$resources = \Foomo\Cache\Manager::query($this->resource->name);
 		$this->assertEquals(0, count($resources));
 	}
 
-	private function storeTestResources() {
-
+	private function storeTestResources()
+	{
 
 		$argumentCombinations = array(array(0, 'myLocation'), array(1, 'myLocation1'), array(2, 'myLocation2'), array(3, 'myLocation3'));
 		foreach ($argumentCombinations as $arguments) {
@@ -183,7 +183,8 @@ class MongoPersistorTest extends AbstractTest {
 		}
 	}
 
-	private function deleteTestResources() {
+	private function deleteTestResources()
+	{
 		$this->mongoPersistor->reset();
 	}
 

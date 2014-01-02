@@ -37,8 +37,6 @@ class JobList  // removed so that it is hidden implements \Foomo\Jobs\JobListInt
 		$resource = \Foomo\Cache\Proxy::getEmptyResource($className, $method, $arguments);
 		$resource->value = \call_user_func_array(array($object, $method), $arguments);
 
-
-
 		return array(
 			\Foomo\Cache\RebuildJob::create()
 					->setDescription('rebuild test cache - resource')

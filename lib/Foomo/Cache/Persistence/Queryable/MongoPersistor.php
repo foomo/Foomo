@@ -37,12 +37,17 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	 * mongo database handle
 	 * @var \MongoClient
 	 */
-	protected $mongoClient;
+	public $mongoClient;
 	/**
 	 *
 	 * @var string db name
 	 */
-	protected $database = 'foomoCachePersistor';
+	protected $databaseName = 'foomoCachePersistor';
+
+	/**
+	 * @var MongoDB
+	 */
+	protected $database = null;
 	/**
 	 * host url (urls, comma separated)
 	 *
@@ -58,16 +63,17 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	{
 		$this->parseConfig($persistorConfig);
 		$this->connect($persistorConfig);
+
 	}
 
 	private function parseConfig($persistorConfig) {
-		$confArray = explode(';', $persistorConfig);
+		$confArray = explode('::', $persistorConfig);
 		foreach ($confArray as $confPart) {
 			$confPart = trim($confPart);
 			if (strpos($confPart,'mogodb://') !== false ) {
 				$this->host = $confPart;
 			} else if (strpos($confPart,'database=') !== false) {
-				$this->database = str_replace('database=','',$confPart);
+				$this->databaseName = str_replace('database=','',$confPart);
 			}
 		}
 	}
@@ -81,9 +87,14 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	{
 		try {
 			$this->mongoClient = new \MongoClient($this->host);
+			if (is_null($this->database)) {
+				$db = $this->databaseName;
+				$this->database = $this->mongoClient->$db;
+			}
 			return true;
 		} catch (\Exception $e) {
 			$this->mongoClient = null;
+			$this->database = null;
 			// if we can not connect die here!
 
 			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage(), \E_USER_ERROR);
@@ -162,7 +173,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 			// since mongo has no locking we use an atomic upsert operation
 
-			return $collection->update(array('id' => $document['id']), $document, array('upsert' => true));
+			return $collection->update(array('id' => $document['id']), array('$set' => $document), array('upsert' => true));
 		} catch (\Exception $e) {
 			\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
 			return false;
@@ -254,9 +265,8 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	 */
 	private function getMongoCollection($document)
 	{
-		$db = $this->database;
 		$collection = $this->collectionNameFromResourceName($document['name']);
-		return $this->mongoClient->$db->$collection;
+		return $this->database->$collection;
 	}
 
 	/**
@@ -299,8 +309,9 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		try {
 			$document = \get_object_vars($resource);
 			$loaded = $this->loadDocumentByResourceId($document);
-			if (!isset($loaded))
+			if (!isset($loaded)) {
 				return null;
+			}
 			//map array to object
 			$ret = self::mapDocumentToResource($loaded);
 
@@ -337,11 +348,14 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public function delete(\Foomo\Cache\CacheResource $resource)
 	{
 		try {
+			\Foomo\Utils::appendToPhpErrorLog('delete called for ' . $resource->id . PHP_EOL);
 			$document = \get_object_vars($resource);
 			$loaded = $this->loadDocumentByResourceId($document);
+
 			if (isset($loaded)) {
 				$collection = $this->getMongoCollection($loaded);
-				return $collection->remove(array('id' => $resource->id));
+				$success =  $collection->remove(array('id' => $loaded['id']));
+				return ($success['ok'] == true);
 			} else {
 				return true;
 			}
@@ -365,17 +379,14 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public function reset($resourceName = null, $recreateStructures = true, $verbose = false)
 	{
 		try {
-			$db = $this->mongoClient->selectDB($this->database);
 
 			if (isset($resourceName)) {
 				$collectionName = $this->collectionNameFromResourceName($resourceName);
-				$collection = $db->selectCollection($collectionName);
+				$collection = $this->database->$collectionName;
 				$this->removeCollection($collection, $recreateStructures, $verbose);
 			} else {
-				$db = $this->mongoClient->selectDB($this->database);
-				$list = $db->listCollections();
+				$list = $this->database->listCollections();
 				foreach ($list as $collection) {
-
 					$this->removeCollection($collection, $recreateStructures, $verbose);
 				}
 			}
@@ -394,7 +405,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			echo "........... Done" . \PHP_EOL;
 		}
 		if ($recreateStructures) {
-			// doe not make sense for mongo.
+			// nothing to do mor mongo - no db schema!
 			if ($verbose) {
 				echo "........... recreating structure does not make sense for mongo" . \PHP_EOL;
 			}
@@ -414,8 +425,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public function query($resourceName, $expr, $limit, $offset)
 	{
 		$collectionName = self::collectionNameFromResourceName($resourceName);
-		$db = $this->database;
-		$collection = $this->mongoClient->$db->$collectionName;
+		$collection = $this->database->$collectionName;
 		$condition = \Foomo\Cache\Persistence\Queryable\MongoExpressionCompiler::buildMongoQuery($expr);
 
 		//var_dump($condition,$collection->getName()); exit;
@@ -466,8 +476,8 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		}
 
 
-		$db = $this->database;
-		$collection = $this->mongoClient->$db->$collectionName;
+
+		$collection = $this->database->$collectionName;
 		$loadedDocument = $collection->findOne();
 		$loadedResource = self::mapDocumentToResource($loadedDocument);
 
@@ -522,8 +532,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public function storageStructureExists($resourceName)
 	{
 		$collectionName = $this->collectionNameFromResourceName($resourceName);
-		$db = $this->database;
-		$collection = $this->mongoClient->$db->$collectionName;
+		$collection = $this->database->$collectionName;
 		$validation = $collection->validate();
 		if ($validation && $validation['ok'] == 1) {
 			return true;

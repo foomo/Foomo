@@ -42,11 +42,15 @@ class MongoPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	 */
 	public function current() {
 		$document = $this->mongoCursor->current();
+		if ($document) {
 		return MongoPersistor::mapDocumentToResource($document);
+		} else {
+			return $document;
+		}
 	}
 
 	public function next() {
-		if ($this->mongoCursor->count() > 0)return $this->mongoCursor->next();
+		return $this->mongoCursor->next();
 	}
 
 	public function key() {
@@ -58,12 +62,10 @@ class MongoPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	}
 
 	public function rewind() {
-		if ($this->mongoCursor->count() > 0) return $this->mongoCursor->rewind();
-		else return false;
+		return $this->mongoCursor->rewind();
 	}
 
 	public function count() {
 		return $this->mongoCursor->count();
 	}
-
 }

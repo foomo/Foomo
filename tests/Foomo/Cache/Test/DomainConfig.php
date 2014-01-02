@@ -35,7 +35,10 @@ class DomainConfig extends AbstractConfig {
 	 * 
 	 * @var array
 	 */
-	public $fastPersistors = array('memcached' => '', 'apc' => '');
+	public $fastPersistors = array(
+		'memcached' => 'memcache::host=127.0.0.1,port=11212,persistent=true,weight=1,timeout=1,retry_interval=15,status=true',
+		'apc' => ''
+	);
 	/**
 	 * hash of queryable persistors
 	 * 
@@ -43,5 +46,8 @@ class DomainConfig extends AbstractConfig {
 	 * 
 	 * @var array
 	 */
-	public $queryablePersistors = array('pdo' => '', 'mongo' => '');
+	public $queryablePersistors = array(
+		'pdo' => 'pdo::mysql://root:@127.0.0.1/foomoCacheTestTest',
+		'mongo' => 'mongo::mongodb://127.0.0.1:27017::database=foomoCacheTestTest'
+	);
 }

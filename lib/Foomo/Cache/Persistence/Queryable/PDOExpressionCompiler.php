@@ -20,7 +20,7 @@
 namespace Foomo\Cache\Persistence\Queryable;
 
 /**
- * copiles an SQL from a generic expression Foomo\Cache\Persistence\Expr
+ * compiles an SQL from a generic expression Foomo\Cache\Persistence\Expr
  * 
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
@@ -145,7 +145,6 @@ class PDOExpressionCompiler {
 				} else {
 					$subStatement = "(expirationTimeFast > 0 AND expirationTimeFast < " . \time() . ")";
 				}
-				//$parameterStack[] = \Foomo\Cache\CacheResource::STATUS_INVALID;
 				break;
 			case 'Foomo\Cache\Persistence\Expr::isNotExpired':
 				$cache = 'queryable';
