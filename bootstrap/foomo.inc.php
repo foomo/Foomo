@@ -26,6 +26,7 @@
 
 namespace Foomo;
 
+// we really want to know when we started
 define('Foomo\\SYSTEM_START_MICRO_TIME', microtime(true));
 
 // @todo refactor this to cookies
@@ -39,67 +40,61 @@ if(isset($_SERVER['FOOMO_MAINTENANCE']) && (!isset($_SERVER['FOOMO_USER_AGENT'])
 	exit;
 }
 
-
+// foomo root
 define('Foomo\\ROOT', realpath(dirname(__DIR__)));
 
+// timer classes
+include_once(ROOT . '/lib/Foomo/Timer/Simple.php');
 include_once(ROOT . '/lib/Foomo/Timer.php');
 
-Timer::addMarker('lets go');
+Timer::addMarker('bootstrap');
 Timer::start('foomo bootstrap');
 
+// more classes
 include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
-
-
 include_once(ROOT . '/lib/Foomo/AutoLoader.php');
 include_once(ROOT . '/lib/Foomo/Log/Logger.php');
 include_once(ROOT . '/lib/Foomo/Utils.php');
-if (!class_exists('Annotation')) include_once(ROOT . '/lib/Foomo/Reflection/addendum-0.4.0/annotations.php');
+if (!class_exists('Annotation')) {
+	include_once(ROOT . '/lib/Foomo/Reflection/addendum-0.4.0/annotations.php');
+}
 include_once(ROOT . '/lib/Foomo/Config/AbstractConfig.php');
 include_once(ROOT . '/lib/Foomo/Core/DomainConfig.php');
 include_once(ROOT . '/lib/Foomo/Config.php');
 
+// class loading
 Utils::addIncludePaths(array(ROOT . DIRECTORY_SEPARATOR . 'lib'));
-
 spl_autoload_register(array('Foomo\\AutoLoader', 'loadClass'));
+Timer::addMarker('basic classes are loaded and the auto loader is set up');
 
-Timer::addMarker('autoloaders are set up');
-
-//var_dump(class_exists('Foomo\\Log\\Printer'));
-
-/**
- * Includes for the SharedCache and avalanche facade
- */
-
-
-Timer::addMarker('basic classes are loaded');
-
-// ok then let us go by convention for everything that was not set
+// figure out the base configuration
 $foomoDir = dirname(dirname(\Foomo\ROOT));
 
+// modules must be in Foomo\ROOT
 define('Foomo\\CORE_CONFIG_DIR_MODULES', $foomoDir . DIRECTORY_SEPARATOR . 'modules');
 
-// var
+// var - can be configured
 if (isset($_SERVER['FOOMO_CORE_CONFIG_DIR_VAR'])) {
 	define('Foomo\\CORE_CONFIG_DIR_VAR', $_SERVER['FOOMO_CORE_CONFIG_DIR_VAR']);
 } else {
 	define('Foomo\\CORE_CONFIG_DIR_VAR', $foomoDir . DIRECTORY_SEPARATOR . 'var');
 }
-// config
+// config - can be configured
 if (isset($_SERVER['FOOMO\\CORE_CONFIG_DIR_CONFIG'])) {
 	define('Foomo\\CORE_CONFIG_DIR_CONFIG', $_SERVER['FOOMO\\CORE_CONFIG_DIR_CONFIG']);
 } else {
 	define('Foomo\\CORE_CONFIG_DIR_CONFIG', $foomoDir . DIRECTORY_SEPARATOR . 'config');
 }
 
+// keeps things clean
 unset($foomoDir);
 
-
+// try to bootstrap things
 try {
-	// cache will need the runmode
+	// cache will need a run mode
 	Config::init();
-	//bootstrap the Foomo\Cache\Manager
+	//bootstrap Foomo\Cache\Manager
 	Cache\Manager::bootstrap();
-
 	// start the configuration
 	Timer::addMarker('cache is set up');
 	if (
@@ -109,12 +104,13 @@ try {
 				realpath($_SERVER['SCRIPT_FILENAME']) == ROOT . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'setup.php'
 			)
 	) {
+		// we are in setup or hiccup
 		define('Foomo\\ROOT_HTTP', dirname($_SERVER['PHP_SELF']));
-
 		Setup::checkCoreConfigResources();
 		Setup::generateShell();
 		trigger_error('entering setup / hickup');
 	} else {
+		// regular run
 		Timer::addMarker('config init is done');
 		AutoLoader::getClassMap();
 		class_exists('Foomo\Log\Printer');
@@ -129,11 +125,14 @@ try {
 		Timer::addMarker('session init is through');
 	}
 } catch(Exception $e) {
+	// bootstrap failed
+	trigger_error('bootstrap has failed', E_USER_WARNING);
+	// some emergency information
 	$setupScript = realpath(\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . \Module::NAME . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'setup.php');
 	if(realpath($_SERVER['SCRIPT_FILENAME']) != $setupScript) {
-
-		$setupLink = '/r/setup.php';
-		$hiccupLink = '/r/hiccup.php';
+		// not in a setup - hinting at it
+		$setupLink = '/foomo/setup.php';
+		$hiccupLink = '/foomo/hiccup.php';
 
 		$doc = HTMLDocument::getInstance();
 		$doc->addBody('<h1>Error</h1>');
@@ -148,6 +147,7 @@ try {
 		echo $doc;
 		exit;
 	} else {
+		// failed in the setup
 		Setup::checkCoreConfigResources();
 		Setup::generateShell();
 	}

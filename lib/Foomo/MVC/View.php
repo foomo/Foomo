@@ -53,19 +53,19 @@ class View extends \Foomo\View
 	/**
 	 * my app
 	 *
-	 * @var Foomo\MVC\AbstractApp
+	 * @var AbstractApp
 	 */
 	private $app;
 	/**
 	 * my url handler
 	 *
-	 * @var Foomo\MVC\URLHandler
+	 * @var URLHandler
 	 */
 	private $handler;
 	/**
 	 * a locale
 	 *
-	 * @var Foomo\Translation
+	 * @var \Foomo\Translation
 	 */
 	private $translation;
 	/**
@@ -99,8 +99,8 @@ class View extends \Foomo\View
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param \Foomo\MVC\AbstractApp $app
-	 * @param \Foomo\MVC\URLHandler $handler
+	 * @param AbstractApp $app
+	 * @param URLHandler $handler
 	 * @param \Foomo\Template $template
 	 * @param \Exception $exception
 	 */
@@ -246,7 +246,7 @@ class View extends \Foomo\View
 	/**
 	 * @todo: implement
 	 *
-	 * @param Foomo\MVC\View\Resource[] $resources
+	 * @param View\Resource[] $resources
 	 */
 	public function addResources(array $resources)
 	{
@@ -256,7 +256,7 @@ class View extends \Foomo\View
 	/**
 	 * @todo: implement
 	 *
-	 * @param Foomo\MVC\View\Resource $res
+	 * @param View\Resource $res
 	 */
 	public function addResource(\Foomo\MVC\View\Resource $res)
 	{

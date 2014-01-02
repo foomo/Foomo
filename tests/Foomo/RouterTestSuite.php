@@ -37,6 +37,7 @@ class RouterTestSuite extends Suite {
  		return array(
 			'Foomo\\RouterTest',
 			'Foomo\\Router\\PathTest',
+			'Foomo\\Router\\RegexTest',
 			'Foomo\\Router\\RouteTest',
         );
 	}

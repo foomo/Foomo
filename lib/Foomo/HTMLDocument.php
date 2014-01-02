@@ -61,6 +61,7 @@ class HTMLDocument {
 	private $dynCssSheets = array();
 	private $templates = array();
 	private $javascripts = array();
+	private $javascriptsBody = array();
 	private $static = false;
 	/**
 	 * this picks up the If-None-Match from the header from the headers
@@ -99,7 +100,6 @@ class HTMLDocument {
 				$this->browserCachedEtag = trim($requestHeaders['If-None-Match']);
 			}
 		}
-
 		$this->document['header'] = array();
 		$this->document['head']['baseUrl'] = '';
 		$this->document['head']['title'] = '';
@@ -119,6 +119,7 @@ class HTMLDocument {
 		$this->document['body']['marginWidth'] = '';
 		$this->document['body']['marginHeight'] = '';
 		$this->document['body']['onLoad'] = '';
+		$this->document['body']['javaScript'] = '';
 	}
 	
 	const IE_COMPATIBILITY_MODE_IE7 = 'IE=7';
@@ -316,7 +317,7 @@ class HTMLDocument {
 	}
 
 	/**
-	 * add a javascript string to the head - if you want to link to an external Javascript file use @see Foomo\HTMLDocument::addJavascripts
+	 * add a javascript string to the head - if you want to link to an external Javascript file use @see \Foomo\HTMLDocument::addJavascripts
 	 *
 	 * @see Foomo\HTMLDocument::addJavascripts()
 	 * @param string $javascript
@@ -332,54 +333,118 @@ class HTMLDocument {
 	/**
 	 * add links to external Javascript files
 	 *
+	 * @example <code>\Foomo\HTMLDocument::getInstance()->addJavascripts(array('/tm/js/script.js', 'anotherscript.js'));</code>
+	 * @see \Foomo\HTMLDocument::addJavascript()
+	 * @param array $jsLinks
+	 *
+	 * @return \Foomo\HTMLDocument
+	 */
+	public function addJavascripts(array $jsLinks)
+	{
+		return $this->addJSLinksTo($jsLinks, 'javascripts');
+	}
+	/**
+	 * @param string $jsLink
+	 * @param integer $priority int position where to add this script (0 will be the first script to load)
+	 * @deprecated
+	 * @return \Foomo\HTMLDocument
+	 */
+	public function addJavascriptFileWithPriority($jsLink, $priority)
+	{
+		trigger_error(__METHOD__ . ' is deprecated use addJavascriptLinkWithPriority instead', E_USER_DEPRECATED);
+		return $this->addJavascriptLinkWithPriority($jsLink, $priority);
+	}
+
+	/**
+	 * @param string $jsLink
+	 * @param integer $priority int position where to add this script (0 will be the first script to load)
+	 * @return \Foomo\HTMLDocument
+	 */
+	public function addJavascriptLinkWithPriority($jsLink, $priority)
+	{
+		return $this->addJSLinkWithPriorityTo($jsLink, $priority, 'javascripts');
+	}
+
+
+	/**
+	 * add a javascript string to the body - if you want to link to an external Javascript file use @see Foomo\HTMLDocument::addJavascripts
+	 *
+	 * @see Foomo\HTMLDocument::addJavascripts()
+	 * @param string $javascript
+	 *
+	 * @return \Foomo\HTMLDocument
+	 */
+	public function addJavascriptToBody($javascript)
+	{
+		$this->document['body']['javaScript'] .= $javascript;
+		return $this;
+	}
+
+	/**
+	 * add links to external Javascript files to the end of the body
+	 *
 	 * @example <code>$bert->HTMLDocument->addJavascripts(array('/tm/js/script.js', 'anotherscript.js'));</code>
 	 * @see Foomo\HTMLDocument::addJavascript()
 	 * @param array $jsLinks
 	 *
 	 * @return \Foomo\HTMLDocument
 	 */
-	public function addJavascripts($jsLinks)
+	public function addJavascriptsToBody(array $jsLinks)
 	{
-		foreach ($jsLinks as $jsLink) {
-			if (!in_array($jsLink, $this->javascripts)) {
-				array_push($this->javascripts, $jsLink);
-			}
-		}
-		return $this;
+		return $this->addJSLinksTo($jsLinks, 'javascriptsBody');
 	}
 
 	/**
-	 * @param $jsLink
-	 * @param $position int position where to add this script (0 will be the first script to load)
+	 * @param string $jsLink
+	 * @param integer $priority int position where to add this script (0 will be the first script to load)
 	 * @return \Foomo\HTMLDocument
 	 */
-	public function addJavascriptFileWithPriority($jsLink, $position)
+	public function addJavascriptLinkWithPriorityToBody($jsLink, $priority)
 	{
-		$temp = $this->javascripts;
+		return $this->addJSLinkWithPriorityTo($jsLink, $priority, 'javascriptsBody');
+	}
+
+
+	/**
+	 * @param string $jsLink
+	 * @param integer $priority
+	 * @param string $targetProp
+	 * @return $this
+	 */
+	private function addJSLinkWithPriorityTo($jsLink, $priority, $targetProp)
+	{
+		// the performance here is ok, since if you have more than 5 js links you are doing it wrong ;)
+		$temp = $this->{$targetProp};
 		if (($pos = array_search($jsLink, $this->javascripts)) !== FALSE) {
+			// it is already in the target - we need to get rid of it, so that we can put it in the right place
 			unset($temp[$pos]);
 		}
-
-		if($position >= count($temp)) {
+		if($priority >= count($temp)) {
+			// no conflict with the existing items just add it to the end
 			$temp[] = $jsLink;
-			$this->javascripts = $temp;
+			$this->{$targetProp} = $temp;
 		} else {
+			// we need to resort things
 			$new = array();
 			$i = 0;
 			foreach($temp as $item) {
-				if($i == $position) {
+				if($i == $priority) {
 					$new[] = $jsLink;
 					$i++;
 				}
 				$new[] = $item;
 				$i++;
 			}
-			$this->javascripts = $new;
+			$this->{$targetProp} = $new;
 		}
-
 		return $this;
 	}
 
+	private function addJSLinksTo(array $jsLinks, $targetProp)
+	{
+		$this->{$targetProp} = array_unique(array_merge($this->{$targetProp}, $jsLinks));
+		return $this;
+	}
 	/**
 	 * Set a meta refresh for the document - maybe for a Javascript free slideshow?
 	 *
@@ -470,10 +535,7 @@ class HTMLDocument {
 		foreach ($this->metaData as $key => $val) {
 			$this->document['head']['meta'] .= '<meta name="' . $key . '" content="' . $val . '"' . $tagSuffix . PHP_EOL;
 		}
-		$this->javascripts = array_unique($this->javascripts);
-		foreach ($this->javascripts as $jsLink) {
-			$this->document['head']['meta'] .= '<script language="JavaScript" src="' . $jsLink . '" type="text/javascript"></script>' . PHP_EOL;
-		}
+		$this->addJSLinksToOutput($this->javascripts, $this->document['head']['meta']);
 		if (!empty($this->document['head']['baseUrl'])) {
 			$this->document['head']['baseUrl'] = '<base href="' . $this->document['head']['baseUrl'] . '" ' . $tagSuffix . PHP_EOL;
 		}
@@ -495,6 +557,7 @@ class HTMLDocument {
 		if(!empty($this->iECompatibilityMode)) {
 			$output .= '<meta http-equiv="X-UA-Compatible" content="'. $this->iECompatibilityMode .'"/>' . PHP_EOL;
 		}
+		$headerJS = '';
 		foreach ($this->document as $docPartName => $docPartArray) {
 			switch ($docPartName) {
 				case'header':
@@ -513,12 +576,7 @@ class HTMLDocument {
 								}
 								break;
 							case'javaScript':
-								if (strlen($headPart) > 0) {
-									$output .= '<script language="JavaScript" type="text/javascript">' . PHP_EOL . '// <![CDATA[ <!--' . PHP_EOL .
-											$headPart .
-											PHP_EOL . '// --> ]]>' . PHP_EOL . '</script>' . PHP_EOL;
-									;
-								}
+								$this->addJSToOutput($headPart, $output);
 								break;
 							default:
 								$output .= $headPart;
@@ -532,13 +590,22 @@ class HTMLDocument {
 							case'content':
 								$bodyContent = '>' . PHP_EOL . $bodyPart;
 								break;
+							case 'javaScript':
+								$bodyJS = $bodyPart;
+								break;
 							default:
 								if (strlen($bodyPart) > 0) {
 									$output .= ' ' . strtolower($bodyPartName) . '="' . $bodyPart . '"';
 								}
 						}
 					}
-					$output .= $bodyContent . '</body>';
+					$output .= $bodyContent . PHP_EOL;
+					// last but not blocking least
+					// js links
+					$this->addJSLinksToOutput($this->javascriptsBody, $output);
+					// js
+					$this->addJSToOutput($bodyJS, $output);
+					$output .= '</body>';
 					break;
 				case'frameset':
 					$output .= '</head>' . PHP_EOL;
@@ -554,6 +621,22 @@ class HTMLDocument {
 			//header('Content-Length: '.strLen($output));
 		}
 		return $output;
+	}
+	private function addJSLinksToOutput(array $jsLinks, &$output)
+	{
+		foreach($jsLinks as $jsLink) {
+			$output .= '<script language="JavaScript" src="' . htmlspecialchars($jsLink) . '" type="text/javascript"></script>' . PHP_EOL;
+		}
+	}
+	private function addJSToOutput($js, &$output)
+	{
+		if(!empty($js)) {
+			$output .=
+				'<script language="JavaScript" type="text/javascript">' . PHP_EOL . '// <![CDATA[ <!--' . PHP_EOL .
+				$js . PHP_EOL .
+				'// --> ]]>' . PHP_EOL . '</script>' . PHP_EOL
+			;
+		}
 	}
 	/**
 	 * send http headers

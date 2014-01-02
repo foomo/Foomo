@@ -44,9 +44,14 @@ class ReaderTest extends TestCase {
 		}
 		$lines = explode(PHP_EOL, file_get_contents(Mock::getMockLog()));
 		$count = 0;
-		$needle = '-';
 		foreach($lines as $line) {
-			if(substr($line, -strlen($needle))== $needle || empty($line)) {
+			$line = trim($line);
+			if(empty($line)) {
+				continue;
+			}
+			$parts = explode(Reader::LOG_DELIMITER, $line);
+			$lastPart = end($parts);
+			if($lastPart == Reader::DISABLED_ENTRY || $lastPart == READER::HTTP_EMPTY) {
 				continue;
 			}
 			$count ++;
@@ -76,4 +81,23 @@ class ReaderTest extends TestCase {
 			$this->assertEquals($sessionId, $e->sessionId);
 		}
 	}
+	public function testReadStaticEntry()
+	{
+		$entry = Reader::extractLogEntryFromLine(
+			'requestTime: [10/Dec/2013:21:56:36 +0100] sessionId: - sessionAge: - requestProtocol: HTTP/1.1 httpStatus: 200 connectionStatus: + bytesIn: 711 bytesOut: 1974 remoteIp: 192.168.56.1 runTime: 1195 remoteUser: - file: /var/www/paperRoll/var/test/htdocs/modulesVar/Foomo.Less-70/paperRoll-9b26e92c95f6b19d2c89405adc761216.css referer: "http://test.paperroll/a/51c310bc458873e708f23442" userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.41 Safari/537.36" entry: -',
+			Logger::getMapping()
+		);
+		$this->assertNull($entry);
+	}
+	public function testReadFatalPendingEntry()
+	{
+		$entry = Reader::extractLogEntryFromLine(
+			'requestTime: [10/Dec/2013:22:18:37 +0100] sessionId: 0952f9123296e14f7705fb7c1ce0efaee3275843 sessionAge: - requestProtocol: HTTP/1.1 httpStatus: 200 connectionStatus: + bytesIn: 452 bytesOut: 240 remoteIp: 192.168.56.1 runTime: 32376 remoteUser: - file: /var/www/paperRoll/modules/PaperRoll/htdocs/index.php referer: "-" userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.41 Safari/537.36" entry: pending',
+			Logger::getMapping()
+		);
+		$this->assertInstanceOf('Foomo\\Log\\Entry', $entry);
+		$this->assertEquals(500, $entry->httpStatus);
+		$this->assertEquals('/var/www/paperRoll/modules/PaperRoll/htdocs/index.php', $entry->scriptFilename);
+	}
+
 }

@@ -19,9 +19,11 @@
 
 namespace Foomo\Log;
 
+use Foomo\MVC;
 use Foomo\Timer;
 use Foomo\Config;
 use Foomo\Module;
+use Foomo\Session;
 
 /**
  * collects data and writes logging entries
@@ -58,7 +60,7 @@ class Logger {
 	private $processingTime;
 	/**
 	 *
-	 * @var exit on an error - default is true, if you need another shutdown_func to be reached, set to false
+	 * @var bool exit on an error - default is true, if you need another shutdown_func to be reached, set to false
 	 */
 	public $autoExitOnError = true;
 	private function __construct()
@@ -82,7 +84,7 @@ class Logger {
 
 	public static function bootstrap()
 	{
-		$loggerConfig = Config::getConf(\Foomo\Module::NAME, DomainConfig::NAME);
+		$loggerConfig = Config::getConf(Module::NAME, DomainConfig::NAME);
 		if ($loggerConfig && $loggerConfig->enabled) {
 			self::enable();
 		} else {
@@ -100,13 +102,13 @@ class Logger {
 		if (\function_exists('apache_setenv')) {
 			$inst = self::getInstance();
 			if (!$inst->enabled) {
+				apache_setenv('FOOMO_LOG_ENTRY', Reader::PENDING_ENTRY);
 				if (is_null($config)) {
-					$inst->config = Config::getConf(\Foomo\Module::NAME, DomainConfig::NAME);
+					$inst->config = Config::getConf(Module::NAME, DomainConfig::NAME);
 				} else {
 					$inst->config = $config;
 				}
 				\register_shutdown_function(array($inst, 'shutdownListener'));
-
 				if (count($inst->config->trackErrors) > 0) {
 					\set_error_handler(array($inst, 'handleError'));
 				}
@@ -291,17 +293,15 @@ class Logger {
 	{
 
 		$lastError = error_get_last();
-
 		if (is_array($lastError) && in_array($lastError['type'], array(E_ERROR, E_CORE_ERROR, E_PARSE))) {
 			// holy crap uncaught uncatchable fatal !!!
 			// maybe scan, if it was recorder after all ...
 			call_user_func_array(array($this, 'handleError'), $lastError);
 		}
-
 		$markers = Timer::getMarkers();
 		$stopwatchEntries = Timer::getStopwatchEntries();
 
-		$serialized = serialize($entry = new Entry($this->config, $this->phpErrors, $markers, $stopwatchEntries, $this->exception, $this->transactions, $this->processingTime));
+		$serialized = serialize($entry = Entry::create($this->config, $this->phpErrors, $markers, $stopwatchEntries, $this->exception, $this->transactions, $this->processingTime, MVC::getPathInfo()));
 		if(function_exists('gzdeflate')) {
 			$gzipped = \gzdeflate($serialized);
 			$base64 = \base64_encode($gzipped);
@@ -309,7 +309,7 @@ class Logger {
 			$base64 = \base64_encode($serialized);
 		}
 		apache_setenv('FOOMO_LOG_ENTRY', $base64);
-		apache_setenv('FOOMO_SESSION_AGE', \Foomo\Session::getAge());
+		apache_setenv('FOOMO_SESSION_AGE', Session::getAge());
 	}
 
 	/**
@@ -324,7 +324,7 @@ class Logger {
 		foreach (self::getLoggingRules() as $loggingRule) {
 			$mapping[] = $loggingRule;
 			if ($loggingRule['conf'] == '%u') {
-				break;
+				// break;
 			}
 		}
 		return $mapping;
@@ -333,7 +333,7 @@ class Logger {
 	public static function getLoggingRules()
 	{
 		return array(
-			array('conf' => '%t', 'entryProp' => null, 'logPropName' => 'requestTime', 'comment' => 'Time the request was received (standard english format)',),
+			array('conf' => '%t', 'entryProp' => 'logTime', 'logPropName' => 'requestTime', 'comment' => 'Time the request was received (standard english format)',),
 			array('conf' => '%{FOOMO_SESSION_ID}e', 'entryProp' => 'sessionId', 'comment' => 'foomo session id set as a session variable - only there, if you are running a php and the logger has to be enabled'),
 			array('conf' => '%{FOOMO_SESSION_AGE}e', 'entryProp' => 'sessionAge', 'comment' => 'foomo session age'),
 			array('conf' => '%H', 'entryProp' => null, 'logPropName' => 'requestProtocol', 'comment' => 'The request protocol'),
@@ -344,7 +344,7 @@ class Logger {
 			array('conf' => '%a', 'entryProp' => null, 'logPropName' => 'remoteIp', 'comment' => 'Remote IP-address'),
 			array('conf' => '%D', 'entryProp' => 'runTime', 'comment' => 'The time taken to serve the request, in microseconds.'),
 			array('conf' => '%u', 'entryProp' => 'remoteUser', 'comment' => 'Remote user (from auth; may be bogus if return status (%s) is 401)'),
-			array('conf' => '%f', 'entryProp' => null, 'logPropName' => 'file', 'comment' => 'Filename'),
+			array('conf' => '%f', 'entryProp' => 'scriptFilename', 'logPropName' => 'file', 'comment' => 'Filename'),
 			array('conf' => '\\"%{Referer}i\\"', 'entryProp' => null, 'logPropName' => 'referer', 'comment' => 'Referer'),
 			array('conf' => '\\"%{User-Agent}i\\"', 'entryProp' => null, 'logPropName' => 'userAgent', 'comment' => 'User Agent'),
 			array('conf' => '%{FOOMO_LOG_ENTRY}e', 'entryProp' => null, 'logPropName' => 'entry', 'comment' => 'the logged Foomo\Logger\Entry')
@@ -370,10 +370,9 @@ class Logger {
 	{
 		$customLogfile = self::getInstance()->config->customLogfile;
 		if(empty($customLogfile)) {
-			return \Foomo\Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
+			return Config::getLogDir() . DIRECTORY_SEPARATOR . 'foomoLogger';
 		} else {
 			return $customLogfile;
 		}
 	}
-
 }

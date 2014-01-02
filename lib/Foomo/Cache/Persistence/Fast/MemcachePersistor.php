@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Cache\Persistence\Fast;
+use Foomo\Config;
 
 /**
  * Memcache persistor
@@ -29,7 +30,7 @@ namespace Foomo\Cache\Persistence\Fast;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterface {
+class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterface {
 
 	/**
 	 * @var Memcache
@@ -39,7 +40,7 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterfa
 	public $serverConfig;
 
 	private function getId($id) {
-		return \Foomo\ROOT . $id;
+		return \Foomo\ROOT . Config::getMode() . $id;
 	}
 
 	/**
@@ -57,32 +58,50 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorInterfa
 	}
 
 	/**
-	 * save resource
+	 * save
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function save(\Foomo\Cache\CacheResource $resource) {
 		$id = $this->getId($resource->id);
-		return $this->memcache->set($id, $resource, ($resource->expirationTimeFast > 0 ? ($resource->expirationTimeFast - \time()) : 0));
+		return $this->memcache->set($id, $resource, 0, ($resource->expirationTimeFast > 0 ? ($resource->expirationTimeFast - \time()) : 0));
 	}
 
 	/**
-	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * load resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 * @param boolean $countHits counting hits not implemented for mrmcache persistor
-	 * @return  Foomo\Cache\CacheResource $resource
+	 * @return \Foomo\Cache\CacheResource $resource
 	 */
+
 	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
 		$id = $this->getId($resource->id);
 		return $this->memcache->get($id);
 	}
 
 	/**
+	 * @param string $key
+	 * @param string $value
+	 * @return boolean
+	 */
+	public function directSave($key, $value) {
+		return $this->memcache->set($key, $value);
+	}
+
+	/**
+	 * @param string $key
+	 * @return string mixed
+	 */
+	public function directLoad($key) {
+		return $this->memcache->get($key);
+	}
+
+	/**
 	 * deletes resource from cache
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
 	 * @return boolean
 	 */

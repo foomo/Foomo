@@ -27,7 +27,7 @@ namespace Foomo\Router;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class Path
+class Path implements RouteMatcherInterface
 {
 	/**
 	 * @var string
@@ -38,7 +38,6 @@ class Path
 	 * @var array
 	 */
 	public $parameters = array();
-
 	public $optionalParameters = array();
 	private $generalParameterMatch = false;
 	private $ignoreAfterNumberOfParameters = null;
@@ -65,6 +64,8 @@ class Path
 		} else if(count($parts) == 2 && $parts[1] == '') {
 			// slash special case
 			$this->command = '/';
+		} else if(count($parts) == 1 && $parts[0] == '') {
+			$this->command = '';
 		} else {
 			// * case
 			// will always match
@@ -82,7 +83,7 @@ class Path
 	{
 		if($this->command == '*') {
 			return true;
-		} else if($this->command == '/' && $path == '/') {
+		} else if(in_array($this->command, array('', '/')) && $path == $this->command) {
 			return true;
 		} else if(!in_array($this->command, array('*', '/'))) {
 			$parts = explode('/', $path);
@@ -184,7 +185,6 @@ class Path
 			} else {
 				return $path;
 			}
-
 		}
 	}
 }

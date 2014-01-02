@@ -17,55 +17,35 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Session;
+namespace Foomo;
 
 /**
- * implement this to get your own session persistors
- * 
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-interface PersistorInterface {
-	/**
-	 * this has to be an atomic lock across requests and possibly across
-	 * machines
-	 *
-	 * @param string $sessionId
-	 */
-	public function lock($sessionId);
-	/**
-	 * does a session exist
-	 *
-	 * @param string $sessionId
-	 */
-	public function exists($sessionId);
-	/**
-	 * load a session
-	 *
-	 * @param string $sessionId
-	 *
-	 * @return \Foomo\Session
-	 */
-	public function load($sessionId);
-	/**
-	 * release the atomic lock from a session
-	 *
-	 * @param string $sessionId
-	 */
-	public function release($sessionId);
-	/**
-	 * destroy a session
-	 *
-	 * @param string $sessionId
-	 */
-	public function destroy($sessionId);
-	/**
-	 * persist a session
-	 *
-	 * @param string $sessionId
-	 * @param \Foomo\Session $session
-	 *
-	 */
-	public function persist($sessionId, \Foomo\Session $session);
+class TimerTest extends \PHPUnit_Framework_TestCase {
+	public function testStopwatchAccumulation()
+	{
+		$timer = new Timer\Simple();
+		$timer->start(__METHOD__);
+		usleep(100000);
+		$timer->stop(__METHOD__);
+		$accumulated = $timer->accumulateStopWatchEntries(array(__METHOD__ => 'foo'));
+		$this->assertGreaterThanOrEqual(0.1, $accumulated['foo']);
+		$this->assertLessThanOrEqual(0.11, $accumulated['foo']);
+
+		$timer = new Timer\Simple();
+		$timer->start(__METHOD__);
+		usleep(100000);
+		$timer->stop(__METHOD__);
+		$timer->start(__METHOD__);
+		$timer->start(__METHOD__);
+		usleep(100000);
+		$timer->stop(__METHOD__);
+		$timer->stop(__METHOD__);
+		$accumulated = $timer->accumulateStopWatchEntries(array(__METHOD__ => 'foo'));
+		$this->assertGreaterThanOrEqual(0.3, $accumulated['foo']);
+		$this->assertLessThanOrEqual(0.31, $accumulated['foo']);
+	}
 }

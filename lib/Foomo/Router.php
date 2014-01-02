@@ -20,6 +20,7 @@
 namespace Foomo;
 
 use Foomo\Router\Route;
+use Foomo\Router\RouteMatcherInterface;
 
 /**
  * a router
@@ -63,7 +64,7 @@ class Router
 		if(is_string($callback) && is_callable(array($this, $callback))) {
 			$callback = array($this, $callback);
 		}
-		$route = new Route($path, $callback);
+		$route = Route::createWithPath($path, $callback);
 		$this->routes[] = $route;
 		return $this;
 	}
@@ -95,7 +96,13 @@ class Router
 	public function addRoutes(array $routes)
 	{
 		foreach($routes as $path => $callback) {
-			$this->route($path, $callback);
+			if(is_string($path) && (is_string($callback) || is_array($callback))) {
+				$this->route($path, $callback);
+			} else if(is_object($callback) && $callback instanceof Route) {
+				$this->routes[] = $callback;
+			} else {
+				trigger_error('can not route that one ...', E_USER_ERROR);
+			}
 		}
 		return $this;
 	}

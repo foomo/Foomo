@@ -75,14 +75,17 @@ class Reader implements \Iterator {
 		if (!$this->fp) {
 			return false;
 		}
+		$this->current = null;
 		while (!feof($this->fp)) {
-			$entry = $this->extractLogEntryFromLine(fgets($this->fp));
-			if ($entry && call_user_func_array($this->filterFunction, array($entry))) {
-				$this->current = $entry;
-				return true;
+			$line = fgets($this->fp);
+			if(substr($line, -1) === PHP_EOL) {
+				$entry = self::extractLogEntryFromLine($line, $this->mapping);
+				if (!is_null($entry) && call_user_func_array($this->filterFunction, array($entry))) {
+					$this->current = $entry;
+					return true;
+				}
 			}
 		}
-		$this->current = null;
 		return false;
 	}
 
@@ -102,19 +105,21 @@ class Reader implements \Iterator {
 	const LOG_DELIMITER = ' ';
 	const MICROSEC_FACTOR = 1000000;
 	const DISABLED_ENTRY = 'disabled';
-
+	const PENDING_ENTRY = 'pending';
 	/**
 	 * extract a log entry from a logfile line and populate with additional data
 	 * from that line
 	 *
 	 * @param string $line
+	 * @param array $mapping
 	 *
 	 * @return Entry
+	 * @internal
 	 */
-	private function extractLogEntryFromLine($line)
+	public static function extractLogEntryFromLine($line, array $mapping)
 	{
 		$line = trim($line);
-		if (substr($line, -1) == self::HTTP_EMPTY) {
+		if (empty($line)) {
 			// is there one
 			return null;
 		} else {
@@ -122,79 +127,112 @@ class Reader implements \Iterator {
 			$lastDelimiterPos = \strrpos($line, self::LOG_DELIMITER);
 			/* @var $entry Entry */
 			$rawEntry = substr($line, $lastDelimiterPos + 1);
-			if ($rawEntry == self::DISABLED_ENTRY) {
+			if($rawEntry == self::DISABLED_ENTRY || $rawEntry == self::HTTP_EMPTY) {
 				return null;
-			}
-			$rawEntry = \base64_decode($rawEntry);
-			if(function_exists('gzinflate')) {
-				try {
-					$rawEntry = gzinflate($rawEntry);
-				} catch(\Exception $e) {
-					$rawEntry = '';
+			} else {
+				// make it more light weight
+				$line = substr($line, 0, $lastDelimiterPos);
+				// ini_set('html_errors', 'Off');
+				// var_dump($line, $lastDelimiterPos, $rawEntry);
+				$entry = false;
+				if ($rawEntry == self::PENDING_ENTRY) {
+					$fatalError = true;
+				} else {
+					$fatalError = false;
+					$rawEntry = \base64_decode($rawEntry);
+					if(function_exists('gzinflate')) {
+						try {
+							$rawEntry = @gzinflate($rawEntry);
+						} catch(\Exception $e) {
+							$rawEntry = false;
+						}
+					}
+					if(false !== $rawEntry) {
+						$entry = \unserialize($rawEntry);
+					}
 				}
-			}
-			$entry = \unserialize($rawEntry);
-			if ($entry !== false && is_object($entry) && $entry instanceof Entry) {
 				// get the rest from the front
 				// cut the entry from the line, and the log time to make things faster
-				$line = substr($line, 13 + 28 + 1, $lastDelimiterPos);
-				foreach ($this->mapping as $mappingRule) {
-					if ($mappingRule['conf'] == '%t') {
-						// skip the request time, use our microtime - it is better (at least i hope so)
-						continue;
-					} else {
-						// move forward
+				if($entry === false) {
+					$entryWasEmpty = true;
+					$entry = new Entry();
+				} else {
+					$entryWasEmpty = false;
+				}
+				foreach ($mapping as $mappingRule) {
+					// move forward
+					// echo $line . PHP_EOL;
+					$logPropName = isset($mappingRule['logPropName']) ? $mappingRule['logPropName'] : $mappingRule['entryProp'];
+					// strip the prop
+					$line = substr($line, strlen($logPropName . ':' . self::LOG_DELIMITER));
+					// f... apache request time stripping
+					if($logPropName == 'requestTime') {
+						$line = strtotime(substr($line, 1, 26)) . substr($line, 28);
 						// echo $line . PHP_EOL;
-						$logPropName = isset($mappingRule['logPropName']) ? $mappingRule['logPropName'] : $mappingRule['entryProp'];
-						// strip the prop
-						$line = substr($line, strlen($logPropName . ':' . self::LOG_DELIMITER));
-						$nextPos = strpos($line, self::LOG_DELIMITER);
-						$parsedValue = substr($line, 0, $nextPos);
-						$line = substr($line, $nextPos + 1);
-						$propName = $mappingRule['entryProp'];
-						if (!is_null($mappingRule['entryProp'])) {
-							switch ($mappingRule['conf']) {
-								case '%{FOOMO_SESSION_AGE}e':
-								case '%{FOOMO_SESSION_ID}e':
+					}
+					$nextPos = strpos($line, self::LOG_DELIMITER);
+					$parsedValue = substr($line, 0, $nextPos);
+
+
+					$line = substr($line, $nextPos + 1);
+					$propName = $mappingRule['entryProp'];
+					if (!is_null($mappingRule['entryProp'])) {
+						switch ($mappingRule['conf']) {
+							case '%{FOOMO_SESSION_AGE}e':
+							case '%{FOOMO_SESSION_ID}e':
+								if(!$entryWasEmpty) {
 									if ($parsedValue != $entry->$propName) {
 										trigger_error('httpd log and session entry ot of sync with entry: "' . ($entry->$propName) . '" != httpd: "' . $parsedValue . '" for ' . $propName, E_USER_WARNING);
 									}
 									continue;
-									break;
-								case '%X':
-									// connections status
-									switch ($parsedValue) {
-										case 'X':
-											$parsedValue = Entry::CONNECTION_STATUS_ABORTED;
-											break;
-										case '+':
-											$parsedValue = Entry::CONNECTION_STATUS_KEEP_ALIVE;
-											break;
-										case '-':
-											$parsedValue = Entry::CONNECTION_STATUS_CLOSED;
-											break;
-									}
-									break;
-								case '%D':
-									// runtime in microsecs
-									$parsedValue = (float) $parsedValue / self::MICROSEC_FACTOR;
-									break;
-							}
-							if ($parsedValue != self::HTTP_EMPTY) {
-								// populate the entry with httpd log data
-								$entry->$propName = $parsedValue;
-								// echo 'adding ' . $propName . ': ' . $parsedValue . PHP_EOL;
-							} else {
-								// echo 'skip ' . $mappingRule['entryProp'] . ': ' . $parsedValue . PHP_EOL;
-							}
+								}
+								break;
+							case '%X':
+								// connections status
+								switch ($parsedValue) {
+									case 'X':
+										$parsedValue = Entry::CONNECTION_STATUS_ABORTED;
+										break;
+									case '+':
+										$parsedValue = Entry::CONNECTION_STATUS_KEEP_ALIVE;
+										break;
+									case '-':
+										$parsedValue = Entry::CONNECTION_STATUS_CLOSED;
+										break;
+								}
+								break;
+							case '%f':
+								if(!$entryWasEmpty) {
+									continue;
+								}
+								break;
+							case '%t':
+								// $parsedValue =
+								if($entryWasEmpty) {
+									$parsedValue = (int) $parsedValue;
+								} else {
+									// ours is better
+									continue;
+								}
+								break;
+							case '%D':
+								// runtime in microsecs
+								$parsedValue = (float) $parsedValue / self::MICROSEC_FACTOR;
+								break;
+						}
+						if ($parsedValue != self::HTTP_EMPTY) {
+							// populate the entry with httpd log data
+							$entry->$propName = $parsedValue;
+							// echo 'adding ' . $propName . ': ' . $parsedValue . PHP_EOL;
+						} else {
+							// echo 'skip ' . $mappingRule['entryProp'] . ': ' . $parsedValue . PHP_EOL;
 						}
 					}
 				}
-
+				if($fatalError) {
+					$entry->httpStatus = 500;
+				}
 				return $entry;
-			} else {
-				// serialization or sth like that
-				return null;
 			}
 		}
 	}

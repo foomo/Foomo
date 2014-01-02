@@ -34,13 +34,16 @@ use ReflectionClass;
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
- * @todo add a router
- * @todo add haml lesscss support
  */
 class MVC
 {
 	private static $level = 0;
     private static $aborted = false;
+	/**
+	 * @var URLHandler[]
+	 *
+	 * @internal
+	 */
 	public static $handlers = array();
 	private static $pathArray = array();
 	/**
@@ -98,18 +101,10 @@ class MVC
 			$app = new $app;
 		}
 
-		// set up the url handler and pass it the application id (still can be ovewwritten by the controller id)
+		// set up the url handler and pass it the application id (still can be overwritten by the controller id)
 		$handler = self::prepare($app, $baseURL, $forceBaseURL);
 
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
-
-		self::$pathArray[] = $handler->getControllerId();
-
-		// we need those to redirect stuff
-
-		$handlerKey = '/' . implode('/', self::$pathArray);
-
-		self::$handlers[$handlerKey] = $handler;
 
 		$exception = self::execute($app, $handler);
 
@@ -151,6 +146,7 @@ class MVC
 
 	public static function render($app, $handler, $exception, $forceNoHTMLDocument = false)
 	{
+		Timer::start(__METHOD__);
 		self::$level++;
 		if(!is_null($exception)) {
 			$template = self::getExceptionTemplate(get_class($app));
@@ -192,19 +188,22 @@ class MVC
 			self::$level--;
 			$ret = $rendering;
 		}
+		Timer::stop(__METHOD__);
 		return $ret;
 	}
-	public static function runAction($app, $action, $parameters = array(), $baseURL=null, $forceBaseURL=false, $forceNoHTMLDocument=false)
+	public static function runAction($app, $action, $parameters = array(), $baseURL = null)
 	{
 		try {
 			$action = 'action' . ucfirst($action);
 			call_user_func_array(array($app->controller, $action), $parameters);
-			$template = self::getViewTemplate(get_class($app), $action);
+			$app->model = $app->controller->model;
 			$exception = null;
 		} catch (\Exception $exception) {
 			trigger_error($exception->getMessage());
-			$template = self::getExceptionTemplate(get_class($app));
 		}
+		$handler = new URLHandler($app, $baseURL);
+		$handler->lastAction = $action;
+		return self::render($app, $handler, $exception, true);
 	}
 
 	private static function getViewCatchingPath()
@@ -451,12 +450,39 @@ class MVC
 	}
 
 	/**
-	 * redirect to another controller / action
+	 *
+	 * @param string $action
+	 * @param array $parameters
+	 * @param string $baseURL
 	 */
-	public static function redirect($action, $parameters = array())
+	public static function redirect($action, $parameters = array(), $baseURL = null)
 	{
 		self::abort();
-		header('Location: ' . self::getCurrentURLHandler()->renderMethodURL($action, $parameters));
+		$urlHandler = self::getCurrentURLHandler();
+		if(!is_null($baseURL)) {
+			$urlHandler->baseURL = $baseURL;
+		}
+		header('Location: ' . $urlHandler->renderMethodURL($action, $parameters));
 		exit;
+	}
+
+	/**
+	 * for debugging purposes only,
+	 *
+	 * it will be the deepest "path" ,that was reached so far
+	 *
+	 * @return array
+	 * @internal
+	 */
+	public static function getPathInfo()
+	{
+		$info = array();
+		foreach(self::$handlers as $handler) {
+			$info[] = array(
+				'action' => $handler->getControllerId() . '::' . $handler->lastAction,
+				'parameters' => $handler->lastParameters
+			);
+		}
+		return $info;
 	}
 }

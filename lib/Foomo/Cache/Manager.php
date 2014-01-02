@@ -106,8 +106,6 @@ class Manager {
 				case 'pdo':
 					$persistorPrefix = 'PDO';
 					break;
-				case 'apc':
-					$persistorPrefix = 'APC';
 				default:
 					$persistorPrefix = ucfirst($persistorClassIdentifier);
 			}
@@ -146,7 +144,6 @@ class Manager {
 		try {
 			// try fast persistor
 			$ret = null;
-			$fromFastCache = true;
 			if (isset(self::$fastPersistor) && ($cachedResource = self::getFastPersistor()->load($resource))) {
 				$ret = $cachedResource;
 				$fromFastCache = true;
@@ -169,6 +166,7 @@ class Manager {
 			}
 		} catch (\Exception $e) {
 			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			return null;
 		}
 	}
 
@@ -176,12 +174,12 @@ class Manager {
 	 * saves a resource into the cache
 	 *
 	 * @param CacheResource $resource
+	 *
 	 * @return boolean success
 	 */
 	public static function save(CacheResource $resource)
 	{
 		$fastSuccess = true; // not necessary the fast persistor is always there
-		$queryableSuccess = false;
 		try {
 			$queryableSuccess = self::getQueryablePersistor()->save($resource);
 
@@ -198,6 +196,7 @@ class Manager {
 			return $success;
 		} catch (\Exception $e) {
 			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			return false;
 		}
 	}
 
@@ -220,7 +219,6 @@ class Manager {
 				\trigger_error(__CLASS__ . __METHOD__ . 'delete called with POLICY_DO_NOTHING: this results in an unconsistent cache state.');
 			}
 			$success = $qSuccess && $fSuccess;
-
 			if ($success === true) {
 				Manager::invalidate($resource);
 			}
@@ -235,6 +233,8 @@ class Manager {
 	 * Check if resource is in the fast cache
 	 *
 	 * @param \Foomo\Cache\CacheResource $resource
+	 *
+	 * @return bool
 	 */
 	public static function isResourceInFastCache($resource)
 	{
@@ -299,8 +299,9 @@ class Manager {
 	public static function invalidateWithQuery($resourceName, Expr $expr = null, $invalidateRoot = false, $invalidationPolicy = null)
 	{
 		foreach (self::query($resourceName, $expr) as $resource) {
-			if (isset($invalidationPolicy))
+			if (isset($invalidationPolicy)) {
 				$resource->invalidationPolicy = $invalidationPolicy;
+			}
 			self::invalidate($resource, $invalidateRoot, $invalidationPolicy, false);
 		}
 	}
@@ -334,7 +335,7 @@ class Manager {
 	/**
 	 * check the cached result.
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
+	 * @param \Foomo\Cache\CacheResource $resource
 	 *
 	 * @param bool $fromFastCache
 	 *
@@ -342,11 +343,12 @@ class Manager {
 	 */
 	public static function checkCachedResult($resource, $fromFastCache = false)
 	{
-		if (\is_null($resource))
+		if (\is_null($resource)) {
 			return false;
-		if ($resource->status == CacheResource::STATUS_INVALID)
+		}
+		if ($resource->status == CacheResource::STATUS_INVALID) {
 			return false;
-		$expirationTime = 0;
+		}
 		if ($fromFastCache) {
 			$expirationTime = $resource->expirationTimeFast;
 		} else {
@@ -355,15 +357,16 @@ class Manager {
 		if ($expirationTime == 0) {
 			return true;
 		} else {
-			if (\time() < $expirationTime)
+			if (\time() < $expirationTime) {
 				return true;
-			else
+			} else {
 				return false; //expired
+			}
 		}
 	}
 
 	/**
-	 * @todo jan: Refactored this method to work correcty. Pleas validate and add comment.
+	 * get a name for a resource
 	 *
 	 * @param mixed $classOrObject object/class to call
 	 * @param string $method name of the method
@@ -379,7 +382,7 @@ class Manager {
 	 *
 	 * @param string $resourceName
 	 *
-	 * @param Foomo\Cache\Persistence\Expr $expression
+	 * @param \Foomo\Cache\Persistence\Expr $expression
 	 *
 	 * @return string
 	 */

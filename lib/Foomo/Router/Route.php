@@ -34,14 +34,22 @@ class Route
 	 */
 	public $callback;
 	/**
-	 * @var Path
+	 * @var RouteMatcherInterface
 	 */
-	private $path;
+	private $matcher;
 
-	public function __construct($path, $callback)
+	public function __construct(RouteMatcherInterface $matcher, $callback)
 	{
-		$this->path = new Path($path);
+		$this->matcher = $matcher;
 		$this->callback = $callback;
+	}
+	public static function createWithPath($path, $callback)
+	{
+		return new self(new Path($path), $callback);
+	}
+	public static function createWithRegexMatcher($matchingRegex, $renderingRegex, $callback)
+	{
+		return new self(new Regex($matchingRegex, $renderingRegex), $callback);
 	}
 	/**
 	 * does this route match
@@ -52,7 +60,7 @@ class Route
 	 */
 	public function matches($path)
 	{
-		return $this->path->matches($path);
+		return $this->matcher->matches($path);
 	}
 
 	/**
@@ -67,7 +75,7 @@ class Route
 	{
 		if(is_string($this->callback[0]) && $this->callback[0] == $className || is_object($this->callback[0]) && get_class($this->callback[0]) == $className) {
 			$myMethodName = $this->getMethodReflection($this->callback)->getName();
-			$candidates = array($myMethodName, $this->path->command);
+			$candidates = array($myMethodName, $this->matcher->command);
 			if(substr($myMethodName, 0, 6) == 'action') {
 				$candidates[] = lcfirst(substr($myMethodName, 6));
 			}
@@ -107,7 +115,7 @@ class Route
 			}
 			$i ++;
 		}
-		return $this->path->url($namedParameters, $optionalParameters);
+		return $this->matcher->url($namedParameters, $optionalParameters);
 	}
 
 	/**
@@ -119,7 +127,10 @@ class Route
 	 */
 	public function getParameters($path)
 	{
-		return $this->getParametersForCallBack($this->callback, $this->path->extractParameters($path));
+		return $this->getParametersForCallBack(
+			$this->callback,
+			$this->matcher->extractParameters($path)
+		);
 	}
 	/**
 	 *
@@ -189,6 +200,6 @@ class Route
 	}
 	public function resolvePath($path)
 	{
-		return $this->path->resolvePath($path);
+		return $this->matcher->resolvePath($path);
 	}
 }

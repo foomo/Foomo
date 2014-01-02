@@ -47,7 +47,7 @@ class Session
 	/**
 	 * singleton
 	 *
-	 * @var Foomo\Session
+	 * @var \Foomo\Session
 	 */
 	private static $instance;
 	/**
@@ -79,8 +79,10 @@ class Session
 	 * @var integer
 	 */
 	private $startTime;
+	/**
+	 * @var int
+	 */
 	private $age = 0;
-	private $type;
 	/**
 	 * session is dirty and needs to be written
 	 *
@@ -118,7 +120,7 @@ class Session
 	 * @param string $className
 	 * @param string $identifier multiton
 	 *
-	 * @return stdClass
+	 * @return object
 	 */
 	public static function getClassInstance($className, $identifier = 'defaultInstance')
 	{
@@ -143,8 +145,10 @@ class Session
 	/**
 	 * set a session class instance, session must be locked
 	 *
-	 * @param stdClass $instance
+	 * @param object $instance
 	 * @param string $identifier
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	public static function setClassInstance($instance, $identifier = 'defaultInstance')
 	{
@@ -193,12 +197,12 @@ class Session
 	private function sessionIsValid(Session\DomainConfig $config)
 	{
 		// expiry
-		$phpIniLifeTime = ini_get('session.cookie_lifetime');
+		$phpIniLifeTime = (int) ini_get('session.cookie_lifetime');
 		if ($phpIniLifeTime == 0) {
 			$lifeTimeValid = true;
 		} else {
 			// should we resend the cookie or sth. when the session is almost expiring?
-			$lifeTimeValid = $this->startTime + $phpIniLifeTime > $phpIniLifeTime;
+			$lifeTimeValid = (($this->startTime + $phpIniLifeTime) > $phpIniLifeTime);
 		}
 		// client
 		if ($config->checkClient) {
@@ -230,22 +234,24 @@ class Session
 	/**
 	 * get my self
 	 *
-	 * @return Foomo\Session
+	 * @return \Foomo\Session
 	 *
 	 */
 	public static function getInstance()
 	{
-		if (!self::$instance) trigger_error('can not access session - is it enabled?', E_USER_ERROR);
+		if (!self::$instance) {
+			trigger_error('can not access session - is it enabled?', E_USER_ERROR);
+		}
 		return self::$instance;
 	}
 	/**
 	 * session config for the core
 	 *
-	 * @return Foomo\Session\DomainConfig
+	 * @return \Foomo\Session\DomainConfig
 	 */
 	public static function getConf()
 	{
-		return Config::getConf(\Foomo\Module::NAME, Session\DomainConfig::NAME);
+		return Config::getConf(Module::NAME, Session\DomainConfig::NAME);
 	}
 
 	public static function init($reStart = false)
@@ -275,8 +281,8 @@ class Session
 				} else {
 					self::$instance->dirty = false;
 					if (false && $conf->cookieLifetimeThreshold > 0) {
-						$lifetime = ini_get('session.cookie_lifetime');
-						$diff = (self::$instance->startTime + $lifetime) - time();
+						$lifetime = (int) ini_get('session.cookie_lifetime');
+						$diff = self::$instance->startTime + $lifetime - time();
 						if ($diff <= (integer) $conf->cookieLifetimeThreshold) {
 							trigger_error('------- extending session - for ' . $_COOKIE[$conf->name]);
 							// reload first
@@ -319,7 +325,7 @@ class Session
 			}
 		}
 		if ($sendCookie && !self::$disabled) {
-			$lifetime = ini_get('session.cookie_lifetime');
+			$lifetime = (int) ini_get('session.cookie_lifetime');
 			$expire = ($lifetime == 0) ? 0 : time() + $lifetime;
 			setcookie($conf->name, $sessionId, $expire, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), $secure); //, ini_get('session.cookie_httponly'));
 		}
@@ -330,6 +336,7 @@ class Session
 	 * paranoid session id
 	 *
 	 * @param string $salt salt it
+	 * @param integer $paranoiaLevel
 	 *
 	 * @return string
 	 */
@@ -414,24 +421,20 @@ class Session
 	/**
 	 * tells you how many times the session was written
 	 *
-	 * @return integer
+	 * @return integer|null
 	 */
 	public static function getAge()
 	{
-		if (self::$instance) {
-			return self::$instance->age;
-		}
+		return self::$instance?self::$instance->age:null;
 	}
 	/**
 	 * get the sessionId, if the session is enabled
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getSessionIdIfEnabled()
 	{
-		if (self::getEnabled()) {
-			return self::getSessionId();
-		}
+		return self::getEnabled()?self::getSessionId():null;
 	}
 	/**
 	 * is the session enabled
@@ -442,7 +445,7 @@ class Session
 	{
 		$conf = self::getConf();
 		if ($conf) {
-			return self::getConf()->enabled && !self::$disabled;
+			return $conf->enabled && !self::$disabled;
 		} else {
 			return false;
 		}
@@ -451,7 +454,7 @@ class Session
 	/**
 	 * get the current session id
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getSessionId()
 	{
@@ -459,6 +462,7 @@ class Session
 			return self::$instance->sessionId;
 		} else {
 			trigger_error('trying to get a session id, before the session was initialized', E_USER_WARNING);
+			return null;
 		}
 	}
 

@@ -29,11 +29,11 @@ use Foomo\MVC;
 class Controller {
 
 	/**
-	 * @var Foomo\Log\Frontend\Model
+	 * @var Model
 	 */
 	public $model;
 
-	public function actionWebTail($filters)
+	public function actionWebTail($filters = '')
 	{
 		MVC::abort();
 		$rawFilters = explode(chr(10), $filters);
@@ -44,8 +44,24 @@ class Controller {
 				$filters[] = $rawFilter;
 			}
 		}
-		$this->model->webTail($filters);
-		exit;
+
+
+		header('Content-Type: text/plain;charset=utf-8;');
+
+		echo __METHOD__ . ':' . PHP_EOL . PHP_EOL . implode(PHP_EOL, $filters) . PHP_EOL . PHP_EOL;
+
+		$utils = new \Foomo\Log\Utils();
+		$utils->webTail(\Foomo\Log\Logger::getLoggerFile(), function (\Foomo\Log\Entry $entry) use ($filters) {
+			foreach ($filters as $filter) {
+				$filter = explode('::', $filter);
+				if (!\call_user_func_array($filter, array($entry))) {
+					return false;
+				}
+			}
+			return true;
+		});
+
+
 	}
 
 }

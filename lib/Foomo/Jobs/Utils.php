@@ -157,6 +157,10 @@ class Utils {
 		$status->errorMessage = $errorMessage;
 		self::log($jobId, $status);
 		self::persistStatus($fileName, $status);
+		self::sendNotificationEmail($status->errorCode, $status->errorMessage);
+
+
+
 	}
 
 	private static function getPersistedStatus($jobId) {
@@ -199,4 +203,30 @@ class Utils {
 		file_put_contents($fileName, serialize($status));
 	}
 
+	private static function sendNotificationEmail($errorCode, $errorMessage) {
+		$smtpConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Config\Smtp::NAME);
+		$jobsConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Jobs\DomainConfig::NAME);
+		if ($smtpConfig && !empty($smtpConfig->host)) {
+			if ($jobsConfig && ! empty($jobsConfig->emailTo)) {
+				$mailer = new \Foomo\Mailer();
+				\Foomo\Mailer::$logLast = true;
+				$mailer->setSmtpConfig($smtpConfig);
+				$success = $mailer->sendMail(
+					$jobsConfig->emailTo,
+					'Foomo.Jobs report from' . $_SERVER['HTTP_HOST'] . ' ' . date('Y-m-d H:i:s'),
+					'Error code: ' . $errorCode . ' ' . PHP_EOL . $errorMessage,
+					'Error code: ' . $errorCode . '<br>'  . $errorMessage,
+					array(
+						'from' => $jobsConfig->emailFrom,
+						'reply-to' => $jobsConfig->emailFrom
+					)
+				);
+				if(!$success) {
+					trigger_error('could not send contact mail ' . $mailer->getLastError(), \E_USER_WARNING);
+				}
+				return;
+			}
+		}
+		trigger_error('Foomo.Jobs email not sent due to missing configuration.', E_USER_WARNING);
+	}
 }
