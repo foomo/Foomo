@@ -102,7 +102,7 @@ class Invalidator {
 							if (($fSuccess && $qSuccess) === false) {
 								//this might be serious... couldn not save during invalidate. Since this may come at an arbitrary place in the tree
 								// the cache consistency might be compromised
-								\trigger_error(__METHOD__ . 'Could not SAVE resource during invalidate.'.$dependentResource->name . ' with id '. $dependentResource->id . '-> queryable success: ' . ($qSuccess?'true':'false') . '-->'. ($fSuccess?'true':'false') . ' CACHE MIGHT BE IN AN INCONSISTENT STATE. Terminating process here.', \E_USER_ERROR);
+								\trigger_error(__METHOD__ . 'Could not SAVE resource during invalidate. ' . $dependentResource->name . ' with id '. $dependentResource->id . '-> queryable success: ' . ($qSuccess?'true':'false') . '-->'. ($fSuccess?'true':'false') . ' CACHE MIGHT BE IN AN INCONSISTENT STATE. Terminating process here.', \E_USER_ERROR);
 							}
 							$num++;
 						}
@@ -127,9 +127,9 @@ class Invalidator {
 						if ($verbose)
 							echo '--> Rebuilding resource' . $dependentResource->name . ' with id ' . $dependentResource->id . \PHP_EOL;
 						if (($fSuccess && $qSuccess) === false) {
-							//this might be serious... couldn not save during invalidate. Since this may come at an arbitrary place in the tree
+							//this might be serious... could not not save during invalidate. Since this may come at an arbitrary place in the tree
 							// the cache consistency might be compromised
-							\trigger_error(__METHOD__ . 'Could not SAVE resource during invalidate.'.$dependentResource->name . ' with id '. $dependentResource->id . '-> queryable success: ' . ($qSuccess?'true':'false') . '-->'. ($fSuccess?'true':'false') . ' CACHE MIGHT BE IN AN INCONSISTENT STATE. Terminating process here.', \E_USER_ERROR);
+							\trigger_error(__METHOD__ . 'Could not SAVE resource during invalidate. '.$dependentResource->name . ' with id '. $dependentResource->id . '-> queryable success: ' . ($qSuccess?'true':'false') . '-->'. ($fSuccess?'true':'false') . ' CACHE MIGHT BE IN AN INCONSISTENT STATE. Terminating process here.', \E_USER_ERROR);
 						}
 						$num++;
 						break;
@@ -145,7 +145,7 @@ class Invalidator {
 						if (($fSuccess && $qSuccess) === false) {
 							//this might be serious... couldn not save during invalidate. Since this may come at an arbitrary place in the tree
 							// the cache consistency might be compromised
-							\trigger_error(__METHOD__ . 'Could not DELETE resource during invalidate.'.$dependentResource->name . ' with id '. $dependentResource->id . '-> queryable success: ' . ($qSuccess?'true':'false') . '-->'. ($fSuccess?'true':'false') . ' CACHE MIGHT BE IN AN INCONSISTENT STATE. Terminating process here.', \E_USER_ERROR);
+							\trigger_error(__METHOD__ . 'Could not DELETE resource during invalidate. '.$dependentResource->name . ' with id '. $dependentResource->id . '-> queryable success: ' . ($qSuccess?'true':'false') . '-->'. ($fSuccess?'true':'false') . ' CACHE MIGHT BE IN AN INCONSISTENT STATE. Terminating process here.', \E_USER_ERROR);
 						}
 						$num++;
 						break;
