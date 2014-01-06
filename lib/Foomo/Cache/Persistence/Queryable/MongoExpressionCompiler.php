@@ -26,7 +26,8 @@ namespace Foomo\Cache\Persistence\Queryable;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class MongoExpressionCompiler {
+class MongoExpressionCompiler
+{
 
 	public static function buildMongoQuery(\Foomo\Cache\Persistence\Expr $expr)
 	{

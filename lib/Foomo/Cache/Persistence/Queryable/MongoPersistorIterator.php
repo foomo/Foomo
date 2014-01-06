@@ -24,48 +24,56 @@ namespace Foomo\Cache\Persistence\Queryable;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class MongoPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
+class MongoPersistorIterator extends \Foomo\Cache\CacheResourceIterator
+{
 
 	private $mongoCursor;
 
-	public function __construct($cursor) {
+	public function __construct($cursor)
+	{
 		$this->mongoCursor = $cursor;
 
-		if ( $this->mongoCursor->count() > 0) {
+		if ($this->mongoCursor->count() > 0) {
 			$this->mongoCursor->next();
 
 		}
 	}
 
 	/**
-	 * @return Foomo\Cache\CacheResource
+	 * @return \Foomo\Cache\CacheResource
 	 */
-	public function current() {
+	public function current()
+	{
 		$document = $this->mongoCursor->current();
 		if ($document) {
-		return MongoPersistor::mapDocumentToResource($document);
+			return MongoPersistor::mapDocumentToResource($document);
 		} else {
 			return $document;
 		}
 	}
 
-	public function next() {
+	public function next()
+	{
 		return $this->mongoCursor->next();
 	}
 
-	public function key() {
+	public function key()
+	{
 		return $this->mongoCursor->key;
 	}
 
-	public function valid() {
+	public function valid()
+	{
 		return $this->mongoCursor->valid();
 	}
 
-	public function rewind() {
+	public function rewind()
+	{
 		return $this->mongoCursor->rewind();
 	}
 
-	public function count() {
+	public function count()
+	{
 		return $this->mongoCursor->count();
 	}
 }

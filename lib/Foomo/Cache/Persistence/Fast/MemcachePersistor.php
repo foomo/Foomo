@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Cache\Persistence\Fast;
+
 use Foomo\Config;
 
 /**
@@ -30,7 +31,8 @@ use Foomo\Config;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterface {
+class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectInterface
+{
 
 	/**
 	 * @var Memcache
@@ -39,7 +41,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	private $serverIterator = 0;
 	public $serverConfig;
 
-	private function getId($id) {
+	private function getId($id)
+	{
 		return \Foomo\ROOT . Config::getMode() . $id;
 	}
 
@@ -47,7 +50,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	 *
 	 * @param array $config array containing server config arrays, e.g. $config[0] = array('host'=>'...', 'port' = '...')
 	 */
-	public function __construct($config) {
+	public function __construct($config)
+	{
 		// $address, $port
 		$this->memcache = new \Memcache();
 		$config = $this->parseMemCacheConfig($config);
@@ -64,7 +68,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	 *
 	 * @return bool
 	 */
-	public function save(\Foomo\Cache\CacheResource $resource) {
+	public function save(\Foomo\Cache\CacheResource $resource)
+	{
 		$id = $this->getId($resource->id);
 		return $this->memcache->set($id, $resource, 0, ($resource->expirationTimeFast > 0 ? ($resource->expirationTimeFast - \time()) : 0));
 	}
@@ -76,7 +81,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	 * @return \Foomo\Cache\CacheResource $resource
 	 */
 
-	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false) {
+	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false)
+	{
 		$id = $this->getId($resource->id);
 		return $this->memcache->get($id);
 	}
@@ -86,7 +92,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	 * @param string $value
 	 * @return boolean
 	 */
-	public function directSave($key, $value) {
+	public function directSave($key, $value)
+	{
 		return $this->memcache->set($key, $value);
 	}
 
@@ -94,7 +101,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	 * @param string $key
 	 * @return string mixed
 	 */
-	public function directLoad($key) {
+	public function directLoad($key)
+	{
 		return $this->memcache->get($key);
 	}
 
@@ -105,7 +113,8 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	 *
 	 * @return boolean
 	 */
-	public function delete(\Foomo\Cache\CacheResource $resource) {
+	public function delete(\Foomo\Cache\CacheResource $resource)
+	{
 		$id = $this->getId($resource->id);
 		if ($this->memcache->get($id)) {
 			return $this->memcache->delete($id);
@@ -117,11 +126,13 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 	/**
 	 * reset all cached resources, i.e. sets them to invalid. Note: system resources are not released
 	 */
-	public function reset() {
+	public function reset()
+	{
 		$this->memcache->flush();
 	}
 
-	private function parseMemCacheConfig($config) {
+	private function parseMemCacheConfig($config)
+	{
 		$serverConf = array();
 		$serverConf['host'] = null;
 		$serverConf['port'] = 11211;
@@ -140,7 +151,7 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 					$serverConf[$name] = $value;
 					break;
 				case 'port':
-					$serverConf[$name] = (int) $value;
+					$serverConf[$name] = (int)$value;
 					break;
 				case 'persistent':
 					if ($value == 'true')
@@ -149,13 +160,13 @@ class MemcachePersistor implements \Foomo\Cache\Persistence\FastPersistorDirectI
 						$serverConf[$name] = false;
 					break;
 				case 'weight':
-					$serverConf[$name] = (int) $value;
+					$serverConf[$name] = (int)$value;
 					break;
 				case 'timeout':
-					$serverConf[$name] = (int) $value;
+					$serverConf[$name] = (int)$value;
 					break;
 				case 'retry_interval':
-					$serverConf[$name] = (int) $value;
+					$serverConf[$name] = (int)$value;
 					break;
 				case 'status':
 					if ($value == 'true')

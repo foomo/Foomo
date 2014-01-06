@@ -66,14 +66,15 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 
 	}
 
-	private function parseConfig($persistorConfig) {
+	private function parseConfig($persistorConfig)
+	{
 		$confArray = explode('::', $persistorConfig);
 		foreach ($confArray as $confPart) {
 			$confPart = trim($confPart);
-			if (strpos($confPart,'mogodb://') !== false ) {
+			if (strpos($confPart, 'mogodb://') !== false) {
 				$this->host = $confPart;
-			} else if (strpos($confPart,'database=') !== false) {
-				$this->databaseName = str_replace('database=','',$confPart);
+			} else if (strpos($confPart, 'database=') !== false) {
+				$this->databaseName = str_replace('database=', '', $confPart);
 			}
 		}
 	}
@@ -115,46 +116,6 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	}
 
 
-	public function save1(\Foomo\Cache\CacheResource $resource)
-	{
-		try {
-			$document = get_object_vars($resource);
-			$document['value'] = serialize($resource->value);
-			$document['queriableProperties'] = $this->preparePropertiesForQueryOperations($resource);
-			$collection = $this->getMongoCollection($document);
-			//need to lock here ********** Mongo has no atomic locking...
-			$loaded = $this->loadDocumentByResourceId($document);
-
-
-			if (isset($loaded)) {
-				//update
-				foreach ($document as $key => $value) {
-					$loaded[$key] = $value;
-				}
-				$collection->save($loaded);
-				return true;
-			} else {
-				//index creation
-				$collection->ensureIndex(array("id" => 1), array("unique" => 1, "dropDups" => 1));
-				//insert
-				$success = $collection->insert($document);
-				if (!$success) {
-					throw new \Exception('could not insert document');
-				}
-				//need to unlock here ***********
-				return true;
-			}
-
-		} catch (\Exception $e) {
-			//could we call save again from here to update if insert failed due to a race condition?
-			//try atomic update if fails try
-			$collection->update(array('id' => $resource->id), array('$set' => $document));
-			trigger_error(__METHOD__ . ' Possibly run into a race condition as mongo does not lock...updated existing field with an atomic update');
-			trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
-			return false;
-		}
-	}
-
 	/**
 	 * save into mongo
 	 *
@@ -171,8 +132,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			$collection = $this->getMongoCollection($document);
 			$collection->ensureIndex(array("id" => 1), array("unique" => 1, "dropDups" => 1));
 
-			// since mongo has no locking we use an atomic upsert operation
-
+			// mongo has no locking - using an atomic upsert operation here
 			return $collection->update(array('id' => $document['id']), array('$set' => $document), array('upsert' => true));
 		} catch (\Exception $e) {
 			\trigger_error(__METHOD__ . ' : ' . $e->getMessage(), \E_USER_WARNING);
@@ -285,10 +245,11 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	}
 
 	/**
-	 *
-	 * @param string $id the resource id. not a mongo doc id!
+	 * load document by id
+	 * @param array $document
+	 * @return array|null
 	 */
-	private function loadDocumentByResourceId($document)
+	private function loadDocument($document)
 	{
 		$collection = $this->getMongoCollection($document);
 		$loaded = $collection->findOne(array('id' => $document['id']));
@@ -308,7 +269,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	{
 		try {
 			$document = \get_object_vars($resource);
-			$loaded = $this->loadDocumentByResourceId($document);
+			$loaded = $this->loadDocument($document);
 			if (!isset($loaded)) {
 				return null;
 			}
@@ -348,13 +309,12 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	public function delete(\Foomo\Cache\CacheResource $resource)
 	{
 		try {
-			\Foomo\Utils::appendToPhpErrorLog('delete called for ' . $resource->id . PHP_EOL);
 			$document = \get_object_vars($resource);
-			$loaded = $this->loadDocumentByResourceId($document);
+			$loaded = $this->loadDocument($document);
 
 			if (isset($loaded)) {
 				$collection = $this->getMongoCollection($loaded);
-				$success =  $collection->remove(array('id' => $loaded['id']));
+				$success = $collection->remove(array('id' => $loaded['id']));
 				return ($success['ok'] == true);
 			} else {
 				return true;
@@ -370,7 +330,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 	/**
 	 * clear all. if resource name provided drops resource table, else remove recreates entire db
 	 *
-	 * @param string $resourceName, if null all will be deleted.
+	 * @param string $resourceName , if null all will be deleted.
 	 *
 	 * @param bool $recreateStructures if true, storage structures, e.g. tables, are re-created during reset
 	 *
@@ -405,7 +365,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			echo "........... Done" . \PHP_EOL;
 		}
 		if ($recreateStructures) {
-			// nothing to do mor mongo - no db schema!
+			// nothing to do for mongo - no db schema!
 			if ($verbose) {
 				echo "........... recreating structure does not make sense for mongo" . \PHP_EOL;
 			}
@@ -475,8 +435,6 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 				echo 'Storage structure for resource ' . $resourceName . ' (collection ' . $collectionName . ') exists.' . \PHP_EOL;
 		}
 
-
-
 		$collection = $this->database->$collectionName;
 		$loadedDocument = $collection->findOne();
 		$loadedResource = self::mapDocumentToResource($loadedDocument);
@@ -496,7 +454,6 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 			echo 'For all resource properties .... check if they are mapped correctly....' . \PHP_EOL;
 			echo \PHP_EOL;
 		}
-
 
 		foreach ($resource->getPropertyDefinitions() as $propName => $propertyDefinition) {
 			$resType = $propertyDefinition->type;

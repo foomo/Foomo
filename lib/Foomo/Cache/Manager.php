@@ -195,7 +195,7 @@ class Manager {
 			}
 			return $success;
 		} catch (\Exception $e) {
-			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+			\trigger_error(__CLASS__ . __METHOD__ . ' ' . $e->getMessage());
 			return false;
 		}
 	}
