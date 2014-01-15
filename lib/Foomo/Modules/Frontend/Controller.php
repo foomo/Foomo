@@ -143,9 +143,7 @@ class Controller
 	{
 		MVC::abort();
 		header('Content-Type: text/plain;charset=utf-8;');
-		foreach (Manager::getEnabledModules() as $enabledModuleName) {
-			echo Manager::tryCreateModuleResources($enabledModuleName);
-		}
+		echo Manager::tryCreateModuleResourcesForAllEnabledModules();
 		exit;
 	}
 }

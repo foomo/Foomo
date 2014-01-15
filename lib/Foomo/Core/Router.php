@@ -78,6 +78,7 @@ class Router extends R {
 		$this->out('/enableModule/:module - enable a module (and all its dependencies)', 1);
 		$this->out('/disableModule/:module - disable a module', 1);
 		$this->out('/disableAllModules - disable all modules (except Foomo)', 1);
+		$this->out('/tryCreateModuleResources - try to create all missing resources for all enabled modules', 1);
 	}
 	public function resetAutoLoader()
 	{
@@ -110,6 +111,11 @@ class Router extends R {
 		} else {
 			$this->listModulesHuman();
 		}
+	}
+	public function tryCreateModuleResources()
+	{
+		header('Content-Type: text/plain;charset=utf-8;');
+		echo \Foomo\Modules\Manager::tryCreateModuleResourcesForAllEnabledModules();
 	}
 	private function replyToMachine($data)
 	{
@@ -162,6 +168,7 @@ class Router extends R {
 			'/disableAllModules' => 'disableAllModules',
 			'/listModules' => 'listModules',
 			'/resetAutoLoader' => 'resetAutoLoader',
+			'/tryCreateModuleResources' => 'tryCreateModuleResources',
 			'*' => 'help'
 		));
 		$coreRouter->execute();

@@ -495,6 +495,17 @@ class Manager
 		return $ret;
 	}
 
+	public static function tryCreateModuleResourcesForAllEnabledModules()
+	{
+		$ret = '';
+		foreach(self::getEnabledModules() as $enabledModule) {
+			$ret .= 'module ' . $enabledModule . ':' . PHP_EOL . '---------------------------------------------------------------------------' . PHP_EOL;
+			$ret .= self::tryCreateModuleResources($enabledModule);
+			$ret .= PHP_EOL;
+		}
+		return $ret;
+	}
+
 	/**
 	 * @param string $module
 	 * @return \Foomo\Modules\Resource[]
