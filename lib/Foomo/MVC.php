@@ -130,7 +130,7 @@ class MVC
 		return $handler;
 	}
 
-	public static function execute($app, $handler)
+	public static function execute($app, URLHandler $handler)
 	{
 		$exception = null;
 		try {

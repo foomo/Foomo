@@ -161,7 +161,7 @@ class URLHandler {
 
 	private function isThisAction($input, $action)
 	{
-		if ($action->actionName == $input || $action->actionNameShort == $input) {
+		if ($action->actionName == $input || $action->actionNameShort == $input || ($input === '' && $action->actionName === 'actionDefault')) {
 			return true;
 		} else {
 			return false;
@@ -244,7 +244,6 @@ class URLHandler {
 			if(self::$exposeClassId) {
 				$this->path .= '/' . urlencode($classId);
 			}
-
 			if(count($cleanParts) > 1) {
 				foreach ($this->loadClass($app->controller) as $controllerAction) {
 					/* @var $controllerAction Controller\Action */
@@ -275,12 +274,15 @@ class URLHandler {
 					}
 				}
 			}
+		} else {
+			$actions = $this->loadClass($app->controller);
+			$action = $actions['default']->actionName;
+			$class = $actions['default']->controllerName;
 		}
 		if(empty($action)) {
 			$action = $this->get404Action($app);
 			// @todo what is with the path
 		}
-
 		$ret = array(
 			'instance' => self::$instanceCounter[$this->controllerClassName],
 			'instanceName' => $this->getControllerId(),
