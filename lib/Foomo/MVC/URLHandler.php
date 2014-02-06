@@ -297,7 +297,17 @@ class URLHandler {
 		$cleanParts = array();
 		$parts = explode('/', $path);
 		foreach ($parts as $part) {
-			array_push($cleanParts, urldecode($part));
+			if(strpos($part, ',') !== false) {
+				// an array
+				$array = explode(',', $part);
+				array_walk($array, function(&$item) {
+					$item = urldecode($item);
+				});
+				$cleanParts[] = $array;
+			} else {
+				// just a string
+				array_push($cleanParts, urldecode($part));
+			}
 		}
 		return $cleanParts;
 	}
@@ -358,6 +368,18 @@ class URLHandler {
 					$parameters .= '/' . urlencode($parameter);
 					break;
 				case is_array($parameter):
+					$parameterArray = array();
+					foreach($parameter as $key => $value) {
+						if(!is_string($value)) {
+							trigger_error("can not render a url with non string elements in an array", E_USER_ERROR);
+						}
+						if(!is_numeric($key)) {
+							trigger_error("can not render a hash", E_USER_ERROR);
+						}
+						$parameterArray[] = urlencode($value);
+					}
+					$parameters .= '/' . implode(',', $parameterArray);
+					break;
 				case is_object($parameter):
 					$parameters .= '/' . urlencode(serialize($parameter));
 					trigger_error('i will not be able to understand what i am doing here ;) ', E_USER_WARNING);
@@ -461,6 +483,12 @@ class URLHandler {
 			if($refl->implementsInterface(__NAMESPACE__ . '\\SanitizerInterface')) {
 				$value = new $parameter->type($value);
 			}
+		} else if($parameter->type == 'array' && !is_array($value)) {
+			if(empty($value)) {
+				$value = array();
+			} else {
+				$value = array($value);
+			}
 		}
 		return $value;
 	}
@@ -493,10 +521,8 @@ class URLHandler {
 			// add the (stripped) method name
 			 $ret .= '/' . urlencode($methodName);
 		}
-		// append paramters
-		foreach ($parameters as $parameter) {
-			$ret .= '/' . urlencode($parameter);
-		}
+		// append parameters
+		$ret .= self::renderPathParameters($parameters, count($parameters));
 		return $ret;
 	}
 

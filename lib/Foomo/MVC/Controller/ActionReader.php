@@ -123,6 +123,8 @@ class ActionReader {
 			}
 			if ($parm->getClass()) {
 				$newParm->type = $parm->getClass()->getName();
+			} else if($parm->isArray()) {
+				$newParm->type = 'array';
 			}
 			$newParm->optional = $parm->isOptional();
 			if($newParm->optional) {
