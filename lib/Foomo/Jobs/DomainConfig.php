@@ -38,7 +38,9 @@ class DomainConfig extends \Foomo\Config\AbstractConfig
 	 * 
 	 * @var string[]
 	 */
-	public $curlOptions = array();
+	public $curlOptions = array(
+		'-k'
+	);
 
 	/**
 	 * jobs report recipient
