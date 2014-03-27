@@ -53,7 +53,7 @@ class Path implements RouteMatcherInterface
 				} else if(count($parameterParts) == 1 && $parameterParts[0] == '*') {
 					$this->generalParameterMatch = true;
 					$this->ignoreAfterNumberOfParameters = $i - 2;
-					// whould we abort looping the parameters in this case ?!
+					// should we abort looping the parameters in this case ?!
 				} else if(count($parameterParts) == 3) {
 					// prefix and postfix
 					$this->parameters[$parameterParts[1]] = array('prefix' => $parameterParts[0], 'postfix' => $parameterParts[2]);
