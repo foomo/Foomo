@@ -337,19 +337,24 @@ class MVC
 	 */
 	public static function getViewPartialTemplate($appClassName, $partialName)
 	{
-		$templateFileBase = self::getTemplateBase($appClassName);
-		$templateFile = $templateFileBase . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . $partialName . '.tpl';
-		if (!file_exists($templateFile)) {
-			$refl = new ReflectionClass($appClassName);
-			$parent = $refl->getParentClass();
-			if ($parent && !$parent->isAbstract()) {
-				return self::getViewPartialTemplate($parent->getName(), $partialName);
+		static $cache = array();
+		$id = $appClassName . '-' . $partialName;
+		if(!isset($cache[$id])) {
+			$templateFileBase = self::getTemplateBase($appClassName);
+			$templateFile = $templateFileBase . DIRECTORY_SEPARATOR . 'partials' . DIRECTORY_SEPARATOR . $partialName . '.tpl';
+			if (!file_exists($templateFile)) {
+				$refl = new ReflectionClass($appClassName);
+				$parent = $refl->getParentClass();
+				if ($parent && !$parent->isAbstract()) {
+					$cache[$id] = self::getViewPartialTemplate($parent->getName(), $partialName);
+				} else {
+					$cache[$id] = self::getMyTemplate('partialNotFound');
+				}
 			} else {
-				return self::getMyTemplate('partialNotFound');
+				$cache[$id] = new Template($appClassName . '-' . $partialName, $templateFile);
 			}
-		} else {
-			return new Template($appClassName . '-' . $partialName, $templateFile);
 		}
+		return $cache[$id];
 	}
 	private static function getMyTemplate($name)
 	{

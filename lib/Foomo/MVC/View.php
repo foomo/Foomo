@@ -208,6 +208,7 @@ class View extends \Foomo\View
 		}
 		return MVC::getViewVarAsset($class, $rawAsset);
 	}
+	private $partialCache = array();
 	/**
 	 * render a partial
 	 *
@@ -223,20 +224,23 @@ class View extends \Foomo\View
 		if (self::$trackPartials) {
 			Timer::start($topic = __METHOD__ . ' ' . get_class($this->app) . ' ' . $name);
 		}
-
-		if(!$class){
+		if($class === ''){
 			$class = get_class($this->app);
 		}
-		//trigger_error("-------------->".get_class($this->app));
-		$template = MVC::getViewPartialTemplate($class, $name);
-		$view = new self($this->app, $this->handler, $template);
-		$level++;
-		$rendering = $view->render($variables);
+
+		$viewId = $class . '-' . $name;
+		if(!isset($this->partialCache[$viewId])) {
+			$template = MVC::getViewPartialTemplate($class, $name);
+			$this->partialCache[$viewId] = new self($this->app, $this->handler, $template);
+		}
+
+		$level ++;
+		$rendering = $this->partialCache[$viewId]->render($variables);
 		// catch partial content
-		if (MVC::$catchingViews) {
+		if(MVC::$catchingViews) {
 			MVC::catchPartial($name, $level, $rendering);
 		}
-		$level--;
+		$level --;
 		if (self::$trackPartials) {
 			Timer::stop($topic);
 		}
