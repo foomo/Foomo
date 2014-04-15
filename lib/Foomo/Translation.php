@@ -186,7 +186,7 @@ class Translation
 	 * @param string $namespace
 	 * @param string $localeChain
 	 *
-	 * @return Foomo\Translation
+	 * @return \Foomo\Translation
 	 */
 	public static function getModuleTranslation($moduleName, $namespace, $localeChain = null)
 	{
