@@ -306,14 +306,13 @@ class View extends \Foomo\View
 	/**
 	 * translate string and escape it
 	 *
-	 * @param string $msgId
-	 * @param string $msgPluralId
+	 * @param string $msgId string or hash array(msgId => count, msgId => count)
 	 * @param integer $count
 	 * @return string translated string
 	 */
-	public function _e($msgId, $msgPluralId = null, $count = null)
+	public function _e($msgId, $count = null)
 	{
-		return $this->escape($this->_($msgId, $msgPluralId, $count));
+		return $this->escape($this->_($msgId, $count));
 	}
 
 	//---------------------------------------------------------------------------------------------
