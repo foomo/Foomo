@@ -44,6 +44,7 @@ class HTMLDocument {
 	private $indent = 0;
 	private $docTypeString = '<!DOCTYPE html>';
 	private $htmlOpeningTag = '<html>';
+	private $headAttributes = array();
 	private $metaData = array();
 	private $styleSheetData = array();
 	private $iECompatibilityMode;
@@ -177,6 +178,17 @@ class HTMLDocument {
 	public function getHTMLOpeningTag()
 	{
 		return $this->htmlOpeningTag;
+	}
+
+	/**
+	 * @param $attribute
+	 *
+	 * @return $this
+	 */
+	public function addHeadAttribute($attribute)
+	{
+		$this->headAttributes[] = $attribute;
+		return $this;
 	}
 
 	/**
@@ -553,7 +565,11 @@ class HTMLDocument {
 		if(!empty($this->htmlOpeningTag)) {
 			$output .= $this->htmlOpeningTag . PHP_EOL;
 		}
-		$output .= '<head>' . PHP_EOL;
+		if(empty($this->headAttributes)) {
+			$output .= '<head>' . PHP_EOL;
+		} else {
+			$output .= '<head '.implode(' ', $this->headAttributes).'>' . PHP_EOL;
+		}
 		if(!empty($this->iECompatibilityMode)) {
 			$output .= '<meta http-equiv="X-UA-Compatible" content="'. $this->iECompatibilityMode .'"/>' . PHP_EOL;
 		}
