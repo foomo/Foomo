@@ -460,7 +460,7 @@ class MVC
 	 * @param array $parameters
 	 * @param string $baseURL
 	 */
-	public static function redirect($action, $parameters = array(), $baseURL = null)
+	public static function redirect($action, array $parameters = array(), $baseURL = null)
 	{
 		self::abort();
 		$urlHandler = self::getCurrentURLHandler();
