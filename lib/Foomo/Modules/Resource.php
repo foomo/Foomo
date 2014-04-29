@@ -38,6 +38,8 @@ abstract class Resource {
 	 * chaining config
 	 * @todo discuss this
 	 *
+	 * @param bool $required
+	 *
 	 * @return \Foomo\Modules\Resource
 	 */
 	public function isRequired($required = true)
@@ -48,7 +50,7 @@ abstract class Resource {
 	/**
 	 * mark as nice to have
 	 *
-	 * @param type $isNiceToHave
+	 * @param bool $isNiceToHave
 	 *
 	 * @return \Foomo\Modules\Resource
 	 */

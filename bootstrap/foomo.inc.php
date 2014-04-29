@@ -53,6 +53,9 @@ Timer::start('foomo bootstrap');
 // more classes
 include_once(ROOT . '/lib/Foomo/Modules/Manager.php');
 include_once(ROOT . '/lib/Foomo/AutoLoader.php');
+include_once(ROOT . '/lib/Foomo/Modules/Resource.php');
+include_once(ROOT . '/lib/Foomo/Modules/Resource/ComposerPackage.php');
+include_once(ROOT . '/lib/Foomo/Composer.php');
 include_once(ROOT . '/lib/Foomo/Log/Logger.php');
 include_once(ROOT . '/lib/Foomo/Utils.php');
 if (!class_exists('Annotation')) {
@@ -62,16 +65,18 @@ include_once(ROOT . '/lib/Foomo/Config/AbstractConfig.php');
 include_once(ROOT . '/lib/Foomo/Core/DomainConfig.php');
 include_once(ROOT . '/lib/Foomo/Config.php');
 
-// class loading
-Utils::addIncludePaths(array(ROOT . DIRECTORY_SEPARATOR . 'lib'));
-spl_autoload_register(array('Foomo\\AutoLoader', 'loadClass'));
-Timer::addMarker('basic classes are loaded and the auto loader is set up');
-
 // figure out the base configuration
 $foomoDir = dirname(dirname(\Foomo\ROOT));
 
 // modules must be in Foomo\ROOT
 define('Foomo\\CORE_CONFIG_DIR_MODULES', $foomoDir . DIRECTORY_SEPARATOR . 'modules');
+
+// hello composer - in a fixed place too
+$composerDir = $foomoDir . DIRECTORY_SEPARATOR . 'composer';
+if(!is_dir($composerDir)) {
+	$composerDir = false;
+}
+define('Foomo\\CORE_CONFIG_DIR_COMPOSER', $composerDir);
 
 // var - can be configured
 if (isset($_SERVER['FOOMO_CORE_CONFIG_DIR_VAR'])) {
@@ -85,6 +90,17 @@ if (isset($_SERVER['FOOMO\\CORE_CONFIG_DIR_CONFIG'])) {
 } else {
 	define('Foomo\\CORE_CONFIG_DIR_CONFIG', $foomoDir . DIRECTORY_SEPARATOR . 'config');
 }
+
+
+
+// class loading
+Utils::addIncludePaths(array(ROOT . DIRECTORY_SEPARATOR . 'lib'));
+spl_autoload_register(array('Foomo\\AutoLoader', 'loadClass'));
+Timer::start('composer autoload setup');
+Composer::init();
+Timer::stop('composer autoload setup');
+Timer::addMarker('basic classes are loaded and the auto loader is set up');
+
 
 // keeps things clean
 unset($foomoDir);

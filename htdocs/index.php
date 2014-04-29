@@ -15,6 +15,7 @@ function toolbox_time($microTime)
 	return round($microTime * 1000,2);
 }
 
+Timer::start($topic = 'toolbox ' . $_SERVER['REQUEST_URI']);
 ob_start();
 
 Frontend::setUpToolbox();
@@ -27,6 +28,8 @@ Session::lockAndLoadIfEnabled();
 
 $html = MVC::run('Foomo\Frontend');
 
+Timer::stop($topic);
+
 $runTime = toolbox_time(microtime(true) - $start);
 
 echo str_replace(
@@ -34,3 +37,6 @@ echo str_replace(
 	array($bootstrapTime, $runTime),
 	$html
 );
+
+
+Timer::writeStatsToFile();

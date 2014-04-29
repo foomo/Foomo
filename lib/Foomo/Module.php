@@ -140,6 +140,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			default:
 				parent::make($target, $result);
 		}
+		Composer::make($target, $result);
 	}
 	public static function hookPostConfigUpdate($oldConfig, $newConfig, $module, $domain)
 	{
