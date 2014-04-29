@@ -81,12 +81,14 @@ class Composer
 				$configFile = self::getComposerConfigFile();
 				if(count($packages) > 0) {
 					$newConfig = self::generateComposerConfig($packages);
-					if($newConfig != file_get_contents($configFile)) {
+					if(!file_exists($configFile) || $newConfig != file_get_contents($configFile)) {
 						file_put_contents($configFile, $newConfig);
 					}
 					self::callComposer('update', '--optimize-autoloader', '--prefer-dist', '--no-progress');
 				} else {
 					unlink($configFile);
+					// mark "compilation"
+					touch(self::getAutoloaderFile());
 				}
 			}
 			include_once($autoloaderFile);
