@@ -84,15 +84,21 @@ class CliCall
 	/**
 	 * callback functions when streaming std err
 	 *
-	 * @var function
+	 * @var callable
 	 */
 	private $stdErrStreamCallback = array();
 	/**
 	 * callback functions when streaming std out
 	 *
-	 * @var function
+	 * @var callable
 	 */
 	private $stdOutStreamCallback = array();
+	/**
+	 * how long did it run
+	 *
+	 * @var float
+	 */
+	public $runTime;
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
@@ -137,6 +143,7 @@ class CliCall
 	}
 	/**
 	 * @param array $arguments
+	 *
 	 * @return \Foomo\CliCall
 	 */
 	public function addEnvVars(array $envVars)
@@ -172,9 +179,9 @@ class CliCall
 	 * if you expect a lot of output define callback handlers $this->stdOut will
 	 * not be used
 	 *
-	 * @param array $callbackFunctions
+	 * @param $callbackFunction
 	 *
-	 * @return \Foomo\CliCall
+	 * @return $this
 	 */
 	public function setStdOutStreamCallback($callbackFunction)
 	{
@@ -201,6 +208,7 @@ class CliCall
 	 */
 	public function execute()
 	{
+		$start = microtime(true);
 		// setup
 		$pipes = array();
 		$descriptorSpec = array(
@@ -240,6 +248,7 @@ class CliCall
 				}
 			}
 			// report
+			$this->runTime = microtime(true) - $start;
 			$this->exitStatus = $status['exitcode'];
 			$this->stdErr = trim($this->stdErr);
 			$this->stdOut = trim($this->stdOut);
@@ -269,11 +278,14 @@ class CliCall
 	/**
 	 * try to resolve the given command
 	 *
-	 * @param string $cmd
+	 * @param $cmd
+	 *
+	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	private function resolveCommand($cmd)
 	{
-		$ret = '';
 		if (file_exists($cmd) || strpos($cmd, '$') === 0) {
 			$ret = $cmd;
 		} else {

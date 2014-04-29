@@ -17,6 +17,9 @@
   execution date : 
     
     <?php echo date('Y-m-d H:i:s') ?>
+
+  run time / duration : <?= $model->runTime ?>
+
     
   
   exit status:
