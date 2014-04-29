@@ -57,10 +57,19 @@ class Composer
 		}
 		return $call;
 	}
+	private static function getBaseDir()
+	{
+		return CORE_CONFIG_DIR_COMPOSER;
+	}
 	private static function getAutoloaderFile()
 	{
-		return CORE_CONFIG_DIR_COMPOSER . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+		return self::getBaseDir() . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 	}
+	private static function getComposerConfigFile()
+	{
+		return self::getBaseDir() . DIRECTORY_SEPARATOR . 'composer.json';
+	}
+
 	public static function init()
 	{
 		if(CORE_CONFIG_DIR_COMPOSER !== false) {
@@ -68,18 +77,32 @@ class Composer
 			$autoloaderFile = self::getAutoloaderFile();
 			if(!file_exists($autoloaderFile)) {
 				trigger_error('bootstrapping composer');
-				self::generateComposerConfig();
-				$call = self::callComposer('update', '--optimize-autoloader', '--prefer-dist', '--no-progress');
+				$packages = self::getAllRequiredPackages();
+				$configFile = self::getComposerConfigFile();
+				if(count($packages) > 0) {
+					$newConfig = self::generateComposerConfig($packages);
+					if($newConfig != file_get_contents($configFile)) {
+						file_put_contents($configFile, $newConfig);
+					}
+					self::callComposer('update', '--optimize-autoloader', '--prefer-dist', '--no-progress');
+				} else {
+					unlink($configFile);
+				}
 			}
 			include_once($autoloaderFile);
 		}
 	}
-	private static function generateComposerConfig()
+
+	/**
+	 * @param Modules\Resource\ComposerPackage[] $packages
+	 *
+	 * @return string
+	 */
+	private static function generateComposerConfig(array $packages)
 	{
-		$configFilename = CORE_CONFIG_DIR_COMPOSER . DIRECTORY_SEPARATOR . 'composer.json';
 		$config = array(
 			'name' => 'local-foomo-generated/local-foomo-generated',
-			'require' => self::getAllRequiredPackages(),
+			'require' => $packages,
 			'authors' => array(
 				array(
 					'name' => 'foomo',
@@ -88,11 +111,10 @@ class Composer
 			)
 		);
 		if(defined('JSON_PRETTY_PRINT')) {
-			$json = json_encode($config, JSON_PRETTY_PRINT);
+			return json_encode($config, JSON_PRETTY_PRINT);
 		} else {
-			$json = json_encode($config);
+			return json_encode($config);
 		}
-		file_put_contents($configFilename, $json);
 	}
 	public static function getAllRequiredPackages()
 	{
