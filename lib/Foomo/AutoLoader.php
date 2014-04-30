@@ -187,19 +187,22 @@ class AutoLoader
 	 */
 	public static function pathAutoload($className)
 	{
-		//var_dump(__METHOD__ . ' ' . $className);
-		if (strpos($className, '\\') !== false) {
-			// ns
-			$needle = '\\';
-		} else if (strpos($className, '_') !== false) {
-			// pear
-			$needle = '_';
-		} else {
-			// naked class
-			$needle = '';
+		static $cache = array();
+		if(!isset($cache[$className])) {
+			if (strpos($className, '\\') !== false) {
+				// ns
+				$needle = '\\';
+			} else if (strpos($className, '_') !== false) {
+				// pear
+				$needle = '_';
+			} else {
+				// naked class
+				$needle = '';
+			}
+			$classFile = str_replace($needle, DIRECTORY_SEPARATOR, $className) . '.php';
+			$cache[$className] = self::tryInclude($classFile, $className);
 		}
-		$classFile = str_replace($needle, DIRECTORY_SEPARATOR, $className) . '.php';
-		return self::tryInclude($classFile, $className);
+		return $cache[$className];
 	}
 
 	/**
