@@ -217,37 +217,54 @@ class AutoLoader
 	 */
 	public static function loadClass($className)
 	{
-		// let us begin
-		// the classmap is being loaded externally from foomo.inc.php
-		if(isset(self::$classMap)) {
-			// if self::$classmap is loaded, we try to use it and fall back to
-			// conventional auto loading, if we fail there
-			if (empty($className)) {
-				throw new \InvalidArgumentException('empty classNames are not valid', 1);
-			}
-			if (!isset(self::$classMap)) {
-				self::$classMap = self::getClassMap();
-			}
-			if (isset(self::$classMap[$className])) {
-				try {
-					if (false !== include_once(self::$classMap[$className])) {
-						return true;
-					} else {
-						trigger_error('could not include ' . self::$classMap[$className] . ' for declaration of ' . $className . '.', E_USER_WARNING);
-						return false;
+
+		switch($className) {
+			// no scalars and built in types from me aka things that must not be a class name
+			case 'string':
+			case 'int':
+			case 'integer':
+			case 'bool':
+			case 'boolean':
+			case 'float':
+			case 'double':
+			case 'array':
+			case 'mixed':
+			case 'resource':
+			case 'callable':
+				return false;
+			default:
+				// let us begin
+				// the classmap is being loaded externally from foomo.inc.php
+				if(isset(self::$classMap)) {
+					// if self::$classmap is loaded, we try to use it and fall back to
+					// conventional auto loading, if we fail there
+					if (empty($className)) {
+						throw new \InvalidArgumentException('empty classNames are not valid', 1);
 					}
-				} catch (Exception $e) {
-					trigger_error('could not load a class file for ' . $className . ' => ' . $e->getMessage(), E_USER_WARNING);
-					return false;
+					if (!isset(self::$classMap)) {
+						self::$classMap = self::getClassMap();
+					}
+					if (isset(self::$classMap[$className])) {
+						try {
+							if (false !== include_once(self::$classMap[$className])) {
+								return true;
+							} else {
+								trigger_error('could not include ' . self::$classMap[$className] . ' for declaration of ' . $className . '.', E_USER_WARNING);
+								return false;
+							}
+						} catch (Exception $e) {
+							trigger_error('could not load a class file for ' . $className . ' => ' . $e->getMessage(), E_USER_WARNING);
+							return false;
+						}
+					} else {
+						// fallback
+						return self::pathAutoload($className);
+					}
+				} else {
+					// if self::$classMap is not loaded, we will try class loading by
+					// convention from the include_path
+					return self::pathAutoload($className);
 				}
-			} else {
-				// fallback
-				return self::pathAutoload($className);
-			}
-		} else {
-			// if self::$classMap is not loaded, we will try class loading by
-			// convention from the include_path
-			return self::pathAutoload($className);
 		}
 	}
 

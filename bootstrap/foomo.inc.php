@@ -104,6 +104,7 @@ Timer::addMarker('basic classes are loaded and the auto loader is set up');
 
 // keeps things clean
 unset($foomoDir);
+unset($composerDir);
 
 // try to bootstrap things
 try {
