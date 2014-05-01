@@ -50,6 +50,15 @@ class YamlTest extends \PHPUnit_Framework_TestCase {
 		$yamlFileNative = self::getYml('expectedDumpResultNative.yml');
 		$this->assertTrue(in_array($dump, array($yamlFileNative, $yamlFileSymfony)));
 	}
+
+	/**
+	 * @expectedExceptionCode 1
+	 * @expectedException \Exception
+	 */
+	public function testFail()
+	{
+		Yaml::parse('noyaml');
+	}
 	private static function getYml($name)
 	{
 		return  file_get_contents(dirname(__FILE__) . \DIRECTORY_SEPARATOR . 'yamlResources' . \DIRECTORY_SEPARATOR .  $name );
