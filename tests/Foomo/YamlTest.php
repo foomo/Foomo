@@ -19,8 +19,6 @@
 
 namespace Foomo;
 
-use Foomo\Yaml;
-
 /**
  * test if symfonys yaml parser is friendly
  *
@@ -48,8 +46,9 @@ class YamlTest extends \PHPUnit_Framework_TestCase {
 			)
 		);
 		$dump = Yaml::dump($config);
-		$ymlFile = self::getYml('expectedDumpResult.yml');
-		$this->assertEquals($dump, $ymlFile);
+		$yamlFileSymfony = self::getYml('expectedDumpResultSymfony.yml');
+		$yamlFileNative = self::getYml('expectedDumpResultNative.yml');
+		$this->assertTrue(in_array($dump, array($yamlFileNative, $yamlFileSymfony)));
 	}
 	private static function getYml($name)
 	{

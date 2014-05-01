@@ -22,40 +22,53 @@ namespace Foomo;
 /**
  * yaml wrapper currently using symfonys yaml implementation, which could be better ;), but thanks for it anyways guys
  *
+ * ha we added yaml extension support
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
 class Yaml {
-
 	/**
 	 * parse yaml
 	 *
-	 * @param string $yaml the yaml you want to parse
-	 * @return mixed
+	 * @param string $yaml
+	 *
+	 * @return array
+	 *
+	 * @throws \Exception
 	 */
 	public static function parse($yaml)
 	{
-		include_once(\Foomo\ROOT . '/vendor/symfony/yaml/sfYaml.class.php');
-		return \sfYaml::load($yaml);
-		//include_once(\Foomo\ROOT . '/vendor/spyc-0.4.2/spyc.php');
-		//return Spyc::YAMLLoad($yaml);
-		//return \Symfony\Components\Yaml\Yaml::load($yaml);
+		if(function_exists('yaml_parse')) {
+			$data = yaml_parse($yaml);
+			if(!is_array($data)) {
+				$error = error_get_last();
+				throw new \Exception($error['message'], 1);
+			} else {
+				return $data;
+			}
+		} else {
+			include_once(\Foomo\ROOT . '/vendor/symfony/yaml/sfYaml.class.php');
+			return \sfYaml::load($yaml);
+		}
 	}
 
 	/**
 	 * dump sth as yaml
 	 *
 	 * @param mixed $var
+	 *
 	 * @return string
 	 */
 	public static function dump($var)
 	{
-		//include_once(\Foomo\ROOT . '/vendor/spyc-0.4.2/spyc.php');
-		//return Spyc::YAMLDump($var,2);
-		include_once(\Foomo\ROOT . '/vendor/symfony/yaml/sfYaml.class.php');
-		return \sfYaml::dump($var);
-		//return \Symfony\Components\Yaml\Yaml::dump($var);
+		if(function_exists('yaml_emit')) {
+			return yaml_emit($var);
+		} else {
+			include_once(\Foomo\ROOT . '/vendor/symfony/yaml/sfYaml.class.php');
+			return \sfYaml::dump($var);
+		}
 	}
 
 }
