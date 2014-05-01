@@ -41,10 +41,11 @@ class Yaml {
 	public static function parse($yaml)
 	{
 		if(function_exists('yaml_parse')) {
-			$data = yaml_parse($yaml);
+			// the @ operator is always bad
+			$data = @yaml_parse($yaml);
 			if(!is_array($data)) {
 				$error = error_get_last();
-				throw new \Exception($error['message'], 1);
+				throw new \Exception($error['message'], 0);
 			} else {
 				return $data;
 			}

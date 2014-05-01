@@ -52,12 +52,12 @@ class YamlTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedExceptionCode 1
+	 * @expectedExceptionCode 0
 	 * @expectedException \Exception
 	 */
 	public function testFail()
 	{
-		Yaml::parse('noyaml');
+		Yaml::parse('noyaml: [1');
 	}
 	private static function getYml($name)
 	{
