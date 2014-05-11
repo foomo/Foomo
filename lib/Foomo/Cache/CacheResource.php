@@ -126,26 +126,23 @@ class CacheResource {
 	/**
 	 * set resource expiration based on values from annotation
 	 *
-	 * @param Foomo\Cache\CacheResource $resource
-	 * @param ReflectionClass $classRefl if null its created internally
-	 * @param array $info array containing name => CacheResourceDescription pairs, if null it is retrieved internally (slower!)
+	 * @param \Foomo\Cache\CacheResource $resource
 	 */
 	public static function setResourceExpiration($resource)
 	{
-		$classRefl = new \ReflectionClass($resource->sourceClass);
-		$refl = Reflection\CacheResourceReflection::getReflection($resource->sourceClass, $resource->sourceMethod);
-		if (!empty($refl)) {
+		$reflection = Reflection\CacheResourceReflection::getReflection($resource->sourceClass, $resource->sourceMethod);
+		if (!empty($reflection)) {
 			//set expiration time using annotation value
-			if ($refl->description->lifeTime == 0) {
+			if ($reflection->description->lifeTime == 0) {
 				$resource->expirationTime = 0;
 			} else {
-				$resource->expirationTime = $refl->description->lifeTime + \time();
+				$resource->expirationTime = $reflection->description->lifeTime + \time();
 			}
 			//set expiration time in fast cache using annotation value
-			if ($refl->description->lifeTimeFast == 0) {
+			if ($reflection->description->lifeTimeFast == 0) {
 				$resource->expirationTimeFast = 0;
 			} else {
-				$resource->expirationTimeFast = $refl->description->lifeTimeFast + \time();
+				$resource->expirationTimeFast = $reflection->description->lifeTimeFast + \time();
 			}
 		}
 	}

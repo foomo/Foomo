@@ -88,7 +88,7 @@ class Proxy {
 	 * @deprecated use CacheResourceReflection instead
 	 * @internal really ?!
 	 *
-	 * @return Foomo\Cache\CacheResource
+	 * @return \Foomo\Cache\CacheResource
 	 */
 	public static function getEmptyResource($classOrObject, $method, $arguments)
 	{

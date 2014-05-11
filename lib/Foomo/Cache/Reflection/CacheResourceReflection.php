@@ -19,8 +19,6 @@
 
 namespace Foomo\Cache\Reflection;
 
-use Foomo\Cache\Invalidator;
-
 /**
  * internal class to describe a cache resources data
  * 
@@ -48,11 +46,11 @@ class CacheResourceReflection {
 	 */
 	public $sourceMethodName;
 	/**
-	 * @var Foomo\Cache\CacheResourceDescription
+	 * @var \Foomo\Cache\CacheResourceDescription
 	 */
 	public $description;
 	/**
-	 * @var Foomo\Cache\Reflection\CacheResourceReflectionParameter[]
+	 * @var \Foomo\Cache\Reflection\CacheResourceReflectionParameter[]
 	 */
 	public $parameters = array();
 
@@ -61,11 +59,10 @@ class CacheResourceReflection {
 	 * @param mixed $classOrObject
 	 * @param string $method
 	 *
-	 * @return Foomo\Cache\Reflection\CacheResourceReflection
+	 * @return \Foomo\Cache\Reflection\CacheResourceReflection
 	 */
 	public static function getReflection($classOrObject, $method)
 	{
-		static $runTimeCache = array();
 		$className = \is_object($classOrObject) ? get_class($classOrObject) : $classOrObject;
 		$resourceNameA = $className . '->' . $method;
 		$resourceNameB = $className . '::' . $method;
@@ -80,38 +77,38 @@ class CacheResourceReflection {
 	}
 
 	/**
-	 * used by the dependencymodel
+	 * used by the dependency model
 	 *
 	 * @internal
 	 *
 	 * @param mixed $classOrObject
 	 * @param string $method
 	 *
-	 * @return Foomo\Cache\Reflection\CacheResourceReflection
+	 * @return \Foomo\Cache\Reflection\CacheResourceReflection
 	 */
 	public static function internalGetReflection($classOrObject, $method)
 	{
-		$classRefl = new \ReflectionClass($classOrObject);
-		$methodRefl = new \ReflectionAnnotatedMethod($classRefl->getName(), $method);
-		// @var $cacheableAnnotation \Foomo\Cache\CacheResourceDescription
-		$cacheableAnnotation = $methodRefl->getAnnotation('Foomo\Cache\CacheResourceDescription');
+		$classReflection = new \ReflectionClass($classOrObject);
+		$methodReflection = new \ReflectionAnnotatedMethod($classReflection->getName(), $method);
+		/* @var $cacheableAnnotation \Foomo\Cache\CacheResourceDescription */
+		$cacheableAnnotation = $methodReflection->getAnnotation('Foomo\Cache\CacheResourceDescription');
 		if ($cacheableAnnotation) {
 			$ret = new self;
-			$ret->sourceClassName = $ret->resourceName = $classRefl->getName();
+			$ret->sourceClassName = $ret->resourceName = $classReflection->getName();
 			//$ret->invalidationPolicy = self::retrieveInvalidationPolicy($cacheableAnnotation->invalidationPolicy);
 			$ret->description = $cacheableAnnotation;
 
-			if ($methodRefl->isStatic()) {
+			if ($methodReflection->isStatic()) {
 				$ret->isStatic = true;
 				$ret->resourceName .= '::';
 			} else {
 				$ret->isStatic = false;
 				$ret->resourceName .= '->';
 			}
-			$ret->sourceMethodName = $methodRefl->getName();
+			$ret->sourceMethodName = $methodReflection->getName();
 			$ret->resourceName .= $ret->sourceMethodName;
-			foreach ($methodRefl->getParameters() as $paramRefl) {
-				$ret->parameters[] = CacheResourceReflectionParameter::getReflection($methodRefl, $paramRefl);
+			foreach ($methodReflection->getParameters() as $paramRefl) {
+				$ret->parameters[] = CacheResourceReflectionParameter::getReflection($methodReflection, $paramRefl);
 			}
 			return $ret;
 		} else {

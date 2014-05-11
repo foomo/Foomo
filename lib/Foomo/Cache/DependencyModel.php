@@ -38,7 +38,7 @@ class DependencyModel {
 	/**
 	 * singleton
 	 *
-	 * @return Foomo\Cache\DependencyModel
+	 * @return \Foomo\Cache\DependencyModel
 	 */
 	public static function getInstance()
 	{
@@ -80,9 +80,9 @@ class DependencyModel {
 	/**
 	 * list all cacheable resources
 	 *
-	 * @param $invalidateDependencyModelCache invalidate the cache before returning, false default.
+	 * @param bool $invalidateDependencyModelCache invalidate the cache before returning, false default.
 	 *
-	 * @return array array('resourceName' => CacheResourceReflection)
+	 * @return mixed|null array('resourceName' => CacheResourceReflection)
 	 */
 	public function getDirectory($invalidateDependencyModelCache = false)
 	{
@@ -105,19 +105,21 @@ class DependencyModel {
 	 */
 	public function cachedGetDirectory()
 	{
-		//die('au');
 		$ret = array();
 		$classMap = \Foomo\AutoLoader::getClassMap();
 		foreach ($classMap as $className => $file) {
 			if ($this->containsCacheAnnotation(\file_get_contents($file))) {
-				$classRefl = new \ReflectionClass($className);
-				if (!$classRefl->isAbstract() && !$classRefl->isInterface()) {
-					foreach ($classRefl->getMethods() as $methodRefl) {
-						/* @var $methodRefl \ReflectionMethod */
-						if ($this->containsCacheAnnotation($methodRefl->getDocComment())) {
-							$refl = Reflection\CacheResourceReflection::internalGetReflection($classRefl->getName(), $methodRefl->getName());
-							if ($refl) {
-								$ret[$refl->resourceName] = $refl;
+				$classReflection = new \ReflectionClass($className);
+				if (!$classReflection->isAbstract() && !$classReflection->isInterface()) {
+					foreach ($classReflection->getMethods() as $methodReflection) {
+						/* @var $methodReflection \ReflectionMethod */
+						if ($this->containsCacheAnnotation($methodReflection->getDocComment())) {
+							$reflection = Reflection\CacheResourceReflection::internalGetReflection(
+								$classReflection->getName(),
+								$methodReflection->getName()
+							);
+							if ($reflection) {
+								$ret[$reflection->resourceName] = $reflection;
 							}
 						}
 					}
@@ -125,15 +127,15 @@ class DependencyModel {
 			}
 		}
 		$availableResources = \array_keys($ret);
-		foreach ($ret as $resourceName => $refl) {
+		foreach ($ret as $reflection) {
 			/* @var $annotation Reflection\CacheResourceReflection */
-			$refl->description->validate($availableResources);
+			$reflection->description->validate($availableResources);
 		}
 		return $ret;
 	}
 
 	/**
-	 * return all resources that are annotated as ceable
+	 * return all resources that are annotated as cacheable
 	 *
 	 * @return string[] resource names
 	 */
@@ -156,68 +158,47 @@ class DependencyModel {
 	public function getDependencies($resourceName)
 	{
 		$directory = $this->getDirectory();
-		$deps = array();
+		$dependencies = array();
 		foreach ($directory as $availableResourceName => $reflection) {
 			/* @var $reflection Reflection\CacheResourceReflection */
 			if (in_array($resourceName, $reflection->description->dependencies)) {
-				$deps[] = $availableResourceName;
+				$dependencies[] = $availableResourceName;
 			}
 		}
-		\sort($deps);
-		return $deps;
+		\sort($dependencies);
+		return $dependencies;
 	}
-
-	/**
-	 * get the Foomo\Cache\CacheResourceDescription annotation for a resource
-	 *
-	 * @return Foomo\Cache\CacheResourceDescription
-	 */
-	private function getAnnotation($resourceName)
-	{
-		$directory = $this->getDirectory();
-		foreach ($directory as $availableResourceName => $reflection) {
-			/* @var $reflection Reflection\CacheResourceReflection */
-			if ($availableResourceName == $resourceName) {
-				return $reflection->description;
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * builds a tree of dependent resource names
 	 *
-	 * @param CacheResource $resourceName
-	 * @param array $dependencyList array('level1Res', array('leaf1', 'leaf2', array('leaf one level still below')))
-	 *
+	 * @param string $resourceName
 	 * @param int $level recursion level
+	 *
+	 * @return array
 	 */
 	private function walkDependencyTree($resourceName, $level)
 	{
-		$dependeCiesAtLevel = array();
+		$dependenciesAtLevel = array();
 		foreach ($this->getDependencies($resourceName) as $dep) {
 			$childDependencies = $this->walkDependencyTree($dep, $level++);
-			$annotation = $this->getAnnotation($dep);
-			$dependeCiesAtLevel[$dep] = $childDependencies;
+			$dependenciesAtLevel[$dep] = $childDependencies;
 		}
-		return $dependeCiesAtLevel;
+		return $dependenciesAtLevel;
 	}
-
 	/**
 	 * linearizes dependency tree
 	 *
-	 * @param Foomo\Cache\CacheResource $resourceName
+	 * @param \Foomo\Cache\CacheResource $resourceName
 	 * @param array $dependencyList
 	 * @param int $level recursion level
 	 */
 	private function walkDependencyList($resourceName, &$dependencyList, $level = 0)
 	{
-		foreach ($this->getDependencies($resourceName) as $dep) {
+		foreach($this->getDependencies($resourceName) as $dep) {
 			$dependencyList[] = $dep;
 			$this->walkDependencyList($dep, $dependencyList, $level + 1);
 		}
 	}
-
 	/**
 	 * check if string contains cache annotation
 	 *
@@ -229,7 +210,6 @@ class DependencyModel {
 	{
 		return strpos($str, '@Foomo\Cache\CacheResourceDescription') !== false;
 	}
-
 	/**
 	 * generate a string representation of the dependency tree
 	 *
@@ -243,7 +223,6 @@ class DependencyModel {
 		$this->crawlDependencyTree($resourceName, $rendering);
 		return $rendering;
 	}
-
 	/**
 	 * recursive walk through the dependency tree generating string representation
 	 * of dependencies
@@ -255,5 +234,4 @@ class DependencyModel {
 			$this->crawlDependencyTree($dep, $rendering, $level + 1);
 		}
 	}
-
 }
