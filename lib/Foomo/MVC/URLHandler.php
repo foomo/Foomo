@@ -494,7 +494,7 @@ class URLHandler {
 	}
 
 	/**
-	 * Renders a link that will trigger a method on a given controller classname with the given parameters
+	 * Renders a link that will trigger a method on a given controller class name with the given parameters
 	 *
 	 * @param string $className
 	 * @param string $methodName
@@ -519,7 +519,9 @@ class URLHandler {
 				$ret .= '/' . urlencode($this->getControllerId());
 			}
 			// add the (stripped) method name
-			 $ret .= '/' . urlencode($methodName);
+			if(!empty($methodName)) {
+				$ret .= '/' . urlencode($methodName);
+			}
 		}
 		// append parameters
 		$ret .= self::renderPathParameters($parameters, count($parameters));

@@ -134,7 +134,7 @@ class View extends \Foomo\View
 	 * @param array $parameters paramters in an array
 	 * @return string
 	 */
-	public function url($methodName='default', $parameters=array())
+	public function url($methodName = 'default', $parameters = array())
 	{
 		return $this->handler->renderUrl(get_class($this->app->controller), $methodName, $parameters);
 	}
