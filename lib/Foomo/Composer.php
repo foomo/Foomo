@@ -161,7 +161,11 @@ class Composer
 					// getting the values from the output
 					$parts = explode(' ', $line);
 					$name = $parts[0];
-					$version = $parts[1];
+					if(count($parts) > 1) {
+						$version = $parts[1];
+					} else {
+						$version = '';
+					}
 					$packages[] = Modules\Resource\ComposerPackage::getResource($name, $version, substr($line, strlen($name . $version) + 2));
 				}
 
