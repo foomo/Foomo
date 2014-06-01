@@ -128,19 +128,19 @@ class Session
 		$key = $inst->getInstanceKey($className, $identifier);
 
 		# validate class
-		if(!class_exists($className)) trigger_error('can not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
-
-		if (!isset($inst->instances[$key])) {
-			// @todo is that a good idea
-			self::lockAndLoad();
-			// @fixme: if you don't update the inst you're inst won't be set... so I guess it's not that good idea
-			$inst = self::getInstance();
-			self::setClassInstance(new $className, $identifier);
+		if(!class_exists($className)) {
+			trigger_error('can not instantiate ' . $className . ' class does not exist', \E_USER_ERROR);
+		} else {
+			if (!isset($inst->instances[$key])) {
+				self::lockAndLoad();
+				self::setClassInstance(new $className, $identifier);
+			}
+			return $inst->instances[$key];
+			// would be much nicer, but as long, as there is not a magic __get_class method we can not use this ...
+			// this does not work with i.e. casted method parameters or get_class(), which we use quite often
+			// return ($inst->locked) ? $inst->instances[$key] : new \Foomo\Session\ImmutableProxy($inst->instances[$key]);
 		}
-		// @fixme: jan, this does not work with i.e. casted method parameters or get_class(), which we use quite often
-		// well so far there is nothing __magic I can do
-		return $inst->instances[$key];
-		#return ($inst->locked) ? $inst->instances[$key] : new \Foomo\Session\ImmutableProxy($inst->instances[$key]);
+
 	}
 	/**
 	 * set a session class instance, session must be locked
@@ -154,8 +154,11 @@ class Session
 	{
 		$inst = self::getInstance();
 		$inst->checkIsLocked();
-		if (!is_object($instance)) throw new \InvalidArgumentException('$instance has to be an object');
-		$inst->instances[$inst->getInstanceKey(get_class($instance), $identifier)] = $instance;
+		if (!is_object($instance)) {
+			throw new \InvalidArgumentException('$instance has to be an object');
+		} else {
+			$inst->instances[$inst->getInstanceKey(get_class($instance), $identifier)] = $instance;
+		}
 	}
 	/**
 	 * remove a class instance from the session
@@ -269,7 +272,7 @@ class Session
 			register_shutdown_function(array(__CLASS__, 'foomoSessionShutDown'));
 			if (!isset($_COOKIE[$conf->name]) || $reStart) {
 				// no cookie
-				self::start($conf, $reStart);
+				self::start($conf);
 			} else {
 				// got a cookie
 				self::$instance = self::$persistor->load($_COOKIE[$conf->name]);
@@ -301,13 +304,13 @@ class Session
 		}
 	}
 
-	private static function start(Session\DomainConfig $conf, $reStart = false)
+	private static function start(Session\DomainConfig $conf)
 	{
 		self::$instance = new self;
 		self::$instance->dirty = true;
 		self::$instance->sessionId = self::makeSessionId($conf->salt, $conf->paranoiaLevel);
 		self::$instance->lock();
-		if(!$reStart) self::sendCookie($conf, self::$instance->sessionId);
+		self::sendCookie($conf, self::$instance->sessionId);
 	}
 
 	private static function sendCookie(Session\DomainConfig $conf, $sessionId)
@@ -390,10 +393,14 @@ class Session
 	{
 		if (!self::$disabled) {
 			if (self::$instance && !self::$instance->locked) {
-				if (is_null($sessionId)) $sessionId = self::getSessionId();
+				if (is_null($sessionId)) {
+					$sessionId = self::getSessionId();
+				}
 				self::$persistor->lock($sessionId);
 				$inst = self::$persistor->load($sessionId);
-				if(!is_null($inst)) self::$instance = $inst;
+				if(!is_null($inst)) {
+					self::$instance = $inst;
+				}
 				self::$instance->locked = self::$instance->dirty = true;
 			} else if (!self::$instance) {
 				trigger_error('can not lock session, that was not started', E_USER_ERROR);
@@ -403,16 +410,16 @@ class Session
 	/**
 	 * destroy the current session will destroy the current session data
 	 *
-	 * @param boolean $reinit by default will restart with the current session id
+	 * @param boolean $reInit by default will restart with the current session id
 	 */
-	public static function destroy($reinit = true)
+	public static function destroy($reInit = true)
 	{
 		$inst = self::getInstance();
 		self::$persistor->release($inst->sessionId);
 		self::$persistor->destroy($inst->sessionId);
 		self::$instance = null;
-		if ($reinit) {
-			self::init($reinit);
+		if ($reInit) {
+			self::init($reInit);
 		} else {
 			self::disable();
 		}
