@@ -59,16 +59,24 @@ class FS implements PersistorInterface {
 			}
 		}
 	}
-	private function getSavePath()
+	private static function getSavePath()
 	{
-		return ini_get('session.save_path');
+		static $savePath;
+		if(is_null($savePath)) {
+			$savePath = ini_get('session.save_path');
+			if(!is_dir($savePath) || !is_writable($savePath)) {
+				$savePath = \Foomo\Module::getVarDir('sessions');
+				trigger_error('invalid session.save_path - falling back to ' . $savePath, E_USER_WARNING);
+			}
+		}
+		return $savePath;
 	}
 	public function lock($sessionId)
 	{
 		$lockFile = self::getFileName($sessionId);
 		$this->fps[$sessionId] = fopen($lockFile, 'w');
 		if (!flock($this->fps[$sessionId], LOCK_EX)) {
-			$savePath = $this->getSavePath();
+			$savePath = self::getSavePath();
 			if(!is_dir($savePath)) {
 				trigger_error('session save path "' . $savePath . '" does not exist', E_USER_ERROR);
 			} elseif(!is_writable($savePath)) {
@@ -160,7 +168,7 @@ class FS implements PersistorInterface {
 	public static function getFileName($sessionId)
 	{
 		return
-			ini_get('session.save_path') . DIRECTORY_SEPARATOR .
+			self::getSavePath() . DIRECTORY_SEPARATOR .
 			self::PREFIX . '-' . $sessionId
 		;
 	}
