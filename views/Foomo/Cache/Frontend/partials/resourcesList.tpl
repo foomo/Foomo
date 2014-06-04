@@ -93,7 +93,12 @@
 					
 					<h2>Value</h2>
 					<div class="greyBox">
-					<?= var_dump($resource->value) ?>
+						<pre><?
+								ini_set('html_errors', 'Off');
+								ob_start();
+								var_dump($resource->value);
+								echo $view->escape(ob_get_clean());
+							?></pre>
 					</div>
 					
 				</div>
