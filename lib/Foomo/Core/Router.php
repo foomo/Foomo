@@ -20,6 +20,7 @@
 namespace Foomo\Core;
 
 use Foomo\AutoLoader;
+use Foomo\Config;
 use Foomo\Modules\MakeResult;
 use Foomo\Modules\Manager;
 use Foomo\Router as R;
@@ -78,6 +79,7 @@ class Router extends R {
 		$this->out('/enableModule/:module - enable a module (and all its dependencies)', 1);
 		$this->out('/disableModule/:module - disable a module', 1);
 		$this->out('/disableAllModules - disable all modules (except Foomo)', 1);
+		$this->out('/config/:module/:name/:domain - get a config', 1);
 		$this->out('/tryCreateModuleResources - try to create all missing resources for all enabled modules', 1);
 	}
 	public function resetAutoLoader()
@@ -116,6 +118,10 @@ class Router extends R {
 	{
 		header('Content-Type: text/plain;charset=utf-8;');
 		echo \Foomo\Modules\Manager::tryCreateModuleResourcesForAllEnabledModules();
+	}
+	public function config($module, $name, $domain = null)
+	{
+		self::replyToMachine(Config::getConf($module, $name, $domain));
 	}
 	private function replyToMachine($data)
 	{
@@ -163,6 +169,8 @@ class Router extends R {
 		$coreRouter->addRoutes(array(
 			'/make/:targets' => 'make',
 			'/help' => 'help',
+			'/config/:module/:name' => 'config',
+			'/config/:module/:name/:domain' => 'config',
 			'/enableModule/:name' => 'enableModule',
 			'/disableModule/:name' => 'disableModule',
 			'/disableAllModules' => 'disableAllModules',
