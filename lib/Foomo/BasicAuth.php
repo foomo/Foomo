@@ -38,13 +38,12 @@ class BasicAuth {
 	 * construct your auth object
 	 *
 	 * @param string $authUserDomain filename of the user auth file in \Foomo\ROOT . '/var/basicAuth'
-	 * @param string $passwordEncryption password hashing algorythm CRYPT | MD5 | SHA | PLAINTEXT
+	 * @param string $passwordEncryption password hashing algorithm CRYPT | MD5 | SHA | PLAINTEXT
 	 * @param boolean $SSLRequireSSL
-	 *
-	 * @return boolean
 	 */
-	public function __construct($authUserDomain=null, $passwordEncryption = 'crypt', $SSLRequireSSL = true)
+	public function __construct($authUserDomain = null, $passwordEncryption = 'crypt', $SSLRequireSSL = true)
 	{
+		$authUserFile = null;
 		if (is_null($authUserDomain)) {
 			if (file_exists(self::getDefaultAuthFilename())) {
 				$authUserFile = self::getDefaultAuthFilename();
@@ -92,7 +91,7 @@ class BasicAuth {
 	/**
 	 * check authentication statically - static shortcut to authenticate
 	 *
-	 * @param string $realm the realm message, taht will typically displayed in the browsers auth dialog
+	 * @param string $realm the realm message, that will typically displayed in the browsers auth dialog
 	 * @param string $authUserDomain full filename of the user auth file
 	 * @param string $passwordEncryption CRYPT | MD5 | SHA | PLAINTEXT
 	 * @param boolean $SSLRequireSSL
@@ -108,6 +107,8 @@ class BasicAuth {
 	/**
 	 * Call this to authenticate the user - will only return true - if the user is not authenticated the program will terminate, since other than that the headers can not be sent
 	 * If you really just want to check, use @see checkAuthentication
+	 *
+	 * @param string $realm the text, that will be presented to the user in the browsers auth dialog
 	 *
 	 * @return bool
 	 */
@@ -136,29 +137,43 @@ class BasicAuth {
 			$auth = false;
 			if (isset($_SERVER["PHP_AUTH_USER"]) && $_SERVER["PHP_AUTH_PW"]) {
 				$fp = fopen($this->authUserFile, 'r');
-				//$file_contents = fread($fp, filesize($this->authUserFile));
-				// Split each of the lines into a username and a password pair
-				// and attempt to match them to $PHP_AUTH_USER and $PHP_AUTH_PW.
-				//			foreach ($lines as $line) {
 				while ($line = fgets($fp)) {
 					$line = trim($line);
-					list($username, $password) = explode(':', $line);
-					if ($username == $_SERVER['PHP_AUTH_USER']) {
-						switch ($this->passwordEncryption) {
-							case 'crypt':
-								// Get the salt from $password. It is always the first
-								// two characters of a DES-encrypted string.
-								$salt = substr($password, 0, 2);
-								// Encrypt $PHP_AUTH_PW based on $salt
-								$enc_pw = crypt($_SERVER["PHP_AUTH_PW"], $salt);
+					$parts = explode(':', $line);
+					if(count($parts)==2) {
+						list($username, $password) = $parts;
+						if ($username == $_SERVER['PHP_AUTH_USER']) {
+							switch(true) {
+								case strpos($password, '{SHA}') === 0:
+									trigger_error("sha " . $password . " " . $_SERVER["PHP_AUTH_PW"] . " " .  base64_encode(sha1($_SERVER["PHP_AUTH_PW"], true)), E_USER_WARNING);
+									// inline sha
+									$this->passwordEncryption = "sha1";
+									break;
+							}
+							switch ($this->passwordEncryption) {
+								case 'crypt':
+									// Get the salt from $password. It is always the first
+									// two characters of a DES-encrypted string.
+									$salt = substr($password, 0, 2);
+									// Encrypt $PHP_AUTH_PW based on $salt
+									$hashedPassword = crypt($_SERVER["PHP_AUTH_PW"], $salt);
+									break;
+								case 'sha1':
+									$hashedPassword = "{SHA}" . base64_encode(sha1($_SERVER["PHP_AUTH_PW"], true));
+									break;
+								default:
+									$hashedPassword = null;
+									trigger_error("unsupported password hashing algorithm", E_USER_ERROR);
+							}
+							if ($password == $hashedPassword) {
+								// A match is found, meaning the user is authenticated.
+								// Stop the search.
+								$auth = true;
 								break;
+							}
 						}
-						if ($password == "$enc_pw") {
-							// A match is found, meaning the user is authenticated.
-							// Stop the search.
-							$auth = true;
-							break;
-						}
+					} else {
+						trigger_error("fishy line in basic auth file", E_USER_WARNING);
 					}
 				}
 				fclose($fp);
@@ -171,7 +186,6 @@ class BasicAuth {
 			}
 		}
 	}
-
 	/**
 	 * check if you are authenticated use @see checkAuthentication instead
 	 *
@@ -187,5 +201,4 @@ class BasicAuth {
 	{
 
 	}
-
 }
