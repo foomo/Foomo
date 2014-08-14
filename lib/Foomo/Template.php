@@ -28,7 +28,8 @@ namespace Foomo;
  * @internal
  */
 class Template {
-
+	static $debug = false;
+	static $debugTemplate = '<div style="border:red 3px solid !important; margin: 5px !important;"><div style="background-color: red !important; color: white !important; padding: 3px !important;">$file</div>$rendering</div>';
 	/**
 	 * names make things friends
 	 *
@@ -72,7 +73,20 @@ class Template {
 		ob_start();
 		$this->run($model, $view, $exception, $variables);
 		$rendering = ob_get_clean();
-		return $rendering;
+		if(self::$debug) {
+			if(substr($this->file, 0, strlen(CORE_CONFIG_DIR_MODULES)) == CORE_CONFIG_DIR_MODULES) {
+				$file = substr($this->file, strlen(CORE_CONFIG_DIR_MODULES) + 1);
+				$fileParts = explode(DIRECTORY_SEPARATOR, $file);
+				if($fileParts[1] == 'views') {
+					$file = $fileParts[0] . '::' . implode(DIRECTORY_SEPARATOR, array_slice($fileParts, 2));
+				}
+			} else {
+				$file = $this->file;
+			}
+			return str_replace(array('$file', '$rendering'), array($file, $rendering), self::$debugTemplate);
+		} else {
+			return $rendering;
+		}
 	}
 
 	private function run($model, $view, $exception, $variables)
