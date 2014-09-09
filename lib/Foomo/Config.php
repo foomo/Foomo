@@ -24,6 +24,7 @@ use Foomo\Modules\Manager;
 use ReflectionClass;
 use Foomo\Config\AbstractConfig;
 use InvalidArgumentException;
+use SebastianBergmann\Exporter\Exception;
 
 /**
  * manages the application runmode and configuration
@@ -48,7 +49,7 @@ class Config
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * thats where we keep the config
+	 * that is where we keep the config
 	 *
 	 * @var string
 	 */
@@ -66,6 +67,7 @@ class Config
 
 	/**
 	 * reads the current run mode setting
+	 *
 	 * @access internal
 	 */
 	public static function init()
@@ -83,6 +85,7 @@ class Config
 	 * @param string $module name of the module, you want to configure
 	 * @param string $name name of the config
 	 * @param string $domain you need multiple for a domain in a module - here you are
+	 *
 	 * @return boolean
 	 */
 	public static function confExists($module, $name, $domain = '')
@@ -108,7 +111,9 @@ class Config
 
 	/**
 	 * @param string $name
+	 *
 	 * @return null|string
+	 *
 	 * @throws \InvalidArgumentException
 	 */
 	public static function getDomainConfigClassName($name)
@@ -159,6 +164,7 @@ class Config
 	 *
 	 * @param string $name the domain of configuration like db, mail, YOU name it
 	 * @param string $domain you need multiple for a domain in a module - here you are
+	 *
 	 * @return \Foomo\Config\AbstractConfig[]
 	 */
 	public static function getConfs($name, $domain='')
@@ -185,7 +191,8 @@ class Config
 	}
 
 	/**
-	 * @param type $name
+	 * @param string $name
+	 *
 	 * @return AbstractConfig
 	 */
 	public static function getDefaultConfig($name)
@@ -201,6 +208,7 @@ class Config
 	 * @param string $module
 	 * @param string $name
 	 * @param string $domain
+	 *
 	 * @return string
 	 */
 	public static function getConfOriginalYaml($module, $name, $domain = '')
@@ -257,6 +265,7 @@ class Config
 	 * @param string $module
 	 * @param string $name
 	 * @param string $domain
+	 *
 	 * @return string
 	 */
 	public static function getCurrentConfYAML($module, $name, $domain = '')
@@ -348,25 +357,38 @@ class Config
 	 * path to the modules dir
 	 *
 	 * @param string $module
+	 *
 	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	public static function getModuleDir($module = '')
 	{
 		$ret = \Foomo\CORE_CONFIG_DIR_MODULES;
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
-		if (!file_exists($ret)) throw new \Exception('Module path ' . $ret . ' does not exist');
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
+		if (!file_exists($ret)) {
+			throw new \Exception('Module path ' . $ret . ' does not exist');
+		}
 		return $ret;
 	}
 
 	/**
 	 * get the directory where all the data go to - this is unix inspired
 	 *
+	 * @param string $module
+	 *
 	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	public static function getVarDir($module = '')
 	{
 		$ret = \Foomo\CORE_CONFIG_DIR_VAR . DIRECTORY_SEPARATOR . self::$currentMode;
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;
+		}
 		self::validatePath($ret);
 		return $ret;
 	}
@@ -374,12 +396,18 @@ class Config
 	/**
 	 * get the current cache directory
 	 *
+	 * @param string $module
+	 *
 	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	public static function getCacheDir($module='')
 	{
 		$ret = self::getVarDir() . DIRECTORY_SEPARATOR . 'cache';
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
 		self::validatePath($ret);
 		return $ret;
 	}
@@ -404,7 +432,9 @@ class Config
 	public static function getHtdocsVarDir($module='')
 	{
 		$ret = self::getVarDir() . DIRECTORY_SEPARATOR . 'htdocs' . DIRECTORY_SEPARATOR . 'modulesVar';
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
 		self::validatePath($ret);
 		return $ret;
 	}
@@ -429,7 +459,9 @@ class Config
 	public static function getHtdocsVarPath($module='')
 	{
 		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
 		return $ret;
 	}
 
@@ -453,7 +485,9 @@ class Config
 	public static function getHtdocsVarBuildPath($module='')
 	{
 		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
 		return $ret . '-' . \Foomo::getBuildNumber();
 	}
 
@@ -466,7 +500,9 @@ class Config
 	public static function getLogDir($module='')
 	{
 		$ret = self::getVarDir() . DIRECTORY_SEPARATOR . 'logs';
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
 		self::validatePath($ret);
 		return $ret;
 	}
@@ -474,12 +510,18 @@ class Config
 	/**
 	 * get the temp directory
 	 *
+	 * @param string $module
+	 *
 	 * @return string
+	 *
+	 * @throws \Exception
 	 */
 	public static function getTempDir($module='')
 	{
 		$ret = self::getVarDir() . DIRECTORY_SEPARATOR . 'tmp';
-		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
+		if ($module != '') {
+			$ret .= DIRECTORY_SEPARATOR . $module;
+		}
 		self::validatePath($ret);
 		return $ret;
 	}
@@ -528,8 +570,6 @@ class Config
 			$conf->setValue(\Foomo\Yaml::parse($confYaml));
 			return $conf;
 		} else {
-			// trigger_error('requested configuration for module ' . $module . ' does not exist in domain => creating default for domain ' . $name . ' in subDomain ' . $domain, E_USER_NOTICE);
-			// self::setConf($conf, $module, $domain);
 			return null;
 		}
 	}
@@ -541,9 +581,11 @@ class Config
 	/**
 	 * get the name for a conf file
 	 *
-	 * @param string $module name of the module
-	 * @param mixed $conf
+	 * @param AbstractConfig $conf
+	 * @param $module
+	 * @param string $domain
 	 * @return string
+	 * @throws \Exception
 	 */
 	private static function getConfFileNameByConf(AbstractConfig $conf, $module, $domain = '')
 	{
@@ -557,7 +599,7 @@ class Config
 	 * @param string $name
 	 * @param string $domain
 	 *
-	 * @return type
+	 * @return string
 	 */
 	private static function getConfFileName($module, $name, $domain)
 	{
@@ -567,14 +609,24 @@ class Config
 		}
 		return $confFile . DIRECTORY_SEPARATOR . $domain . $name . '.yml';
 	}
-
 	/**
-	 * @param string $filename
+	 * @param string $pathname
+	 *
+	 * @throws \Exception
 	 */
 	private static function validatePath($pathname)
 	{
-		if (file_exists($pathname)) return true;
-		\Foomo\Modules\Resource\Fs::getAbsoluteResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, $pathname)->tryCreate();
-		if (!\file_exists($pathname)) throw new \Exception('Resource ' . $pathname . ' does not exits and could not be created! ' . $msg);
+		if (file_exists($pathname)) {
+			if(is_dir($pathname)) {
+				return true;
+			} else {
+				throw new Exception('pathname exists, but is not a directory ' . $pathname);
+			}
+		} else {
+			\Foomo\Modules\Resource\Fs::getAbsoluteResource(\Foomo\Modules\Resource\Fs::TYPE_FOLDER, $pathname)->tryCreate();
+			if (!\file_exists($pathname)) {
+				throw new \Exception('Resource ' . $pathname . ' does not exits and could not be created!');
+			}
+		}
 	}
 }
