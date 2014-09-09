@@ -576,7 +576,7 @@ class Manager
 				}
 			}
 		}
-		$buildNumber = \Foomo\Module::getDomainConfig()->buildNumber;
+		$buildNumber = \Foomo::getBuildNumber();
 		foreach (self::getEnabledModules() as $enabled) {
 			// symlinks for htdocs
 			//   where to link to

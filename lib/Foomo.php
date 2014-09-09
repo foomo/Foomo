@@ -17,35 +17,38 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Core;
-
-use Foomo\Config\AbstractConfig;
-
 /**
- * core config
+ * manages the application runmode and configuration
  *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class DomainConfig extends AbstractConfig {
-	const NAME = 'Foomo.core';
-	/**
-	 * name of all the enabled modules
-	 *
-	 * @var array
-	 */
-	public $enabledModules = array();
-	/**
-	 * how are foomo htdocs mapped in your web server
-	 *
-	 * @var string
-	 */
-	public $rootHttp = '/foomo';
-	public function __construct($createDefault = false)
+class Foomo
+{
+	private static $buildNumber;
+	public static function getBuildNumber()
 	{
-		if ($createDefault) {
-			$this->enabledModules = array(\Foomo\Module::NAME);
+		if(!isset(self::$buildNumber)) {
+			$buildNumberFile = self::getBuildNumberFile();
+			if(!file_exists($buildNumberFile)) {
+				file_put_contents($buildNumberFile, '1');
+			}
+			self::$buildNumber = (int) trim(file_get_contents($buildNumberFile));
 		}
+		return self::$buildNumber;
+	}
+	public static function incrementBuildNumber()
+	{
+		Foomo\Lock::lock($lockName = 'foomo-buildNumber', true);
+		file_put_contents(self::getBuildNumberFile(), (string) ($buildNumber = (self::getBuildNumber() + 1)));
+		self::$buildNumber = $buildNumber;
+		Foomo\Lock::release($lockName);
+		\Foomo\Modules\Manager::updateSymlinksForHtdocs();
+	}
+
+	private static function getBuildNumberFile()
+	{
+		return Foomo\Config::getVarDir(Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'buildNumber';
 	}
 }

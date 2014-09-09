@@ -131,24 +131,13 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cachedGetLocaleTable', null, true, Invalidator::POLICY_DELETE);
 				break;
 			case 'all':
-				$config = clone self::getDomainConfig();
-				$buildNumber = $config->buildNumber;
+				$buildNumber = \Foomo::getBuildNumber();
 				$result->addEntry('bumping the build version from ' . $buildNumber . ' to ' . ($buildNumber + 1));
-				$config->buildNumber ++;
-				Config::setConf($config, self::NAME);
+				\Foomo::incrementBuildNumber();
 				break;
 			default:
 				parent::make($target, $result);
 		}
 		Composer::make($target, $result);
-	}
-	public static function hookPostConfigUpdate($oldConfig, $newConfig, $module, $domain)
-	{
-		if($newConfig->getName() == Core\DomainConfig::NAME) {
-			if(!$oldConfig || $oldConfig && $oldConfig->buildNumber != $newConfig->buildNumber) {
-				// Module Manager update versioned crap
-				Manager::updateSymlinksForHtdocs();
-			}
-		}
 	}
 }

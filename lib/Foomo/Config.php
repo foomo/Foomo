@@ -19,6 +19,7 @@
 
 namespace Foomo;
 
+use Foomo\Bundle\Compiler\Result\Resource;
 use Foomo\Modules\Manager;
 use ReflectionClass;
 use Foomo\Config\AbstractConfig;
@@ -229,17 +230,8 @@ class Config
 			$oldConf = \file_get_contents($confFile);
 			\file_put_contents($confFile . '-old-' . date('Y-m-d-H-i-s'), $oldConf);
 		}
-		if (!is_dir(dirname($confFile))) {
-			// trigger_error('creating conf dir for module ' . $module . ' and subDomain ' . $domain);
-			if (!empty($domain)) {
-				$moduleConfDir = dirname(dirname($confFile));
-				if (!is_dir($moduleConfDir)) {
-					mkdir($moduleConfDir);
-				}
-				mkdir(dirname($confFile));
-			} else {
-				mkdir(dirname($confFile));
-			}
+		if (!is_dir($confDirName = dirname($confFile))) {
+			Modules\Resource\Fs::getAbsoluteResource(Modules\Resource\Fs::TYPE_FOLDER, $confDirName)->tryCreate();
 		}
 		if (file_put_contents($confFile, $originalYaml ? $originalYaml : \Foomo\Yaml::dump($conf->getValue()))) {
 			$conf->saved();
@@ -347,7 +339,7 @@ class Config
 	 */
 	public static function getConfigDir()
 	{
-		$ret = \Foomo\CORE_CONFIG_DIR_CONFIG . DIRECTORY_SEPARATOR . self::$currentMode;
+		$ret = \Foomo\CORE_CONFIG_DIR_CONFIG . DIRECTORY_SEPARATOR . self::$currentMode . DIRECTORY_SEPARATOR . 'foomo';
 		self::validatePath($ret);
 		return $ret;
 	}
@@ -449,7 +441,7 @@ class Config
 	 */
 	public static function getHtdocsBuildPath($module)
 	{
-		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module . '-' .Module::getDomainConfig()->buildNumber;
+		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module . '-' . \Foomo::getBuildNumber();
 	}
 
 	/**
@@ -462,7 +454,7 @@ class Config
 	{
 		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
 		if ($module != '') $ret .= DIRECTORY_SEPARATOR . $module;
-		return $ret . '-' .Module::getDomainConfig()->buildNumber;
+		return $ret . '-' . \Foomo::getBuildNumber();
 	}
 
 	/**
