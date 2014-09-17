@@ -37,7 +37,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
-	const VERSION = '0.3.4';
+	const VERSION = '0.3.5';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -82,7 +82,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			Modules\Resource\PearPackage::getResource('Mail'),
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
 			Modules\Resource\Config::getResource(self::NAME, Jobs\DomainConfig::NAME),
-			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME),			
+			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME),
 			\Foomo\Modules\Resource\CliCommand::getResource('rm'),
 			\Foomo\Modules\Resource\CliCommand::getResource('mv'),
 			\Foomo\Modules\Resource\CliCommand::getResource('tar'),
