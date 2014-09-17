@@ -191,11 +191,11 @@ class URLHandler {
 	}
 	/**
 	 * get method and paramaeters to call a controller on an app
-	 * 
+	 *
 	 * @param \Foomo\MVC\AbstractApp $app
 	 * @param string $baseURL
 	 * @param string $uri
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function getAppCallData(AbstractApp $app, $baseURL = null, $uri = null)
@@ -431,7 +431,7 @@ class URLHandler {
 
 	protected function getAppControllerWithCallData(AbstractApp $app, $callData)
 	{
-		if(get_class($app->controller) == $callData['class']) {
+		if(get_class($app->controller) == $callData['class'] || is_subclass_of($app->controller, $callData['class'])) {
 			return $app->controller;
 		} else {
 			$controllerClass = $callData['class'];
