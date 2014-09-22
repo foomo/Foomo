@@ -89,7 +89,7 @@ class MVC
 	 * @param string $baseURL inject a baseURL
 	 * @param boolean $forceBaseURL force injection of a baseURL
 	 * @param boolean $forceNoHTMLDocument force no html document rendering
-	 * 
+	 *
 	 * @return string
 	 */
 	public static function run($app, $baseURL = null, $forceBaseURL = false, $forceNoHTMLDocument = false)
@@ -148,9 +148,7 @@ class MVC
 	public static function getView(AbstractApp $app, URLHandler $handler, Template $template, $exception)
 	{
 		$appRefl = new \ReflectionClass($app);
-		$classes = array(
-			__NAMESPACE__ . '\\MVC\\View'
-		);
+		$classes = array();
 		while(true) {
 			$classes[] = $appRefl->getName() . '\\View';
 			$appRefl = $appRefl->getParentClass();
@@ -158,7 +156,8 @@ class MVC
 				break;
 			}
 		}
-		foreach(array_reverse($classes) as $class) {
+		$classes[] = __NAMESPACE__ . '\\MVC\\View';
+		foreach($classes as $class) {
 			if(class_exists($class)) {
 				return new $class($app, $handler, $template, $exception);
 			}
@@ -316,10 +315,10 @@ class MVC
 	 * get an asset path for your app
 	 * you can inherit them from parent apps too and you will get a warning when
 	 * you are referencing assets, that are not there
-	 * 
+	 *
 	 * @param string $appClassName name of the app class
 	 * @param string $assetPath relative path separated with forward slashes from the htdocs folder in your module
-	 * 
+	 *
 	 * @return string PATH in the URL
 	 */
 	public static function getViewAsset($appClassName, $assetPath)
@@ -328,12 +327,12 @@ class MVC
 	}
 	/**
 	 * same like the above
-	 * 
+	 *
 	 * @see self::getViewAsset
-	 * 
+	 *
 	 * @param string $appClassName name of the app class
 	 * @param string $assetPath relative path separated with forward slashes from the htdocs folder in your module
-	 * 
+	 *
 	 * @return string PATH in the URL
 	 */
 	public static function getViewVarAsset($appClassName, $assetPath)
@@ -388,9 +387,9 @@ class MVC
 	}
 	/**
 	 * where do the class templates come from
-	 * 
+	 *
 	 * @param string $appClassName name of the application class
-	 * 
+	 *
 	 * @return string path to the corresponding folder typically in modules/xyz/views/appName
 	 */
 	private static function getTemplateBase($appClassName)
@@ -416,7 +415,7 @@ class MVC
 			if($asHash) {
 				$roots[$appClassModule] = $base . DIRECTORY_SEPARATOR . $type;
 			} else {
-				$roots[] = $base . DIRECTORY_SEPARATOR . $type;				
+				$roots[] = $base . DIRECTORY_SEPARATOR . $type;
 			}
 			$refl = $refl->getParentClass();
 		}
@@ -430,15 +429,17 @@ class MVC
 	{
 		return self::getRoots('locale', $appClassName);
 	}
-
 	private static function getExceptionTemplate($appClassName)
 	{
 		// exception templates need to find parent stuff too ...
-		$appExceptionTempateFile = self::getTemplateBase($appClassName) . DIRECTORY_SEPARATOR . 'exception.tpl';
-		if (!file_exists($appExceptionTempateFile)) {
-			$appExceptionTempateFile = \Foomo\ROOT . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR .  'Foomo' . DIRECTORY_SEPARATOR .  'MVC' . DIRECTORY_SEPARATOR . 'exception.tpl';
+		$appRefl = new ReflectionClass($appClassName);
+		while($appRefl && !$appRefl->isAbstract()) {
+			if(file_exists($templateFile = self::getTemplateBase($appRefl->getName()) . DIRECTORY_SEPARATOR . 'exception.tpl')) {
+				return new Template('Exception-' . $appRefl->getName(), $templateFile);
+			}
+			$appRefl = $appRefl->getParentClass();
 		}
-		return new Template('Exception-' . $appClassName, $appExceptionTempateFile);
+		return new Template('Exception-' . $appClassName, \Foomo\ROOT . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR .  'Foomo' . DIRECTORY_SEPARATOR .  'MVC' . DIRECTORY_SEPARATOR . 'exception.tpl');
 	}
 
 	private static function getViewTemplate($appClassName, $actionName)
