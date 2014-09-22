@@ -20,6 +20,7 @@
 namespace Foomo;
 
 use Foomo\Log\Logger;
+use Foomo\MVC\AbstractApp;
 use Foomo\Timer;
 use Foomo\HTMLDocument;
 use Foomo\Template;
@@ -144,6 +145,25 @@ class MVC
 		return $exception;
 	}
 
+	public static function getView(AbstractApp $app, URLHandler $handler, Template $template, $exception)
+	{
+		$appRefl = new \ReflectionClass($app);
+		$classes = array(
+			__NAMESPACE__ . '\\MVC\\View'
+		);
+		while(true) {
+			$classes[] = $appRefl->getName() . '\\View';
+			$appRefl = $appRefl->getParentClass();
+			if(!$appRefl || $appRefl->isAbstract()) {
+				break;
+			}
+		}
+		foreach(array_reverse($classes) as $class) {
+			if(class_exists($class)) {
+				return new $class($app, $handler, $template, $exception);
+			}
+		}
+	}
 	public static function render($app, $handler, $exception, $forceNoHTMLDocument = false)
 	{
 		Timer::start(__METHOD__);
@@ -153,7 +173,7 @@ class MVC
 		} else {
 			$template = self::getViewTemplate(get_class($app), $handler->lastAction);
 		}
-		$view = new MVCView($app, $handler, $template, $exception);
+		$view = self::getView($app, $handler, $template, $exception);
 		$app->view = $view;
 		MVCView::$viewStack[] = $view;
 		// catching views and partials

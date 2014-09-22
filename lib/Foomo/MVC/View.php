@@ -55,13 +55,13 @@ class View extends \Foomo\View
 	 *
 	 * @var AbstractApp
 	 */
-	private $app;
+	protected $app;
 	/**
 	 * my url handler
 	 *
 	 * @var URLHandler
 	 */
-	private $handler;
+	protected $handler;
 	/**
 	 * a locale
 	 *
@@ -87,6 +87,10 @@ class View extends \Foomo\View
 	 * @var string
 	 */
 	public $currentAction;
+	/**
+	 * @var string
+	 */
+	public $partial = '';
 	/**
 	 * current parameters
 	 *
@@ -231,9 +235,9 @@ class View extends \Foomo\View
 		$viewId = $class . '-' . $name;
 		if(!isset($this->partialCache[$viewId])) {
 			$template = MVC::getViewPartialTemplate($class, $name);
-			$this->partialCache[$viewId] = new self($this->app, $this->handler, $template);
+			$this->partialCache[$viewId] = new static($this->app, $this->handler, $template);
+			$this->partialCache[$viewId]->partial = $name;
 		}
-
 		$level ++;
 		$rendering = $this->partialCache[$viewId]->render($variables);
 		// catch partial content
