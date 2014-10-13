@@ -37,7 +37,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
-	const VERSION = '0.4.0';
+	const VERSION = '0.4.1';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -93,7 +93,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
-			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, \Foomo\Cache\Test\DomainConfig::NAME);
+			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, 'Foomo.cacheTestConfig');
 		}
 		return $ret;
 	}

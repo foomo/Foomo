@@ -52,7 +52,7 @@ class Composer
 			)
 		);
 		$call->execute();
-		if($call->exitStatus != 0) {
+		if ($call->exitStatus != 0) {
 			trigger_error('failed to call composer : ' . $call->report, E_USER_WARNING);
 		}
 		return $call;
@@ -76,7 +76,7 @@ class Composer
 			self::$enabled = true;
 			$autoloaderFile = self::getAutoloaderFile();
 			if(!file_exists($autoloaderFile)) {
-				trigger_error('bootstrapping composer');
+				//trigger_error('bootstrapping composer');
 				$packages = self::getAllRequiredPackages();
 				$configFile = self::getComposerConfigFile();
 				if(count($packages) > 0) {
