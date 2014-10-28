@@ -145,7 +145,7 @@ class BasicAuth {
 						if ($username == $_SERVER['PHP_AUTH_USER']) {
 							switch(true) {
 								case strpos($password, '{SHA}') === 0:
-									trigger_error("sha " . $password . " " . $_SERVER["PHP_AUTH_PW"] . " " .  base64_encode(sha1($_SERVER["PHP_AUTH_PW"], true)), E_USER_WARNING);
+									//trigger_error("sha " . $password . " " . $_SERVER["PHP_AUTH_PW"] . " " .  base64_encode(sha1($_SERVER["PHP_AUTH_PW"], true)), E_USER_WARNING);
 									// inline sha
 									$this->passwordEncryption = "sha1";
 									break;
