@@ -18,7 +18,6 @@
  */
 
 namespace Foomo;
-use Foomo\Modules\Manager;
 
 /**
  * composer integration
@@ -36,6 +35,9 @@ class Composer
 	 */
 	private static function callComposer()
 	{
+		if(!CORE_CONFIG_DIR_COMPOSER) {
+			trigger_error('composer directory ' . dirname(dirname(\Foomo\ROOT)) . '/composer does not exist', E_USER_WARNING);
+		}
 		$args = array_merge(
 			array(
 				Module::getBaseDir('bin') . DIRECTORY_SEPARATOR . 'composer.phar',
