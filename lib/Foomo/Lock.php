@@ -145,9 +145,11 @@ class Lock {
 	{
 		$file = self::getLockContentsFile($lockName);
 		if (!file_exists($file)) {
-			throw new \Exception('file does not exist');
+			$contents = false;
+		} else {
+			$contents = file_get_contents($file);
 		}
-		$contents = file_get_contents($file);
+		
 		if ($contents) {
 			$contents = unserialize($contents);
 		} else {
