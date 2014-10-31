@@ -96,6 +96,10 @@ if (isset($_SERVER['FOOMO\\CORE_CONFIG_DIR_CONFIG'])) {
 // class loading
 Utils::addIncludePaths(array(ROOT . DIRECTORY_SEPARATOR . 'lib'));
 spl_autoload_register(array('Foomo\\AutoLoader', 'loadClass'));
+
+// setup the run mode
+Config::init();
+
 Timer::start('composer autoload setup');
 Composer::init();
 Timer::stop('composer autoload setup');
@@ -108,8 +112,6 @@ unset($composerDir);
 
 // try to bootstrap things
 try {
-	// cache will need a run mode
-	Config::init();
 	//bootstrap Foomo\Cache\Manager
 	Cache\Manager::bootstrap();
 	// start the configuration

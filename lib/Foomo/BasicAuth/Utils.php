@@ -84,10 +84,8 @@ class Utils
 	 * @param string $hashAlgorythm so far crypt only
 	 * @return boolean
 	 */
-	public static function updateUser($domain, $name, $password, $hashAlgorythm = 'crypt')
+	public static function updateUser($domain, $name, $password, $hashAlgorythm = 'sha')
 	{
-		$file = \Foomo\BasicAuth::getAuthFilename($domain);
-		$userFound = false;
 		$users = self::getUsers($domain);
 		$users[$name] = self::hash($password, $hashAlgorythm);
 		return self::saveUsers($domain, $users);
@@ -138,10 +136,14 @@ class Utils
 	 *
 	 * @return string
 	 */
-	public static function hash($password, $algorythm = 'crypt', $salt = null)
+	public static function hash($password, $algorythm = 'sha', $salt = null)
 	{
 		switch($algorythm) {
+			case 'sha':
+				$hash = '{SHA}' . base64_encode(sha1($salt . $password, true));
+				break;
 			case 'crypt':
+				trigger_error('please do not use crypt anymore', E_USER_DEPRECATED);
 				if(is_null($salt)) {
 					$salt = self::getSaltChar() . self::getSaltChar();
 				}

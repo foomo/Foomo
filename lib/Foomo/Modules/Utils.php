@@ -70,9 +70,7 @@ class Utils {
 			'tests',
 			'views',
 			'htdocs',
-			'htdocs' . DIRECTORY_SEPARATOR . 'js',
-			'htdocs' . DIRECTORY_SEPARATOR . 'css',
-			'htdocs' . DIRECTORY_SEPARATOR . 'img',
+			'htdocs' . DIRECTORY_SEPARATOR . 'assets',
 			'htdocs' . DIRECTORY_SEPARATOR . 'services',
 			'vendor'
 		);

@@ -18,7 +18,6 @@
  */
 
 namespace Foomo;
-use Foomo\Modules\Manager;
 
 /**
  * composer integration
@@ -36,6 +35,9 @@ class Composer
 	 */
 	private static function callComposer()
 	{
+		if(!CORE_CONFIG_DIR_COMPOSER) {
+			trigger_error('composer directory ' . dirname(dirname(\Foomo\ROOT)) . '/composer does not exist', E_USER_WARNING);
+		}
 		$args = array_merge(
 			array(
 				Module::getBaseDir('bin') . DIRECTORY_SEPARATOR . 'composer.phar',
@@ -52,7 +54,7 @@ class Composer
 			)
 		);
 		$call->execute();
-		if($call->exitStatus != 0) {
+		if ($call->exitStatus != 0) {
 			trigger_error('failed to call composer : ' . $call->report, E_USER_WARNING);
 		}
 		return $call;
@@ -76,7 +78,7 @@ class Composer
 			self::$enabled = true;
 			$autoloaderFile = self::getAutoloaderFile();
 			if(!file_exists($autoloaderFile)) {
-				trigger_error('bootstrapping composer');
+				//trigger_error('bootstrapping composer');
 				$packages = self::getAllRequiredPackages();
 				$configFile = self::getComposerConfigFile();
 				if(count($packages) > 0) {
