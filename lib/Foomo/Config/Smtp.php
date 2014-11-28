@@ -21,13 +21,23 @@ namespace Foomo\Config;
 
 /**
  * smtp configuration
- * 
- * @link www.foomo.org
+ *
+ * @link    www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
- * @author jan <jan@bestbytes.de>
+ * @author  jan <jan@bestbytes.de>
  */
-class Smtp extends AbstractConfig {
+class Smtp extends AbstractConfig
+{
+	// --------------------------------------------------------------------------------------------
+	// ~ Constants
+	// --------------------------------------------------------------------------------------------
+
 	const NAME = 'Foomo.smtp';
+
+	// --------------------------------------------------------------------------------------------
+	// ~ Variables
+	// --------------------------------------------------------------------------------------------
+
 	/**
 	 * hostname ore IP address of the smtp server
 	 *
@@ -52,6 +62,16 @@ class Smtp extends AbstractConfig {
 	 * @var string
 	 */
 	public $password = '';
+	/**
+	 * optionally uses email to use i.e. as From
+	 *
+	 * @var string
+	 */
+	public $email = '';
+
+	// --------------------------------------------------------------------------------------------
+	// ~ Public methods
+	// --------------------------------------------------------------------------------------------
 
 	/**
 	 * extracts a configuration array, that is compatible with PEAR¬¨¬•s Mail::factory
@@ -71,5 +91,4 @@ class Smtp extends AbstractConfig {
 		}
 		return $ret;
 	}
-
 }
