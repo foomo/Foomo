@@ -163,6 +163,15 @@ class MVC
 			}
 		}
 	}
+
+	/**
+	 * @param AbstractApp $app
+	 * @param URLHandler $handler
+	 * @param \Exception $exception
+	 * @param bool $forceNoHTMLDocument
+	 * @return HTMLDocument
+	 * @throws \Exception
+	 */
 	public static function render($app, $handler, $exception, $forceNoHTMLDocument = false)
 	{
 		Timer::start(__METHOD__);
@@ -210,7 +219,16 @@ class MVC
 		Timer::stop(__METHOD__);
 		return $ret;
 	}
-	public static function runAction($app, $action, $parameters = array(), $baseURL = null)
+
+	/**
+	 * @param AbstractApp $app
+	 * @param string $action
+	 * @param array $parameters
+	 * @param null  $baseURL
+	 * @param bool  $forceNoHTMLDocument
+	 * @return string|HTMLDocument
+	 */
+	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true)
 	{
 		try {
 			$action = 'action' . ucfirst($action);
@@ -222,7 +240,7 @@ class MVC
 		}
 		$handler = new URLHandler($app, $baseURL);
 		$handler->lastAction = $action;
-		return self::render($app, $handler, $exception, true);
+		return self::render($app, $handler, $exception, $forceNoHTMLDocument);
 	}
 
 	private static function getViewCatchingPath()
