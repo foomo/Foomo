@@ -67,11 +67,11 @@ class View extends \Foomo\View
 	 *
 	 * @var \Foomo\Translation
 	 */
-	private $translation;
+	protected  $translation;
 	/**
 	 * @var string
 	 */
-	private $localeChain;
+	protected $localeChain;
 	/**
 	 * @var string
 	 */
@@ -151,7 +151,7 @@ class View extends \Foomo\View
 	 * @param string $methodName method to call
 	 * @param array $parameters parameters
 	 * @param array $attributes array('name' => 'value')
-	 * 
+	 *
 	 * @return string <a href="/bla/blubb/parmOne/parmTwo" title="title - looks like a tooltip" target="_self">link text</a>
 	 */
 	public function link($linkText, $methodName='default', array $parameters=array(), array $attributes=array())
@@ -165,10 +165,10 @@ class View extends \Foomo\View
 	}
 	/**
 	 * get multiple paths for multiple assets
-	 * 
+	 *
 	 * @param array $rawAssets
 	 * @param string $class borrow from another app
-	 * 
+	 *
 	 * @return array
 	 */
 	public function assets(array $rawAssets, $class = null)
@@ -184,10 +184,10 @@ class View extends \Foomo\View
 	}
 	/**
 	 * get an URL path for an asset
-	 * 
+	 *
 	 * @param string $rawAsset relative path from your apps module/htdocs folder
 	 * @param string $class borrow from another app
-	 * 
+	 *
 	 * @return string path part of the URL
 	 */
 	public function asset($rawAsset, $class = null)
@@ -199,10 +199,10 @@ class View extends \Foomo\View
 	}
 	/**
 	 * get an URL path for an asset in the modules htdocs var dir
-	 * 
+	 *
 	 * @param string $rawAsset relative path from your apps var/<runmode>/htdocs/modulesVar/<moduleName> folder
 	 * @param string $class borrow from another app
-	 * 
+	 *
 	 * @return string path part of the URL
 	 */
 	public function assetVar($rawAsset, $class = null)
