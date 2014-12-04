@@ -178,7 +178,11 @@ class MVC
 				$app->model = $app->controller->model;
 			}
 		} catch (\Exception $exception) {
-			// trigger_error($exception->getMessage());
+			// It's your responsibility to log your errors!
+			//trigger_error(
+			//  METHOD__ . ' Exception : ' . $exception->getMessage() .
+			//  ' trace ' . $exception->getTraceAsString(), E_USER_WARNING
+			//);
 		}
 		return $exception;
 	}
