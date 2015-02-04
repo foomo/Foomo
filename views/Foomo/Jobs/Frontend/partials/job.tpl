@@ -3,7 +3,7 @@
 /* @var $view Foomo\MVC\View */
 ?>
 <tr>
-	<td colspan="9"><?= $module . ' ' . get_class($job) ?></td>
+	<td colspan="9"><?= $module . ' ' . $view->escape(get_class($job)) ?> - <a href="<?= $view->escape($job->getURL())  ?>">run job</a></td>
 </tr>
 <tr style="<?= \Foomo\Jobs\Utils::getStatus($job)->isOk() ? 'color:black' : 'color:red' ?>">
 	<td><?= $view->escape($job->getExecutionRule()) ?></td>

@@ -15,16 +15,13 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testRun() {
-		$jobs = Utils::collectJobs();
-		$executionSecret = Utils::getExecutionSecret();
 		\Foomo\Jobs\Runner::runAJob(Mock\SleeperJob::create());
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\SleeperJob::create());
 		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status);
 	}
 	
 	public function testExecutionRuleValidation() {
-		$executionSecret = Utils::getExecutionSecret();
-		
+
 		try{
 			Mock\SleeperJob::create()->executionRule('* * * * *');
 		} catch (\Exception $e) {
@@ -125,15 +122,28 @@ class RunnerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testDieWhileWorkingJob() {
 		self::callAsync('DieWhileWorkingJob');
-		sleep(2);
+		sleep(1);
 		$status = \Foomo\Jobs\Utils::getStatus(Mock\DieWhileWorkingJob::create());
+		$json = json_encode($status, JSON_PRETTY_PRINT) . " time: " . time();
 		$this->assertNotEquals(getmypid(), $status->pid, 'pid should differ');
-		$this->assertFalse($status->isLocked, 'should not be locked');
-		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now');
-		$this->assertEquals(JobStatus::ERROR_DIED, $status->errorCode);
+		$this->assertFalse($status->isLocked, 'should not be locked ' . $json);
+		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now ' . $json);
+		$this->assertEquals(JobStatus::ERROR_DIED, $status->errorCode, $json);
 		
 	}
-	
+	public function testDieWithExceptionJob() {
+		self::callAsync('DieWithExceptionJob');
+		sleep(1);
+		$status = \Foomo\Jobs\Utils::getStatus(Mock\DieWithExceptionJob::create());
+		$json = json_encode($status, JSON_PRETTY_PRINT) . " time: " . time();
+		$this->assertFalse($status->isLocked, 'should not be locked ' . $json);
+		$this->assertEquals(JobStatus::STATUS_NOT_RUNNING, $status->status, 'we should not be running now ' . $json);
+		$this->assertEquals(JobStatus::ERROR_DIED, $status->errorCode, $json);
+		$this->assertEquals(__NAMESPACE__ . "\\Mock\\DieWithExceptionJob::run", $status->errorMessage, $json);
+
+
+	}
+
 	
 	public function testConcurrency() {
 		self::callAsync('SleeperJob');

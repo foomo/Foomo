@@ -235,6 +235,11 @@ abstract class AbstractJob
 		return new $className;
 	}
 
+	public function getURL()
+	{
+		return \Foomo\Utils::getServerUrl() . \Foomo\Module::getHtdocsPath('jobRunner.php') . "/" . urlencode($this->getSecretId(Utils::getExecutionSecret()));
+	}
+
 	/**
 	 * do your thing here
 	 */

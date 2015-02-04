@@ -48,7 +48,27 @@ class Utils {
 	 */
 	public static function getStatus(AbstractJob $job) {
 		$jobId = $job->getId();
-		return self::getPersistedStatus($jobId);
+		$currentStatus = self::getPersistedStatus($jobId);
+		if($currentStatus->isLocked && !\Foomo\Lock::isLocked($jobId)) {
+			// that is a locking lie
+			\Foomo\Lock::lock($jobId, true);
+			$persisted = self::getPersistedStatus($jobId);
+			if($persisted->isLocked) {
+				// that is bullshit - we got the lock - sbdy died
+				self::updateStatusJobError(
+					$jobId,
+					$persisted->pid,
+					JobStatus::ERROR_DIED,
+					"sbdy died alone",
+					false,
+					false
+				);
+			}
+			\Foomo\Lock::release($job->getId());
+			return self::getPersistedStatus($jobId);
+		} else {
+			return $currentStatus;
+		}
 	}
 
 	public static function getExecutionSecret() {
@@ -145,7 +165,8 @@ class Utils {
 	 * @param string $isRunning one of self::STATUS_
 	 * @param boolean $isLocked
 	 */
-	public static function updateStatusJobError($jobId, $pid, $errorCode, $errorMessage, $isRunning = false, $isLocked = false) {
+	public static function updateStatusJobError($jobId, $pid, $errorCode, $errorMessage, $isRunning = false, $isLocked = false)
+	{
 		$status = self::getPersistedStatus($jobId);
 		$fileName = self::getJobStatusFile($jobId);
 		$status->status = $isRunning ? JobStatus::STATUS_RUNNING : JobStatus::STATUS_NOT_RUNNING;
@@ -158,19 +179,19 @@ class Utils {
 		self::log($jobId, $status);
 		self::persistStatus($fileName, $status);
 		self::sendNotificationEmail($status->errorCode, $status->errorMessage);
-
-
-
 	}
 
-	private static function getPersistedStatus($jobId) {
+	private static function getPersistedStatus($jobId)
+	{
 		$fileName = self::getJobStatusFile($jobId);
+		$status = new JobStatus();
 		if (file_exists($fileName)) {
-			$contents = unserialize(file_get_contents($fileName));
-		} else {
-			$contents = new JobStatus();
+			$unserialized = unserialize(file_get_contents($fileName));
+			if(is_object($unserialized) && $unserialized instanceof JobStatus) {
+				$status = $unserialized;
+			}
 		}
-		return $contents;
+		return $status;
 	}
 
 	private static function getJobStatusFile($jobId) {

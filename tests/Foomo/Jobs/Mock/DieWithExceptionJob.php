@@ -6,7 +6,7 @@ namespace Foomo\Jobs\Mock;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author Jan Halfar jan@bestbytes.com
  */
-class DieWhileWorkingJob extends \Foomo\Jobs\AbstractJob
+class DieWithExceptionJob extends \Foomo\Jobs\AbstractJob
 {
 	protected $executionRule = '*   *       *       *       *';
 
@@ -27,6 +27,6 @@ class DieWhileWorkingJob extends \Foomo\Jobs\AbstractJob
 
 	public function run()
 	{
-		self::fuckoff();
+		throw new \Exception(__METHOD__);
 	}
 }

@@ -30,7 +30,7 @@ class Controller
 	/**
 	 * my model
 	 *
-	 * @var Foomo\Jobs\Frontend\Model
+	 * @var \Foomo\Jobs\Frontend\Model
 	 */
 	public $model;
 	public function actionDefault() {}

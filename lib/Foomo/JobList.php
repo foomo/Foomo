@@ -28,7 +28,10 @@ class JobList implements Jobs\JobListInterface
 {
 	public static function getJobs()
 	{
-		$jobs = array(Config\TempFileGCCreator::getGC());
+		$jobs = [
+			Config\TempFileGCCreator::getGC(),
+			new BasicAuth\Token\GC()
+		];
 		if(Session::getEnabled()) {
 			$jobs[] = Session\GCJob::create()->maxExecutionTime(3000);
 		}

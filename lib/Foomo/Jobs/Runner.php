@@ -76,20 +76,23 @@ class Runner {
 			}
 		}
 		Utils::updateStatusJobStart($jobId, $pid, $locked);
-		
-		call_user_func_array(array($job, 'run'), array());
+		try {
+			call_user_func_array(array($job, 'run'), array());
+			Utils::updateStatusJobDone($jobId, $pid);
+		} catch(\Exception $e) {
+			Utils::updateStatusJobError($jobId, $pid, $errorCode = JobStatus::ERROR_DIED, $errorMessage = $e->getMessage(), $isRunning = false, $isLocked = false);
+		}
 
-		Utils::updateStatusJobDone($jobId, $pid, $locked);
 		if ($job->getLock()) {
 			// clean up
 			\Foomo\Lock::release($job->getId());
-			Utils::updateStatusJobDone($jobId, $pid, false);
-			self::$callback = false;
 		}
+		self::$callback = false;
 	}
 
 	public static function shutDownListener($params) {
 		if (self::$callback) {
+			trigger_error(__METHOD__);
 			$error = error_get_last();
 			if (isset($error['type']) && ($error['type'] === E_ERROR || $error['type'] === E_USER_ERROR)) {
 				echo "Can do custom output and/or logging for fatal error here...";
