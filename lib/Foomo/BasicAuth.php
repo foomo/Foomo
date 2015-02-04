@@ -30,10 +30,21 @@ class BasicAuth {
 
 	private $authUserFile;
 	private $passwordEncryption;
+	private $authUserDomain;
 	private $authenticated = false;
 
 	const DEFAULT_AUTH_DOMAIN = 'default';
 
+	public static function getCurrentUser()
+	{
+		if(isset($_SERVER["PHP_AUTH_USER"])) {
+			return $_SERVER["PHP_AUTH_USER"];
+		} else if(BasicAuth\HTML::isAvailable()) {
+			return BasicAuth\HTML\Session::getUser();
+		} else {
+			return "";
+		}
+	}
 	/**
 	 * construct your auth object
 	 *
@@ -45,10 +56,12 @@ class BasicAuth {
 	{
 		$authUserFile = null;
 		if (is_null($authUserDomain)) {
+			$this->authUserDomain = self::DEFAULT_AUTH_DOMAIN;
 			if (file_exists(self::getDefaultAuthFilename())) {
 				$authUserFile = self::getDefaultAuthFilename();
 			}
 		} else {
+			$this->authUserDomain = $authUserDomain;
 			$authUserFile = self::getAuthFilename($authUserDomain);
 		}
 		if (!file_exists($authUserFile)) {
@@ -136,47 +149,11 @@ class BasicAuth {
 		} else {
 			$auth = false;
 			if (isset($_SERVER["PHP_AUTH_USER"]) && $_SERVER["PHP_AUTH_PW"]) {
-				$fp = fopen($this->authUserFile, 'r');
-				while ($line = fgets($fp)) {
-					$line = trim($line);
-					$parts = explode(':', $line);
-					if(count($parts)==2) {
-						list($username, $password) = $parts;
-						if ($username == $_SERVER['PHP_AUTH_USER']) {
-							switch(true) {
-								case strpos($password, '{SHA}') === 0:
-									//trigger_error("sha " . $password . " " . $_SERVER["PHP_AUTH_PW"] . " " .  base64_encode(sha1($_SERVER["PHP_AUTH_PW"], true)), E_USER_WARNING);
-									// inline sha
-									$this->passwordEncryption = "sha1";
-									break;
-							}
-							switch ($this->passwordEncryption) {
-								case 'crypt':
-									// Get the salt from $password. It is always the first
-									// two characters of a DES-encrypted string.
-									$salt = substr($password, 0, 2);
-									// Encrypt $PHP_AUTH_PW based on $salt
-									$hashedPassword = crypt($_SERVER["PHP_AUTH_PW"], $salt);
-									break;
-								case 'sha1':
-									$hashedPassword = "{SHA}" . base64_encode(sha1($_SERVER["PHP_AUTH_PW"], true));
-									break;
-								default:
-									$hashedPassword = null;
-									trigger_error("unsupported password hashing algorithm", E_USER_ERROR);
-							}
-							if ($password == $hashedPassword) {
-								// A match is found, meaning the user is authenticated.
-								// Stop the search.
-								$auth = true;
-								break;
-							}
-						}
-					} else {
-						trigger_error("fishy line in basic auth file", E_USER_WARNING);
-					}
+				$auth = $this->checkCredentials($_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]);
+				if(!$auth && BasicAuth\HTML::isAvailable()) {
+					// token fallback
+					$auth = in_array($this->authUserDomain, BasicAuth\Token::useToken($_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]));
 				}
-				fclose($fp);
 			}
 			if (!$auth) {
 				return false;
@@ -185,6 +162,55 @@ class BasicAuth {
 				return true;
 			}
 		}
+	}
+	private function checkCredentials($user, $password)
+	{
+		$auth = false;
+		$fp = fopen($this->authUserFile, 'r');
+		while ($line = fgets($fp)) {
+			$line = trim($line);
+			$parts = explode(':', $line);
+			if(count($parts)==2) {
+				list($fileUserName, $filePasswordHash) = $parts;
+				if ($fileUserName == $user) {
+					switch(true) {
+						case strpos($filePasswordHash, '{SHA}') === 0:
+							// inline sha
+							$this->passwordEncryption = "sha1";
+							break;
+					}
+					switch ($this->passwordEncryption) {
+						case 'crypt':
+							// Get the salt from $password. It is always the first
+							// two characters of a DES-encrypted string.
+							$salt = substr($filePasswordHash, 0, 2);
+							$hashedPassword = crypt($password, $salt);
+							break;
+						case 'sha1':
+							$hashedPassword = "{SHA}" . base64_encode(sha1($password, true));
+							break;
+						default:
+							$hashedPassword = null;
+							trigger_error("unsupported password hashing algorithm", E_USER_ERROR);
+					}
+					if ($filePasswordHash == $hashedPassword) {
+						// A match is found, meaning the user is authenticated.
+						// Stop the search.
+						$auth = true;
+						break;
+					}
+				}
+			} else {
+				trigger_error("fishy line in basic auth file", E_USER_WARNING);
+			}
+		}
+		fclose($fp);
+		return $auth;
+	}
+	public static function checkCredentialsForDomain($user, $password, $domain)
+	{
+		$inst = new self($domain);
+		return $inst->checkCredentials($user, $password);
 	}
 	/**
 	 * check if you are authenticated use @see checkAuthentication instead
@@ -197,8 +223,11 @@ class BasicAuth {
 		return $this->checkAuthentication();
 	}
 
-	public function logout()
+	public static function logout()
 	{
-
+		if(isset($_SERVER["PHP_AUTH_USER"])) {
+			header('WWW-Authenticate: Basic realm="' . \Foomo\Frontend::BASIC_AUTH_REALM . '", true, 401');
+		}
+		BasicAuth\HTML::logout();
 	}
 }

@@ -44,7 +44,8 @@ class Frontend extends \Foomo\MVC\AbstractApp
 			if(!headers_sent()) header('Content-Type: text/plain');
 			die('auth file does not exist - you might want to run setup.php');
 		}
-		BasicAuth::auth($realm, $authDomain);
+		// BasicAuth::auth($realm, $authDomain);
+		BasicAuth\HTML::auth([$authDomain]);
 	}
 
 	/**

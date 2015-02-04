@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Frontend;
+use Foomo\BasicAuth;
 use Foomo\MVC;
 
 /**
@@ -53,7 +54,7 @@ class Controller
 	 */
 	public function actionLogout()
 	{
-		header('WWW-Authenticate: Basic realm="' . \Foomo\Frontend::BASIC_AUTH_REALM . '", true, 401');
+		\Foomo\BasicAuth::logout();
 	}
 
 	/**

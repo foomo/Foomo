@@ -18,27 +18,7 @@
 		?>
 		<div id="fullContent">
 			<h1>
-			<?
-				$hour = date('H');
-				$user = $_SERVER['PHP_AUTH_USER'];
-				switch(true) {
-					case ($hour < 10 && $hour > 6):
-						$key = 'GREET_GOOD_MORNING';
-						break;
-					case ($hour > 12 && $hour < 13):
-						$key = 'GREET_LUNCH';
-						break;
-					case ($hour > 20 && $hour < 24):
-						$key = 'GREET_LATE';
-						break;
-					case ($hour > 0 && $hour < 6):
-						$key = 'GREET_LAUNCH';
-						break;
-					default:
-						$key = 'GREET_DEFAULT';
-				}
-				printf($view->_($key), $view->escape($user));
-			?>
+				<?= $view->partial("greetUser") ?>
 			</h1>
 
 			<hr>

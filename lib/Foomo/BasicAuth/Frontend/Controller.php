@@ -34,7 +34,7 @@ class Controller
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @var Foomo\BasicAuth\Frontend\Model
+	 * @var Model
 	 */
 	public $model;
 

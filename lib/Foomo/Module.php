@@ -72,6 +72,10 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 		return 'manages modules and provides a lightweight web oriented framework';
 	}
 
+	public static function getTokenDirResource()
+	{
+		return Modules\Resource\FS::getTempResource(Modules\Resource\FS::TYPE_FOLDER, "basic-auth-tokens" , self::NAME);
+	}
 	/**
 	 *
 	 * @return array
@@ -83,6 +87,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			Modules\Resource\PearPackage::getResource('Mail_Mime'),
 			Modules\Resource\Config::getResource(self::NAME, Jobs\DomainConfig::NAME),
 			Modules\Resource\Config::getResource(self::NAME, Session\DomainConfig::NAME),
+			self::getTokenDirResource(),
 			\Foomo\Modules\Resource\CliCommand::getResource('rm'),
 			\Foomo\Modules\Resource\CliCommand::getResource('mv'),
 			\Foomo\Modules\Resource\CliCommand::getResource('tar'),

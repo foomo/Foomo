@@ -270,7 +270,10 @@ class Utils
 		$oldPaths = explode(PATH_SEPARATOR, get_include_path());
 		ini_set('include_path', implode(PATH_SEPARATOR, array_unique(array_merge($oldPaths, $paths))));
 	}
-
+	private static function renderCredentials($user, $password)
+	{
+		return urlencode($user) . ':' . urlencode($password) . '@';
+	}
 	/**
 	 * get the server sth. like http://domain.com:8080
 	 *
@@ -281,10 +284,14 @@ class Utils
 	 */
 	public static function getServerUrl($requireSSL = null, $addCredentials = false)
 	{
+		$credentials = '';
 		if ($addCredentials && isset($_SERVER["PHP_AUTH_USER"]) && isset($_SERVER["PHP_AUTH_PW"])) {
-			$credentials = urlencode($_SERVER["PHP_AUTH_USER"]) . ':' . urlencode($_SERVER["PHP_AUTH_PW"]) . '@';
-		} else {
-			$credentials = '';
+			$credentials = self::renderCredentials($_SERVER["PHP_AUTH_USER"], $_SERVER["PHP_AUTH_PW"]);
+		} else if($addCredentials && \Foomo\BasicAuth\HTML::isAvailable() && count($domains = \Foomo\BasicAuth\HTML\Session::getDomains()) > 0) {
+			$user = \Foomo\BasicAuth\HTML\Session::getUser();
+			$domains = \Foomo\BasicAuth\HTML\Session::getDomains();
+			$password = \Foomo\BasicAuth\Token::createTokenForUser($user, $domains);
+			$credentials = self::renderCredentials($user, $password);
 		}
 		if (isset($_SERVER['HTTPS']) || $requireSSL || (isset($_SERVER['HTTPS']) && is_null($requireSSL))) {
 			$serverUrl = 'https://';

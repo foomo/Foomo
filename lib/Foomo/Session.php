@@ -28,6 +28,7 @@ namespace Foomo;
  */
 class Session
 {
+	private static $initCalled = false;
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
 	//---------------------------------------------------------------------------------------------
@@ -259,6 +260,7 @@ class Session
 
 	public static function init($reStart = false)
 	{
+		self::$initCalled = true;
 		/* @var $conf \Foomo\Session\DomainConfig */
 		$conf = self::getConf();
 		if (!is_null($conf) && $conf->enabled) {
@@ -450,9 +452,13 @@ class Session
 	 */
 	public static function getEnabled()
 	{
-		$conf = self::getConf();
-		if ($conf) {
-			return $conf->enabled && !self::$disabled;
+		if(self::$initCalled) {
+			$conf = self::getConf();
+			if ($conf) {
+				return $conf->enabled && !self::$disabled;
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
