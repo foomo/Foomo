@@ -74,7 +74,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 
 	public static function getTokenDirResource()
 	{
-		return Modules\Resource\FS::getTempResource(Modules\Resource\FS::TYPE_FOLDER, "basic-auth-tokens" , self::NAME);
+		return Modules\Resource\Fs::getTempResource(Modules\Resource\Fs::TYPE_FOLDER, "basic-auth-tokens" , self::NAME);
 	}
 	/**
 	 *
