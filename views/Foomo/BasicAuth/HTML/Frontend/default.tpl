@@ -3,19 +3,25 @@
 /* @var $model Foomo\BasicAuth\HTML\Frontend\Model */
 /* @var $view Foomo\MVC\View */
 
+\Foomo\HTMLDocument::getInstance()
+	->addStylesheets([
+		Foomo\Module::getHtdocsBuildPath('css/reset.css'),
+		//Foomo\Module::getHtdocsBuildPath('css/module.css'),
+		Foomo\Module::getHtdocsBuildPath('css/auth.css')
+	])
+;
 ?>
-<h1>Authentication required</h1>
 <form method="post" action="<?= $view->escape($_SERVER["REQUEST_URI"]) ?>">
-	<div>
-		<label>name</label><br>
-		<input name="name" placeholder="name">
-	</div>
-	<div>
-		<label>password</label><br>
-		<input name="password" placeholder="password" type="password">
-	</div>
-	<div>
-		<input type="submit" value="login">
-	</div>
-
+	<h1>Authentication required</h1>
+	<label>name</label><br>
+	<input name="name" placeholder="name" value="<?= $view->escape($model->user) ?>">
+	<label>password</label><br>
+	<input
+		class="<?= !empty($model->password) ? 'retry' : '' ?>"
+		name="password"
+		placeholder="password"
+		type="password"
+		value="<?= $view->escape($model->password) ?>"
+	>
+	<input type="submit" value="Login">
 </form>

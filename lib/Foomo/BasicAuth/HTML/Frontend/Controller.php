@@ -37,11 +37,14 @@ class Controller
 
 	public function actionDefault()
 	{
-		if(!empty($_POST["name"]) && !empty($_POST["password"])) {
-			$user = $_POST["name"];
-			$password = $_POST["password"];
-			\Foomo\BasicAuth\HTML::login($user, $password, $this->model->domains);
-
+		$this->model->user = !empty($_POST["name"]) ? $_POST["name"] : "";
+		if(!empty($this->model->user) && !empty($_POST["password"])) {
+			$this->model->password = $_POST["password"];
+			\Foomo\BasicAuth\HTML::login(
+				$this->model->user,
+				$this->model->password,
+				$this->model->domains
+			);
 		}
 	}
 }

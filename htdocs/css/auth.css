@@ -1,0 +1,35 @@
+body {
+    padding: 1em;
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+h1 {
+    padding-top: 1em;
+    font-size: 1.5em;
+    padding-bottom: 1em;
+}
+
+form {
+    width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input {
+    width: 280px;
+    padding: 5px;
+    border: 1px solid grey;
+    height: 2em;
+    margin: 1em 0;
+}
+
+input[type=submit] {
+    width: 290px;
+    height: 3em;
+    padding: 0 12em;
+    margin: 1em 0;
+}
+
+input.retry {
+    background-color: #ff9f82;
+}

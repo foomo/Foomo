@@ -28,4 +28,7 @@ namespace Foomo\BasicAuth\HTML\Frontend;
 class Model
 {
 	public $domains;
+	public $user;
+	public $password;
+
 }
