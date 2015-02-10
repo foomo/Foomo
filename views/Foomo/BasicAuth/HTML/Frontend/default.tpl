@@ -4,6 +4,7 @@
 /* @var $view Foomo\MVC\View */
 
 \Foomo\HTMLDocument::getInstance()
+	->addHead('<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">')
 	->addStylesheets([
 		Foomo\Module::getHtdocsBuildPath('css/reset.css'),
 		//Foomo\Module::getHtdocsBuildPath('css/module.css'),
