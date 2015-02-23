@@ -174,13 +174,14 @@ class Fs extends \Foomo\Modules\Resource
 
 	private function tryCreateFolder($dirname)
 	{
+        $limit = 1000000;
 		$i = 0;
 		$oldDirname = null;
 		$existingFolder = null;
 		$todo = array();
 		$file = $dirname;
-		while (($dirname = dirname($file)) && $dirname != $oldDirname && $i < 101) {
-			if ($i >= 100) {
+		while (($dirname = dirname($file)) && $dirname != $oldDirname && $i <= $limit) {
+			if ($i > $limit - 1) {
 				trigger_error('try create folder seems to have a bug on your system ... ', E_USER_WARNING);
 				return false;
 			} else {
@@ -199,7 +200,7 @@ class Fs extends \Foomo\Modules\Resource
 		if ($existingFolder && is_writable($existingFolder)) {
 			foreach ($todo as $folderName) {
 				$newFolder = $existingFolder . DIRECTORY_SEPARATOR . $folderName;
-				if (mkdir($newFolder)) {
+				if ((file_exists($newFolder) && is_dir($newFolder)) || mkdir($newFolder)) {
 					$existingFolder = $newFolder;
 				} else {
 					return false;
