@@ -135,6 +135,7 @@ class Session
 			if (!isset($inst->instances[$key])) {
 				self::lockAndLoad();
 				self::setClassInstance(new $className, $identifier);
+                $inst = self::getInstance();
 			}
 			return $inst->instances[$key];
 			// would be much nicer, but as long, as there is not a magic __get_class method we can not use this ...
