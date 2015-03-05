@@ -19,9 +19,7 @@
 
 namespace Foomo\Modules\Resource;
 
-use Foomo\Config;
 use PHPUnit_Framework_TestCase as TestCase;
-use Foomo\Module;
 
 /**
  * @link www.foomo.org
@@ -32,7 +30,7 @@ class FsTest extends TestCase {
 
     private static function getTestfilename()
     {
-        return Config::getTempDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'fs-resource-test-dir' . DIRECTORY_SEPARATOR . 'bar' . DIRECTORY_SEPARATOR . 'deep' . DIRECTORY_SEPARATOR . 'baz.test';
+        return \Foomo\Config::getTempDir(\Foomo\Module::NAME) . DIRECTORY_SEPARATOR . 'fs-resource-test-dir' . DIRECTORY_SEPARATOR . 'bar' . DIRECTORY_SEPARATOR . 'deep' . DIRECTORY_SEPARATOR . 'baz.test';
     }
     private static function cleanup()
     {
@@ -40,7 +38,7 @@ class FsTest extends TestCase {
         if(file_exists($testFilename)) {
             unlink($testFilename);
         }
-        $tempdir = Config::getTempDir(\Foomo\Module::NAME);
+        $tempdir = \Foomo\Config::getTempDir(\Foomo\Module::NAME);
         $rmDir = dirname($testFilename);
         while($tempdir != $rmDir) {
             if(file_exists($rmDir) && file_exists($rmDir)) {
