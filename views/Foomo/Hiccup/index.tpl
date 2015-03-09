@@ -26,4 +26,6 @@ echo 'var       : ' . Foomo\Config::getVarDir() . PHP_EOL;
 <ul>
 	<li><a href="<?= \Foomo\MVC\ControllerHelper::staticRenderAppLink('Foomo\Hiccup\Controller', 'actionResetAutoloader') ?>">remove autoloader cache</a></li>
 	<li><a href="<?= \Foomo\MVC\ControllerHelper::staticRenderAppLink('Foomo\Hiccup\Controller', 'actionResetConfigCache') ?>">remove config cache</a></li>
+	<li><a href="<?= \Foomo\MVC\ControllerHelper::staticRenderAppLink('Foomo\Hiccup\Controller', 'actionDisableAllModules') ?>">disable all modules</a></li>
+	<li><a href="<?= \Foomo\MVC\ControllerHelper::staticRenderAppLink('Foomo\Hiccup\Controller', 'actionResetEverything') ?>">reset everything</a></li>
 </ul>

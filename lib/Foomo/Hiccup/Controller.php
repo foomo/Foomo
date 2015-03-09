@@ -83,4 +83,20 @@ final class Controller {
 		return $ret;
 	}
 
+	public function actionDisableAllModules()
+	{
+		$ret = $this->renderMenu();
+		$model = array('action' => 'disable all modules', 'result' => Hiccup::disableAllModules());
+		$ret .= $this->getView('result', $model);
+		return $ret;
+	}
+
+	public function actionResetEverything()
+	{
+		$ret = $this->renderMenu();
+		$model = array('action' => 'reset everything (modules, config cache, autoloader)', 'result' => Hiccup::resetEverything());
+		$ret .= $this->getView('result', $model);
+		return $ret;
+	}
+
 }

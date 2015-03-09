@@ -72,4 +72,19 @@ class Hiccup
 	{
 		\Foomo\Cache\Manager::reset('Foomo\\Config::cachedGetConf', false);
 	}
+
+	public static function disableAllModules()
+	{
+		/** @var \Foomo\Core\DomainConfig $coreConfig */
+		$coreConfig = \Foomo\Config::getConf('Foomo', 'Foomo.core');
+		$coreConfig->enabledModules = ['Foomo'];
+		\Foomo\Config::setConf($coreConfig, 'Foomo');
+	}
+
+	public static function resetEverything()
+	{
+		self::disableAllModules();
+		self::removeConfigCache();
+		self::removeAutoloaderCache();
+	}
 }
