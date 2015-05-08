@@ -63,6 +63,7 @@ class Hiccup
 		\Foomo\Cache\Manager::reset('Foomo\\Cache\\DependencyModel->cachedGetDirectory', false);
 		\Foomo\Cache\Manager::reset('Foomo\\MVC\\AppDirectory::cachedGetAppClassDirectory', false);
 		\Foomo\Cache\Manager::reset('Foomo\\Modules\\Manager::cachedGetEnabledModulesOrderedByDependency', false);
+		\Foomo\Cache\Manager::reset('Foomo\\Services\\Reflection\\ServiceObjectType::getSeriouslyCachedType', false);
 	}
 
 	/**
