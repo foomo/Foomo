@@ -228,7 +228,7 @@ class Utils {
 		$smtpConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Config\Smtp::NAME);
 		$jobsConfig = \Foomo\Config::getConf(\Foomo\Module::NAME, \Foomo\Jobs\DomainConfig::NAME);
 		if ($smtpConfig && !empty($smtpConfig->host)) {
-			if ($jobsConfig && ! empty($jobsConfig->emailTo)) {
+			if ($jobsConfig && !empty($jobsConfig->emailTo)) {
 				$mailer = new \Foomo\Mailer();
 				\Foomo\Mailer::$logLast = true;
 				$mailer->setSmtpConfig($smtpConfig);
