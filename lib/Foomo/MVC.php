@@ -280,15 +280,28 @@ class MVC
 	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true)
 	{
 		try {
-			$action = 'action' . ucfirst($action);
-			call_user_func_array(array($app->controller, $action), $parameters);
+			$actionName = 'action' . ucfirst($action);
+			if(method_exists($app->controller, $actionName)) {
+				# call action on controller class
+				call_user_func_array(array($app->controller, $actionName), $parameters);
+			} else {
+				# call run action on specific action controller
+				$controllerClass = get_class($app->controller) . '\Action' . ucfirst($action);
+				if(class_exists($controllerClass)) {
+					$actionClass = new $controllerClass($app);
+					call_user_func_array(array($actionClass, 'run'), $parameters);
+				} else {
+					throw new \Exception('Class "' . $controllerClass . '" does not exist', 404);
+				}
+			}
 			$app->model = $app->controller->model;
 			$exception = null;
 		} catch (\Exception $exception) {
 			trigger_error($exception->getMessage());
 		}
-		$handler = new URLHandler($app, $baseURL);
-		$handler->lastAction = $action;
+		$urlHandlerClass = 'Foomo\\MVC\\URLHandler';
+		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
+		$handler->lastAction = $actionName;
 		return self::render($app, $handler, $exception, $forceNoHTMLDocument);
 	}
 
@@ -435,6 +448,7 @@ class MVC
 				if ($parent && !$parent->isAbstract()) {
 					$cache[$id] = self::getViewPartialTemplate($parent->getName(), $partialName);
 				} else {
+					trigger_error('partial "'.$partialName.'" not found for app ' . $appClassName, E_USER_WARNING);
 					$cache[$id] = self::getMyTemplate('partialNotFound');
 				}
 			} else {
