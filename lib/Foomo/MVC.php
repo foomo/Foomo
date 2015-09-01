@@ -435,7 +435,9 @@ class MVC
 				if ($parent && !$parent->isAbstract()) {
 					$cache[$id] = self::getViewPartialTemplate($parent->getName(), $partialName);
 				} else {
-					$cache[$id] = self::getMyTemplate('partialNotFound');
+					$errorTemplate = self::getMyTemplate('partialNotFound');
+					$errorTemplate->templateError = 'app: ' . $appClassName . ' is missing partial: ' . $partialName . ' which was expected in: ' . substr($templateFile, strlen(\Foomo\CORE_CONFIG_DIR_MODULES)+1);
+					$cache[$id] = $errorTemplate;
 				}
 			} else {
 				$cache[$id] = new Template($appClassName . '-' . $partialName, $templateFile);

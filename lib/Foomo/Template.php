@@ -29,6 +29,7 @@ namespace Foomo;
  */
 class Template {
 	static $debug = false;
+	public $templateError;
 	static $debugTemplate = '<div style="border:red 3px solid !important; margin: 5px !important;"><div style="background-color: red !important; color: white !important; padding: 3px !important;">$file</div>$rendering</div>';
 	/**
 	 * names make things friends
@@ -91,6 +92,9 @@ class Template {
 
 	private function run($model, $view, $exception, $variables)
 	{
+		if(!empty($this->templateError)) {
+			$variables['templateError'] = $this->templateError;
+		}
 		extract($variables);
 		self::$stack[] = $this->file;
 		include $this->file;
