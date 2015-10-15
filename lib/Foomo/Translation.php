@@ -71,35 +71,67 @@ class Translation
 	/**
 	 * get the default localeChain from the environment
 	 *
+	 * @param string[] $fallbacks
+	 *
 	 * @todo implement locale detection for the command line
-	 * @todo find a good configurable solution for the fallbacks
 	 *
 	 * @return string[] array of locales
 	 */
-	public static function getDefaultChainFromEnv()
+	public static function getDefaultChainFromEnv($fallbacks = ['en', 'de'])
 	{
-		$fallbacks = array('en', 'de');
 		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-			$parts = explode(';', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
-			$localeParts = explode(',', $parts[0]);
-			$localeChain = array();
-			foreach ($localeParts as $part) {
-				$part = trim($part);
-				$dashPos = strpos($part, '-');
-				if ($dashPos !== false) {
-					$firstPart = substr($part, 0, $dashPos);
-					$part = $firstPart . '_' . strtoupper(substr($part, $dashPos + 1));
-					$localeChain[] = $part;
-					$localeChain[] = $firstPart;
+			// fetch locales and quality from accept language header (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4)
+			$locales = [];
+			foreach(explode(',', $_SERVER["HTTP_ACCEPT_LANGUAGE"]) as $acceptLanguage) {
+				$pos = strpos($acceptLanguage, ';q=');
+				if($pos === false) {
+					$locale = $acceptLanguage;
+					$quality = 1.0;
 				} else {
-					$localeChain[] = $part;
+					$locale = substr($acceptLanguage, 0, $pos);
+					$quality = substr($acceptLanguage, $pos+3);
 				}
+
+				// format locale as any two-letter primary-tag is an ISO-639 language abbreviation and any two-letter initial subtag is an ISO-3166 country code
+				// http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.10
+				$locale = strtolower($locale);
+				$localeParts = explode('-', $locale);
+				if(count($localeParts) == 2) {
+					if($localeParts[1] == '*') {
+						$locale = $localeParts[0];
+					} else {
+						$locale = $localeParts[0] . '_' . strtoupper($localeParts[1]);
+					}
+				}
+
+				// filter asterisk
+				if($locale == '*') {
+					continue;
+				}
+
+				$locales[] = [
+					'locale' => $locale,
+					'quality' => $quality,
+				];
 			}
+
+			// sort locales by quality
+			usort($locales, function($a, $b) {
+				return($a['quality'] <= $b['quality']);
+			});
+
+			$localeChain = [];
+			foreach($locales as $locale) {
+				$localeChain[] = $locale['locale'];
+			}
+
+			// add fallbacks
 			foreach ($fallbacks as $fallback) {
 				if (!in_array($fallback, $localeChain)) {
 					$localeChain[] = $fallback;
 				}
 			}
+
 			return $localeChain;
 		} else {
 			return $fallbacks;
@@ -149,14 +181,23 @@ class Translation
 	 */
 	public static function cachedGetLocaleTable($localeRoots, $localeChain, $namespace)
 	{
-		$ret = array();
+		$ret = [];
 		$localeRoots = array_reverse($localeRoots);
 		$localeChain = array_reverse($localeChain);
 		foreach ($localeRoots as $localeRoot) {
 			foreach ($localeChain as $locale) {
+				// test for a locale file (de_DE.yml)
 				$fileName = self::getResourceFileName($localeRoot, $locale, $namespace);
 				if (file_exists($fileName)) {
 					$ret = array_merge($ret, \Foomo\Yaml::parse(file_get_contents($fileName)));
+				}
+
+				// match language of locale, e.g. de.yaml of de_CH
+				if(strlen($locale) > 2 && !in_array(substr($locale, 0, 2), $localeChain)) {
+					$fileName = self::getResourceFileName($localeRoot, substr($locale, 0, 2), $namespace);
+					if (file_exists($fileName)) {
+						$ret = array_merge($ret, \Foomo\Yaml::parse(file_get_contents($fileName)));
+					}
 				}
 			}
 		}
