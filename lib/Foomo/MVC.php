@@ -120,7 +120,6 @@ class MVC
 		$urlHandlerClass = 'Foomo\\MVC\\URLHandler'
 	)
 	{
-		//Timer::start(__METHOD__);
 		self::$aborted = false;
 		// set up the application
 
@@ -142,7 +141,6 @@ class MVC
 		} else {
 			Logger::transactionComplete($transActionName, 'mvc aborted');
 		}
-		//Timer::stop(__METHOD__);
 		return $ret;
 	}
 
@@ -192,7 +190,8 @@ class MVC
 	 * @param URLHandler  $handler
 	 * @param Template    $template
 	 * @param \Exception  $exception
-	 * @return mixed
+	 *
+	 * @return \Foomo\MVC\View
 	 */
 	public static function getView(AbstractApp $app, URLHandler $handler, Template $template, $exception)
 	{
@@ -562,10 +561,9 @@ class MVC
 		$templateFileBase =
 			\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
 			$appClassModule . DIRECTORY_SEPARATOR .
-			// 'templates' . DIRECTORY_SEPARATOR .
 			'views' . DIRECTORY_SEPARATOR .
-			//$appId . DIRECTORY_SEPARATOR
-			implode(DIRECTORY_SEPARATOR, explode('\\', $appClassName));;
+			implode(DIRECTORY_SEPARATOR, explode('\\', $appClassName))
+		;
 		return $templateFileBase;
 	}
 

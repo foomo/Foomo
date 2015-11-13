@@ -134,6 +134,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			case 'clean':
 				$result->addEntry('removing translation caches');
 				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cachedGetLocaleTable', null, true, Invalidator::POLICY_DELETE);
+				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cached', null, true, Invalidator::POLICY_DELETE);
 				break;
 			case 'all':
 				$buildNumber = \Foomo::getBuildNumber();
