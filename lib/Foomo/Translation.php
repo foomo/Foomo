@@ -75,6 +75,9 @@ class Translation
 	 */
 	public static function getExtendedTranslation(array $namespaceRoots, $localeChain = null)
 	{
+		if(is_null($localeChain)) {
+			$localeChain = self::getDefaultLocaleChain();
+		}
 		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetExtendedTranslation', array($namespaceRoots, $localeChain));
 	}
 
@@ -92,9 +95,6 @@ class Translation
 	public static function cachedGetExtendedTranslation($namespaceRoots, $localeChain)
 	{
 		$translation = new static();
-		if(is_null($localeChain)) {
-			$localeChain = self::getDefaultLocaleChain();
-		}
 		$translation->localeChain = $localeChain;
 		foreach($namespaceRoots as $namespace => $localeRoots) {
 			$translation->_table = array_merge($translation->_table, \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetLocaleTable', array($localeRoots, $translation->localeChain, $namespace)));
