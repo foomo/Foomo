@@ -42,7 +42,7 @@ class CliCommand extends \Foomo\Modules\Resource
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @param string $className Cli command that should exist
+	 * @param string $command Cli command that should exist
 	 */
 	private function __construct($command)
 	{
@@ -105,7 +105,7 @@ class CliCommand extends \Foomo\Modules\Resource
 
 	/**
 	 * @param string $command Cli command that should exist
-	 * @return Foomo\Modules\Resource\CliCommand
+	 * @return \Foomo\Modules\Resource\CliCommand
 	 */
 	public static function getResource($command)
 	{
