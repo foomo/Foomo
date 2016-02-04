@@ -91,11 +91,10 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Modules\Resource\CliCommand::getResource('rm'),
 			\Foomo\Modules\Resource\CliCommand::getResource('mv'),
 			\Foomo\Modules\Resource\CliCommand::getResource('tar'),
-			\Foomo\Modules\Resource\CliCommand::getResource('zip'),
+			\Foomo\Modules\Resource\CliCommand::getResource('zip')->isNiceToHave(),
 			\Foomo\Modules\Resource\CliCommand::getResource('find'),
 			\Foomo\Modules\Resource\CliCommand::getResource('mkdir'),
 			\Foomo\Modules\Resource\CliCommand::getResource('which'),
-
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, 'Foomo.cacheTestConfig');

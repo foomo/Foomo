@@ -32,7 +32,7 @@ class Foomo
 		if(!isset(self::$buildNumber)) {
 			$buildNumberFile = self::getBuildNumberFile();
 			if(!file_exists($buildNumberFile)) {
-				file_put_contents($buildNumberFile, '1');
+				self::incrementBuildNumber();
 			}
 			self::$buildNumber = (int) trim(file_get_contents($buildNumberFile));
 		}
@@ -41,7 +41,13 @@ class Foomo
 	public static function incrementBuildNumber()
 	{
 		Foomo\Lock::lock($lockName = 'foomo-buildNumber', true);
-		file_put_contents(self::getBuildNumberFile(), (string) ($buildNumber = (self::getBuildNumber() + 1)));
+		$buildNumberFile = self::getBuildNumberFile();
+		$buildNumber = -1;
+		if(file_exists($buildNumberFile)) {
+			$buildNumber = self::getBuildNumber();
+		}
+		$buildNumber ++;
+		file_put_contents($buildNumberFile, (string) ($buildNumber));
 		self::$buildNumber = $buildNumber;
 		Foomo\Lock::release($lockName);
 		\Foomo\Modules\Manager::updateSymlinksForHtdocs();

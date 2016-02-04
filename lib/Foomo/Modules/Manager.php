@@ -533,6 +533,7 @@ class Manager
 			$validatedResources = array();
 			foreach($resources as $resource) {
 				if(is_object($resource) && ($resource instanceof Resource)) {
+					$resource->forModule($module);
 					$validatedResources[] = $resource;
 				} else {
 					trigger_error('invalid value returned as a module resource from ' . $moduleClassName . '::getResources() all resources must be instances of Foomo\Modules\Resource', E_USER_ERROR);

@@ -27,7 +27,7 @@ use Foomo\Router as R;
 
 /**
  * frontend for foomo
- * 
+ *
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
