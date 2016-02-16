@@ -35,6 +35,10 @@ class BasicAuth {
 
 	const DEFAULT_AUTH_DOMAIN = 'default';
 
+	const HASH_SHA    = 'sha';
+	const HASH_CRYPT  = 'crypt';
+	const HASH_BCRYPT = 'bcrypt';
+
 	public static function getCurrentUser()
 	{
 		if(isset($_SERVER["PHP_AUTH_USER"])) {
@@ -52,7 +56,7 @@ class BasicAuth {
 	 * @param string $passwordEncryption password hashing algorithm CRYPT | MD5 | SHA | PLAINTEXT
 	 * @param boolean $SSLRequireSSL
 	 */
-	public function __construct($authUserDomain = null, $passwordEncryption = 'crypt', $SSLRequireSSL = true)
+	public function __construct($authUserDomain = null, $passwordEncryption = self::HASH_CRYPT, $SSLRequireSSL = true)
 	{
 		$authUserFile = null;
 		if (is_null($authUserDomain)) {
@@ -173,32 +177,32 @@ class BasicAuth {
 			if(count($parts)==2) {
 				list($fileUserName, $filePasswordHash) = $parts;
 				if ($fileUserName == $user) {
+					$passwordEncryption = $this->passwordEncryption;
 					switch(true) {
 						case strpos($filePasswordHash, '{SHA}') === 0:
-							// inline sha
-							$this->passwordEncryption = "sha1";
+							$passwordEncryption = self::HASH_SHA;
+							break;
+						case strlen($filePasswordHash) > 3 && in_array(substr($filePasswordHash, 0, 4), ['$2y$', '$2a$', '$2b$' ]):
+							$passwordEncryption= self::HASH_BCRYPT;
 							break;
 					}
-					switch ($this->passwordEncryption) {
-						case 'crypt':
+					switch ($passwordEncryption) {
+						case self::HASH_BCRYPT:
+							$auth = password_verify($password, $filePasswordHash);
+							break 2;
+						case self::HASH_CRYPT:
 							// Get the salt from $password. It is always the first
 							// two characters of a DES-encrypted string.
-							$salt = substr($filePasswordHash, 0, 2);
-							$hashedPassword = crypt($password, $salt);
-							break;
-						case 'sha1':
-							$hashedPassword = "{SHA}" . base64_encode(sha1($password, true));
-							break;
+							$auth = $filePasswordHash == crypt($password, substr($filePasswordHash, 0, 2));
+							break 2;
+						case self::HASH_SHA:
+							$auth = $filePasswordHash == "{SHA}" . base64_encode(sha1($password, true));
+							break 2;
 						default:
 							$hashedPassword = null;
 							trigger_error("unsupported password hashing algorithm", E_USER_ERROR);
 					}
-					if ($filePasswordHash == $hashedPassword) {
-						// A match is found, meaning the user is authenticated.
-						// Stop the search.
-						$auth = true;
-						break;
-					}
+					break;
 				}
 			} else {
 				trigger_error("fishy line in basic auth file", E_USER_WARNING);
