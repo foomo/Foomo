@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\BasicAuth;
+use Foomo\BasicAuth;
 
 /**
  * basic auth file CRUD
@@ -84,7 +85,7 @@ class Utils
 	 * @param string $hashAlgorythm so far crypt only
 	 * @return boolean
 	 */
-	public static function updateUser($domain, $name, $password, $hashAlgorythm = 'sha')
+	public static function updateUser($domain, $name, $password, $hashAlgorythm = BasicAuth::HASH_BCRYPT)
 	{
 		$users = self::getUsers($domain);
 		$users[$name] = self::hash($password, $hashAlgorythm);
@@ -128,31 +129,30 @@ class Utils
 	}
 
 	/**
-	 * hash a password into an authfile
+	 * hash a password into an auth file
 	 *
 	 * @param string $password
-	 * @param string $algorythm so far only crypt is supported
+	 * @param string $algorithm use \Foomo\BasicAuth::HASH_BCRYPT
 	 * @param string $salt
 	 *
 	 * @return string
 	 */
-	public static function hash($password, $algorythm = 'sha', $salt = null)
+	public static function hash($password, $algorithm = BasicAuth::HASH_BCRYPT, $salt = "")
 	{
-		switch($algorythm) {
-			case 'sha':
-				$hash = '{SHA}' . base64_encode(sha1($salt . $password, true));
-				break;
-			case 'crypt':
+		switch($algorithm) {
+			case BasicAuth::HASH_BCRYPT:
+				return password_hash($salt.$password, PASSWORD_BCRYPT);
+			case BasicAuth::HASH_SHA:
+				return '{SHA}' . base64_encode(sha1($salt . $password, true));
+			case BasicAuth::HASH_CRYPT:
 				trigger_error('please do not use crypt anymore', E_USER_DEPRECATED);
 				if(is_null($salt)) {
 					$salt = self::getSaltChar() . self::getSaltChar();
 				}
-				$hash = crypt($password, $salt);
-				break;
+				return crypt($password, $salt);
 			default:
-				trigger_error('unsopported hasing algorythm ' . $algorythm, E_USER_ERROR);
+				trigger_error('unsupported hashing algorithm ' . $algorithm, E_USER_ERROR);
 		}
-		return $hash;
 	}
 
 	//---------------------------------------------------------------------------------------------
