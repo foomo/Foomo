@@ -66,6 +66,9 @@ class Utils {
 		return $map;
 	}
 
+	/**
+	 * @return OldConfig[]
+	 */
 	public static function getOldConfigs()
 	{
 		$ret = array();
@@ -180,6 +183,35 @@ class Utils {
 		return $ret;
 	}
 
+	public static function oldConfigGC( $numberToKeep = 10)
+	{
+		$report = '';
+		$oldConfigs = self::getOldConfigs();
+		$filter = [];
+		foreach($oldConfigs as $oldConfig) {
+			$key = $oldConfig->module . ':' . $oldConfig->domain . ':' . $oldConfig->name;
+			if (!isset($filter[$key])) {
+				$filter[$key] = [];
+			}
+			$filter[$key][$oldConfig->timestamp] = $oldConfig;
+		}
+		//var_dump($filter);
+		foreach($filter as $configDomainName => $oldConfigs) {
+			$report .= 'cleaning old configs ' . $configDomainName . PHP_EOL;
+			ksort($oldConfigs);
+			$i = 0;
+			foreach($oldConfigs as $ts => $oldConfig) {
+				$i ++;
+				$remove = $i > $numberToKeep;
+				$report .= '	' . $i . ' ' . ($remove?'remove':'keep') . ' ' . $ts . ' ' . $oldConfig->filename . PHP_EOL;
+				if($remove) {
+					unlink($oldConfig->filename);
+				}
+			}
+		}
+		return $report;
+	}
+
 	/**
 	 * scan the class loader for all subclasses of Foomo\Config\AbstractConfig
 	 *
@@ -216,7 +248,7 @@ class Utils {
 	 */
 	private static function domainConfigClassNameToDomain($className)
 	{
-		/* @var $inst Foomo\Config\AbstractConfig */
+		/* @var $inst \Foomo\Config\AbstractConfig */
 		$inst = new $className;
 		return $inst->getName();
 	}
