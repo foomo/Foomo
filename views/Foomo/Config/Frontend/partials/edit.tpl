@@ -30,7 +30,8 @@ foreach($oldConfigs as $oldConfig) {
 	}
 }
 
-$yamlRenderFunc = function($yaml, $view) {
+$yamlRenderFunc = function($config, $view) {
+	$yaml = (string) $config;
 	if(class_exists('GeSHi')) {
 		$geshi = new GeSHi($yaml, 'rails'); 
 		return $geshi->parse_code();
