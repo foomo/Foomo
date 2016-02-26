@@ -120,7 +120,6 @@ class MVC
 		$urlHandlerClass = 'Foomo\\MVC\\URLHandler'
 	)
 	{
-		//Timer::start(__METHOD__);
 		self::$aborted = false;
 		// set up the application
 
@@ -142,7 +141,6 @@ class MVC
 		} else {
 			Logger::transactionComplete($transActionName, 'mvc aborted');
 		}
-		//Timer::stop(__METHOD__);
 		return $ret;
 	}
 
@@ -192,7 +190,8 @@ class MVC
 	 * @param URLHandler  $handler
 	 * @param Template    $template
 	 * @param \Exception  $exception
-	 * @return mixed
+	 *
+	 * @return \Foomo\MVC\View
 	 */
 	public static function getView(AbstractApp $app, URLHandler $handler, Template $template, $exception)
 	{
@@ -280,15 +279,28 @@ class MVC
 	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true)
 	{
 		try {
-			$action = 'action' . ucfirst($action);
-			call_user_func_array(array($app->controller, $action), $parameters);
+			$actionName = 'action' . ucfirst($action);
+			if(method_exists($app->controller, $actionName)) {
+				# call action on controller class
+				call_user_func_array(array($app->controller, $actionName), $parameters);
+			} else {
+				# call run action on specific action controller
+				$controllerClass = get_class($app->controller) . '\Action' . ucfirst($action);
+				if(class_exists($controllerClass)) {
+					$actionClass = new $controllerClass($app);
+					call_user_func_array(array($actionClass, 'run'), $parameters);
+				} else {
+					throw new \Exception('Class "' . $controllerClass . '" does not exist', 404);
+				}
+			}
 			$app->model = $app->controller->model;
 			$exception = null;
 		} catch (\Exception $exception) {
 			trigger_error($exception->getMessage());
 		}
-		$handler = new URLHandler($app, $baseURL);
-		$handler->lastAction = $action;
+		$urlHandlerClass = 'Foomo\\MVC\\URLHandler';
+		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
+		$handler->lastAction = $actionName;
 		return self::render($app, $handler, $exception, $forceNoHTMLDocument);
 	}
 
@@ -435,6 +447,7 @@ class MVC
 				if ($parent && !$parent->isAbstract()) {
 					$cache[$id] = self::getViewPartialTemplate($parent->getName(), $partialName);
 				} else {
+					trigger_error('partial "'.$partialName.'" not found for app ' . $appClassName, E_USER_WARNING);
 					$errorTemplate = self::getMyTemplate('partialNotFound');
 					$errorTemplate->templateError = 'app: ' . $appClassName . ' is missing partial: ' . $partialName . ' which was expected in: ' . substr($templateFile, strlen(\Foomo\CORE_CONFIG_DIR_MODULES)+1);
 					$cache[$id] = $errorTemplate;
@@ -562,10 +575,9 @@ class MVC
 		$templateFileBase =
 			\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR .
 			$appClassModule . DIRECTORY_SEPARATOR .
-			// 'templates' . DIRECTORY_SEPARATOR .
 			'views' . DIRECTORY_SEPARATOR .
-			//$appId . DIRECTORY_SEPARATOR
-			implode(DIRECTORY_SEPARATOR, explode('\\', $appClassName));;
+			implode(DIRECTORY_SEPARATOR, explode('\\', $appClassName))
+		;
 		return $templateFileBase;
 	}
 
