@@ -39,14 +39,16 @@ abstract class AbstractConfig
 	/**
 	 * derive the name from the class
 	 *
-	 * @internal
-	 * @return string
+	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function getName()
 	{
 		$calledClass = get_called_class();
 		$classConstantName = $calledClass . '::NAME';
-		if (!defined($classConstantName)) throw new \Exception($calledClass . ' does not a a NAME constant defined!');
+		if (!defined($classConstantName)) {
+			throw new \Exception($calledClass . ' does not a a NAME constant defined!');
+		}
 		return constant($classConstantName);
 	}
 
@@ -118,7 +120,7 @@ abstract class AbstractConfig
 	 * will be called to get a default if no config is present
 	 *
 	 * @internal
-	 * @return Foomo\Config\AbstractConfig
+	 * @return static
 	 */
 	public function getDefault()
 	{
