@@ -23,6 +23,7 @@ use Foomo\Template;
 use Foomo\MVC;
 use Foomo\Timer;
 use Exception;
+use Foomo\Translation;
 
 /**
  * MVC version of Foomo\View
@@ -68,6 +69,14 @@ class View extends \Foomo\View
 	 * @var \Foomo\Translation
 	 */
 	protected  $translation;
+	/**
+	 * @var \Foomo\Translation
+	 */
+	protected $originalTranslation;
+	/**
+	 * @var string
+	 */
+	protected $forcedClass;
 	/**
 	 * @var string
 	 */
@@ -228,15 +237,27 @@ class View extends \Foomo\View
 		if (self::$trackPartials) {
 			Timer::start($topic = __METHOD__ . ' ' . get_class($this->app) . ' ' . $name);
 		}
-		if($class === ''){
-			$class = get_class($this->app);
+		$forcedClass = null;
+		if($class === '') {
+			if(is_null($this->forcedClass)) {
+				$class = get_class($this->app);
+			} else {
+				$class = $forcedClass = $this->forcedClass;
+			}
+		} else {
+			$forcedClass = $class;
 		}
-
 		$viewId = $class . '-' . $name;
 		if(!isset($this->partialCache[$viewId])) {
-			$template = MVC::getViewPartialTemplate($class, $name);
-			$this->partialCache[$viewId] = new static($this->app, $this->handler, $template);
-			$this->partialCache[$viewId]->partial = $name;
+			$partialView = new static($this->app, $this->handler, MVC::getViewPartialTemplate($class, $name));
+			$partialView->partial = $name;
+			if(!empty($class)) {
+				if(!is_null($forcedClass)) {
+					$partialView->forcedClass = $forcedClass;
+				}
+				$partialView->originalTranslation = self::getTranslationForApp($class, $this->localeChain);
+			}
+			$this->partialCache[$viewId] = $partialView;
 		}
 		$level ++;
 		$rendering = $this->partialCache[$viewId]->render($variables);
@@ -302,9 +323,32 @@ class View extends \Foomo\View
 	{
 		if (!$this->translation) {
 			$appClassName = get_class($this->app);
-			$this->translation = new \Foomo\Translation(MVC::getLocaleRoots($appClassName), self::getNamespace($appClassName), $this->localeChain);
+			$this->translation = self::getTranslationForApp($appClassName, $this->localeChain);
+		}
+		if(!$this->translation->hasMessage($msgId, $count) && $this->originalTranslation) {
+			//print_r($msgId);
+			return $this->originalTranslation->_($msgId, $count);
 		}
 		return $this->translation->_($msgId, $count);
+	}
+
+	private static function getTranslationForApp($appClassName, $localeChain)
+	{
+		$refl = new \ReflectionClass($appClassName);
+		$classes = [];
+		while($refl->getParentClass()) {
+			$classes[] = $refl->getName();
+			$refl = $refl->getParentClass();
+			if($refl->isAbstract()) {
+				break;
+			}
+		}
+		$classes = array_reverse($classes);
+		$namespaceRoots = [];
+		foreach($classes as $class) {
+			$namespaceRoots[self::getNamespace($class)] = MVC::getLocaleRoots($class);
+		}
+		return Translation::getExtendedTranslation($namespaceRoots, $localeChain);
 	}
 
 	/**
@@ -337,7 +381,6 @@ class View extends \Foomo\View
 	}
 
 	/**
-	 *
 	 * @param array $parmsA
 	 * @param array $parmsB
 	 * @return boolen parameters match
