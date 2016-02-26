@@ -28,12 +28,6 @@ use Foomo\Cache\Manager;
  */
 class APCTest extends \PHPUnit_Framework_TestCase {
 
-	private $resource;
-	private $arguments;
-	private $method;
-	private $className;
-	private $object;
-	private $apcPersistor;
 	public function testAPCBug() {
 		if(!function_exists('apc_store')) {
 			$this->markTestSkipped('no apc');
@@ -44,14 +38,14 @@ class APCTest extends \PHPUnit_Framework_TestCase {
 		for($i = 0;$i < 10;$i++) {
 			$success = \apc_store($key, $var, $ttl);
 			if($i > 0) {
-				$this->assertFalse($success, 'remove the hack from the apc perisitor save, method ... they seem to have fixed it');
+				$this->assertFalse($success, 'remove the hack from the apc persistor save, method ... they seem to have fixed it');
 			}
 		}
 		for($i = 0;$i < 10;$i++) {
 			\apc_store($key . '-hack', $var, $ttl);
 			$success = \apc_store($key, $var, $ttl);
 			if($i > 0) {
-				$this->assertTrue($success, 'hack in apc perssistor seems to be broken');
+				$this->assertTrue($success, 'hack in apc persistor seems to be broken');
 			}
 		}
 	}
