@@ -373,7 +373,7 @@ class View extends \Foomo\View
 	 * @param string $className
 	 * @return string php namespace
 	 */
-	private function getNamespace($className)
+	private static function getNamespace($className)
 	{
 		$parts = explode('\\', $className);
 		if ($parts[count($parts)-1] != 'Frontend') array_pop($parts);
