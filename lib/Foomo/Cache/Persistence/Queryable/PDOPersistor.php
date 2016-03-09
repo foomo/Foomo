@@ -370,34 +370,15 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	{
 		$max_retries = 10;
 		try {
-			$dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName;
-			if (!empty($this->port)) {
-				$dsn .= ";port=" . $this->port;
-			}
-			$this->dbh = @new \PDO(
-				$dsn,
-				$this->username,
-				$this->password, array(
-					PDO::ATTR_PERSISTENT => true,
-					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-				)
-			);
 			if ($attempt > 0) {
 				trigger_error(__METHOD__ . ' PDO connected at attempt: ' . $attempt);
 			}
-			$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			//  are we still connected ?
-			$db_info = $this->dbh->getAttribute(PDO::ATTR_SERVER_INFO);
-			if ($db_info == "MySQL server has gone away") {
-				$this->dbh = null;
-				$this->dbh = @new \PDO($dsn, $this->username, $this->password);
-				trigger_error(__METHOD__ . ' using a non-persistent PDO connection');
-			}
+			$this->dbh = $this->getDBH();
 			return true;
 		} catch (\Exception $e) {
 			$this->dbh = null;
 			if ($attempt >= $max_retries) {
-				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage() . ' after trying ' . $max_retries . ' times.');
+				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage() . ' after trying ' . $max_retries . ' times. : ' . $e->getMessage());
 				return false;
 			}
 			//we create the dB if not there and try connecting again
@@ -412,6 +393,36 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	private function getDBH()
+	{
+		$dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName;
+		if (!empty($this->port)) {
+			$dsn .= ";port=" . $this->port;
+		}
+		$dbh = new \PDO(
+			$dsn,
+			$this->username,
+			$this->password, array(
+				PDO::ATTR_PERSISTENT => true,
+				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+			)
+		);
+		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		//  are we still connected ?
+		$db_info = $dbh->getAttribute(PDO::ATTR_SERVER_INFO);
+		if ($db_info == "MySQL server has gone away") {
+			$dbh = null;
+			$dbh = @new \PDO($dsn, $this->username, $this->password);
+			trigger_error(__METHOD__ . ' using a non-persistent PDO connection');
+		}
+		return $dbh;
+
+	}
+
+	private function getAdminDBH()
+	{
+		return new PDO("mysql:host=" . $this->serverName, $this->username, $this->password);
+	}
 	/**
 	 * create db if not there
 	 *
@@ -421,38 +432,31 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 */
 	protected function createDatabaseIfNotExists($databaseName)
 	{
-		// @todo who says it is mysql
-		try {
-			mysql_connect($this->serverName . ":" . $this->port, $this->username, $this->password);
-			$databaseName = \mysql_real_escape_string($databaseName);
-			$query = "CREATE DATABASE IF NOT EXISTS " . $databaseName . ";";
-			if (mysql_query($query)) {
-				mysql_select_db($databaseName);
-			} else {
-				trigger_error(__CLASS__ . __METHOD__ . ' : ' . mysql_error());
-			}
-			mysql_close();
-		} catch (\Exception $e) {
-			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
-		}
+		$this->adminDatabaseQuery("create cache database", 'CREATE DATABASE IF NOT EXISTS ' . $databaseName);
 	}
 
 	protected function dropDatabase($databaseName)
 	{
+		$this->adminDatabaseQuery("drop cache database", "DROP DATABASE " . $databaseName);
+	}
+
+
+
+	private function adminDatabaseQuery($goal, $query)
+	{
 		try {
-			mysql_connect($this->serverName . ":" . $this->port, $this->username, $this->password);
-			$databaseName = mysql_real_escape_string($databaseName);
-			$query = "DROP DATABASE " . $databaseName . ";";
-			if (mysql_query($query)) {
-				//mysql_select_db($databaseName);
-			} else {
-				trigger_error(__CLASS__ . __METHOD__ . ' : ' . mysql_error());
+			$dbh = $this->getAdminDBH();
+			if(false === $dbh->exec($query)) {
+				trigger_error('failed to ' . $goal . var_export($dbh->errorInfo(), true));
 			}
-			mysql_close();
-		} catch (\Exception $e) {
-			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
+		} catch(\Exception $e) {
+			trigger_error('failed to ' . $goal . ' with exception ' . $e->getMessage());
 		}
 	}
+
+
+
+
 
 	/**
 	 * Create a table to store resource with parameters

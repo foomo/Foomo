@@ -103,6 +103,9 @@ class Manager {
 				case 'apc':
 					$persistorPrefix = 'APC';
 					break;
+				case 'apcu':
+					$persistorPrefix = 'APCU';
+					break;
 				case 'pdo':
 					$persistorPrefix = 'PDO';
 					break;

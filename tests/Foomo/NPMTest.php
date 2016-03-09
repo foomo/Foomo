@@ -17,35 +17,28 @@
  * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Foomo\Cache\Persistence\Fast;
-
-use Foomo\Cache\Manager;
+namespace Foomo;
 
 /**
  * @link www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class APCTest extends \PHPUnit_Framework_TestCase {
+class NPMTest extends \PHPUnit_Framework_TestCase {
+	private static function getMockJSON($name)
+	{
+		return file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'npm' . DIRECTORY_SEPARATOR . $name . '.json');
+	}
 
-	public function testAPCBug() {
-		if(!function_exists('apc_store')) {
-			$this->markTestSkipped('no apc');
-		}
-		$key = '_____________APC__________BUG_____ID';
-		$var = 'test';
-		$ttl = 0;
-		for($i = 0;$i < 10;$i++) {
-			$success = \apc_store($key, $var, $ttl);
-			if($i > 0) {
-				$this->assertFalse($success, 'remove the hack from the apc persistor save, method ... they seem to have fixed it');
-			}
-		}
-		for($i = 0;$i < 10;$i++) {
-			\apc_store($key . '-hack', $var, $ttl);
-			$success = \apc_store($key, $var, $ttl);
-			if($i > 0) {
-				$this->assertTrue($success, 'hack in apc persistor seems to be broken');
+	public function testReadPackages()
+	{
+		$listJSON = self::getMockJSON('packagesList');
+		$packages = NPM::readPackages($listJSON);
+		$this->assertNotEmpty($packages);
+		foreach($packages as $package) {
+			$this->assertInstanceOf('Foomo\\Modules\\Resource\\NPMPackage', $package);
+			foreach(['name', 'version', 'description'] as $prop) {
+				$this->assertNotEmpty($package->{$prop});
 			}
 		}
 	}

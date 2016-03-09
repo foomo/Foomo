@@ -27,9 +27,12 @@ namespace Foomo\Modules;
  * @author jan <jan@bestbytes.de>
  */
 abstract class Resource {
+	/**
+	 * @var string
+	 */
+	public $forModule;
 	public $isNiceToHave = false;
 	/**
-	 * @todo discuss naming
 	 * @internal
 	 * @var boolean
 	 */
@@ -45,6 +48,16 @@ abstract class Resource {
 	public function isRequired($required = true)
 	{
 		$this->isRequired = $required;
+		return $this;
+	}
+
+	/**
+	 * @param string $name
+	 * @return $this
+	 */
+	public function forModule($name)
+	{
+		$this->forModule = $name;
 		return $this;
 	}
 	/**

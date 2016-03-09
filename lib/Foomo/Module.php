@@ -37,7 +37,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
-	const VERSION = '0.4.2';
+	const VERSION = '0.4.4';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
@@ -91,11 +91,10 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Modules\Resource\CliCommand::getResource('rm'),
 			\Foomo\Modules\Resource\CliCommand::getResource('mv'),
 			\Foomo\Modules\Resource\CliCommand::getResource('tar'),
-			\Foomo\Modules\Resource\CliCommand::getResource('zip'),
+			\Foomo\Modules\Resource\CliCommand::getResource('zip')->isNiceToHave(),
 			\Foomo\Modules\Resource\CliCommand::getResource('find'),
 			\Foomo\Modules\Resource\CliCommand::getResource('mkdir'),
 			\Foomo\Modules\Resource\CliCommand::getResource('which'),
-
 		);
 		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST && in_array('Foomo.TestRunner', Modules\Manager::getEnabledModules())) {
 			$ret[] = \Foomo\Modules\Resource\Config::getResource(self::NAME, 'Foomo.cacheTestConfig');
@@ -134,6 +133,8 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			case 'clean':
 				$result->addEntry('removing translation caches');
 				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cachedGetLocaleTable', null, true, Invalidator::POLICY_DELETE);
+				Cache\Manager::invalidateWithQuery('Foomo\\Translation::cached', null, true, Invalidator::POLICY_DELETE);
+				$result->addEntry('removing old configurations:' . PHP_EOL . Config\Utils::oldConfigGC());
 				break;
 			case 'all':
 				$buildNumber = \Foomo::getBuildNumber();
