@@ -447,7 +447,7 @@ class Config
 	 */
 	public static function getHtdocsPath($module)
 	{
-		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module;
+		return \Foomo\ROOT_HTTP . '/modules/' . $module;
 	}
 
 	/**
@@ -458,9 +458,9 @@ class Config
 	 */
 	public static function getHtdocsVarPath($module='')
 	{
-		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
+		$ret = \Foomo\ROOT_HTTP . '/modulesVar';
 		if ($module != '') {
-			$ret .= DIRECTORY_SEPARATOR . $module;
+			$ret .= '/' . $module;
 		}
 		return $ret;
 	}
@@ -473,7 +473,7 @@ class Config
 	 */
 	public static function getHtdocsBuildPath($module)
 	{
-		return \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $module . '-' . \Foomo::getBuildNumber();
+		return \Foomo\ROOT_HTTP . '/modules/' . $module . '-'  . \Foomo::getBuildNumber();
 	}
 
 	/**
@@ -484,9 +484,9 @@ class Config
 	 */
 	public static function getHtdocsVarBuildPath($module='')
 	{
-		$ret = \Foomo\ROOT_HTTP . DIRECTORY_SEPARATOR . 'modulesVar';
+		$ret = \Foomo\ROOT_HTTP . '/modulesVar';
 		if ($module != '') {
-			$ret .= DIRECTORY_SEPARATOR . $module;
+			$ret .= '/' . $module;
 		}
 		return $ret . '-' . \Foomo::getBuildNumber();
 	}

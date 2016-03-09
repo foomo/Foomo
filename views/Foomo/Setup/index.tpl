@@ -85,7 +85,7 @@ include __DIR__ . '/../Info/Frontend/partials/foomoInfo.tpl';
 <pre>
 
 <?
-foreach(array('config' => 'Foomo\CORE_CONFIG_DIR_CONFIG','var' => '\Foomo\CORE_CONFIG_DIR_VAR') as $dir => $const): 
+foreach(array('config' => 'Foomo\CORE_CONFIG_DIR_CONFIG','var' => '\Foomo\CORE_CONFIG_DIR_VAR') as $dir => $const):
 	$dir = constant($const);
 	$problem = !file_exists($dir) || !is_writable($dir) || !is_dir($dir);
 ?>
