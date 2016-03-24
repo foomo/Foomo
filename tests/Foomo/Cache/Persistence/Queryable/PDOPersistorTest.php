@@ -31,7 +31,7 @@ class PDOPersistorTest extends AbstractTest {
 	/**
 	 * my persistor
 	 *
-	 * @var Foomo\Cache\Persistence\Queryable\PDOPersistor
+	 * @var \Foomo\Cache\Persistence\Queryable\PDOPersistor
 	 */
 	private $pdoPersistor;
 	private $resource;
@@ -74,17 +74,10 @@ class PDOPersistorTest extends AbstractTest {
 		$this->restoreManagerSettings();
 	}
 
-
-
-
-	public function testConnect() {
-		$this->assertNotNull($this->pdoPersistor->dbh);
-	}
-
 	public function testLoadSaveDelete() {
-		$this->pdoPersistor->save($this->resource);
+		$this->assertTrue($this->pdoPersistor->save($this->resource));
 		$loadedResource = $this->pdoPersistor->load($this->resource);
-		$this->assertEquals($this->resource, $loadedResource);
+		$this->assertEquals($this->resource, $loadedResource, "loaded resource " . var_export($loadedResource, true));
 		$success = $this->pdoPersistor->delete($this->resource);
 		$this->assertEquals(true, $success);
 		$loadedResource = $this->pdoPersistor->load($this->resource);

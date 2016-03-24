@@ -71,7 +71,7 @@ class MongoPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInter
 		$confArray = explode('::', $persistorConfig);
 		foreach ($confArray as $confPart) {
 			$confPart = trim($confPart);
-			if (strpos($confPart, 'mogodb://') !== false) {
+			if (strpos($confPart, 'mongodb://') !== false) {
 				$this->host = $confPart;
 			} else if (strpos($confPart, 'database=') !== false) {
 				$this->databaseName = str_replace('database=', '', $confPart);

@@ -20,7 +20,6 @@
 namespace Foomo\Cache\Persistence\Queryable;
 
 use Foomo\Timer;
-use \PDO;
 
 /**
  * A PDO peristor implementation. In its present form only for mysql.
@@ -44,7 +43,13 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * PDO database handle
 	 * @var \PDO
 	 */
-	public $dbh;
+	//public $dbh;
+
+	/**
+	 * PDO database handle
+	 * @var \PDO
+	 */
+	private $pdo;
 	/*
 	 * db type
 	 *
@@ -80,7 +85,6 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * @var string db name
 	 */
 	public $databaseName;
-	private $createIfNotExists = false;
 	private static $typeMapping = array(
 		'id' => 'CHAR(32)',
 		'resource' => 'MEDIUMBLOB',
@@ -100,14 +104,23 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		'type_mixed' => 'CHAR(32)'
 	);
 
-	public function __construct($persistorConfig, $createIfNotExists = true)
+	public function __construct($persistorConfig)
 	{
 		$this->parseConfig($persistorConfig, $this->type, $this->serverName, $this->port, $this->databaseName, $this->username, $this->password);
-		//create if not exist an connect
-		$this->createIfNotExists = $createIfNotExists;
-		$this->connect($createIfNotExists);
 	}
 
+	private function getPDO() {
+		if(!isset($this->pdo)) {
+			$this->pdo = $this->connect();
+		}
+		return $this->pdo;
+	}
+
+	/**
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * @return bool
+	 * @throws \Exception
+	 */
 	public function save(\Foomo\Cache\CacheResource $resource)
 	{
 		try {
@@ -120,34 +133,34 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			//
 			// insert or update
 			$statement = null;
-			$this->dbh->beginTransaction();
+			$this->getPDO()->beginTransaction();
 			if (!$this->recordExists($resource)) {
 				$statement = $this->getInsertStatement($resource);
 			} else {
 				$statement = $this->getUpdateStatement($resource);
 			}
-			$statement->execute();
-			$this->dbh->commit();
+			if($statement->execute()) {
+				$this->getPDO()->commit();
+			} else {
+				throw new \Exception('could not save cache resource');
+			}
 			return true;
 		} catch (\Exception $e) {
 			//trigger_error('an error occured, when saving a resource: ' . $e->getMessage());
-			$this->dbh->rollBack();
+			$this->getPDO()->rollBack();
 			// try resolving it first by creating a table. If exception is propagated from here onwards- we have a problem with doctrine
 			// hence contain it here
 			if ($this->tableExists(self::tableNameFromResourceName($resource->name)) && $this->recordExists($resource)) {
 				$dbResource = $this->load($resource);
-				//trigger_error(__METHOD__ . ' race condition, when saving a resource ? $resource->name: ' . $resource->name . ', $resource->debugCreationTime:' . $resource->debugCreationTime . ' $dbResource->debugCreationTime:' . $dbResource->debugCreationTime, E_USER_WARNING);
 				if ($dbResource->debugCreationTime < $resource->debugCreationTime) {
 					\trigger_error('$dbResource->debugCreationTime < $resource->debugCreationTime', E_USER_WARNING);
 				}
 				return true;
 			} else {
-				//trigger_error(__METHOD__ . ' failed to save. is the resource table not there yet?' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 				if (!$this->tableExists(self::tableNameFromResourceName($resource->name))) {
 					/*
 					 * if this throws an exception it will be caught at the manager level
 					 */
-					//trigger_error(__METHOD__ . ' trying to create the table. table was not there!' . $resource->name . $e->getMessage(), \E_USER_WARNING);
 					$this->createTableForResource($resource);
 					//call save again after table was created.
 					return $this->save($resource);
@@ -172,7 +185,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$id = $resource->id;
 			$tableName = self::tableNameFromResourceName($resource->name);
 			$statement = "SELECT * FROM " . $tableName . " WHERE id = :id";
-			$statement = $this->dbh->prepare($statement);
+			$statement = $this->getPDO()->prepare($statement);
 			$statement->bindParam(':id', $id);
 			$statement->execute();
 			//there should be just one
@@ -199,8 +212,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$id = $resource->id;
 			$tableName = self::tableNameFromResourceName($resource->name);
 			$statement = "DELETE FROM " . $tableName . " WHERE id = :id;";
-			$statement = $this->dbh->prepare($statement);
-			$statement->bindParam(':id', $id, PDO::PARAM_STR);
+			$statement = $this->getPDO()->prepare($statement);
+			$statement->bindParam(':id', $id, \PDO::PARAM_STR);
 			$statement->execute();
 			return true;
 		} catch (\Exception $e) {
@@ -228,8 +241,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				// drop database
 				$this->dropDatabase($this->databaseName);
 				$this->createDatabaseIfNotExists($this->databaseName);
-				$this->dbh = null;
-				$this->connect($this->createIfNotExists);
+				$this->pdo = null;
+				$this->connect();
 				$this->createResourceNamesTableIfNotThere();
 				$depsModel = \Foomo\Cache\DependencyModel::getInstance();
 				if ($recreateStructures) {
@@ -301,7 +314,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		try {
 			$ids = array();
 			$statement = "SELECT * FROM " . $tableName . ';';
-			$rows = $this->dbh->query($statement)->fetchAll();
+			$rows = $this->getPDO()->query($statement)->fetchAll();
 			foreach ($rows as $row) {
 				$ids[] = $row['id'];
 			}
@@ -345,7 +358,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				$sql .= ";";
 
 				$cursor = 0;
-				$statement = $this->dbh->prepare($sql);
+				$statement = $this->getPDO()->prepare($sql);
 				foreach ($parameterStack as $parameter) {
 					$cursor++;
 					$statement->bindParam($cursor, $parameter[1], $parameter[2]);
@@ -356,72 +369,62 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			}
 		}
 	}
-
+	const MAX_CONNECTION_ATTEMPTS = 10;
 	/**
 	 * connect to db. attempt to create if not exists. sets the $dbh property
-	 * connections are persistent to speed up things: PDO::ATTR_PERSISTENT => true
+	 * connections are persistent to speed up things: \PDO::ATTR_PERSISTENT => true
 	 *
 	 * @param bool $createIfNotExists
 	 * @param integer $attempt if we can not connect we call ourselves another time, attempt is increased by 1.
 	 *
-	 * @return boolean
+	 * @return \PDO
 	 */
-	protected function connect($createIfNotExists = true, $attempt = 0)
+	protected function connect($dsn = null, $attempt = 0)
 	{
-		$max_retries = 10;
-		try {
-			if ($attempt > 0) {
-				trigger_error(__METHOD__ . ' PDO connected at attempt: ' . $attempt);
+		if(is_null($dsn)) {
+			$dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName;
+			if (!empty($this->port)) {
+				$dsn .= ";port=" . $this->port;
 			}
-			$this->dbh = $this->getDBH();
-			return true;
+		}
+		// one ugly hack to suppress useless warnings from \PDO::__construct
+		// error handler only for warnings
+		// never ever move this code block into the try block
+		set_error_handler(function($errno, $errstr, $errfile, $errline, array $errcontext) {
+			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+		});
+		try {
+			$pdo = new \PDO(
+				$dsn,
+				$this->username,
+				$this->password, [
+					\PDO::ATTR_PERSISTENT => true,
+					// it throws an exception in any case but still emits warnings
+					// \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+				]
+			);
+			restore_error_handler();
+			return $pdo;
 		} catch (\Exception $e) {
-			$this->dbh = null;
-			if ($attempt >= $max_retries) {
-				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage() . ' after trying ' . $max_retries . ' times. : ' . $e->getMessage());
-				return false;
+			restore_error_handler();
+			if ($attempt >= self::MAX_CONNECTION_ATTEMPTS) {
+				trigger_error(__CLASS__ . __METHOD__ . $e->getMessage() . ' after trying ' . self::MAX_CONNECTION_ATTEMPTS . ' times. : ' . $e->getMessage(), E_USER_ERROR);
 			}
 			//we create the dB if not there and try connecting again
-			if ($attempt == 0 && $createIfNotExists) {
+			if ($attempt == 0) {
 				$this->createDatabaseIfNotExists($this->databaseName);
 			}
 			// sleep if not first retry
 			if ($attempt > 1) {
-				usleep($attempt * 100000);
+				usleep(200000);
 			}
-			return $this->connect($this->createIfNotExists, $attempt + 1);
+			return $this->connect($dsn, $attempt + 1);
 		}
-	}
-
-	private function getDBH()
-	{
-		$dsn = 'mysql:dbname=' . $this->databaseName . ";host=" . $this->serverName;
-		if (!empty($this->port)) {
-			$dsn .= ";port=" . $this->port;
-		}
-		$dbh = new \PDO(
-			$dsn,
-			$this->username,
-			$this->password, array(
-				PDO::ATTR_PERSISTENT => true,
-				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-			)
-		);
-		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		//  are we still connected ?
-		$db_info = $dbh->getAttribute(PDO::ATTR_SERVER_INFO);
-		if ($db_info == "MySQL server has gone away") {
-			$dbh = null;
-			$dbh = @new \PDO($dsn, $this->username, $this->password);
-			trigger_error(__METHOD__ . ' using a non-persistent PDO connection');
-		}
-		return $dbh;
-
 	}
 
 	private function getAdminDBH()
 	{
-		return new PDO("mysql:host=" . $this->serverName, $this->username, $this->password);
+		return new \PDO("mysql:host=" . $this->serverName, $this->username, $this->password, []);
 	}
 	/**
 	 * create db if not there
@@ -450,7 +453,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				trigger_error('failed to ' . $goal . var_export($dbh->errorInfo(), true));
 			}
 		} catch(\Exception $e) {
-			trigger_error('failed to ' . $goal . ' with exception ' . $e->getMessage());
+			trigger_error('failed to ' . $goal . ' with exception ' . $e->getMessage() . " query: " . $query);
 		}
 	}
 
@@ -477,10 +480,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 					', UNIQUE (id)) ENGINE = InnoDB, DEFAULT CHARACTER SET utf8, DEFAULT COLLATE utf8_general_ci;'
 			; //MYISAM ?!
 
-			$this->dbh->exec($statement);
+			$this->getPDO()->exec($statement);
 
 			//add index on id
-			$this->dbh->exec("ALTER TABLE " . $tableName . " ADD INDEX(id);");
+			$this->getPDO()->exec("ALTER TABLE " . $tableName . " ADD INDEX(id);");
 
 			//add the columns for the properties
 			/* @var $propertyDefinition \Foomo\Cache\CacheResourcePropertyDefinition */
@@ -498,7 +501,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 						$query .= self::$typeMapping['type_object'];
 					}
 				}
-				$this->dbh->exec($query);
+				$this->getPDO()->exec($query);
 			}
 			//if successful add table to existing tables
 			$this->storeResourceName($resource->name);
@@ -519,7 +522,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		try {
 			$tableName = PDOPersistor::RESOURCE_NAMES_TABLE;
 			$statement = "CREATE TABLE IF NOT EXISTS " . $tableName . " (tableName VARCHAR(64) NOT NULL UNIQUE, resourceName VARCHAR(1024), UNIQUE(tableName)) ENGINE = MYISAM;";
-			$this->dbh->exec($statement);
+			$this->getPDO()->exec($statement);
 		} catch (\Exception $e) {
 			trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 		}
@@ -534,7 +537,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$table = PDOPersistor::RESOURCE_NAMES_TABLE;
 			try {
 				$statement = "INSERT INTO " . $table . " VALUES (:tableName, :resourceName);";
-				$statement = $this->dbh->prepare($statement);
+				$statement = $this->getPDO()->prepare($statement);
 				$statement->bindParam(':tableName', $tableName);
 				$statement->bindParam(':resourceName', $resourceName);
 				$statement->execute();
@@ -555,7 +558,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		$table = PDOPersistor::RESOURCE_NAMES_TABLE;
 		try {
 			$statement = "SELECT * FROM " . $table . " WHERE tableName = :tableName;";
-			$statement = $this->dbh->prepare($statement);
+			$statement = $this->getPDO()->prepare($statement);
 			$statement->bindParam(':tableName', $tableName);
 			$statement->execute();
 			$res = $statement->fetchAll();
@@ -574,7 +577,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		try {
 			$resourceTable = PDOPersistor::RESOURCE_NAMES_TABLE;
 			$statement = "DELETE FROM " . $resourceTable . " WHERE tableName = :resourceName;";
-			$statement = $this->dbh->prepare($statement);
+			$statement = $this->getPDO()->prepare($statement);
 			$statement->bindParam(':resourceName', $resourceName);
 			$statement->execute();
 		} catch (\Exception $e) {
@@ -590,7 +593,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	public function getCachedResourceNames()
 	{
 		$statement = "SELECT resourceName FROM " . self::RESOURCE_NAMES_TABLE . ";";
-		$statement = $this->dbh->prepare($statement);
+		$statement = $this->getPDO()->prepare($statement);
 		$statement->execute();
 		$resultArray = $statement->fetchAll();
 		return $resultArray;
@@ -616,9 +619,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	private function getAvailableTables()
 	{
 		try {
-			$statement = $this->dbh->query("SHOW TABLES;");
+			$statement = $this->getPDO()->query("SHOW TABLES;");
 			$availableTables = array();
-			while ($row = $statement->fetch(PDO::FETCH_NUM)) {
+			while ($row = $statement->fetch(\PDO::FETCH_NUM)) {
 				$availableTables[] = $row[0];
 			}
 			return $availableTables;
@@ -658,12 +661,12 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			try {
 				// drop the resource table
 				$statement = "DROP TABLE " . $tableName . ";";
-				$statement = $this->dbh->prepare($statement);
+				$statement = $this->getPDO()->prepare($statement);
 				$statement->execute();
 				// drop the reference
 				$resourceNamesTable = self::RESOURCE_NAMES_TABLE;
 				$statement = "DELETE FROM " . $resourceNamesTable . " where tableName = :table;";
-				$statement = $this->dbh->prepare($statement);
+				$statement = $this->getPDO()->prepare($statement);
 				$statement->bindParam(':table', $tableName);
 				$statement->execute();
 			} catch (\Exception $e) {
@@ -675,9 +678,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	public function tableExists($tableName) {
 		$statement = 'SELECT 1 FROM ' . $tableName . ' limit 1;';
 		try {
-			$statement = $this->dbh->prepare($statement);
-			$statement->execute();
-			return true;
+			$statement = $this->getPDO()->prepare($statement);
+			return $statement->execute();
 		} catch (\Exception $e) {
 			return false;
 		}
@@ -696,8 +698,8 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$id = $resource->id;
 			$tableName = self::tableNameFromResourceName($resource->name);
 			$statement = "SELECT * FROM " . $tableName . " WHERE id = :id;";
-			$statement = $this->dbh->prepare($statement);
-			$statement->bindParam(':id', $id, PDO::PARAM_STR);
+			$statement = $this->getPDO()->prepare($statement);
+			$statement->bindParam(':id', $id, \PDO::PARAM_STR);
 			$statement->execute();
 			$row = $statement->fetch();
 			if ($row) {
@@ -765,16 +767,16 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$statement .= ", :" . $pName;
 		}
 		$statement .= ");";
-		$statement = $this->dbh->prepare($statement);
+		$statement = $this->getPDO()->prepare($statement);
 		//set parameters
-		$statement->bindParam(':id', $resource->id, PDO::PARAM_STR);
+		$statement->bindParam(':id', $resource->id, \PDO::PARAM_STR);
 		$serializedResource = \serialize($resource);
-		$statement->bindParam(':resource', $serializedResource, PDO::PARAM_LOB);
-		$statement->bindParam(':status', $resource->status, PDO::PARAM_INT);
-		$statement->bindParam(':creationTime', $resource->creationTime, PDO::PARAM_INT);
-		$statement->bindParam(':expirationTime', $resource->expirationTime, PDO::PARAM_INT);
-		$statement->bindParam(':expirationTimeFast', $resource->expirationTimeFast, PDO::PARAM_INT);
-		$statement->bindParam(':hits', $resource->hits, PDO::PARAM_INT);
+		$statement->bindParam(':resource', $serializedResource, \PDO::PARAM_LOB);
+		$statement->bindParam(':status', $resource->status, \PDO::PARAM_INT);
+		$statement->bindParam(':creationTime', $resource->creationTime, \PDO::PARAM_INT);
+		$statement->bindParam(':expirationTime', $resource->expirationTime, \PDO::PARAM_INT);
+		$statement->bindParam(':expirationTimeFast', $resource->expirationTimeFast, \PDO::PARAM_INT);
+		$statement->bindParam(':hits', $resource->hits, \PDO::PARAM_INT);
 		$this->bindPropertiesOnStatement($statement, $resource);
 		return $statement;
 	}
@@ -798,18 +800,18 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			$statement .= ', ' . $propertyName . ' =:' . $propertyName;
 		}
 		$statement .= " WHERE id = :id;";
-		$statement = $this->dbh->prepare($statement);
+		$statement = $this->getPDO()->prepare($statement);
 
 		//set parameters
 
-		$statement->bindParam(':id', $resource->id, PDO::PARAM_STR);
+		$statement->bindParam(':id', $resource->id, \PDO::PARAM_STR);
 		$serializedResource = serialize($resource);
-		$statement->bindParam(':resource', $serializedResource, PDO::PARAM_LOB);
-		$statement->bindParam(':status', $resource->status, PDO::PARAM_INT);
-		$statement->bindParam(':creationTime', $resource->creationTime, PDO::PARAM_INT);
-		$statement->bindParam(':expirationTime', $resource->expirationTime, PDO::PARAM_INT);
-		$statement->bindParam(':expirationTimeFast', $resource->expirationTimeFast, PDO::PARAM_INT);
-		$statement->bindParam(':hits', $resource->hits, PDO::PARAM_INT);
+		$statement->bindParam(':resource', $serializedResource, \PDO::PARAM_LOB);
+		$statement->bindParam(':status', $resource->status, \PDO::PARAM_INT);
+		$statement->bindParam(':creationTime', $resource->creationTime, \PDO::PARAM_INT);
+		$statement->bindParam(':expirationTime', $resource->expirationTime, \PDO::PARAM_INT);
+		$statement->bindParam(':expirationTimeFast', $resource->expirationTimeFast, \PDO::PARAM_INT);
+		$statement->bindParam(':hits', $resource->hits, \PDO::PARAM_INT);
 		// bind parameter values
 		$this->bindPropertiesOnStatement($statement, $resource);
 		return $statement;
@@ -831,36 +833,36 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		if ($isMixed === true) {
 			//handle it as an object
 			$propertyValue = $this->getObjectFingerprint($propertyValue);
-			$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
+			$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_STR);
 		} else {
 			//$propertyName = self::paramNameToColname($propertyName);
 			if (is_object($propertyValue)) {
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_STR);
 			} else if (is_array($propertyValue)) {
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_STR);
 			} else if (is_bool($propertyValue)) {
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_BOOL);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_BOOL);
 			} else if (is_double($propertyValue)) {
 				// covers float too
 				$statement->bindParam($propertyName, $propertyValue);
 			} else if (is_int($propertyValue)) {
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_INT);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_INT);
 			} else if (is_long($propertyValue)) {
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_INT);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_INT);
 			} else if (is_string($propertyValue)) {
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_STR);
 			} else if (!isset($propertyValue)) {
 				//null treated as object or string
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_STR);
 			} else {
 				//default is object
 				// @todo why is is_object handled then ...
 				$propertyValue = $this->getObjectFingerprint($propertyValue);
-				$statement->bindParam($propertyName, $propertyValue, PDO::PARAM_STR);
+				$statement->bindParam($propertyName, $propertyValue, \PDO::PARAM_STR);
 			}
 		}
 		return $statement;
@@ -935,10 +937,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		try {
 			$tableName = self::tableNameFromResourceName($resource->name);
 			$statement = "UPDATE " . $tableName . " SET hits = :hits WHERE id = :id;";
-			$statement = $this->dbh->prepare($statement);
-			$statement->bindParam(':id', $resource->id, PDO::PARAM_STR);
-			$statement->bindParam(':hits', $resource->hits, PDO::PARAM_INT);
-			$this->dbh->exec($statement);
+			$statement = $this->getPDO()->prepare($statement);
+			$statement->bindParam(':id', $resource->id, \PDO::PARAM_STR);
+			$statement->bindParam(':hits', $resource->hits, \PDO::PARAM_INT);
+			$this->getPDO()->exec($statement);
 		} catch (\Exception $e) {
 			\trigger_error(__CLASS__ . __METHOD__ . $e->getMessage());
 		}
@@ -1219,7 +1221,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	{
 		// code is currently specific to mysql....
 		$sql = 'SHOW columns from ' . $table . ';';
-		$statement = $this->dbh->query($sql);
+		$statement = $this->getPDO()->query($sql);
 		$results = array();
 
 		foreach ($statement as $row) {
