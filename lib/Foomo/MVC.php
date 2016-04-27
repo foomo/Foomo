@@ -274,32 +274,37 @@ class MVC
 	 * @param array       $parameters
 	 * @param null        $baseURL
 	 * @param bool        $forceNoHTMLDocument
+	 * @param string      $urlHandlerClass
 	 * @return string|HTMLDocument
 	 */
-	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true)
+	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true, $urlHandlerClass = 'Foomo\\MVC\\URLHandler')
 	{
+
+		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
+
 		try {
+			$exception = null;
 			$actionName = 'action' . ucfirst($action);
 			if(method_exists($app->controller, $actionName)) {
 				# call action on controller class
-				call_user_func_array(array($app->controller, $actionName), $parameters);
+				$callable = array($app->controller, $actionName);
 			} else {
 				# call run action on specific action controller
 				$controllerClass = get_class($app->controller) . '\Action' . ucfirst($action);
 				if(class_exists($controllerClass)) {
 					$actionClass = new $controllerClass($app);
-					call_user_func_array(array($actionClass, 'run'), $parameters);
+					$callable = array($actionClass, 'run');
 				} else {
 					throw new \Exception('Class "' . $controllerClass . '" does not exist', 404);
 				}
 			}
 			$app->model = $app->controller->model;
-			$exception = null;
+
+			call_user_func_array($callable, $parameters);
 		} catch (\Exception $exception) {
 			trigger_error($exception->getMessage());
 		}
-		$urlHandlerClass = 'Foomo\\MVC\\URLHandler';
-		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
+
 		$handler->lastAction = $actionName;
 		return self::render($app, $handler, $exception, $forceNoHTMLDocument);
 	}
@@ -476,6 +481,9 @@ class MVC
 	public static function getCurrentURLHandler()
 	{
 		$handlerKey = '/' . implode('/', self::$pathArray);
+		if(!array_key_exists($handlerKey, self::$handlers)) {
+			trigger_error('invalid URLHandler configuration', E_USER_ERROR);
+		}
 		$handler = self::$handlers[$handlerKey];
 		return $handler;
 	}
