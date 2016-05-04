@@ -154,10 +154,7 @@ class Simple {
 		$ret = __CLASS__ . ' ' . date('Y-m-d H:i:s', time()) . ' total time ' . $this->getTotalTime() . '' . PHP_EOL;
 		for ($i = 1; $i < count($this->points); $i++) {
 			$lineTitle = $this->points[$i][1];
-			while (strlen($lineTitle) < 50) {
-				$lineTitle .= '.';
-			}
-			$lineTitle .= '|...';
+			$lineTitle .= str_repeat('.', 60 - strlen($lineTitle)) . '|...';
 			$ret .= $lineTitle . $this->subtract($this->points[$i][0], $this->points[$i - 1][0]) . PHP_EOL;
 		}
 		if (count($this->stopWatchPoints) > 0) {
