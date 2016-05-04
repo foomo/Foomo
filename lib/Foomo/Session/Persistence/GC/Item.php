@@ -30,13 +30,13 @@ class Item {
 	/**
 	 * timestamp
 	 *
-	 * @var float
+	 * @var integer
 	 */
 	public $lastReadAccess = 0;
 	/**
 	 * timestamp
 	 *
-	 * @var float
+	 * @var integer
 	 */
 	public $lastWriteAccess = 0;
 	/**
