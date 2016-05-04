@@ -51,7 +51,8 @@ class GC implements GCPrinterInterface {
 			return $inst->output;
 		}
 	}
-	private function runVerboseGC() {
+	private function runVerboseGC()
+	{
 		$sessionConfig = Session::getConf();
 		if (!is_null($sessionConfig)) {
 			$persistorGCClass = __NAMESPACE__ . '\\Persistence\\GC\\' . $sessionConfig->persistor;
@@ -61,6 +62,7 @@ class GC implements GCPrinterInterface {
 
 			$gcLifeTime = ini_get('session.gc_maxlifetime');
 			$cookieLifetime = ini_get('session.cookie_lifetime');
+			$sessionSavePath = ini_get('session.save_path');
 			if ($cookieLifetime == 0) {
 				$lifeTime = self::MAX_BROWSER_SESSION_LIFETIME;
 			} else {
@@ -69,14 +71,13 @@ class GC implements GCPrinterInterface {
 			$oldSessions = array();
 			$activeSessions = array();
 			$liveSessions = array();
-			$this->out('starting GC in session.save_path : "' . ini_get('session.save_path') . '"');
-			$this->out('session.gc_maxlifetime : "' . $gcLifeTime . '", session.cookie_lifetime : "' . $cookieLifetime . '"');
-			$this->out('=> max lifeTime for a session files : "' . $lifeTime . '"');
+			$this->out("starting GC in session.save_path: '$sessionSavePath'");
+			$this->out("session.gc_maxlifetime: $gcLifeTime, session.cookie_lifetime: $cookieLifetime");
+			$this->out("=> max lifeTime for a session: {$lifeTime}s");
 			ini_set('html_errors', 'Off');
-			foreach($persistorGC as $sessionItem) {
-				/* @var $sessionItem Persistence\GC\Item */
-				$this->out($sessionItem->sessionId);
 
+			foreach ($persistorGC as $sessionItem) {
+				/* @var $sessionItem Persistence\GC\Item */
 				if (time() - $sessionItem->lastReadAccess > $lifeTime) {
 					$oldSessions[] = $sessionItem;
 				} else {
@@ -88,27 +89,21 @@ class GC implements GCPrinterInterface {
 				}
 			}
 
-			$this->out('Live Sessions (time since last access < ' . self::LIVE_SESSION_TIMEOUT . ' s) :');
-			$i = 1;
-			foreach ($liveSessions as $sessionItem) {
-				$this->out('  ' . $i . ' ' . $sessionItem->sessionId);
-				$i++;
+			$this->out('Live Sessions (time since last access < ' . self::LIVE_SESSION_TIMEOUT . ' s):');
+			foreach ($liveSessions as $i => $sessionItem) {
+				$this->out(sprintf('%6d %s', 1+$i, $sessionItem->sessionId));
 			}
-
-
-			$this->out('Active sessions : ');
-			$i = 1;
-			foreach ($activeSessions as $sessionItem) {
-				$this->out('  ' . ($i++) . ' ' . $sessionItem->sessionId);
+			$this->out('Active sessions: ');
+			foreach ($activeSessions as $i => $sessionItem) {
+				$this->out(sprintf('%6d %s', 1+$i, $sessionItem->sessionId));
 			}
-
-			$this->out('Deleting old sessions : ');
-			$i = 1;
-			foreach ($oldSessions as $sessionItem) {
-				$this->out('  ' . ($i++) . ' ' . $sessionItem->sessionId);
+			$this->out('Deleting old sessions: ');
+			foreach ($oldSessions as $i => $sessionItem) {
+				$this->out(sprintf('%6d %s', 1+$i, $sessionItem->sessionId));
 				Session::$persistor->destroy($sessionItem->sessionId);
 			}
-			$this->out('done in ' . (microtime(true) - $startTime) . ' seconds');
+
+			$this->out(sprintf('done in %.3f ms', 1000.0*(microtime(true) - $startTime)));
 		} else {
 			$this->out('session is not configured - no garbage to collect');
 		}
