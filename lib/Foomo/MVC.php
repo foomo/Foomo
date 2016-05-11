@@ -279,7 +279,6 @@ class MVC
 	 */
 	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true, $urlHandlerClass = 'Foomo\\MVC\\URLHandler')
 	{
-
 		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
 
 		try {
@@ -298,9 +297,8 @@ class MVC
 					throw new \Exception('Class "' . $controllerClass . '" does not exist', 404);
 				}
 			}
-			$app->model = $app->controller->model;
-
 			call_user_func_array($callable, $parameters);
+			$app->model = $app->controller->model;
 		} catch (\Exception $exception) {
 			trigger_error($exception->getMessage());
 		}
