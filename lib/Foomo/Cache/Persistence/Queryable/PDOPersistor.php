@@ -993,7 +993,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				$serverName = $parsed['host'];
 				break;
 			case 'sqlite':
-				$dbName = $parsed['host'] . ':' . $parsed['path'];
+				$dbName = (empty($parsed['host']) ? '' : $parsed['host'] . ':') . $parsed['path'];
 				break;
 			default:
 				throw new \Exception('Specified database type ' . $type . ' not supported.');
@@ -1256,14 +1256,27 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	private function retrieveTableInformation($table)
 	{
 		// code is currently specific to mysql....
-		$sql = 'SHOW columns from ' . $table . ';';
-		$statement = $this->getPDO()->query($sql);
+		if ($this->type == 'mysql') {
+			$sql = 'SHOW columns from ' . $table . ';';
+		} else {
+			$sql = 'PRAGMA table_info(' . $table . ');';
+		}
+		try {
+			$statement = $this->getPDO()->query($sql);
+		} catch (\PDOException $e) {
+			trigger_error(__METHOD__ . " '$sql': " . $e->getMessage(), E_USER_WARNING);
+		}
 		$results = array();
 
 		foreach ($statement as $row) {
-			$type = strtoupper($row['Type']);
+			if ($this->type == 'mysql') {
+				$type = strtoupper($row['Type']);
+				$name = strtolower($row['Field']);
+			} else {
+				$type = strtoupper($row['type']);
+				$name = strtolower($row['name']);
+			}
 			$row['Type'] = $type;
-			$name = strtolower($row['Field']);
 			$row['Field'] = $name;
 			$results[] = $row;
 		}
