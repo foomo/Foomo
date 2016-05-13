@@ -39,7 +39,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	/**
 	 * cache resource
 	 *
-	 * @var Foomo\Cache\CacheResource
+	 * @var \Foomo\Cache\CacheResource
 	 */
 	private $currentResource;
 	/**
@@ -49,12 +49,19 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	 */
 	protected $count;
 
-	public function __construct($statement, $resourceName)
+	/**
+	 * PDOPersistorIterator constructor.
+	 *
+	 * @param \PDOStatement $statement
+	 * @param string $resourceName
+	 * @param integer $count
+	 */
+	public function __construct($statement, $resourceName, $count)
 	{
 		$this->pdoStatement = $statement;
 		$this->resourceName = $resourceName;
 		if ($statement) {
-			$this->count = $statement->rowCount();
+			$this->count = $count;
 			$this->currentRow = $this->pdoStatement->fetch(\PDO::FETCH_ASSOC, 0);
 			if ($this->currentRow) {
 				$this->currentResource = PDOPersistor::rowToCacheResource($this->currentRow, $this->resourceName);
@@ -69,7 +76,8 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	}
 
 	/**
-	 * @return Foomo\Cache\CacheResource
+	 * @return \Foomo\Cache\CacheResource|null
+	 * @throws \Exception
 	 */
 	public function current()
 	{
@@ -80,6 +88,9 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 		}
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function next()
 	{
 		if ($this->pdoStatement && $this->count != 0) {
@@ -93,6 +104,10 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 		}
 	}
 
+	/**
+	 * @return int
+	 * @throws \Exception
+	 */
 	public function key()
 	{
 		if ($this->pdoStatement && $this->count != 0) {
@@ -102,6 +117,9 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function valid()
 	{
 		if (!$this->pdoStatement || $this->count == 0) {
@@ -111,12 +129,17 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 		}
 	}
 
+	/**
+	 *
+	 */
 	public function rewind()
 	{
-
 		$this->cursor = 0;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function count()
 	{
 		if (!$this->pdoStatement) {
@@ -125,5 +148,4 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 			return $this->count;
 		}
 	}
-
 }

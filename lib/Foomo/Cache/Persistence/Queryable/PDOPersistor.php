@@ -20,6 +20,7 @@
 namespace Foomo\Cache\Persistence\Queryable;
 
 use Foomo\Cache\CacheResource;
+use Foomo\Cache\Proxy;
 use Foomo\Timer;
 
 /**
@@ -105,12 +106,21 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		'type_mixed' => 'CHAR(32)'
 	);
 
+	/**
+	 * PDOPersistor constructor.
+	 *
+	 * @param string $persistorConfig
+	 */
 	public function __construct($persistorConfig)
 	{
 		$this->parseConfig($persistorConfig, $this->type, $this->serverName, $this->port, $this->databaseName, $this->username, $this->password);
 	}
 
-	private function getPDO() {
+	/**
+	 * @return \PDO
+	 */
+	private function getPDO()
+	{
 		if(!isset($this->pdo)) {
 			$this->pdo = $this->connect();
 		}
@@ -189,7 +199,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 *
 	 * @return \Foomo\Cache\CacheResource
 	 */
-	public function load(\Foomo\Cache\CacheResource $resource, $countHits = false)
+	public function load(CacheResource $resource, $countHits = false)
 	{
 		try {
 			$id = $resource->id;
@@ -217,7 +227,12 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
-	public function delete(\Foomo\Cache\CacheResource $resource) {
+	/**
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * @return bool
+	 */
+	public function delete(CacheResource $resource)
+	{
 		try {
 			$id = $resource->id;
 			$tableName = self::tableNameFromResourceName($resource->name);
@@ -271,11 +286,16 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $resourceName
+	 * @throws \Exception
+	 */
 	private function createTableForResourceName($resourceName)
 	{
-		$emptyResource = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName);
+		$emptyResource = Proxy::getEmptyResourceFromResourceName($resourceName);
 		$this->createTableForResource($emptyResource);
 	}
+
 	/**
 	 * returns an array of resource ids of all resources
 	 *
@@ -308,7 +328,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 *  get ids of all cached resources
-	 *
+	 * @return string[]
 	 */
 	private function getIdsFromAllTables()
 	{
@@ -324,6 +344,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $tableName
+	 * @return string[]
+	 */
 	private function getIdsOfResourcesInTable($tableName)
 	{
 		try {
@@ -355,36 +379,55 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		//handle case where table was created but settup not called (no table yet)
 		if (!$this->tableExists($tableName)) {
 			//hence no entries
-			return $iterator = new PDOPersistorIterator(null, $resourceName);
+			return $iterator = new PDOPersistorIterator(null, $resourceName, 0);
 		} else {
 			//regular query
-			$parameterTypes = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
+			$parameterTypes = Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
 			//if we could not find the types any search will result empty, hence return empty iterator
 			if (is_null($parameterTypes)) {
 				trigger_error('parameterTypes were null', E_USER_ERROR);
 			} else {
 				$parameterStack = array();
-				$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expr, $parameterStack, $tableName, $parameterTypes);
-				if ($limit != 0) {
-					$sql .= ' LIMIT ' . $limit;
-				}
-				if ($offset != 0) {
-					$sql .= ' OFFSET ' . $offset;
-				}
-				$sql .= ";";
+				$sql = PDOExpressionCompiler::buildSQLQuery($expr, $parameterStack, $tableName, $parameterTypes);
 
-				$cursor = 0;
-				$statement = $this->getPDO()->prepare($sql);
-				foreach ($parameterStack as $parameter) {
-					$cursor++;
-					$statement->bindParam($cursor, $parameter[1], $parameter[2]);
+				if ($this->type == "mysql") {
+					if ($limit != 0) {
+						$sql .= ' LIMIT ' . $limit;
+					}
+					if ($offset != 0) {
+						$sql .= ' OFFSET ' . $offset;
+					}
+				} else {
+					$countSQL = "SELECT count(*) FROM " . substr($sql, strlen("SELECT * FROM "));
+					$countStatement = $this->getPDO()->prepare($countSQL);
 				}
-				$statement->execute();
-				$iterator = new PDOPersistorIterator($statement, $resourceName);
+
+				$parameters = [];
+				foreach ($parameterStack as $parameter) {
+					$parameters[] =  $parameter[1];
+				}
+
+				$statement = $this->getPDO()->prepare($sql);
+				$statement->execute($parameters);
+
+				if ($this->type == "mysql") {
+					$count = $statement->rowCount();
+				} else {
+					$countStatement->execute($parameters);
+					$countResult = $countStatement->fetch(\PDO::FETCH_NUM);
+					$count = $countResult[0] - $offset;
+					if ($count < 0) {
+						$count = 0;
+					} elseif ($count > $limit) {
+						$count = $limit;
+					}
+				}
+				$iterator = new PDOPersistorIterator($statement, $resourceName, $count);
 				return $iterator;
 			}
 		}
 	}
+
 	const MAX_CONNECTION_ATTEMPTS = 10;
 	/**
 	 * connect to db. attempt to create if not exists.
@@ -445,10 +488,14 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @return \PDO
+	 */
 	private function getAdminDBH()
 	{
 		return new \PDO("mysql:host=" . $this->serverName, $this->username, $this->password, []);
 	}
+
 	/**
 	 * create db if not there
 	 *
@@ -461,11 +508,18 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		$this->adminDatabaseQuery("create cache database", 'CREATE DATABASE IF NOT EXISTS ' . $databaseName);
 	}
 
+	/**
+	 * @param string $databaseName
+	 */
 	protected function dropDatabase($databaseName)
 	{
 		$this->adminDatabaseQuery("drop cache database", "DROP DATABASE " . $databaseName);
 	}
 
+	/**
+	 * @param string $goal
+	 * @param string $query
+	 */
 	private function adminDatabaseQuery($goal, $query)
 	{
 		try {
@@ -489,8 +543,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		$tableName = self::tableNameFromResourceName($resource->name);
 		$pdo = $this->getPDO();
 		try {
+			$pdo->exec('DROP TABLE IF EXISTS `' . $tableName . '`');
 			$statement =
-					'CREATE TABLE IF NOT EXISTS `' . $tableName . '`' .
+					'CREATE TABLE `' . $tableName . '`' . // IF NOT EXISTS
 					' (id ' . self::$typeMapping['id'] . ' NOT NULL UNIQUE, resource ' . self::$typeMapping['resource'] .
 					', status ' . self::$typeMapping['status'] .
 					', creationtime ' . self::$typeMapping['creationtime'] .
@@ -559,6 +614,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $resourceName
+	 * @return bool
+	 */
 	private function storeResourceName($resourceName)
 	{
 		$tableName = self::tableNameFromResourceName($resourceName);
@@ -584,6 +643,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $tableName
+	 * @return bool
+	 */
 	private function isTableNameStored($tableName)
 	{
 		$table = PDOPersistor::RESOURCE_NAMES_TABLE;
@@ -603,6 +666,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $resourceName
+	 */
 	private function deleteResourceNameFromStored($resourceName)
 	{
 		try {
@@ -646,6 +712,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 
 	/**
 	 * cache the table names of existing tables
+	 * @return string[]
 	 */
 	private function getAvailableTables()
 	{
@@ -662,11 +729,19 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $paramName
+	 * @return string
+	 */
 	public static function paramNameToColName($paramName)
 	{
 		return 'param_' . $paramName;
 	}
 
+	/**
+	 * @param string $resourceName
+	 * @return string
+	 */
 	public static function tableNameFromResourceName($resourceName)
 	{
 		$resourceName = str_replace("\\", "$", $resourceName);
@@ -686,6 +761,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $name;
 	}
 
+	/**
+	 * @param string $tableName
+	 */
 	protected function dropTable($tableName)
 	{
 		if ($this->tableExists($tableName)) {
@@ -706,6 +784,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $tableName
+	 * @return bool
+	 */
 	public function tableExists($tableName)
 	{
 		$statement = 'SELECT 1 FROM `' . $tableName . '` limit 1;';
@@ -784,7 +866,11 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
-	protected function getInsertStatement(\Foomo\Cache\CacheResource $resource)
+	/**
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * @return \PDOStatement|string
+	 */
+	protected function getInsertStatement(CacheResource $resource)
 	{
 		// put properties into string
 		$tableName = self::tableNameFromResourceName($resource->name);
@@ -811,7 +897,11 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $statement;
 	}
 
-	protected function getUpdateStatement(\Foomo\Cache\CacheResource $resource)
+	/**
+	 * @param \Foomo\Cache\CacheResource $resource
+	 * @return \PDOStatement|string
+	 */
+	protected function getUpdateStatement(CacheResource $resource)
 	{
 		// put properties into string
 		$tableName = self::tableNameFromResourceName($resource->name);
@@ -847,6 +937,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $statement;
 	}
 
+	/**
+	 * @param string $statement
+	 * @param \Foomo\Cache\CacheResource $resource
+	 */
 	private function bindPropertiesOnStatement($statement, $resource)
 	{
 		foreach ($resource->properties as $propertyName => $propertyValue) {
@@ -858,6 +952,13 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param \PDOStatement $statement
+	 * @param string $propertyName
+	 * @param mixed $propertyValue
+	 * @param $isMixed
+	 * @return \PDOStatement
+	 */
 	private function bindParameterForProperty($statement, $propertyName, $propertyValue, $isMixed)
 	{
 		if ($isMixed === true) {
@@ -898,6 +999,11 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $statement;
 	}
 
+	/**
+	 * @param mixed $propertyValue
+	 * @param bool $isMixed
+	 * @return string
+	 */
 	public static function getStorablePropertyRepresentation($propertyValue, $isMixed = false)
 	{
 		if ($isMixed) {
@@ -929,6 +1035,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 			}
 		}
 	}
+
 	/**
 	 * format properties as part of SQL query
 	 *
@@ -950,6 +1057,12 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return $str;
 	}
 
+	/**
+	 * @param string[] $row
+	 * @param string $resourceName
+	 * @return mixed
+	 * @throws \Exception
+	 */
 	public static function rowToCacheResource($row, $resourceName)
 	{
 		try {
@@ -962,6 +1075,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param mixed $resource
+	 */
 	private function writeBackNumberOfHits($resource)
 	{
 		try {
@@ -977,7 +1093,14 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	}
 
 	/**
-	 * get a db connection
+	 * @param string $configStr
+	 * @param string $type
+	 * @param string $serverName
+	 * @param string $port
+	 * @param string $dbName
+	 * @param string $username
+	 * @param string $password
+	 * @throws \Exception
 	 */
 	private function parseConfig($configStr, &$type, &$serverName, &$port, &$dbName, &$username, &$password)
 	{
@@ -1000,17 +1123,22 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $resourceName
+	 * @param \Foomo\Cache\Persistence\Expr $expression
+	 * @return string
+	 */
 	public function getExpressionInterpretation($resourceName, $expression)
 	{
 		$tableName = self::tableNameFromResourceName($resourceName);
 		$parameterStack = array();
 		
-		$parameterTypes = \Foomo\Cache\Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
+		$parameterTypes = Proxy::getEmptyResourceFromResourceName($resourceName)->propertyTypes;
 		//if we could not find the types any search will result empty, hence return empty iterator
 		if (is_null($parameterTypes)) {
 			trigger_error('parameterTypes were null', E_USER_ERROR);
 		} else {
-			$sql = \Foomo\Cache\Persistence\Queryable\PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName, $parameterTypes);
+			$sql = PDOExpressionCompiler::buildSQLQuery($expression, $parameterStack, $tableName, $parameterTypes);
 			$sql .= ";";
 
 			//change the ? with data from parameterStack
@@ -1033,7 +1161,6 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * check if storage structure (table) exists for resource
 	 *
 	 * @param string $resourceName
-	 *
 	 * @return bool
 	 */
 	public function storageStructureExists($resourceName)
@@ -1046,9 +1173,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 * validates storage structure against resource annotation
 	 *
 	 * @param string $resourceName
-	 *
 	 * @param bool $verbose do we output to stdout
-	 *
 	 * @return boolean true if valid
 	 */
 	public function validateStorageStructure($resourceName, $verbose = false)
@@ -1151,6 +1276,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 		return $ret;
 	}
+
 	/**
 	 * tells what type the annotation expects the db colum to be, i.e. what the annotation maps to
 	 *
@@ -1228,6 +1354,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return null;
 	}
 
+	/**
+	 * @param string $type
+	 * @return string
+	 */
 	private static function removeTypeBraces($type)
 	{
 		$pos = strpos($type, '(');
@@ -1238,6 +1368,11 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 	}
 
+	/**
+	 * @param string $columnName
+	 * @param string $tableName
+	 * @return null|string
+	 */
 	private function getDBColumnType($columnName, $tableName)
 	{
 		$tableInformation = $this->retrieveTableInformation($tableName);
@@ -1253,6 +1388,10 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		return null;
 	}
 
+	/**
+	 * @param string $table
+	 * @return string[]
+	 */
 	private function retrieveTableInformation($table)
 	{
 		// code is currently specific to mysql....
@@ -1282,5 +1421,4 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 		}
 		return $results;
 	}
-
 }
