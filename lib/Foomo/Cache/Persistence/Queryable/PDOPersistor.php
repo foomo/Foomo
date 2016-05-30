@@ -418,7 +418,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 					$count = $countResult[0] - $offset;
 					if ($count < 0) {
 						$count = 0;
-					} elseif ($count > $limit) {
+					} elseif ($limit > 0 && $count > $limit) {
 						$count = $limit;
 					}
 				}

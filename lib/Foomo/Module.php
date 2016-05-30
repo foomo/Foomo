@@ -37,7 +37,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
-	const VERSION = '0.4.11';
+	const VERSION = '0.4.12';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods
