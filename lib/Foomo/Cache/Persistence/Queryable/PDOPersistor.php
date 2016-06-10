@@ -505,6 +505,9 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 */
 	protected function createDatabaseIfNotExists($databaseName)
 	{
+		if ($this->type == 'sqlite') {
+			return;
+		}
 		$this->adminDatabaseQuery("create cache database", 'CREATE DATABASE IF NOT EXISTS ' . $databaseName);
 	}
 
@@ -513,6 +516,11 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 	 */
 	protected function dropDatabase($databaseName)
 	{
+		if ($this->type == 'sqlite') {
+			$this->pdo = null;
+			unlink($this->databaseName);
+			return;
+		}
 		$this->adminDatabaseQuery("drop cache database", "DROP DATABASE " . $databaseName);
 	}
 
