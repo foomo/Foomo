@@ -47,6 +47,8 @@ class Simple {
 	 */
 	public $stopWatchPoints = array();
 
+	private $maxMarkerLength = 70;
+
 	/**
 	 * you should use the static interface
 	 * @internal
@@ -142,19 +144,21 @@ class Simple {
 	public function addMarker($name)
 	{
 		$this->points[] = array(self::microTime(), $name);
+		$this->maxMarkerLength = max($this->maxMarkerLength, strlen($name));
 	}
 
 	public function clear()
 	{
 		$this->points = array();
 		$this->stopWatchPoints = array();
+		$this->maxMarkerLength = 70;
 	}
 	public function getStats()
 	{
 		$ret = __CLASS__ . ' ' . date('Y-m-d H:i:s', time()) . ' total time ' . $this->getTotalTime() . '' . PHP_EOL;
 		for ($i = 1; $i < count($this->points); $i++) {
 			$lineTitle = $this->points[$i][1];
-			$lineTitle .= str_repeat('.', 60 - strlen($lineTitle)) . '|...';
+			$lineTitle .= str_repeat('.', $this->maxMarkerLength - strlen($lineTitle)) . '|...';
 			$ret .= $lineTitle . $this->subtract($this->points[$i][0], $this->points[$i - 1][0]) . PHP_EOL;
 		}
 		if (count($this->stopWatchPoints) > 0) {
