@@ -313,7 +313,8 @@ class Utils
 			}
 		}
 		if (isset($_SERVER['HTTP_HOST'])) {
-			$host = $_SERVER['HTTP_HOST'];
+            $host = "paperroll-local-test.bestbytes.net";
+			//$host = $_SERVER['HTTP_HOST'];
 		} else {
 			$host = 'localhost';
 		}
