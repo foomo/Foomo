@@ -189,11 +189,7 @@ class BrowserCache {
 	 */
 	public static function getDate($time)
 	{
-		$def = date_default_timezone_get();
-		date_default_timezone_set('Europe/London');
-		$ret = date('D, d M Y H:i:s T', $time);
-		date_default_timezone_set($def);
-		return $ret;
+		return gmdate('D, d M Y H:i:s T', $time);
 	}
 
 	/**
