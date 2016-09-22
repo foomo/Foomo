@@ -333,7 +333,7 @@ class Session
 		if ($sendCookie && !self::$disabled) {
 			$lifetime = (int) ini_get('session.cookie_lifetime');
 			$expire = ($lifetime == 0) ? 0 : time() + $lifetime;
-			setcookie($conf->name, $sessionId, $expire, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), $secure); //, ini_get('session.cookie_httponly'));
+			setcookie($conf->name, $sessionId, $expire, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), $secure, ini_get('session.cookie_httponly'));
 		}
 		return $sessionId;
 	}
