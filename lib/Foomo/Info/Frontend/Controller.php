@@ -18,6 +18,7 @@
  */
 
 namespace Foomo\Info\Frontend;
+use Foomo\Cache\Manager;
 
 /**
  * @link www.foomo.org
@@ -58,7 +59,14 @@ class Controller
 	 */
 	public function actionApc()
 	{
-		if(version_compare(phpversion('apc'), '4.0.0') >= 0) {
+		$fastPersistor = Manager::getFastPersistor();
+		if (get_class($fastPersistor) == 'Foomo\Cache\Persistence\Fast\APCUPersistor') {
+			if (version_compare(phpversion('apcu'), '5.0.0') >= 0) {
+				$script = 'apcu5.php';
+			} else {
+				$script = 'apcu.php';
+			}
+		} elseif (version_compare(phpversion('apc'), '4.0.0') >= 0) {
 			$script = 'apcu.php';
 		} else {
 			$script = 'apc.php';
