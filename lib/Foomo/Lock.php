@@ -26,6 +26,7 @@ class Lock {
 	 */
 	public static function lock($lockName, $blocking = true, $lockData = null)
 	{
+
 		$lockFileHandle = self::getLockHandle($lockName);
 		if (!$lockFileHandle) {
 			return false;
@@ -171,6 +172,13 @@ class Lock {
 	private static function getLockHandle($lockName)
 	{
 		$lockFile = self::getLockFile($lockName);
+
+		//@todo: this is a hack - flock otherwise dies randomly on NFS for docker for mac !!!
+		if (\Foomo\Config::getMode() == \Foomo\Config::MODE_TEST) {
+			touch($lockFile);
+		}
+		// end of hack
+
 		$lockFileHandle = fopen($lockFile, "w+");
 		return $lockFileHandle;
 	}
