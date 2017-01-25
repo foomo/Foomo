@@ -122,23 +122,23 @@ class HTMLDocument {
 		$this->document['body']['onLoad'] = '';
 		$this->document['body']['javaScript'] = '';
 	}
-	
+
 	const IE_COMPATIBILITY_MODE_IE7 = 'IE=7';
 	const IE_COMPATIBILITY_MODE_IE7_EMULATE = 'EmulateIE7';
 	const IE_COMPATIBILITY_MODE_IE8 = 'IE=8';
 	const IE_COMPATIBILITY_MODE_IE8_EMULATE = 'EmulateIE8';
 	const IE_COMPATIBILITY_MODE_EDGE = 'edge';
-	
+
 	public function setIECompatibilityMode($mode)
 	{
 		$this->iECompatibilityMode = $mode;
 	}
-	
+
 	/**
 	 * set the docType (if you know what yut are doing)
 	 *
 	 * @param string $docType doc type
-	 * 
+	 *
 	 * @return \Foomo\HTMLDocument
 	 */
 	public function setDocType($docType)
@@ -161,7 +161,7 @@ class HTMLDocument {
 	 * set the html opening tag
 	 *
 	 * @param string $htmlOpeningTag html opening tag
-	 * 
+	 *
 	 * @return \Foomo\HTMLDocument
 	 */
 	public function setHTMLOpeningTag($htmlOpeningTag)
@@ -305,7 +305,7 @@ class HTMLDocument {
 	 * Add HTML to the body of the HTML Document
 	 *
 	 * @param string $HTML arbitrary HTML - we are NOT validating what you add
-	 * @see Foomo\HTMLDocument::indentBlock()
+	 * @see \Foomo\HTMLDocument::indentBlock()
 	 *
 	 * @return \Foomo\HTMLDocument
 	 */
@@ -331,7 +331,7 @@ class HTMLDocument {
 	/**
 	 * add a javascript string to the head - if you want to link to an external Javascript file use @see \Foomo\HTMLDocument::addJavascripts
 	 *
-	 * @see Foomo\HTMLDocument::addJavascripts()
+	 * @see \Foomo\HTMLDocument::addJavascripts()
 	 * @param string $javascript
 	 *
 	 * @return \Foomo\HTMLDocument
@@ -379,9 +379,9 @@ class HTMLDocument {
 
 
 	/**
-	 * add a javascript string to the body - if you want to link to an external Javascript file use @see Foomo\HTMLDocument::addJavascripts
+	 * add a javascript string to the body - if you want to link to an external Javascript file use @see \Foomo\HTMLDocument::addJavascripts
 	 *
-	 * @see Foomo\HTMLDocument::addJavascripts()
+	 * @see \Foomo\HTMLDocument::addJavascripts()
 	 * @param string $javascript
 	 *
 	 * @return \Foomo\HTMLDocument
@@ -396,7 +396,7 @@ class HTMLDocument {
 	 * add links to external Javascript files to the end of the body
 	 *
 	 * @example <code>$bert->HTMLDocument->addJavascripts(array('/tm/js/script.js', 'anotherscript.js'));</code>
-	 * @see Foomo\HTMLDocument::addJavascript()
+	 * @see \Foomo\HTMLDocument::addJavascript()
 	 * @param array $jsLinks
 	 *
 	 * @return \Foomo\HTMLDocument
@@ -497,7 +497,7 @@ class HTMLDocument {
 	 * magic to string
 	 *
 	 * @return string
-	 * @see Foomo\HTMLDocument::output()
+	 * @see \Foomo\HTMLDocument::output()
 	 */
 	public function __tostring()
 	{
@@ -541,7 +541,7 @@ class HTMLDocument {
 		$meta = array();
 		$tagSuffix = '>';
 		$output = '';
-		$this->document['head']['meta'] .= '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">';
+		$this->document['head']['meta'] .= '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">' . PHP_EOL;
 
 		$this->addMeta($meta);
 		foreach ($this->metaData as $key => $val) {
@@ -641,14 +641,14 @@ class HTMLDocument {
 	private function addJSLinksToOutput(array $jsLinks, &$output)
 	{
 		foreach($jsLinks as $jsLink) {
-			$output .= '<script language="JavaScript" src="' . htmlspecialchars($jsLink) . '" type="text/javascript"></script>' . PHP_EOL;
+			$output .= '<script src="' . htmlspecialchars($jsLink) . '" type="text/javascript"></script>' . PHP_EOL;
 		}
 	}
 	private function addJSToOutput($js, &$output)
 	{
 		if(!empty($js)) {
 			$output .=
-				'<script language="JavaScript" type="text/javascript">' . PHP_EOL . '// <![CDATA[ <!--' . PHP_EOL .
+				'<script type="text/javascript">' . PHP_EOL . '// <![CDATA[ <!--' . PHP_EOL .
 				$js . PHP_EOL .
 				'// --> ]]>' . PHP_EOL . '</script>' . PHP_EOL
 			;
@@ -707,7 +707,7 @@ class HTMLDocument {
 	/**
 	 * Add a CSS Stylesheet String to the head of your document
 	 *
-	 * @see Foomo\HTMLDocument::addStylesheets()
+	 * @see \Foomo\HTMLDocument::addStylesheets()
 	 * @param string $styleString CSS Style definition
 	 *
 	 * @return \Foomo\HTMLDocument
@@ -721,7 +721,7 @@ class HTMLDocument {
 	/**
 	 * Add a links to external CSS Stylesheet files to the head of your document
 	 *
-	 * @see Foomo\HTMLDocument::addStylesheet()
+	 * @see \Foomo\HTMLDocument::addStylesheet()
 	 * @example <code>$bert->HTMLDocument->addStylesheets(array('my.css', 'path/to/my/other.css'))</code>
 	 * @param array $styleString CSS Style definition
 	 *
@@ -890,7 +890,7 @@ class HTMLDocument {
 	/**
 	 * Set a value within a dynamic stylesheet
 	 *
-	 * @see Foomo\HTMLDocument::addDynCssSheet
+	 * @see \Foomo\HTMLDocument::addDynCssSheet
 	 *
 	 * @param string $dynSheetName name of the sheet previously added
 	 * @param string $name name of the value
