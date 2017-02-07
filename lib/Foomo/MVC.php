@@ -110,6 +110,7 @@ class MVC
 	 * @param boolean $forceBaseURL        force injection of a baseURL
 	 * @param boolean $forceNoHTMLDocument force no html document rendering
 	 * @param string  $urlHandlerClass
+	 * @param boolean $catchExceptions
 	 * @return string
 	 */
 	public static function run(
@@ -117,7 +118,8 @@ class MVC
 		$baseURL = null,
 		$forceBaseURL = false,
 		$forceNoHTMLDocument = false,
-		$urlHandlerClass = 'Foomo\\MVC\\URLHandler'
+		$urlHandlerClass = 'Foomo\\MVC\\URLHandler',
+		$catchExceptions = true
 	)
 	{
 		self::$aborted = false;
@@ -133,6 +135,10 @@ class MVC
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
 
 		$exception = self::execute($app, $handler);
+
+		if (!is_null($exception) && $catchExceptions === false) {
+			throw $exception;
+		}
 
 		$ret = null;
 		if (!self::$aborted) {
