@@ -281,9 +281,10 @@ class MVC
 	 * @param null        $baseURL
 	 * @param bool        $forceNoHTMLDocument
 	 * @param string      $urlHandlerClass
+	 * @param boolean $catchExceptions
 	 * @return string|HTMLDocument
 	 */
-	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true, $urlHandlerClass = 'Foomo\\MVC\\URLHandler')
+	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true, $urlHandlerClass = 'Foomo\\MVC\\URLHandler', $catchExceptions=false)
 	{
 		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
 
@@ -306,7 +307,11 @@ class MVC
 			call_user_func_array($callable, $parameters);
 			$app->model = $app->controller->model;
 		} catch (\Exception $exception) {
-			trigger_error($exception->getMessage());
+			if (!is_null($exception) && $catchExceptions === false) {
+				throw $exception;
+			} else {
+				trigger_error($exception->getMessage());
+			}
 		}
 
 		$handler->lastAction = $actionName;
