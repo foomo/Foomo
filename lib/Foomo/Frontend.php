@@ -65,7 +65,7 @@ class Frontend extends \Foomo\MVC\AbstractApp
 			foreach(array('57', '72', '114') as $size) {
 				$size = $size . 'x' . $size;
 				$doc->addHead(
-					'<link rel="apple-touch-icon" size="' . $size . '" href="' . $favRoot . '/apple-touch-icon-' . $size . '" />'
+					'<link rel="apple-touch-icon" size="' . $size . '" href="' . $favRoot . '/apple-touch-icon-' . $size . '.png" />'
 				);
 			}
 			$doc
