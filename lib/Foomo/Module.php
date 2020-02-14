@@ -117,6 +117,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Php', 'PHP', self::NAME, 'Foomo.Info', 'php'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Apc', 'APC', self::NAME, 'Foomo.Info', 'apc', array(), '_blank'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.Memcache', 'Memcache', self::NAME, 'Foomo.Info', 'memcache', array(), '_blank'),
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Info.OpCache', 'OpCache', self::NAME, 'Foomo.Info', 'opCache', array(), '_blank'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Jobs', 'Jobs', self::NAME, 'Foomo.Jobs'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Auth', 'Auth', self::NAME, 'Foomo.BasicAuth'),
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.System.Log', 'Log', self::NAME, 'Foomo.Log'),
