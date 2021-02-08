@@ -184,7 +184,7 @@ class Reader implements \Iterator {
 									if ($parsedValue != $entry->$propName) {
 										trigger_error('httpd log and session entry ot of sync with entry: "' . ($entry->$propName) . '" != httpd: "' . $parsedValue . '" for ' . $propName, E_USER_WARNING);
 									}
-									continue;
+									continue 2;
 								}
 								break;
 							case '%X':
@@ -203,7 +203,7 @@ class Reader implements \Iterator {
 								break;
 							case '%f':
 								if(!$entryWasEmpty) {
-									continue;
+									continue 2;
 								}
 								break;
 							case '%t':
@@ -212,7 +212,7 @@ class Reader implements \Iterator {
 									$parsedValue = (int) $parsedValue;
 								} else {
 									// ours is better
-									continue;
+									continue 2;
 								}
 								break;
 							case '%D':
