@@ -19,9 +19,7 @@
 
 namespace Foomo;
 use Foomo\Cache\Invalidator;
-use Foomo\Config\AbstractConfig;
 use Foomo\Modules\MakeResult;
-use Foomo\Modules\Manager;
 
 /**
  * foomo core module
@@ -37,7 +35,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	//---------------------------------------------------------------------------------------------
 
 	const NAME = 'Foomo';
-	const VERSION = '0.5.1';
+	const VERSION = '0.5.7';
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Overriden static methods

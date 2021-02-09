@@ -110,6 +110,7 @@ class MVC
 	 * @param boolean $forceBaseURL        force injection of a baseURL
 	 * @param boolean $forceNoHTMLDocument force no html document rendering
 	 * @param string  $urlHandlerClass
+	 * @param boolean $catchExceptions
 	 * @return string
 	 */
 	public static function run(
@@ -117,7 +118,8 @@ class MVC
 		$baseURL = null,
 		$forceBaseURL = false,
 		$forceNoHTMLDocument = false,
-		$urlHandlerClass = 'Foomo\\MVC\\URLHandler'
+		$urlHandlerClass = 'Foomo\\MVC\\URLHandler',
+		$catchExceptions = true
 	)
 	{
 		self::$aborted = false;
@@ -133,6 +135,10 @@ class MVC
 		Logger::transactionBegin($transActionName = __METHOD__ . ' ' . $handler->getControllerId());
 
 		$exception = self::execute($app, $handler);
+
+		if (!is_null($exception) && $catchExceptions === false) {
+			throw $exception;
+		}
 
 		$ret = null;
 		if (!self::$aborted) {
@@ -275,9 +281,10 @@ class MVC
 	 * @param null        $baseURL
 	 * @param bool        $forceNoHTMLDocument
 	 * @param string      $urlHandlerClass
+	 * @param boolean $catchExceptions
 	 * @return string|HTMLDocument
 	 */
-	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true, $urlHandlerClass = 'Foomo\\MVC\\URLHandler')
+	public static function runAction($app, $action, $parameters = array(), $baseURL = null, $forceNoHTMLDocument = true, $urlHandlerClass = 'Foomo\\MVC\\URLHandler', $catchExceptions=false)
 	{
 		$handler = self::prepare($app, $baseURL, true, $urlHandlerClass);
 
@@ -300,7 +307,11 @@ class MVC
 			call_user_func_array($callable, $parameters);
 			$app->model = $app->controller->model;
 		} catch (\Exception $exception) {
-			trigger_error($exception->getMessage());
+			if (!is_null($exception) && $catchExceptions === false) {
+				throw $exception;
+			} else {
+				trigger_error($exception->getMessage());
+			}
 		}
 
 		$handler->lastAction = $actionName;

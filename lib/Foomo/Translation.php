@@ -45,7 +45,7 @@ class Translation
 	 */
 	public function __construct($localeRoots = null, $namespace = null, $localeChain = null)
 	{
-		if(!is_null($localeRoots) || !is_null($localeRoots)) {
+		if (!is_null($localeRoots) || !is_null($localeRoots)) {
 			if (is_null($localeChain)) {
 				$localeChain = self::getDefaultLocaleChain();
 			}
@@ -54,7 +54,7 @@ class Translation
 		}
 	}
 
-	private static function getDefaultLocaleChain()
+	public static function getDefaultLocaleChain()
 	{
 		if (!isset(self::$_DEFAULT_LOCALE_CHAIN)) {
 			// do not pull the default chain into getDefaultChainFromEnv(), because that will break testability
@@ -62,7 +62,6 @@ class Translation
 		}
 		return self::$_DEFAULT_LOCALE_CHAIN;
 	}
-
 
 
 	/**
@@ -75,7 +74,7 @@ class Translation
 	 */
 	public static function getExtendedTranslation(array $namespaceRoots, $localeChain = null)
 	{
-		if(is_null($localeChain)) {
+		if (is_null($localeChain)) {
 			$localeChain = self::getDefaultLocaleChain();
 		}
 		return \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetExtendedTranslation', array($namespaceRoots, $localeChain));
@@ -96,7 +95,7 @@ class Translation
 	{
 		$translation = new static();
 		$translation->localeChain = $localeChain;
-		foreach($namespaceRoots as $namespace => $localeRoots) {
+		foreach ($namespaceRoots as $namespace => $localeRoots) {
 			$translation->_table = array_merge($translation->_table, \Foomo\Cache\Proxy::call(__CLASS__, 'cachedGetLocaleTable', array($localeRoots, $translation->localeChain, $namespace)));
 		}
 		return $translation;
@@ -121,22 +120,22 @@ class Translation
 		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 			// fetch locales and quality from accept language header (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4)
 			$locales = [];
-			foreach(explode(',', $_SERVER["HTTP_ACCEPT_LANGUAGE"]) as $acceptLanguage) {
+			foreach (explode(',', $_SERVER["HTTP_ACCEPT_LANGUAGE"]) as $acceptLanguage) {
 				$pos = strpos($acceptLanguage, ';q=');
-				if($pos === false) {
+				if ($pos === false) {
 					$locale = $acceptLanguage;
 					$quality = 1.0;
 				} else {
 					$locale = substr($acceptLanguage, 0, $pos);
-					$quality = substr($acceptLanguage, $pos+3);
+					$quality = substr($acceptLanguage, $pos + 3);
 				}
 
 				// format locale as any two-letter primary-tag is an ISO-639 language abbreviation and any two-letter initial subtag is an ISO-3166 country code
 				// http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.10
 				$locale = strtolower($locale);
 				$localeParts = explode('-', $locale);
-				if(count($localeParts) == 2) {
-					if($localeParts[1] == '*') {
+				if (count($localeParts) == 2) {
+					if ($localeParts[1] == '*') {
 						$locale = $localeParts[0];
 					} else {
 						$locale = $localeParts[0] . '_' . strtoupper($localeParts[1]);
@@ -144,7 +143,7 @@ class Translation
 				}
 
 				// filter asterisk
-				if($locale == '*') {
+				if ($locale == '*') {
 					continue;
 				}
 
@@ -155,12 +154,12 @@ class Translation
 			}
 
 			// sort locales by quality
-			usort($locales, function($a, $b) {
-				return($a['quality'] <= $b['quality']);
+			usort($locales, function ($a, $b) {
+				return ($a['quality'] <= $b['quality']);
 			});
 
 			$localeChain = [];
-			foreach($locales as $locale) {
+			foreach ($locales as $locale) {
 				$localeChain[] = $locale['locale'];
 			}
 
@@ -184,11 +183,11 @@ class Translation
 	 */
 	public function hasMessage($msgId, $count = null)
 	{
-		if(is_string($msgId)) {
+		if (is_string($msgId)) {
 			return isset($this->_table[$msgId]);
-		} else if(is_array($msgId) && !empty($msgId) && !is_null($count)) {
+		} else if (is_array($msgId) && !empty($msgId) && !is_null($count)) {
 			$id = $this->getMessageIdForCount($msgId, $count);
-			if(!is_null($id)) {
+			if (!is_null($id)) {
 				return isset($this->_table[$id]);
 			} else {
 				return false;
@@ -208,6 +207,7 @@ class Translation
 		}
 		return null;
 	}
+
 	/**
 	 * @param string|array $msgId or array msgId => minCount
 	 * @param int $count
@@ -222,20 +222,23 @@ class Translation
 			return isset($this->_table[$msgId]) ? $this->_table[$msgId] : $msgId;
 		}
 	}
+
 	/**
 	 * internal message table
-	 * 
+	 *
 	 * @return array array('KEY' => 'value')
 	 */
 	public function getMessageTable()
 	{
 		return $this->_table;
 	}
+
 	public static function getMessage($localeRoots, $resourceName, $localeChain, $msgId, $msgIdPlural = null, $count = null)
 	{
 		$locale = new self($localeRoots, $resourceName, $localeChain);
 		return $locale->_($msgId, $msgIdPlural, $count);
 	}
+
 	/**
 	 *
 	 *
@@ -260,11 +263,11 @@ class Translation
 				$fileName = self::getResourceFileName($localeRoot, $locale, $namespace);
 				if (file_exists($fileName)) {
 					$fileContents = file_get_contents($fileName);
-					if(!empty($fileContents)) {
+					if (!empty($fileContents)) {
 						try {
 							$data = \Foomo\Yaml::parse($fileContents);
 							$ret = array_merge($ret, $data);
-						} catch(\Exception $e) {
+						} catch (\Exception $e) {
 							trigger_error("could not parse yaml: " . $fileName . ' ' . $e->getMessage(), E_USER_WARNING);
 						}
 					} else {
@@ -273,7 +276,7 @@ class Translation
 				}
 
 				// match language of locale, e.g. de.yaml of de_CH
-				if(strlen($locale) > 2 && !in_array(substr($locale, 0, 2), $localeChain)) {
+				if (strlen($locale) > 2 && !in_array(substr($locale, 0, 2), $localeChain)) {
 					$fileName = self::getResourceFileName($localeRoot, substr($locale, 0, 2), $namespace);
 					if (file_exists($fileName)) {
 						$ret = array_merge($ret, \Foomo\Yaml::parse(file_get_contents($fileName)));
@@ -283,11 +286,13 @@ class Translation
 		}
 		return $ret;
 	}
+
 	private static function getResourceFileName($localeRoot, $locale, $namespace)
 	{
-		$fileName = $localeRoot . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR . $locale. '.yml';
+		$fileName = $localeRoot . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR . $locale . '.yml';
 		return $fileName;
 	}
+
 	/**
 	 * get a translation for a module
 	 *

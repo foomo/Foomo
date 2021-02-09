@@ -20,6 +20,7 @@
 namespace Foomo\Modules;
 
 use DirectoryIterator;
+use Foomo\Cache\Proxy;
 use Foomo\MVC;
 use Foomo\Timer;
 use Foomo\Cache\Proxy as CacheProxy;
@@ -62,16 +63,31 @@ class Manager
 	 */
 	public static function getDocumentRootModule()
 	{
+		return Proxy::call(__CLASS__, 'cachedGetDocumentRootModule');
+	}
+
+	/**
+	 * @Foomo\Cache\CacheResourceDescription('dependencies'='Foomo\AutoLoader::cachedGetClassMap')
+	 *
+	 * @return string | null
+	 *
+	 */
+	public static function cachedGetDocumentRootModule()
+	{
+		$module = null;
 		if(!empty($_SERVER['DOCUMENT_ROOT'])) {
 			$realDocRoot = realpath($_SERVER['DOCUMENT_ROOT']);
 			foreach(self::getEnabledModules() as $enabledModuleName) {
 				$moduleHTDocs = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $enabledModuleName . DIRECTORY_SEPARATOR . 'htdocs';
 				if(file_exists($moduleHTDocs) && is_dir($moduleHTDocs) && $realDocRoot == realpath($moduleHTDocs)) {
-					return $enabledModuleName;
+					$module = $enabledModuleName;
+					return $module;
 				}
 			}
 		}
+		return $module;
 	}
+
 
 	/**
 	 * @internal
@@ -244,12 +260,25 @@ class Manager
 
 	/**
 	 *
+	 *
 	 * find out to which module a class belongs to
 	 *
 	 * @param string $className name of the class
 	 * @return string name od the corresponding module
 	 */
 	public static function getClassModule($className)
+	{
+		return Proxy::call(__CLASS__, "cachedGetClassModule", [$className]);
+	}
+
+	/**
+	 * @Foomo\Cache\CacheResourceDescription('dependencies'='Foomo\AutoLoader::cachedGetClassMap')
+	 *
+	 * @param $className
+	 *
+	 * @return string|null
+	 */
+	public static function cachedGetClassModule($className)
 	{
 		$classFileName = AutoLoader::getClassFileName($className);
 		if ($classFileName) {
@@ -264,7 +293,10 @@ class Manager
 		} else {
 			trigger_error('the class is not in the scope of the autoloader ' . $className, E_USER_WARNING);
 		}
+		return null;
 	}
+
+
 
 	/**
 	 * get lib folders

@@ -159,6 +159,7 @@ class Router
 				$path = $_SERVER['REQUEST_URI'];
 			}
 		}
+		$path = parse_url($path)['path'];
 		$this->currentPath = $path;
 		foreach($this->routes as $route) {
 			if($route->matches($path)) {

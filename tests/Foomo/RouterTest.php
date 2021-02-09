@@ -42,6 +42,7 @@ class RouterTest extends TestCase
 			))
 		;
 		$this->assertEquals($this->doTheSepp('foo', 'bar'), $router->execute('/foo/superbar/test-foo'));
+		$this->assertEquals($this->doTheSepp('foo', 'bar'), $router->execute('/foo/superbar/test-foo?a=b'));
 		$this->assertEquals($this->doTheSepp(null, 'bar'), $router->execute('/foo/bar'));
 		$this->assertEquals(self::staticTest('static'), $router->execute('/static/static'));
 		$this->assertEquals($this->doTheSepp(null, null), $router->execute('/bla'));
