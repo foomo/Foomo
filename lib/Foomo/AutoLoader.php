@@ -299,6 +299,7 @@ class AutoLoader
 
 		foreach (Manager::getLibFolders() as $rootFolder) {
 			$rootFolder = trim($rootFolder);
+
 			if (strpos($rootFolder, '.') === 0) {
 				trigger_error('discarding a relative path ' . $rootFolder, E_USER_NOTICE);
 			} else {
@@ -309,6 +310,7 @@ class AutoLoader
 		foreach ($fileArray as $fileName) {
 			foreach ($this->validFileEndings as $validFileEnding) {
 				if (substr($fileName, strlen($fileName) - strLen($validFileEnding)) == $validFileEnding) {
+
 					$classNames = $this->scanForClasses($fileName);
 					foreach ($classNames as $className) {
 						if (array_key_exists($className, $classMap) && $classMap[$className] != $fileName) {
@@ -469,7 +471,7 @@ class AutoLoader
 	{
 		$classNames = array();
 		$fileContents = file_get_contents($fileName);
-		$tokens = token_get_all($fileContents);
+		$tokens = token_get_all($fileContents, TOKEN_PARSE);
 		if (!defined('T_NAMESPACE')) {
 			// if we do not know namespaces yet
 			$lastError = error_get_last();

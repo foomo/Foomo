@@ -2,7 +2,7 @@
 /* @var $view Foomo\MVC\View */
 /* @var $model Foomo\Frontend\Model */
 
-$level = 0;
+
 
 function renderLeaves($view, $leaf, $level) {
 
@@ -54,17 +54,17 @@ function renderBreadcrumb($view, $leaf) {
 		}
 
 		if (!empty ($subLeaf['leaves']) ) {
-			$output .= renderBreadcrumb($view, $subLeaf);
+			$output .= \renderBreadcrumb($view, $subLeaf);
 		}
 
 	}
 
 	return $output;
 }
-
+$level = 0;
 ?>
 <nav id="menuMain">
-	<?= renderLeaves($view, $model->navi['Root'], $level); ?>
+	<?= \renderLeaves($view, $model->navi['Root'], $level); ?>
 </nav>
 <div id="breadcrumb">
 	<a href="<?= \htmlspecialchars($view->url('default', array())) ?>">Home</a><?= renderBreadcrumb($view, $model->navi['Root']); ?>

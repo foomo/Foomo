@@ -82,4 +82,12 @@ class Controller
 	{
 		header('Location: ' . \Foomo\ROOT_HTTP . '/memcache.php');
 	}
+
+	/**
+	 *
+	 */
+	public function actionOpCache()
+	{
+		header('Location: ' . \Foomo\ROOT_HTTP . '/opcache.php');
+	}
 }
