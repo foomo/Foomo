@@ -19,6 +19,7 @@
 namespace Foomo\MVC\Controller;
 
 use Foomo\AutoLoader;
+use Foomo\Reflection\Utils;
 use ReflectionMethod,
 	ReflectionClass;
 
@@ -134,12 +135,12 @@ class ActionReader
 			/* @var $parm \ReflectionParameter */
 			$newParm = self::extractParameter($parm->getName(), $method->getDocComment());
 			//die('a');
-			if (is_object($parm->getClass())) {
-				$newParm->type = $parm->getClass()->getName();
+			if (is_object(Utils::getClass($parm))) {
+				$newParm->type = Utils::getClass($parm)->getName();
 			}
-			if ($parm->getClass()) {
-				$newParm->type = $parm->getClass()->getName();
-			} else if ($parm->isArray()) {
+			if (Utils::getClass($parm)) {
+				$newParm->type = Utils::getClass($parm)->getName();
+			} else if (Utils::isArray($parm)) {
 				$newParm->type = 'array';
 			}
 			$newParm->optional = $parm->isOptional();

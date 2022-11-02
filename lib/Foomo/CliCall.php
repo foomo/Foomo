@@ -250,8 +250,8 @@ class CliCall
 			// report
 			$this->runTime = microtime(true) - $start;
 			$this->exitStatus = $status['exitcode'];
-			$this->stdErr = trim($this->stdErr);
-			$this->stdOut = trim($this->stdOut);
+			$this->stdErr = is_null($this->stdErr) ? $this->stdErr : trim($this->stdErr);
+			$this->stdOut = is_null($this->stdOut) ? $this->stdOut : trim($this->stdOut);
 			$this->updateReport();
 		} else {
 			trigger_error('could not spawn process', E_USER_ERROR);

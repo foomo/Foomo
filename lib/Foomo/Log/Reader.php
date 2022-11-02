@@ -53,24 +53,36 @@ class Reader implements \Iterator {
 	/**
 	 * current entry
 	 *
-	 * @return \Foomo\Log\Entry
+	 * @return mixed
+	 * return type was \Foomo\Log\Entry but is now changed to 'mixed' because this is the return type of the Iterator interface
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->current;
 	}
 
-	public function next()
+	/**
+	 * @return void
+	 */
+	public function next(): void
 	{
 
 	}
 
+	/**
+	 * @return mixed
+	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 
 	}
 
-	public function valid()
+	/**
+	 * @return bool
+	 */
+	public function valid(): bool
 	{
 		if (!$this->fp) {
 			return false;
@@ -94,7 +106,10 @@ class Reader implements \Iterator {
 		fseek($this->fp, $offset);
 	}
 
-	public function rewind()
+	/**
+	 * @return void
+	 */
+	public function rewind(): void
 	{
 		if ($this->fp) {
 			\fseek($this->fp, 0);

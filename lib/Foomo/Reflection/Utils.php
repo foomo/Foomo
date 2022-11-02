@@ -18,7 +18,8 @@
  */
 
 namespace Foomo\Reflection;
-
+use ReflectionParameter,
+	ReflectionClass;
 /**
  * @link	www.foomo.org
  * @license www.gnu.org/licenses/lgpl.txt
@@ -43,5 +44,27 @@ class Utils
 			$reflection = new \ReflectionClass($className);
 			return $reflection->newInstanceArgs($args);
 		}
+	}
+
+	public static function isPHP8(): bool {
+		return strpos(phpversion(), '8') === 0;
+	}
+
+	/**
+	 * Workaround for replacing the PHP 8 deprecated \ReflectionParameter::getClass() function
+	 * @param $param \ReflectionParameter
+	 * @return null|\ReflectionClass
+	 */
+	public static function getClass($param) {
+		return $param->getType() && !$param->getType()->isBuiltin() ? new ReflectionClass($param->getType()->getName()) : null;
+	}
+
+	/**
+	 * Workaround for replacing the PHP 8 deprecated \ReflectionParameter::isArray() function
+	 * @param $param \ReflectionParameter
+	 * @return bool
+	 */
+	public static function isArray($param) {
+		return $param->getType() && $param->getType()->getName() === 'array';
 	}
 }

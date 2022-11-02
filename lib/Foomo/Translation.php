@@ -155,7 +155,7 @@ class Translation
 
 			// sort locales by quality
 			usort($locales, function ($a, $b) {
-				return ($a['quality'] <= $b['quality']);
+				return ($a['quality'] <= $b['quality'] ? -1 : 1);
 			});
 
 			$localeChain = [];

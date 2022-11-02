@@ -55,11 +55,12 @@ class FS implements GCInterface {
 		return;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		$this->key ++;
 	}
-	public function valid()
+	public function valid(): bool
 	{
 		while (true) {
 			$this->dirIterator->next();
@@ -103,15 +104,17 @@ class FS implements GCInterface {
 		}
 
 	}
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->key;
 	}
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->current;
 	}
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->dirIterator = new DirectoryIterator(ini_get('session.save_path'));
 		$this->valid = false;

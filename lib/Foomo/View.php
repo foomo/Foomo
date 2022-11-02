@@ -126,7 +126,7 @@ class View
 	 */
 	public function escape($string)
 	{
-		return htmlspecialchars($string);
+		return is_null($string) ? '' : htmlspecialchars($string);
 	}
 
 	//---------------------------------------------------------------------------------------------

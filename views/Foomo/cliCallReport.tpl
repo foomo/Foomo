@@ -6,7 +6,7 @@
   
     <?php echo implode(PHP_EOL . '    ', explode(';', $model->lastCommandExecuted)) ?>
     
-<? if(count($model->envVars)>0): ?>  	
+<? if(!is_null($model->envVars) && count($model->envVars)>0): ?>
   environement variables exported:
  
 <?php foreach($model->envVars as $key => $value): ?>

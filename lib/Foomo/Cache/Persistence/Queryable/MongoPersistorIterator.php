@@ -42,6 +42,7 @@ class MongoPersistorIterator extends \Foomo\Cache\CacheResourceIterator
 	/**
 	 * @return \Foomo\Cache\CacheResource
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		$document = $this->mongoCursor->current();
@@ -52,27 +53,29 @@ class MongoPersistorIterator extends \Foomo\Cache\CacheResourceIterator
 		}
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		return $this->mongoCursor->next();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->mongoCursor->key;
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->mongoCursor->valid();
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
-		return $this->mongoCursor->rewind();
+		$this->mongoCursor->rewind();
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return $this->mongoCursor->count();
 	}

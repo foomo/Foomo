@@ -79,6 +79,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	 * @return \Foomo\Cache\CacheResource|null
 	 * @throws \Exception
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		if ($this->pdoStatement && $this->count != 0) {
@@ -91,7 +92,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	/**
 	 * @throws \Exception
 	 */
-	public function next()
+	public function next(): void
 	{
 		if ($this->pdoStatement && $this->count != 0) {
 			$this->currentRow = $this->pdoStatement->fetch(\PDO::FETCH_ASSOC);
@@ -108,6 +109,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	 * @return int
 	 * @throws \Exception
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		if ($this->pdoStatement && $this->count != 0) {
@@ -120,7 +122,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	/**
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		if (!$this->pdoStatement || $this->count == 0) {
 			return false;
@@ -132,7 +134,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	/**
 	 *
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->cursor = 0;
 	}
@@ -140,7 +142,7 @@ class PDOPersistorIterator extends \Foomo\Cache\CacheResourceIterator {
 	/**
 	 * @return integer
 	 */
-	public function count()
+	public function count(): int
 	{
 		if (!$this->pdoStatement) {
 			return 0;

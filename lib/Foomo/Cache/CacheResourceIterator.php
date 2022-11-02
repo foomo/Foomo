@@ -30,32 +30,35 @@ class CacheResourceIterator implements \Iterator, \Countable {
 	protected $count;
 	protected $cursor = 0;
 
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		\trigger_error('implement me', E_USER_ERROR);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		$this->cursor++;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->keys[$this->cursor];
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		return $this->count > $this->cursor;
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->cursor = 0;
 	}
 
-	public function count()
+	public function count(): int
 	{
 		return $this->count;
 	}

@@ -56,12 +56,12 @@ class SQLite implements GCInterface
 		return;
 	}
 
-	public function next()
+	public function next(): void
 	{
 		$this->key++;
 	}
 
-	public function valid()
+	public function valid(): bool
 	{
 		if ($this->key < 0) {
 			$this->key = 0;
@@ -96,17 +96,19 @@ class SQLite implements GCInterface
 		return true;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->key;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->current;
 	}
 
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->rows = Session\Persistence\SQLite::getAllSessions();
 		$this->valid = false;

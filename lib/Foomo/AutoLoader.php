@@ -434,7 +434,9 @@ class AutoLoader
 	 */
 	private static function includeExists($includeFile)
 	{
+		set_error_handler(function() {/* ignore warnings */}, E_WARNING);
 		$fp = @fopen($includeFile, 'r', true);
+		restore_error_handler();
 		$ret = is_resource($fp);
 		if ($ret) {
 			fclose($fp);

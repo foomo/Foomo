@@ -614,8 +614,11 @@ class URLHandler
 			}
 			/* @var $parameter Controller\ActionParameter */
 			switch (true) {
-				case is_scalar($parameter) || is_null($parameter):
+				case is_scalar($parameter):
 					$parameters .= '/' . urlencode($parameter);
+					break;
+				case is_null($parameter):
+					$parameters .= '/';
 					break;
 				case is_array($parameter):
 					$parameterArray = array();

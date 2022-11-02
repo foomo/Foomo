@@ -76,7 +76,7 @@ class Frontend extends \Foomo\MVC\AbstractApp
 					\Foomo\Module::getHtdocsBuildPath('css/module.css')
 				))
 				->addJavascripts(array(
-					\Foomo\ROOT_HTTP . '/js/jquery-1.6.1.min.js',
+					\Foomo\ROOT_HTTP . '/js/jquery-1.6.3.min.js',
 					\Foomo\Module::getHtdocsBuildPath('js/modules.js')
 				))
 			;
