@@ -1,9 +1,0 @@
-{
-    "name": "foomo/foomo",
-	"require": {
-		"foomo/module-installer" : "0.1.0"
-	},
-	"extras": {
-		"super" : "stuff"
-	}
-}

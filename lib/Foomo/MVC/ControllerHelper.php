@@ -52,7 +52,7 @@ class ControllerHelper {
 	public $lastAction;
 	/**
 	 *
-	 * @var path of this controller helper
+	 * @var string path of this controller helper
 	 */
 	public $path;
 	private static $appInstanceCounter = array();

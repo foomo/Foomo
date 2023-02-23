@@ -807,7 +807,7 @@ EOB;
 
 		$j = 0;
 		foreach (ini_get_all('apcu') as $k => $v) {
-			echo "<tr class=tr-$j><td class=td-0>",$k,"</td><td>",str_replace(',',',<br />',$v['local_value']),"</td></tr>\n";
+			echo "<tr class=tr-$j><td class=td-0>",$k,"</td><td>",is_null($v['local_value']) ? '' : str_replace(',',',<br />',$v['local_value']),"</td></tr>\n";
 			$j = 1 - $j;
 		}
 
@@ -1113,6 +1113,24 @@ EOB;
 			echo '<tr class="tr-0"><td><h3>Change Log:</h3><br/>';
 
 			preg_match_all('!<(title|description)>([^<]+)</\\1>!', $rss, $match);
+            foreach ($match[2] as $j => $v) {
+                // skip the two first entries
+                if ($j < 2) {
+                    continue;
+                }
+                if ($j % 2 == 0) {
+					list(, $ver) = explode(' ', $v, 2);
+					if ($i < 0 && version_compare($apcversion, $ver, '>=')) {
+						break;
+					} else if (!$i--) {
+						break;
+					}
+					echo "<b><a href=\"http://pecl.php.net/package/APCu/$ver\">" . htmlspecialchars($v, ENT_QUOTES, 'UTF-8') . "</a></b>";
+				} else {
+					echo "<blockquote>" . nl2br(htmlspecialchars($v, ENT_QUOTES, 'UTF-8')) . "</blockquote>";
+                }
+            }
+            /*
 			next($match[2]); next($match[2]);
 
 			while (list(,$v) = each($match[2])) {
@@ -1126,6 +1144,7 @@ EOB;
 				echo nl2br(htmlspecialchars(current($match[2]), ENT_QUOTES, 'UTF-8'))."</blockquote>";
 				next($match[2]);
 			}
+            */
 			echo '</td></tr>';
 		}
 		echo <<< EOB

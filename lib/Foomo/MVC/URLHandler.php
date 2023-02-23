@@ -178,12 +178,12 @@ class URLHandler
 	 */
 	public function renderURL($className, $methodName = 'actionDefault', $parameters = array())
 	{
-		if (strpos($methodName, '/') === 0) {
+		if (!is_null($methodName) && strpos($methodName, '/') === 0) {
 			// experimental deeplink
 			$ret = $this->baseURL . $methodName;
 		} else {
 			// strip "action" from the method name
-			if (strpos($methodName, 'action') === 0) {
+			if (!is_null($methodName) && strpos($methodName, 'action') === 0) {
 				$methodName = strtolower(substr($methodName, 6, 1)) . substr($methodName, 7);
 			}
 			// start with base

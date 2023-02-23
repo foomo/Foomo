@@ -787,7 +787,7 @@ class PDOPersistor implements \Foomo\Cache\Persistence\QueryablePersistorInterfa
 				$statement->bindParam(':table', $tableName);
 				$statement->execute();
 			} catch (\Exception $e) {
-				trigger_error(__METHOD__ . ' : ' . $statement . ' : ' . $e->getMessage());
+				trigger_error(__METHOD__ . ' : ' . $statement . ' : ' . $e->getMessage(), E_USER_ERROR);
 			}
 		}
 	}

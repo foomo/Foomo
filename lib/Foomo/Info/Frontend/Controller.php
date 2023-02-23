@@ -60,7 +60,7 @@ class Controller
 	public function actionApc()
 	{
 		$fastPersistor = Manager::getFastPersistor();
-		if (get_class($fastPersistor) == 'Foomo\Cache\Persistence\Fast\APCUPersistor') {
+		if (!is_null($fastPersistor) && get_class($fastPersistor) == 'Foomo\Cache\Persistence\Fast\APCUPersistor') {
 			if (version_compare(phpversion('apcu'), '5.0.0') >= 0) {
 				$script = 'apcu5.php';
 			} else {

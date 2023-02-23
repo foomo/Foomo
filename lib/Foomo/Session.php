@@ -52,7 +52,7 @@ class Session
 	 */
 	private static $instance;
 	/**
-	 * @var Session\PersistorInterface
+	 * @var \Foomo\Session\PersistorInterface
 	 * @internal
 	 */
 	public static $persistor;
@@ -69,7 +69,7 @@ class Session
 	 */
 	private $locked = false;
 	/**
-	 * hash of client informations
+	 * hash of client information
 	 *
 	 * @var string
 	 */
